@@ -87,8 +87,9 @@ Molecule parse(const std::string &smi) {
 	size_t pos = 0;
 	std::stack<int> branch_stack;
 	std::map<int, int> ring_openings;
-	std::vector<int> degree; // per-atom bond degree
+	std::vector<int> degree; // per-atom bond degree (counts double/triple bonds by order)
 	int prev_atom = -1;
+	int next_bond_order = 1; // 1=single, 2=double, 3=triple
 
 	while (pos < smi.size()) {
 		char c = smi[pos];
@@ -103,11 +104,15 @@ Molecule parse(const std::string &smi) {
 			if (branch_stack.empty()) return mol;
 			prev_atom = branch_stack.top();
 			branch_stack.pop();
+			next_bond_order = 1;
 			pos++; continue;
 		}
 
-		// Bond symbols — skip, just consume
-		if (c == '-' || c == '=' || c == '#' || c == ':' || c == '/' || c == '\\') {
+		// Bond symbols — record bond order for next bond
+		if (c == '=' || c == '#' || c == '-' || c == ':' || c == '/' || c == '\\') {
+			if (c == '=') next_bond_order = 2;
+			else if (c == '#') next_bond_order = 3;
+			else next_bond_order = 1;
 			pos++; continue;
 		}
 
@@ -132,8 +137,9 @@ Molecule parse(const std::string &smi) {
 			if (ring_openings.count(ring_num)) {
 				int other = ring_openings[ring_num];
 				mol.bond_count++;
-				degree[other]++;
-				degree[prev_atom]++;
+				degree[other] += next_bond_order;
+				degree[prev_atom] += next_bond_order;
+				next_bond_order = 1;
 				ring_openings.erase(ring_num);
 			} else {
 				ring_openings[ring_num] = prev_atom;
@@ -151,8 +157,9 @@ Molecule parse(const std::string &smi) {
 			degree.push_back(0);
 			if (prev_atom >= 0) {
 				mol.bond_count++;
-				degree[prev_atom]++;
-				degree[idx]++;
+				degree[prev_atom] += next_bond_order;
+				degree[idx] += next_bond_order;
+				next_bond_order = 1;
 			}
 			prev_atom = idx;
 			continue;
@@ -169,8 +176,9 @@ Molecule parse(const std::string &smi) {
 			degree.push_back(0);
 			if (prev_atom >= 0) {
 				mol.bond_count++;
-				degree[prev_atom]++;
-				degree[idx]++;
+				degree[prev_atom] += next_bond_order;
+				degree[idx] += next_bond_order;
+				next_bond_order = 1;
 			}
 			prev_atom = idx;
 			continue;
@@ -195,8 +203,9 @@ Molecule parse(const std::string &smi) {
 			degree.push_back(0);
 			if (prev_atom >= 0) {
 				mol.bond_count++;
-				degree[prev_atom]++;
-				degree[idx]++;
+				degree[prev_atom] += next_bond_order;
+				degree[idx] += next_bond_order;
+				next_bond_order = 1;
 			}
 			prev_atom = idx;
 			continue;
