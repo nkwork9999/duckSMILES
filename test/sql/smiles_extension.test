@@ -1,0 +1,89 @@
+# name: test/sql/smiles_extension.test
+# group: [smiles]
+
+statement error
+SELECT mol_is_valid('CCO');
+----
+Catalog Error
+
+require smiles
+
+# mol_is_valid
+query I
+SELECT mol_is_valid('CCO');
+----
+true
+
+query I
+SELECT mol_is_valid('c1ccccc1');
+----
+true
+
+query I
+SELECT mol_is_valid('not_a_molecule');
+----
+false
+
+query I
+SELECT mol_is_valid('');
+----
+false
+
+# mol_formula
+query I
+SELECT mol_formula('CCO');
+----
+C2H6O
+
+query I
+SELECT mol_formula('c1ccccc1');
+----
+C6H6
+
+query I
+SELECT mol_formula('O');
+----
+H2O
+
+query I
+SELECT mol_formula('CC(=O)O');
+----
+C2H4O2
+
+query I
+SELECT mol_formula('[Na+].[Cl-]');
+----
+ClNa
+
+# mol_num_atoms (heavy atoms)
+query I
+SELECT mol_num_atoms('CCO');
+----
+3
+
+query I
+SELECT mol_num_atoms('c1ccccc1');
+----
+6
+
+# mol_num_bonds
+query I
+SELECT mol_num_bonds('CCO');
+----
+2
+
+query I
+SELECT mol_num_bonds('c1ccccc1');
+----
+6
+
+# NULL on invalid
+query I
+SELECT mol_formula('xyz');
+----
+NULL
+
+query I
+SELECT mol_num_atoms('xyz');
+----
+NULL
