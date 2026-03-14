@@ -270,8 +270,8 @@ std::string Molecule::formula() const {
 
 	std::vector<std::pair<std::string, int>> rest(counts.begin(), counts.end());
 	std::sort(rest.begin(), rest.end());
-	for (const auto &[elem, count] : rest) {
-		append(elem, count);
+	for (size_t i = 0; i < rest.size(); i++) {
+		append(rest[i].first, rest[i].second);
 	}
 	return result;
 }
