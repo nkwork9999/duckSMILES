@@ -9,6 +9,27 @@ project(${TARGET_NAME})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # ---------------------------------------------------------------------------
+# Ensure Rust/Cargo is available (install via rustup if missing in CI)
+# ---------------------------------------------------------------------------
+find_program(CARGO_EXECUTABLE cargo)
+if(NOT CARGO_EXECUTABLE)
+    message(STATUS "cargo not found — installing Rust toolchain via rustup")
+    execute_process(
+        COMMAND sh -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable"
+        RESULT_VARIABLE RUSTUP_RESULT
+    )
+    if(NOT RUSTUP_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to install Rust toolchain")
+    endif()
+    set(ENV{PATH} "$ENV{HOME}/.cargo/bin:$ENV{PATH}")
+    find_program(CARGO_EXECUTABLE cargo PATHS "$ENV{HOME}/.cargo/bin" NO_DEFAULT_PATH)
+    if(NOT CARGO_EXECUTABLE)
+        message(FATAL_ERROR "cargo still not found after rustup install")
+    endif()
+    message(STATUS "Rust installed: ${CARGO_EXECUTABLE}")
+endif()
+
+# ---------------------------------------------------------------------------
 # Build Rust static library via cargo
 # ---------------------------------------------------------------------------
 set(RUST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -39,7 +60,7 @@ set(RUST_STATIC_LIBS
 
 add_custom_command(
     OUTPUT ${RUST_STATIC_LIBS}
-    COMMAND cargo build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+    COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
     WORKING_DIRECTORY ${RUST_DIR}
     COMMENT "Building Rust workspace (duckSmiles crates)"
     VERBATIM
