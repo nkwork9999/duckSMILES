@@ -1,0 +1,41 @@
+name,smiles,expected_formula,expected_atoms,expected_bonds
+Water,O,H2O,1,0
+Methane,C,CH4,1,0
+Ethanol,CCO,C2H6O,3,2
+Methanol,CO,CH4O,2,1
+Benzene,c1ccccc1,C6H6,6,6
+Toluene,Cc1ccccc1,C7H8,7,7
+Acetic acid,CC(=O)O,C2H4O2,4,3
+Aspirin,CC(=O)Oc1ccccc1C(=O)O,C9H8O4,13,13
+Caffeine,Cn1c(=O)c2c(ncn2C)n(C)c1=O,C8H10N4O2,14,15
+Glucose,OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O,C6H12O6,12,12
+Glycine,NCC(=O)O,C2H5NO2,5,4
+Alanine,CC(N)C(=O)O,C3H7NO2,6,5
+Phenol,Oc1ccccc1,C6H6O,7,7
+Naphthalene,c1ccc2ccccc2c1,C10H8,10,11
+Acetone,CC(=O)C,C3H6O,4,3
+Dimethyl ether,COC,C2H6O,3,2
+Ethylene,C=C,C2H4,2,1
+Acetylene,C#C,C2H2,2,1
+Cyclopentane,C1CCCC1,C5H10,5,5
+Cyclohexane,C1CCCCC1,C6H12,6,6
+Aniline,Nc1ccccc1,C6H7N,7,7
+Pyridine,c1ccncc1,C5H5N,6,6
+Imidazole,c1cnc[nH]1,C3H4N2,5,5
+Furan,c1ccoc1,C4H4O,5,5
+Thiophene,c1ccsc1,C4H4S,5,5
+Sodium chloride,[Na+].[Cl-],ClNa,2,0
+Ammonium,[NH4+],H4N,1,0
+Urea,NC(=O)N,CH4N2O,4,3
+Formaldehyde,C=O,CH2O,2,1
+Formic acid,OC=O,CH2O2,3,2
+Ethane,CC,C2H6,2,1
+Propane,CCC,C3H8,3,2
+Butane,CCCC,C4H10,4,3
+Isobutane,CC(C)C,C4H10,4,3
+Neopentane,CC(C)(C)C,C5H12,5,4
+Chloroform,C(Cl)(Cl)Cl,CHCl3,4,3
+Diethyl ether,CCOCC,C4H10O,5,4
+Acrolein,C=CC=O,C3H4O,4,3
+Styrene,C=Cc1ccccc1,C8H8,8,8
+Ibuprofen,CC(C)Cc1ccc(cc1)C(C)C(=O)O,C13H18O2,15,15

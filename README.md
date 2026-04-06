@@ -1,8 +1,26 @@
 # duckSmiles
 
-Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, and SELFIES molecular analysis directly from SQL.
+**SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
-No external chemistry libraries required (pure Rust implementation, no RDKit dependency).
+Analyze SMILES, InChI, MOL/SDF, PDB, and SELFIES molecular structures directly from SQL — no Python, no RDKit, no setup.
+
+**A lightweight, zero-dependency alternative to RDKit for common cheminformatics SQL queries.**
+
+Instead of setting up Python + RDKit + pandas for molecular property extraction, just:
+
+```sql
+SELECT mol_formula(smiles), mol_weight(smiles) FROM molecules;
+```
+
+No external chemistry libraries, no Python environment, no compilation of RDKit from source.
+Pure Rust implementation compiled into a single DuckDB extension.
+
+### Who is this for?
+
+- **Data scientists** working with chemical datasets (ChEMBL, PubChem, ZINC)
+- **ML engineers** building molecular feature pipelines (SMILES <-> SELFIES conversion)
+- **Cheminformatics teams** needing fast batch validation and property extraction
+- **Anyone** who wants molecular analysis without the RDKit setup overhead
 
 ## Installation
 

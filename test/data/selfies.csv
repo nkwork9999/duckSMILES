@@ -1,0 +1,21 @@
+name,smiles
+Water,O
+Methane,C
+Ethanol,CCO
+Benzene,c1ccccc1
+Acetic acid,CC(=O)O
+Aspirin,CC(=O)Oc1ccccc1C(=O)O
+Phenol,Oc1ccccc1
+Toluene,Cc1ccccc1
+Glycine,NCC(=O)O
+Alanine,CC(N)C(=O)O
+Pyridine,c1ccncc1
+Aniline,Nc1ccccc1
+Formaldehyde,C=O
+Acetone,CC(=O)C
+Ethylene,C=C
+Acetylene,C#C
+Methanol,CO
+Dimethyl ether,COC
+Urea,NC(=O)N
+Formic acid,OC=O
