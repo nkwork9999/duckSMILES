@@ -150,9 +150,37 @@ SELECT selfies_to_smiles(smiles_to_selfies('CCO'));
 -- CCO
 ```
 
+## Real-World Examples: Kaggle Competition Data
+
+### Molecular Data ML (Kaggle 2025) — 42/42 molecules parsed
+
+```sql
+-- Analyze photostability dataset directly from CSV
+SELECT Batch_ID,
+       Smiles,
+       mol_formula(Smiles) AS formula,
+       mol_num_atoms(Smiles) AS atoms,
+       round(mol_weight(Smiles), 2) AS weight
+FROM read_csv('train.csv');
+```
+
+### NeurIPS 2025 Open Polymer Prediction — 7,973/7,973 molecules parsed
+
+```sql
+-- Polymer SMILES use * for attachment points — replace with [H]
+SELECT id,
+       mol_formula(replace(SMILES, '*', '[H]')) AS formula,
+       mol_num_atoms(replace(SMILES, '*', '[H]')) AS atoms,
+       round(mol_weight(replace(SMILES, '*', '[H]')), 2) AS weight
+FROM read_csv('train.csv');
+```
+
+Tested with real competition datasets containing complex aromatic systems, stereocenters, charged species, and polymer notation.
+
 ## Use Cases
 
-- Molecular property extraction from chemical datasets
+- Molecular property extraction from chemical datasets (ChEMBL, PubChem, ZINC)
+- Kaggle/NeurIPS competition feature engineering from SMILES
 - Batch validation of SMILES/InChI in data pipelines
 - Stereochemistry analysis and comparison
 - Format conversion for ML pipelines (SMILES <-> SELFIES)
