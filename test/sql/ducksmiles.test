@@ -1,0 +1,236 @@
+# name: test/sql/ducksmiles.test
+# description: Test ducksmiles extension (SMILES + InChI)
+# group: [ducksmiles]
+
+require ducksmiles
+
+# ============================================================================
+# SMILES: mol_is_valid
+# ============================================================================
+
+query I
+SELECT mol_is_valid('CCO');
+----
+true
+
+query I
+SELECT mol_is_valid('c1ccccc1');
+----
+true
+
+query I
+SELECT mol_is_valid('not_a_molecule');
+----
+false
+
+query I
+SELECT mol_is_valid('');
+----
+false
+
+# ============================================================================
+# SMILES: mol_formula
+# ============================================================================
+
+query I
+SELECT mol_formula('O');
+----
+H2O
+
+query I
+SELECT mol_formula('CCO');
+----
+C2H6O
+
+query I
+SELECT mol_formula('c1ccccc1');
+----
+C6H6
+
+query I
+SELECT mol_formula('CC(=O)O');
+----
+C2H4O2
+
+query I
+SELECT mol_formula('[Na+].[Cl-]');
+----
+ClNa
+
+# NULL on invalid
+query I
+SELECT mol_formula('invalid');
+----
+NULL
+
+# ============================================================================
+# SMILES: mol_num_atoms (heavy atoms)
+# ============================================================================
+
+query I
+SELECT mol_num_atoms('CCO');
+----
+3
+
+query I
+SELECT mol_num_atoms('c1ccccc1');
+----
+6
+
+query I
+SELECT mol_num_atoms('invalid');
+----
+NULL
+
+# ============================================================================
+# SMILES: mol_num_bonds
+# ============================================================================
+
+query I
+SELECT mol_num_bonds('CCO');
+----
+2
+
+query I
+SELECT mol_num_bonds('c1ccccc1');
+----
+6
+
+query I
+SELECT mol_num_bonds('invalid');
+----
+NULL
+
+# ============================================================================
+# SMILES: mol_weight
+# ============================================================================
+
+query I
+SELECT round(mol_weight('O'), 2);
+----
+18.02
+
+query I
+SELECT round(mol_weight('CCO'), 2);
+----
+46.07
+
+# ============================================================================
+# InChI: inchi_is_valid
+# ============================================================================
+
+query I
+SELECT inchi_is_valid('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
+----
+true
+
+query I
+SELECT inchi_is_valid('not_an_inchi');
+----
+false
+
+# ============================================================================
+# InChI: inchi_is_standard
+# ============================================================================
+
+query I
+SELECT inchi_is_standard('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
+----
+true
+
+# ============================================================================
+# InChI: inchi_formula
+# ============================================================================
+
+query I
+SELECT inchi_formula('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
+----
+C2H4O2
+
+query I
+SELECT inchi_formula('InChI=1S/C6H12O6/c7-1-2-3(8)4(9)5(10)6(11)12-2/h2-11H,1H2');
+----
+C6H12O6
+
+query I
+SELECT inchi_formula('invalid');
+----
+NULL
+
+# ============================================================================
+# InChI: inchi_connections
+# ============================================================================
+
+query I
+SELECT inchi_connections('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
+----
+1-2(3)4
+
+# ============================================================================
+# InChI: inchi_has_stereo / inchi_num_stereo_centers
+# ============================================================================
+
+query I
+SELECT inchi_has_stereo('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
+----
+false
+
+query I
+SELECT inchi_has_stereo('InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1');
+----
+true
+
+query I
+SELECT inchi_num_stereo_centers('InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1');
+----
+6
+
+query I
+SELECT inchi_num_stereo_centers('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
+----
+0
+
+# ============================================================================
+# InChIKey: inchikey_is_valid
+# ============================================================================
+
+query I
+SELECT inchikey_is_valid('QTBSBXVTEAMEQO-UHFFFAOYSA-N');
+----
+true
+
+query I
+SELECT inchikey_is_valid('not-a-key');
+----
+false
+
+# ============================================================================
+# InChIKey: component extraction
+# ============================================================================
+
+query I
+SELECT inchikey_connectivity('QTBSBXVTEAMEQO-UHFFFAOYSA-N');
+----
+QTBSBXVTEAMEQO
+
+query I
+SELECT inchikey_stereo('QTBSBXVTEAMEQO-UHFFFAOYSA-N');
+----
+UHFFFAOYSA
+
+query I
+SELECT inchikey_protonation('QTBSBXVTEAMEQO-UHFFFAOYSA-N');
+----
+N
+
+# ============================================================================
+# InChI: inchi_skeleton_match
+# ============================================================================
+
+query I
+SELECT inchi_skeleton_match(
+    'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
+    'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3'
+);
+----
+true
