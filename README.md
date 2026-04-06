@@ -45,110 +45,375 @@ SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 -- true, false
 ```
 
-## Functions
+---
 
-### SMILES (6 functions)
+## Function Reference (35 functions)
 
-| Function | Return | Description |
-|----------|--------|-------------|
-| `mol_is_valid(smiles)` | BOOLEAN | Validate SMILES string |
-| `mol_formula(smiles)` | VARCHAR | Molecular formula (Hill system) |
-| `mol_num_atoms(smiles)` | INTEGER | Heavy atom count |
-| `mol_num_bonds(smiles)` | INTEGER | Bond count |
-| `mol_weight(smiles)` | DOUBLE | Average molecular weight |
-| `mol_exact_mass(smiles)` | DOUBLE | Monoisotopic exact mass |
+### SMILES Functions (6)
+
+SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
+
+#### `mol_is_valid(smiles) -> BOOLEAN`
+
+Checks whether a SMILES string is syntactically valid and represents a parseable molecule. Returns `false` for malformed strings, empty input, or unsupported notation. Never throws an error — safe for batch processing over dirty data.
 
 ```sql
-SELECT mol_formula('CC(=O)O'), mol_num_atoms('CC(=O)O'), round(mol_weight('CC(=O)O'), 2);
--- C2H4O2, 4, 60.05
+SELECT mol_is_valid('CCO');           -- true  (ethanol)
+SELECT mol_is_valid('c1ccccc1');      -- true  (benzene, aromatic notation)
+SELECT mol_is_valid('[Na+].[Cl-]');   -- true  (sodium chloride, disconnected)
+SELECT mol_is_valid('not_a_molecule');-- false
+SELECT mol_is_valid('');              -- false
 ```
 
-### InChI (11 functions)
+**Supported SMILES features:** organic subset atoms (B, C, N, O, P, S, F, Cl, Br, I), aromatic atoms (c, n, o, s, p, b), bracket atoms (`[NH3+]`, `[Fe+2]`, `[13C@@H]`), branches, ring closures, disconnected fragments (`.`), bond types (single `-`, double `=`, triple `#`), implicit hydrogens (valence-based).
 
-| Function | Return | Description |
-|----------|--------|-------------|
-| `inchi_is_valid(inchi)` | BOOLEAN | Validate InChI string |
-| `inchi_is_standard(inchi)` | BOOLEAN | Check standard InChI (1S) |
-| `inchi_version(inchi)` | VARCHAR | Version string |
-| `inchi_formula(inchi)` | VARCHAR | Formula layer |
-| `inchi_connections(inchi)` | VARCHAR | Connection layer (/c) |
-| `inchi_hydrogens(inchi)` | VARCHAR | Hydrogen layer (/h) |
-| `inchi_charge(inchi)` | VARCHAR | Charge layer (/q) |
-| `inchi_stereo_bond(inchi)` | VARCHAR | Bond stereo (/b) |
-| `inchi_stereo_tetrahedral(inchi)` | VARCHAR | Tetrahedral stereo (/t) |
-| `inchi_has_stereo(inchi)` | BOOLEAN | Has stereochemistry |
-| `inchi_num_stereo_centers(inchi)` | INTEGER | Number of stereocenters |
+#### `mol_formula(smiles) -> VARCHAR`
+
+Returns the molecular formula in Hill system order (C first, H second, then remaining elements alphabetically). Includes implicit hydrogens calculated from standard valence rules. Returns `NULL` for invalid SMILES.
 
 ```sql
--- Stereochemistry detection (testosterone)
-SELECT inchi_has_stereo('InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1');
--- true
-
-SELECT inchi_num_stereo_centers('InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1');
--- 6
+SELECT mol_formula('O');              -- H2O
+SELECT mol_formula('CCO');            -- C2H6O
+SELECT mol_formula('c1ccccc1');       -- C6H6
+SELECT mol_formula('CC(=O)O');        -- C2H4O2
+SELECT mol_formula('[Na+].[Cl-]');    -- ClNa
+SELECT mol_formula('CC(=O)Oc1ccccc1C(=O)O'); -- C9H8O4 (aspirin)
+SELECT mol_formula('invalid');        -- NULL
 ```
 
-### InChIKey (4 functions)
+#### `mol_num_atoms(smiles) -> INTEGER`
 
-| Function | Return | Description |
-|----------|--------|-------------|
-| `inchikey_is_valid(key)` | BOOLEAN | Validate InChIKey |
-| `inchikey_connectivity(key)` | VARCHAR | First segment |
-| `inchikey_stereo(key)` | VARCHAR | Second segment |
-| `inchikey_protonation(key)` | VARCHAR | Third segment |
+Returns the count of heavy atoms (non-hydrogen atoms). Implicit and explicit hydrogens are excluded. Returns `NULL` for invalid SMILES.
 
 ```sql
-SELECT inchikey_connectivity('QTBSBXVTEAMEQO-UHFFFAOYSA-N');
--- QTBSBXVTEAMEQO
+SELECT mol_num_atoms('CCO');          -- 3  (C, C, O)
+SELECT mol_num_atoms('c1ccccc1');     -- 6  (6 carbons)
+SELECT mol_num_atoms('[Na+].[Cl-]');  -- 2  (Na, Cl)
 ```
 
-### Comparison (1 function)
+#### `mol_num_bonds(smiles) -> INTEGER`
 
-| Function | Return | Description |
-|----------|--------|-------------|
-| `inchi_skeleton_match(a, b)` | BOOLEAN | Skeleton match (ignoring stereo) |
+Returns the total number of bonds in the molecule. Double bonds count as 1 bond, triple bonds count as 1 bond (bond count, not bond order sum). Ring closures are included. Returns `NULL` for invalid SMILES.
 
 ```sql
+SELECT mol_num_bonds('CCO');          -- 2  (C-C, C-O)
+SELECT mol_num_bonds('c1ccccc1');     -- 6  (benzene ring)
+SELECT mol_num_bonds('C=C');          -- 1  (one double bond)
+SELECT mol_num_bonds('C#C');          -- 1  (one triple bond)
+```
+
+#### `mol_weight(smiles) -> DOUBLE`
+
+Returns the average molecular weight in Da (Daltons), using standard atomic weights (e.g., C=12.011, H=1.008, O=15.999). Includes the mass contribution of implicit hydrogens. Returns `NULL` (NaN internally) for invalid SMILES.
+
+```sql
+SELECT round(mol_weight('O'), 2);         -- 18.02  (water)
+SELECT round(mol_weight('CCO'), 2);       -- 46.07  (ethanol)
+SELECT round(mol_weight('c1ccccc1'), 2);  -- 78.11  (benzene)
+SELECT round(mol_weight('CC(=O)Oc1ccccc1C(=O)O'), 2); -- 180.16 (aspirin)
+```
+
+#### `mol_exact_mass(smiles) -> DOUBLE`
+
+Returns the monoisotopic exact mass, using the mass of the most abundant isotope of each element (e.g., C=12.0000, H=1.00783, O=15.99491). Used in mass spectrometry analysis. Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT round(mol_exact_mass('O'), 4);     -- 18.0106
+SELECT round(mol_exact_mass('CCO'), 4);   -- 46.0419
+SELECT round(mol_exact_mass('C(Cl)(Cl)Cl'), 4); -- 117.9144 (chloroform)
+```
+
+---
+
+### InChI Functions (11)
+
+InChI (International Chemical Identifier) is a layered textual representation developed by IUPAC. Each layer encodes different structural information (formula, connectivity, hydrogens, charge, stereochemistry). These functions parse InChI strings by layer extraction — no external InChI library required.
+
+#### `inchi_is_valid(inchi) -> BOOLEAN`
+
+Checks whether the string starts with `InChI=` and has a parseable structure.
+
+```sql
+SELECT inchi_is_valid('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'); -- true
+SELECT inchi_is_valid('not_an_inchi');                             -- false
+```
+
+#### `inchi_is_standard(inchi) -> BOOLEAN`
+
+Checks whether the InChI uses the standard version prefix `InChI=1S/`. Standard InChI (`1S`) is the most widely used; non-standard (`1/`) may include additional layers.
+
+```sql
+SELECT inchi_is_standard('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'); -- true
+SELECT inchi_is_standard('InChI=1/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');  -- false
+```
+
+#### `inchi_version(inchi) -> VARCHAR`
+
+Returns the InChI version string (e.g., `1S` for standard, `1` for non-standard).
+
+```sql
+SELECT inchi_version('InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H'); -- 1S
+```
+
+#### `inchi_formula(inchi) -> VARCHAR`
+
+Extracts the molecular formula layer — the first layer after the version prefix.
+
+```sql
+SELECT inchi_formula('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');  -- C2H4O2
+SELECT inchi_formula('InChI=1S/C6H12O6/c7-1-2-3(8)4(9)5(10)6(11)12-2/h2-11H,1H2'); -- C6H12O6
+SELECT inchi_formula('invalid');                                    -- NULL
+```
+
+#### `inchi_connections(inchi) -> VARCHAR`
+
+Extracts the connection layer (`/c`), which describes the atom-to-atom connectivity (bond graph) of the molecule without hydrogen positions.
+
+```sql
+SELECT inchi_connections('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'); -- 1-2(3)4
+```
+
+#### `inchi_hydrogens(inchi) -> VARCHAR`
+
+Extracts the hydrogen layer (`/h`), which encodes fixed and mobile hydrogen positions. Includes both explicit H counts and mobile (tautomeric) H notation.
+
+```sql
+SELECT inchi_hydrogens('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'); -- 1H3,(H,3,4)
+```
+
+#### `inchi_charge(inchi) -> VARCHAR`
+
+Extracts the charge layer (`/q`). Returns the net formal charge of the molecule.
+
+```sql
+SELECT inchi_charge('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'); -- NULL (neutral)
+```
+
+#### `inchi_stereo_bond(inchi) -> VARCHAR`
+
+Extracts the bond stereochemistry layer (`/b`), encoding E/Z (cis/trans) double bond configuration.
+
+```sql
+SELECT inchi_stereo_bond('InChI=1S/C2H4/c1-2/h1-2H2/b2-1+'); -- 2-1+
+```
+
+#### `inchi_stereo_tetrahedral(inchi) -> VARCHAR`
+
+Extracts the tetrahedral stereochemistry layer (`/t`), encoding R/S chirality at sp3 centers. Each stereocenter is listed with its parity (`+` or `-`).
+
+```sql
+-- Testosterone: 6 stereocenters
+SELECT inchi_stereo_tetrahedral(
+    'InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1'
+); -- 14-,15-,16-,17-,18-,19-
+```
+
+#### `inchi_has_stereo(inchi) -> BOOLEAN`
+
+Returns `true` if the InChI contains any stereochemistry layer (`/b`, `/t`, `/m`, or `/s`).
+
+```sql
+SELECT inchi_has_stereo('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'); -- false (acetic acid)
+SELECT inchi_has_stereo('InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1'); -- true (testosterone)
+```
+
+#### `inchi_num_stereo_centers(inchi) -> INTEGER`
+
+Counts the number of tetrahedral stereocenters defined in the `/t` layer.
+
+```sql
+SELECT inchi_num_stereo_centers('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'); -- 0
+SELECT inchi_num_stereo_centers('InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1'); -- 6
+```
+
+---
+
+### InChIKey Functions (4)
+
+InChIKey is a fixed-length (27-character) hash of an InChI string, formatted as `XXXXXXXXXXXXXX-XXXXXXXXXX-X` (three segments separated by hyphens). It enables fast exact-match lookups in databases.
+
+#### `inchikey_is_valid(key) -> BOOLEAN`
+
+Validates the InChIKey format: 14 uppercase letters, hyphen, 10 uppercase letters, hyphen, 1 uppercase letter.
+
+```sql
+SELECT inchikey_is_valid('QTBSBXVTEAMEQO-UHFFFAOYSA-N'); -- true
+SELECT inchikey_is_valid('not-a-key');                    -- false
+```
+
+#### `inchikey_connectivity(key) -> VARCHAR`
+
+Returns the first 14-character segment, which encodes the molecular connectivity (atom types and bonds, ignoring stereochemistry and charge). Two molecules with the same connectivity hash are constitutional isomers or identical.
+
+```sql
+SELECT inchikey_connectivity('QTBSBXVTEAMEQO-UHFFFAOYSA-N'); -- QTBSBXVTEAMEQO
+```
+
+#### `inchikey_stereo(key) -> VARCHAR`
+
+Returns the second 10-character segment, encoding stereochemistry and isotope information. `UHFFFAOYSA` means "no stereochemistry defined."
+
+```sql
+SELECT inchikey_stereo('QTBSBXVTEAMEQO-UHFFFAOYSA-N');   -- UHFFFAOYSA (no stereo)
+SELECT inchikey_stereo('WQZGKKKJIJFFOK-GASJEMHNSA-N');   -- GASJEMHNSA (glucose, has stereo)
+```
+
+#### `inchikey_protonation(key) -> VARCHAR`
+
+Returns the third 1-character segment, encoding the protonation state. `N` = neutral, `M` = deprotonated (-1), `O` = protonated (+1), etc.
+
+```sql
+SELECT inchikey_protonation('QTBSBXVTEAMEQO-UHFFFAOYSA-N'); -- N (neutral)
+```
+
+---
+
+### Comparison Function (1)
+
+#### `inchi_skeleton_match(inchi_a, inchi_b) -> BOOLEAN`
+
+Compares two InChI strings by their molecular skeleton: formula layer + connection layer + hydrogen layer. Stereochemistry, charge, and isotope differences are ignored. Useful for finding constitutional isomers or confirming structural identity regardless of stereochemistry.
+
+```sql
+-- Same molecule
 SELECT inchi_skeleton_match(
     'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
     'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3'
-);
--- true
+); -- true
+
+-- Different molecules (ethanol vs acetic acid)
+SELECT inchi_skeleton_match(
+    'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
+    'InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)'
+); -- false
 ```
 
-### MOL/SDF (6 functions)
+---
 
-| Function | Return | Description |
-|----------|--------|-------------|
-| `mol_block_formula(mol)` | VARCHAR | Formula from MOL block |
-| `mol_block_weight(mol)` | DOUBLE | Weight from MOL block |
-| `mol_block_num_atoms(mol)` | INTEGER | Atom count from MOL block |
-| `mol_block_num_bonds(mol)` | INTEGER | Bond count from MOL block |
-| `mol_block_name(mol)` | VARCHAR | Molecule name from header |
-| `sdf_count(sdf)` | INTEGER | Count molecules in SDF |
+### MOL/SDF Functions (6)
 
-### Structure - PDB/CIF/XYZ (4 functions)
+MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns.
 
-| Function | Return | Description |
-|----------|--------|-------------|
-| `structure_atom_count(text)` | INTEGER | Atom count (auto-detect format) |
-| `structure_chain_count(text)` | INTEGER | Chain count |
-| `structure_residue_count(text)` | INTEGER | Residue count |
-| `structure_model_count(text)` | INTEGER | Model count |
+#### `mol_block_name(mol) -> VARCHAR`
 
-### SELFIES (3 functions)
+Extracts the molecule name from the first line of the MOL block header.
 
-| Function | Return | Description |
-|----------|--------|-------------|
-| `smiles_to_selfies(smiles)` | VARCHAR | Convert SMILES to SELFIES |
-| `selfies_to_smiles(selfies)` | VARCHAR | Convert SELFIES to SMILES |
-| `selfies_is_valid(selfies)` | BOOLEAN | Validate SELFIES string |
+#### `mol_block_formula(mol) -> VARCHAR`
+
+Computes the molecular formula from the atom block of the MOL file (counting each element symbol).
+
+#### `mol_block_weight(mol) -> DOUBLE`
+
+Computes the molecular weight from the atom types listed in the MOL block.
+
+#### `mol_block_num_atoms(mol) -> INTEGER`
+
+Returns the atom count parsed from the counts line or the atom block of the MOL file.
+
+#### `mol_block_num_bonds(mol) -> INTEGER`
+
+Returns the bond count parsed from the counts line or the bond block of the MOL file.
 
 ```sql
--- Roundtrip conversion
-SELECT selfies_to_smiles(smiles_to_selfies('CCO'));
--- CCO
+-- All MOL block functions (requires escaped newlines in SQL)
+SELECT mol_block_name(mol_text) AS name,
+       mol_block_formula(mol_text) AS formula,
+       round(mol_block_weight(mol_text), 2) AS weight,
+       mol_block_num_atoms(mol_text) AS atoms,
+       mol_block_num_bonds(mol_text) AS bonds
+FROM molecules;
 ```
+
+#### `sdf_count(sdf) -> INTEGER`
+
+Counts the number of molecules in an SDF file by counting `$$$$` delimiters. Useful for quickly checking dataset size without fully parsing each molecule.
+
+```sql
+SELECT sdf_count(sdf_text) AS num_molecules FROM sdf_files;
+```
+
+---
+
+### Structure Functions — PDB/CIF/XYZ (4)
+
+These functions parse protein/crystal structure files. The input format (PDB, mmCIF, or XYZ) is auto-detected from the content — no format flag needed.
+
+**PDB** (Protein Data Bank): Standard format for macromolecular structures. Parsed via `ATOM`/`HETATM` records.
+
+**mmCIF** (Macromolecular Crystallographic Information File): Newer format with `data_` prefix and `_atom_site.` schema. Used by the wwPDB as the primary archive format.
+
+**XYZ**: Simple format listing atom symbol + x/y/z coordinates. Common in computational chemistry.
+
+#### `structure_atom_count(text) -> INTEGER`
+
+Counts atoms in the structure. For PDB: counts `ATOM` and `HETATM` records. For CIF: counts rows in `_atom_site` loop. For XYZ: reads atom count from header.
+
+#### `structure_chain_count(text) -> INTEGER`
+
+Counts unique chain identifiers (e.g., chain A, B, C in a protein complex). For XYZ format, returns 0 (no chain concept).
+
+#### `structure_residue_count(text) -> INTEGER`
+
+Counts unique residues (amino acids, nucleotides, ligands). Identified by unique (chain, residue number, residue name) combinations.
+
+#### `structure_model_count(text) -> INTEGER`
+
+Counts MODEL/ENDMDL blocks (NMR ensembles or multi-model files). Returns 1 for single-model structures.
+
+```sql
+-- Analyze a PDB file loaded as text
+SELECT structure_atom_count(content) AS atoms,
+       structure_chain_count(content) AS chains,
+       structure_residue_count(content) AS residues,
+       structure_model_count(content) AS models
+FROM read_text('protein.pdb');
+```
+
+---
+
+### SELFIES Functions (3)
+
+SELFIES (Self-Referencing Embedded Strings) is a 100% valid molecular string representation designed for machine learning. Unlike SMILES, every SELFIES string decodes to a valid molecule — making it ideal for generative models (VAE, GPT, diffusion) where random token mutations must always produce valid chemistry.
+
+#### `smiles_to_selfies(smiles) -> VARCHAR`
+
+Converts a SMILES string to SELFIES notation. Each atom and structural feature is wrapped in brackets (`[C]`, `[=O]`, `[Branch1]`, `[Ring1]`).
+
+```sql
+SELECT smiles_to_selfies('CCO');            -- [C][C][O]
+SELECT smiles_to_selfies('c1ccccc1');       -- [c][Ring1][C][c][c][c][c][c][Ring1][C]
+SELECT smiles_to_selfies('CC(=O)O');        -- [C][C][Branch1][C][=O][O]
+```
+
+#### `selfies_to_smiles(selfies) -> VARCHAR`
+
+Converts a SELFIES string back to SMILES notation. Enables roundtrip conversion for ML pipeline integration.
+
+```sql
+SELECT selfies_to_smiles('[C][C][O]');      -- CCO
+SELECT selfies_to_smiles('[C][=O]');        -- C=O
+```
+
+#### `selfies_is_valid(selfies) -> BOOLEAN`
+
+Checks whether a SELFIES string can be decoded to a valid molecule.
+
+```sql
+SELECT selfies_is_valid('[C][C][O]');       -- true
+SELECT selfies_is_valid(smiles_to_selfies('CC(=O)O')); -- true
+```
+
+**Roundtrip example:**
+
+```sql
+-- SMILES -> SELFIES -> SMILES
+SELECT smiles,
+       smiles_to_selfies(smiles) AS selfies,
+       selfies_to_smiles(smiles_to_selfies(smiles)) AS roundtrip
+FROM (VALUES ('CCO'), ('CC(=O)O'), ('NCC(=O)O')) AS t(smiles);
+```
+
+---
 
 ## Real-World Examples: Kaggle Competition Data
 
@@ -188,9 +453,11 @@ Tested with real competition datasets containing complex aromatic systems, stere
 
 ## Architecture
 
-- **Rust** (5 crates): Core molecular parsing and computation
-- **C++**: DuckDB extension integration via FFI
-- No external chemistry library dependencies
+- **Rust** (5 crates, ~3,200 lines): Core molecular parsing and computation
+- **C++** (~330 lines): DuckDB extension integration via FFI
+- No external chemistry library dependencies (no RDKit, no OpenBabel)
+- Vectorized execution via DuckDB's `UnaryExecutor`
+- Invalid input returns `NULL` — never crashes
 
 ## License
 
