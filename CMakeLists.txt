@@ -42,12 +42,45 @@ else()
     set(CARGO_FLAG "")
 endif()
 
+# ---------------------------------------------------------------------------
+# Detect cross-compilation target for Rust
+# ---------------------------------------------------------------------------
+# Priority: CARGO_TARGET env > OSX_BUILD_ARCH > DUCKDB_EXPLICIT_PLATFORM > host default
 if(DEFINED ENV{CARGO_TARGET})
-    set(CARGO_TARGET_DIR "target/$ENV{CARGO_TARGET}/${CARGO_PROFILE}")
-    set(CARGO_TARGET_FLAG "--target" "$ENV{CARGO_TARGET}")
+    set(RUST_TARGET "$ENV{CARGO_TARGET}")
+elseif(DEFINED OSX_BUILD_ARCH AND NOT OSX_BUILD_ARCH STREQUAL "")
+    if(OSX_BUILD_ARCH STREQUAL "x86_64")
+        set(RUST_TARGET "x86_64-apple-darwin")
+    elseif(OSX_BUILD_ARCH STREQUAL "arm64")
+        set(RUST_TARGET "aarch64-apple-darwin")
+    endif()
+elseif(DEFINED DUCKDB_EXPLICIT_PLATFORM AND NOT DUCKDB_EXPLICIT_PLATFORM STREQUAL "")
+    if(DUCKDB_EXPLICIT_PLATFORM STREQUAL "osx_amd64")
+        set(RUST_TARGET "x86_64-apple-darwin")
+    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "osx_arm64")
+        set(RUST_TARGET "aarch64-apple-darwin")
+    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_amd64")
+        set(RUST_TARGET "x86_64-unknown-linux-gnu")
+    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_arm64")
+        set(RUST_TARGET "aarch64-unknown-linux-gnu")
+    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_amd64_gcc4")
+        set(RUST_TARGET "x86_64-unknown-linux-gnu")
+    endif()
+endif()
+
+if(DEFINED RUST_TARGET)
+    # Ensure the target is installed
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" rustup target add ${RUST_TARGET}
+        WORKING_DIRECTORY ${RUST_DIR}
+    )
+    set(CARGO_TARGET_DIR "target/${RUST_TARGET}/${CARGO_PROFILE}")
+    set(CARGO_TARGET_FLAG "--target" "${RUST_TARGET}")
+    message(STATUS "Rust cross-compile target: ${RUST_TARGET}")
 else()
     set(CARGO_TARGET_DIR "target/${CARGO_PROFILE}")
     set(CARGO_TARGET_FLAG "")
+    message(STATUS "Rust target: host default")
 endif()
 
 set(RUST_STATIC_LIBS
