@@ -1,13 +1,13 @@
 name,inchi,expected_formula,has_stereo,stereo_centers
-Acetic acid,InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4),C2H4O2,false,0
-Ethanol,InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3,C2H6O,false,0
-Glucose,InChI=1S/C6H12O6/c7-1-2-3(8)4(9)5(10)6(11)12-2/h2-11H,1H2,C6H12O6,false,0
+Acetic acid,"InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)",C2H4O2,false,0
+Ethanol,"InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3",C2H6O,false,0
+Glucose,"InChI=1S/C6H12O6/c7-1-2-3(8)4(9)5(10)6(11)12-2/h2-11H,1H2",C6H12O6,false,0
 Testosterone,"InChI=1S/C19H28O2/c1-18-9-7-13(20)11-12(18)3-4-14-15-5-6-17(21)19(15,2)10-8-16(14)18/h11,14-17,21H,3-10H2,1-2H3/t14-,15-,16-,17-,18-,19-/m0/s1",C19H28O2,true,6
-Alanine,InChI=1S/C3H7NO2/c1-2(3)4(5)6/h2H,3H2,1H3,(H,5,6),C3H7NO2,false,0
-L-Alanine,InChI=1S/C3H7NO2/c1-2(3)4(5)6/h2H,3H2,1H3,(H,5,6)/t2-/m0/s1,C3H7NO2,true,1
+Alanine,"InChI=1S/C3H7NO2/c1-2(3)4(5)6/h2H,3H2,1H3,(H,5,6)",C3H7NO2,false,0
+L-Alanine,"InChI=1S/C3H7NO2/c1-2(3)4(5)6/h2H,3H2,1H3,(H,5,6)/t2-/m0/s1",C3H7NO2,true,1
 Cholesterol,"InChI=1S/C27H46O/c1-18(2)7-6-8-19(3)23-11-12-24-22-10-9-20-17-21(28)13-15-26(20,4)25(22)14-16-27(23,24)5/h9,17-19,21-25,28H,6-8,10-16H2,1-5H3/t18?,19-,21+,22+,23-,24+,25+,26+,27-/m1/s1",C27H46O,true,9
-Benzene,InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H,C6H6,false,0
+Benzene,"InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H",C6H6,false,0
 Water,InChI=1S/H2O/h1H2,H2O,false,0
-Aspirin,InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12),C9H8O4,false,0
-Caffeine,InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3,C8H10N4O2,false,0
-Ibuprofen,InChI=1S/C13H18O2/c1-9(2)8-11-4-6-12(7-5-11)10(3)13(14)15/h4-7,9-10H,8H2,1-3H3,(H,14,15),C13H18O2,false,0
+Aspirin,"InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)",C9H8O4,false,0
+Caffeine,"InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",C8H10N4O2,false,0
+Ibuprofen,"InChI=1S/C13H18O2/c1-9(2)8-11-4-6-12(7-5-11)10(3)13(14)15/h4-7,9-10H,8H2,1-3H3,(H,14,15)",C13H18O2,false,0
