@@ -14,15 +14,29 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_program(CARGO_EXECUTABLE cargo)
 if(NOT CARGO_EXECUTABLE)
     message(STATUS "cargo not found — installing Rust toolchain via rustup")
-    execute_process(
-        COMMAND sh -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable"
-        RESULT_VARIABLE RUSTUP_RESULT
-    )
-    if(NOT RUSTUP_RESULT EQUAL 0)
-        message(FATAL_ERROR "Failed to install Rust toolchain")
+    if(WIN32)
+        # Download and run rustup-init.exe on Windows
+        file(DOWNLOAD "https://win.rustup.rs/x86_64" "${CMAKE_BINARY_DIR}/rustup-init.exe" TLS_VERIFY ON)
+        execute_process(
+            COMMAND "${CMAKE_BINARY_DIR}/rustup-init.exe" -y --default-toolchain stable
+            RESULT_VARIABLE RUSTUP_RESULT
+        )
+        if(NOT RUSTUP_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to install Rust toolchain on Windows")
+        endif()
+        set(ENV{PATH} "$ENV{USERPROFILE}/.cargo/bin;$ENV{PATH}")
+        find_program(CARGO_EXECUTABLE cargo PATHS "$ENV{USERPROFILE}/.cargo/bin" NO_DEFAULT_PATH)
+    else()
+        execute_process(
+            COMMAND sh -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable"
+            RESULT_VARIABLE RUSTUP_RESULT
+        )
+        if(NOT RUSTUP_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to install Rust toolchain")
+        endif()
+        set(ENV{PATH} "$ENV{HOME}/.cargo/bin:$ENV{PATH}")
+        find_program(CARGO_EXECUTABLE cargo PATHS "$ENV{HOME}/.cargo/bin" NO_DEFAULT_PATH)
     endif()
-    set(ENV{PATH} "$ENV{HOME}/.cargo/bin:$ENV{PATH}")
-    find_program(CARGO_EXECUTABLE cargo PATHS "$ENV{HOME}/.cargo/bin" NO_DEFAULT_PATH)
     if(NOT CARGO_EXECUTABLE)
         message(FATAL_ERROR "cargo still not found after rustup install")
     endif()
@@ -65,6 +79,10 @@ elseif(DEFINED DUCKDB_EXPLICIT_PLATFORM AND NOT DUCKDB_EXPLICIT_PLATFORM STREQUA
         set(RUST_TARGET "aarch64-unknown-linux-gnu")
     elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_amd64_gcc4")
         set(RUST_TARGET "x86_64-unknown-linux-gnu")
+    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "windows_amd64")
+        set(RUST_TARGET "x86_64-pc-windows-msvc")
+    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "windows_amd64_mingw")
+        set(RUST_TARGET "x86_64-pc-windows-gnu")
     endif()
 endif()
 
@@ -83,21 +101,38 @@ else()
     message(STATUS "Rust target: host default")
 endif()
 
-set(RUST_STATIC_LIBS
-    "${RUST_DIR}/${CARGO_TARGET_DIR}/libducksmiles_smiles.a"
-    "${RUST_DIR}/${CARGO_TARGET_DIR}/libducksmiles_inchi.a"
-    "${RUST_DIR}/${CARGO_TARGET_DIR}/libducksmiles_mol.a"
-    "${RUST_DIR}/${CARGO_TARGET_DIR}/libducksmiles_pdb.a"
-    "${RUST_DIR}/${CARGO_TARGET_DIR}/libducksmiles_selfies.a"
-)
+# Library naming: MSVC uses .lib, others use lib*.a
+if(MSVC)
+    set(RUST_LIB_PREFIX "")
+    set(RUST_LIB_SUFFIX ".lib")
+else()
+    set(RUST_LIB_PREFIX "lib")
+    set(RUST_LIB_SUFFIX ".a")
+endif()
 
-add_custom_command(
-    OUTPUT ${RUST_STATIC_LIBS}
-    COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
-    WORKING_DIRECTORY ${RUST_DIR}
-    COMMENT "Building Rust workspace (duckSmiles crates)"
-    VERBATIM
-)
+set(RUST_CRATE_NAMES smiles inchi mol pdb selfies)
+set(RUST_STATIC_LIBS "")
+foreach(CRATE ${RUST_CRATE_NAMES})
+    list(APPEND RUST_STATIC_LIBS "${RUST_DIR}/${CARGO_TARGET_DIR}/${RUST_LIB_PREFIX}ducksmiles_${CRATE}${RUST_LIB_SUFFIX}")
+endforeach()
+
+if(WIN32)
+    add_custom_command(
+        OUTPUT ${RUST_STATIC_LIBS}
+        COMMAND ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        WORKING_DIRECTORY ${RUST_DIR}
+        COMMENT "Building Rust workspace (duckSmiles crates)"
+        VERBATIM
+    )
+else()
+    add_custom_command(
+        OUTPUT ${RUST_STATIC_LIBS}
+        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        WORKING_DIRECTORY ${RUST_DIR}
+        COMMENT "Building Rust workspace (duckSmiles crates)"
+        VERBATIM
+    )
+endif()
 
 add_custom_target(rust_lib DEPENDS ${RUST_STATIC_LIBS})
 
@@ -124,6 +159,9 @@ endforeach()
 if(APPLE)
     target_link_libraries(${EXTENSION_NAME} "-framework Security" "-framework CoreFoundation")
     target_link_libraries(${LOADABLE_EXTENSION_NAME} "-framework Security" "-framework CoreFoundation")
+elseif(WIN32)
+    target_link_libraries(${EXTENSION_NAME} ws2_32 userenv bcrypt ntdll)
+    target_link_libraries(${LOADABLE_EXTENSION_NAME} ws2_32 userenv bcrypt ntdll)
 endif()
 
 install(
