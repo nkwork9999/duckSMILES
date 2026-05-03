@@ -234,3 +234,61 @@ SELECT inchi_skeleton_match(
 );
 ----
 true
+
+# ============================================================================
+# SMILES: logp_crippen (Wildman-Crippen LogP)
+# ============================================================================
+
+# Methane: 1x C1 (0.1441) + 4x H1 (0.123) = 0.6361
+query I
+SELECT round(logp_crippen('C'), 4);
+----
+0.6361
+
+# Water: 1x O2 (-0.2893) + 2x H2 (-0.2677) = -0.8247
+query I
+SELECT round(logp_crippen('O'), 4);
+----
+-0.8247
+
+# Benzene: 6x C18 (0.1581) + 6x H1 (0.123) = 1.6866
+query I
+SELECT round(logp_crippen('c1ccccc1'), 4);
+----
+1.6866
+
+# Ethanol (near zero, hydrophilic/lipophilic boundary)
+query I
+SELECT round(logp_crippen('CCO'), 4);
+----
+-0.0014
+
+# Methanol
+query I
+SELECT round(logp_crippen('CO'), 4);
+----
+-0.3915
+
+# Glucose: strongly hydrophilic
+query I
+SELECT logp_crippen('OCC1OC(O)C(O)C(O)C1O') < 0;
+----
+true
+
+# Cholesterol: strongly lipophilic
+query I
+SELECT logp_crippen('CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C') > 3;
+----
+true
+
+# NULL on invalid SMILES
+query I
+SELECT logp_crippen('not_a_molecule');
+----
+NULL
+
+# NULL on empty string
+query I
+SELECT logp_crippen('');
+----
+NULL

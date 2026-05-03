@@ -70,6 +70,7 @@ DEFINE_INT_FUNC(MolNumBondsFunc, ds_mol_num_bonds)
 DEFINE_STR_FUNC(MolFormulaFunc, ds_mol_formula)
 DEFINE_DOUBLE_FUNC(MolWeightFunc, ds_mol_weight)
 DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
+DEFINE_DOUBLE_FUNC(LogpCrippenFunc, ds_logp_crippen)
 
 // ============================================================================
 // InChI functions
@@ -166,6 +167,7 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_num_bonds",   {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumBondsFunc));
 	loader.RegisterFunction(ScalarFunction("mol_weight",      {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolWeightFunc));
 	loader.RegisterFunction(ScalarFunction("mol_exact_mass",  {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolExactMassFunc));
+	loader.RegisterFunction(ScalarFunction("logp_crippen",    {LogicalType::VARCHAR}, LogicalType::DOUBLE,  LogpCrippenFunc));
 
 	// --- InChI layer extraction ---
 	loader.RegisterFunction(ScalarFunction("inchi_is_valid",           {LogicalType::VARCHAR}, LogicalType::BOOLEAN, InchiIsValidFunc));

@@ -1,6 +1,9 @@
+mod logp_crippen;
 mod parser;
+mod smarts;
 mod weights;
 
+use logp_crippen::calc_logp;
 use parser::parse;
 
 // =============================================================================
@@ -69,6 +72,16 @@ pub extern "C" fn ds_mol_exact_mass(ptr: *const u8, len: usize) -> f64 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
         Some(mol) => mol.exact_mass(),
+        None => f64::NAN,
+    }
+}
+
+/// Returns Wildman-Crippen LogP (RDKit-compatible), or NaN on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_logp_crippen(ptr: *const u8, len: usize) -> f64 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => calc_logp(&mol),
         None => f64::NAN,
     }
 }

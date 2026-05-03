@@ -15,6 +15,7 @@ int32_t ds_mol_num_bonds(const uint8_t *ptr, size_t len);
 int32_t ds_mol_formula(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 double ds_mol_weight(const uint8_t *ptr, size_t len);
 double ds_mol_exact_mass(const uint8_t *ptr, size_t len);
+double ds_logp_crippen(const uint8_t *ptr, size_t len);
 
 // ===================== InChI crate =====================
 
