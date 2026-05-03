@@ -24,6 +24,21 @@ fn default_valence(sym: &str, aromatic: bool) -> i32 {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BondOrder {
+    Single,
+    Double,
+    Triple,
+    Aromatic,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Bond {
+    pub a: usize,
+    pub b: usize,
+    pub order: BondOrder,
+}
+
 #[derive(Clone, Debug)]
 pub struct Atom {
     pub symbol: String,
@@ -48,10 +63,62 @@ impl Default for Atom {
 #[derive(Clone, Debug)]
 pub struct Molecule {
     pub atoms: Vec<Atom>,
+    pub bonds: Vec<Bond>,
     pub bond_count: i32,
 }
 
 impl Molecule {
+    /// Return (neighbor_index, bond_order) pairs for the given atom.
+    pub fn neighbors(&self, idx: usize) -> Vec<(usize, BondOrder)> {
+        let mut result = Vec::new();
+        for b in &self.bonds {
+            if b.a == idx {
+                result.push((b.b, b.order));
+            } else if b.b == idx {
+                result.push((b.a, b.order));
+            }
+        }
+        result
+    }
+
+    /// Return a new Molecule with explicit H atom vertices added.
+    /// Each heavy atom's implicit H count is materialized as separate H atoms
+    /// connected by single bonds. Used by SMARTS matchers that need to match
+    /// [#1] patterns (e.g., Wildman-Crippen H types).
+    pub fn with_explicit_hydrogens(&self) -> Molecule {
+        let mut atoms = self.atoms.clone();
+        let mut bonds = self.bonds.clone();
+        let original_count = self.atoms.len();
+
+        for i in 0..original_count {
+            let h_count = self.atoms[i].hydrogen.max(0) as usize;
+            for _ in 0..h_count {
+                let h_idx = atoms.len();
+                atoms.push(Atom {
+                    symbol: "H".to_string(),
+                    hydrogen: 0,
+                    charge: 0,
+                    aromatic: false,
+                    in_bracket: true,
+                });
+                bonds.push(Bond {
+                    a: i,
+                    b: h_idx,
+                    order: BondOrder::Single,
+                });
+            }
+            // Zero out the implicit H count on the heavy atom since H's are now explicit
+            atoms[i].hydrogen = 0;
+        }
+
+        let bond_count = bonds.len() as i32;
+        Molecule {
+            atoms,
+            bonds,
+            bond_count,
+        }
+    }
+
     pub fn element_counts(&self) -> BTreeMap<String, i32> {
         let mut counts = BTreeMap::new();
         for atom in &self.atoms {
@@ -196,6 +263,25 @@ fn parse_bracket_atom(chars: &[char], pos: &mut usize) -> Option<Atom> {
     Some(atom)
 }
 
+fn resolve_bond_order(
+    explicit: Option<BondOrder>,
+    next_order: i32,
+    a_aromatic: bool,
+    b_aromatic: bool,
+) -> BondOrder {
+    if let Some(o) = explicit {
+        return o;
+    }
+    if a_aromatic && b_aromatic {
+        return BondOrder::Aromatic;
+    }
+    match next_order {
+        2 => BondOrder::Double,
+        3 => BondOrder::Triple,
+        _ => BondOrder::Single,
+    }
+}
+
 /// Parse a SMILES string into a Molecule. Returns None on invalid input.
 pub fn parse(smi: &str) -> Option<Molecule> {
     if smi.is_empty() {
@@ -204,12 +290,14 @@ pub fn parse(smi: &str) -> Option<Molecule> {
 
     let chars: Vec<char> = smi.chars().collect();
     let mut atoms: Vec<Atom> = Vec::new();
+    let mut bonds: Vec<Bond> = Vec::new();
     let mut bond_count: i32 = 0;
     let mut degree: Vec<i32> = Vec::new();
     let mut branch_stack: Vec<i32> = Vec::new();
     let mut ring_openings: HashMap<i32, i32> = HashMap::new();
     let mut prev_atom: i32 = -1;
     let mut next_bond_order: i32 = 1;
+    let mut explicit_bond: Option<BondOrder> = None;
     let mut pos = 0;
 
     while pos < chars.len() {
@@ -236,6 +324,12 @@ pub fn parse(smi: &str) -> Option<Molecule> {
                 '#' => 3,
                 _ => 1,
             };
+            explicit_bond = Some(match c {
+                '=' => BondOrder::Double,
+                '#' => BondOrder::Triple,
+                ':' => BondOrder::Aromatic,
+                _ => BondOrder::Single,
+            });
             pos += 1;
             continue;
         }
@@ -264,10 +358,20 @@ pub fn parse(smi: &str) -> Option<Molecule> {
             }
 
             if let Some(other) = ring_openings.remove(&ring_num) {
+                let a = other as usize;
+                let b = prev_atom as usize;
+                let order = resolve_bond_order(
+                    explicit_bond,
+                    next_bond_order,
+                    atoms[a].aromatic,
+                    atoms[b].aromatic,
+                );
+                bonds.push(Bond { a, b, order });
                 bond_count += 1;
-                degree[other as usize] += next_bond_order;
-                degree[prev_atom as usize] += next_bond_order;
+                degree[a] += next_bond_order;
+                degree[b] += next_bond_order;
                 next_bond_order = 1;
+                explicit_bond = None;
             } else {
                 ring_openings.insert(ring_num, prev_atom);
             }
@@ -282,10 +386,20 @@ pub fn parse(smi: &str) -> Option<Molecule> {
             atoms.push(atom);
             degree.push(0);
             if prev_atom >= 0 {
+                let a = prev_atom as usize;
+                let b = idx as usize;
+                let order = resolve_bond_order(
+                    explicit_bond,
+                    next_bond_order,
+                    atoms[a].aromatic,
+                    atoms[b].aromatic,
+                );
+                bonds.push(Bond { a, b, order });
                 bond_count += 1;
-                degree[prev_atom as usize] += next_bond_order;
-                degree[idx as usize] += next_bond_order;
+                degree[a] += next_bond_order;
+                degree[b] += next_bond_order;
                 next_bond_order = 1;
+                explicit_bond = None;
             }
             prev_atom = idx;
             continue;
@@ -302,10 +416,20 @@ pub fn parse(smi: &str) -> Option<Molecule> {
             atoms.push(atom);
             degree.push(0);
             if prev_atom >= 0 {
+                let a = prev_atom as usize;
+                let b = idx as usize;
+                let order = resolve_bond_order(
+                    explicit_bond,
+                    next_bond_order,
+                    atoms[a].aromatic,
+                    atoms[b].aromatic,
+                );
+                bonds.push(Bond { a, b, order });
                 bond_count += 1;
-                degree[prev_atom as usize] += next_bond_order;
-                degree[idx as usize] += next_bond_order;
+                degree[a] += next_bond_order;
+                degree[b] += next_bond_order;
                 next_bond_order = 1;
+                explicit_bond = None;
             }
             prev_atom = idx;
             pos += 1;
@@ -336,10 +460,20 @@ pub fn parse(smi: &str) -> Option<Molecule> {
             atoms.push(atom);
             degree.push(0);
             if prev_atom >= 0 {
+                let a = prev_atom as usize;
+                let b = idx as usize;
+                let order = resolve_bond_order(
+                    explicit_bond,
+                    next_bond_order,
+                    atoms[a].aromatic,
+                    atoms[b].aromatic,
+                );
+                bonds.push(Bond { a, b, order });
                 bond_count += 1;
-                degree[prev_atom as usize] += next_bond_order;
-                degree[idx as usize] += next_bond_order;
+                degree[a] += next_bond_order;
+                degree[b] += next_bond_order;
                 next_bond_order = 1;
+                explicit_bond = None;
             }
             prev_atom = idx;
             continue;
@@ -363,7 +497,7 @@ pub fn parse(smi: &str) -> Option<Molecule> {
         atom.hydrogen = implicit_h;
     }
 
-    Some(Molecule { atoms, bond_count })
+    Some(Molecule { atoms, bonds, bond_count })
 }
 
 #[cfg(test)]
@@ -391,6 +525,125 @@ mod tests {
         assert_eq!(mol.atoms.len(), 6);
         assert_eq!(mol.bond_count, 6);
         assert!(mol.atoms[0].aromatic);
+    }
+
+    // =================================================================
+    // Bond/adjacency tests (added with feature/logP)
+    // =================================================================
+
+    #[test]
+    fn test_bonds_ethanol() {
+        let mol = parse("CCO").unwrap();
+        assert_eq!(mol.bonds.len(), 2);
+        assert_eq!(mol.bonds[0].a, 0);
+        assert_eq!(mol.bonds[0].b, 1);
+        assert_eq!(mol.bonds[0].order, BondOrder::Single);
+        assert_eq!(mol.bonds[1].a, 1);
+        assert_eq!(mol.bonds[1].b, 2);
+    }
+
+    #[test]
+    fn test_bonds_double() {
+        let mol = parse("C=O").unwrap();
+        assert_eq!(mol.bonds.len(), 1);
+        assert_eq!(mol.bonds[0].order, BondOrder::Double);
+    }
+
+    #[test]
+    fn test_bonds_triple() {
+        let mol = parse("C#N").unwrap();
+        assert_eq!(mol.bonds.len(), 1);
+        assert_eq!(mol.bonds[0].order, BondOrder::Triple);
+    }
+
+    #[test]
+    fn test_bonds_benzene_aromatic() {
+        let mol = parse("c1ccccc1").unwrap();
+        assert_eq!(mol.bonds.len(), 6);
+        for b in &mol.bonds {
+            assert_eq!(b.order, BondOrder::Aromatic, "benzene bond should be aromatic");
+        }
+    }
+
+    #[test]
+    fn test_bonds_ring_closure() {
+        let mol = parse("C1CCCCC1").unwrap();
+        assert_eq!(mol.bonds.len(), 6);
+        // Last bond is the ring closure between atom 5 and atom 0
+        let last = mol.bonds.last().unwrap();
+        assert!((last.a == 0 && last.b == 5) || (last.a == 5 && last.b == 0));
+    }
+
+    #[test]
+    fn test_neighbors() {
+        let mol = parse("CCO").unwrap();
+        let n0 = mol.neighbors(0);
+        assert_eq!(n0.len(), 1);
+        assert_eq!(n0[0].0, 1);
+        let n1 = mol.neighbors(1);
+        assert_eq!(n1.len(), 2);
+    }
+
+    #[test]
+    fn test_bonds_branch() {
+        // Isobutane CC(C)C: atom 1 has 3 neighbors
+        let mol = parse("CC(C)C").unwrap();
+        assert_eq!(mol.bonds.len(), 3);
+        assert_eq!(mol.neighbors(1).len(), 3);
+    }
+
+    #[test]
+    fn test_bonds_disconnected() {
+        let mol = parse("[Na+].[Cl-]").unwrap();
+        assert_eq!(mol.bonds.len(), 0);
+    }
+
+    // =================================================================
+    // Explicit hydrogen expansion tests (for SMARTS [#1] matching)
+    // =================================================================
+
+    #[test]
+    fn test_explicit_h_methane() {
+        let mol = parse("C").unwrap().with_explicit_hydrogens();
+        // C + 4 H atoms
+        assert_eq!(mol.atoms.len(), 5);
+        assert_eq!(mol.bonds.len(), 4);
+        // The original carbon now has hydrogen count 0
+        assert_eq!(mol.atoms[0].hydrogen, 0);
+        // All other atoms are H
+        for i in 1..5 {
+            assert_eq!(mol.atoms[i].symbol, "H");
+        }
+    }
+
+    #[test]
+    fn test_explicit_h_water() {
+        let mol = parse("O").unwrap().with_explicit_hydrogens();
+        assert_eq!(mol.atoms.len(), 3); // O + 2 H
+        assert_eq!(mol.bonds.len(), 2);
+        assert_eq!(mol.atoms[0].symbol, "O");
+        assert_eq!(mol.atoms[1].symbol, "H");
+        assert_eq!(mol.atoms[2].symbol, "H");
+    }
+
+    #[test]
+    fn test_explicit_h_ethanol() {
+        let mol = parse("CCO").unwrap().with_explicit_hydrogens();
+        // 3 heavy + (3 + 2 + 1) H = 9 atoms
+        assert_eq!(mol.atoms.len(), 9);
+        // Heavy bonds (2) + H bonds (6) = 8
+        assert_eq!(mol.bonds.len(), 8);
+    }
+
+    #[test]
+    fn test_explicit_h_neighbors() {
+        let mol = parse("CCO").unwrap().with_explicit_hydrogens();
+        // CH3 (atom 0): should have 1 heavy neighbor (C) + 3 H neighbors = 4
+        assert_eq!(mol.neighbors(0).len(), 4);
+        // CH2 (atom 1): 2 heavy + 2 H = 4
+        assert_eq!(mol.neighbors(1).len(), 4);
+        // OH (atom 2): 1 heavy + 1 H = 2
+        assert_eq!(mol.neighbors(2).len(), 2);
     }
 
     #[test]

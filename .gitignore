@@ -5,3 +5,4 @@ target/
 *.so
 *.dylib
 .DS_Store
+docs/
