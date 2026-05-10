@@ -86,6 +86,26 @@ pub extern "C" fn ds_logp_crippen(ptr: *const u8, len: usize) -> f64 {
     }
 }
 
+/// Writes SMILES with explicit H atoms to buffer. Returns length written, or -1 on invalid.
+/// Result is a verbose bracket-form SMILES that round-trips through parse.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_add_hydrogens(
+    ptr: *const u8, len: usize,
+    out: *mut u8, out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let smi = mol.with_explicit_hydrogens().to_smiles_verbose();
+            let bytes = smi.as_bytes();
+            let n = bytes.len().min(out_cap);
+            unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n); }
+            n as i32
+        }
+        None => -1,
+    }
+}
+
 // =============================================================================
 // Tests
 // =============================================================================

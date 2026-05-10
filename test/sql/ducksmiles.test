@@ -292,3 +292,71 @@ query I
 SELECT logp_crippen('');
 ----
 NULL
+
+# ============================================================================
+# SMILES: add_hydrogens (return SMILES with explicit H atoms)
+# ============================================================================
+
+# Methane → output contains explicit [H] atoms
+query I
+SELECT add_hydrogens('C');
+----
+[C]([H])([H])([H])[H]
+
+# Water
+query I
+SELECT add_hydrogens('O');
+----
+[O]([H])[H]
+
+# Ethanol
+query I
+SELECT add_hydrogens('CCO');
+----
+[C]([C]([O][H])([H])[H])([H])([H])[H]
+
+# Output is valid SMILES (round-trips through parser)
+query I
+SELECT mol_is_valid(add_hydrogens('CCO'));
+----
+true
+
+query I
+SELECT mol_is_valid(add_hydrogens('c1ccccc1'));
+----
+true
+
+# Molecular formula is preserved through add_hydrogens
+query I
+SELECT mol_formula(add_hydrogens('CCO'));
+----
+C2H6O
+
+query I
+SELECT mol_formula(add_hydrogens('CC(=O)Oc1ccccc1C(=O)O'));
+----
+C9H8O4
+
+# Idempotency: already-explicit H input produces same formula
+query I
+SELECT mol_formula(add_hydrogens(add_hydrogens('CCO')));
+----
+C2H6O
+
+# Output contains [H] substrings
+query I
+SELECT add_hydrogens('CCO') LIKE '%[H]%';
+----
+true
+
+# NULL on invalid SMILES
+query I
+SELECT add_hydrogens('not_a_molecule');
+----
+NULL
+
+# NULL on empty string
+query I
+SELECT add_hydrogens('');
+----
+NULL

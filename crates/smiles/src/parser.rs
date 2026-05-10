@@ -183,6 +183,169 @@ impl Molecule {
         }
         mass
     }
+
+    /// Serialize molecule to SMILES with every atom written in bracket form
+    /// (verbose form: each atom is `[ELEM]`, `[ELEM+chg]`, or just `[H]`).
+    /// Bond orders are shown explicitly (`=`, `#`, `:`); single bonds are implicit.
+    /// Disconnected components are joined with `.`.
+    /// Output is valid SMILES that round-trips through `parse`.
+    pub fn to_smiles_verbose(&self) -> String {
+        if self.atoms.is_empty() {
+            return String::new();
+        }
+        let n = self.atoms.len();
+        let mut visited = vec![false; n];
+        let mut ring_id_for_pair: std::collections::HashMap<(usize, usize), usize> =
+            std::collections::HashMap::new();
+        let mut next_ring_id: usize = 1;
+        let mut output = String::new();
+        let mut first = true;
+        for start in 0..n {
+            if visited[start] {
+                continue;
+            }
+            if !first {
+                output.push('.');
+            }
+            first = false;
+            self.dfs_smiles(
+                start,
+                None,
+                &mut visited,
+                &mut ring_id_for_pair,
+                &mut next_ring_id,
+                &mut output,
+            );
+        }
+        output
+    }
+
+    fn dfs_smiles(
+        &self,
+        atom_idx: usize,
+        from: Option<usize>,
+        visited: &mut [bool],
+        ring_id_for_pair: &mut std::collections::HashMap<(usize, usize), usize>,
+        next_ring_id: &mut usize,
+        output: &mut String,
+    ) {
+        visited[atom_idx] = true;
+        let atom = &self.atoms[atom_idx];
+        // Bracket atom: [<sym>(<charge>)]
+        output.push('[');
+        if atom.aromatic {
+            output.push_str(&atom.symbol.to_lowercase());
+        } else {
+            output.push_str(&atom.symbol);
+        }
+        if atom.charge > 0 {
+            output.push('+');
+            if atom.charge > 1 {
+                output.push_str(&atom.charge.to_string());
+            }
+        } else if atom.charge < 0 {
+            output.push('-');
+            if atom.charge < -1 {
+                output.push_str(&(-atom.charge).to_string());
+            }
+        }
+        output.push(']');
+
+        // Collect neighbors except the atom we came from. Snapshot now; visited[] may
+        // mutate during recursion below.
+        let pending: Vec<(usize, BondOrder)> = self
+            .neighbors(atom_idx)
+            .into_iter()
+            .filter(|(n_idx, _)| Some(*n_idx) != from)
+            .collect();
+
+        // Emit ring-closure digits for already-visited neighbors at function entry.
+        for (other_idx, order) in pending.iter().filter(|(idx, _)| visited[*idx]) {
+            emit_ring_closure(atom_idx, *other_idx, *order, ring_id_for_pair, next_ring_id, output);
+        }
+
+        // Iterate the originally-unvisited neighbors in order. A neighbor that becomes
+        // visited mid-iteration (via a sibling's DFS) is emitted as a ring closure;
+        // a still-unvisited neighbor is recursed into. The LAST still-unvisited
+        // neighbor is emitted without parens.
+        let unvisited_at_entry: Vec<(usize, BondOrder)> = pending
+            .iter()
+            .filter(|(idx, _)| !visited[*idx])
+            .copied()
+            .collect();
+        for (i, (next_idx, order)) in unvisited_at_entry.iter().enumerate() {
+            if visited[*next_idx] {
+                // A sibling DFS already visited this atom → emit a ring closure here.
+                emit_ring_closure(
+                    atom_idx,
+                    *next_idx,
+                    *order,
+                    ring_id_for_pair,
+                    next_ring_id,
+                    output,
+                );
+                continue;
+            }
+            // Is there any still-unvisited atom AFTER this one in our list?
+            let any_after = unvisited_at_entry
+                .iter()
+                .skip(i + 1)
+                .any(|(idx, _)| !visited[*idx]);
+            let is_last = !any_after;
+            if !is_last {
+                output.push('(');
+            }
+            match order {
+                BondOrder::Double => output.push('='),
+                BondOrder::Triple => output.push('#'),
+                BondOrder::Aromatic => output.push(':'),
+                BondOrder::Single => {}
+            }
+            self.dfs_smiles(
+                *next_idx,
+                Some(atom_idx),
+                visited,
+                ring_id_for_pair,
+                next_ring_id,
+                output,
+            );
+            if !is_last {
+                output.push(')');
+            }
+        }
+    }
+}
+
+fn emit_ring_closure(
+    a: usize,
+    b: usize,
+    order: BondOrder,
+    ring_id_for_pair: &mut std::collections::HashMap<(usize, usize), usize>,
+    next_ring_id: &mut usize,
+    output: &mut String,
+) {
+    let key = if a < b { (a, b) } else { (b, a) };
+    let id = *ring_id_for_pair.entry(key).or_insert_with(|| {
+        let id = *next_ring_id;
+        *next_ring_id += 1;
+        id
+    });
+    // Bond symbol prefix (only non-aromatic non-single needs explicit symbol on closure)
+    match order {
+        BondOrder::Double => output.push('='),
+        BondOrder::Triple => output.push('#'),
+        BondOrder::Aromatic => {}
+        BondOrder::Single => {}
+    }
+    if id < 10 {
+        output.push((b'0' + id as u8) as char);
+    } else {
+        output.push('%');
+        if id < 100 {
+            output.push((b'0' + (id / 10) as u8) as char);
+            output.push((b'0' + (id % 10) as u8) as char);
+        }
+    }
 }
 
 /// Parse bracket atom: [NH3+], [Fe+2], [13C@@H], etc.
@@ -644,6 +807,57 @@ mod tests {
         assert_eq!(mol.neighbors(1).len(), 4);
         // OH (atom 2): 1 heavy + 1 H = 2
         assert_eq!(mol.neighbors(2).len(), 2);
+    }
+
+    #[test]
+    fn test_to_smiles_verbose_methane() {
+        let s = parse("C").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        // [C]([H])([H])([H])[H]
+        let parsed = parse(&s).expect("round-trip parse");
+        assert_eq!(parsed.atoms.len(), 5);
+        assert_eq!(parsed.heavy_atom_count(), 1);
+    }
+
+    #[test]
+    fn test_to_smiles_verbose_ethanol() {
+        let s = parse("CCO").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        let parsed = parse(&s).expect("round-trip parse");
+        assert_eq!(parsed.atoms.len(), 9);
+        assert_eq!(parsed.heavy_atom_count(), 3);
+    }
+
+    #[test]
+    fn test_to_smiles_verbose_water() {
+        let s = parse("O").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        let parsed = parse(&s).expect("round-trip parse");
+        assert_eq!(parsed.atoms.len(), 3);
+        assert_eq!(parsed.heavy_atom_count(), 1);
+    }
+
+    #[test]
+    fn test_to_smiles_verbose_benzene() {
+        let s = parse("c1ccccc1").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        let parsed = parse(&s).expect("round-trip parse");
+        // 6 C + 6 H = 12 atoms; round-trip preserves heavy atom count
+        assert_eq!(parsed.heavy_atom_count(), 6);
+    }
+
+    #[test]
+    fn test_to_smiles_verbose_idempotent() {
+        // Calling with_explicit_hydrogens twice produces the same result
+        let mol1 = parse("CCO").unwrap().with_explicit_hydrogens();
+        let mol2 = mol1.clone().with_explicit_hydrogens();
+        assert_eq!(mol1.atoms.len(), mol2.atoms.len());
+        assert_eq!(mol1.bonds.len(), mol2.bonds.len());
+    }
+
+    #[test]
+    fn test_to_smiles_verbose_disconnected() {
+        let s = parse("[Na+].[Cl-]").unwrap().to_smiles_verbose();
+        // Should contain a dot separating the two fragments
+        assert!(s.contains('.'));
+        let parsed = parse(&s).expect("round-trip parse");
+        assert_eq!(parsed.atoms.len(), 2);
     }
 
     #[test]
