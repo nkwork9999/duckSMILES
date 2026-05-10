@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, and SELFIES molecular analysis from SQL
-  version: 0.1.0
+  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, and Wildman-Crippen LogP from SQL
+  version: 0.2.0
   language: C++
   build: cmake
   license: MIT
@@ -22,6 +22,10 @@ docs:
     SELECT round(mol_weight('c1ccccc1'), 2);
     -- 78.11
 
+    -- Wildman-Crippen LogP (matches RDKit)
+    SELECT round(logp_crippen('CCO'), 4);
+    -- -0.0014
+
     -- Validate and extract InChI layers
     SELECT inchi_formula('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
     -- C2H4O2
@@ -35,14 +39,19 @@ docs:
     library dependencies (no RDKit required).
 
     **Supported Formats:**
-    - SMILES: Molecular validation, formula, weight, atom/bond counts
+    - SMILES: Molecular validation, formula, weight, atom/bond counts, LogP
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
     - MOL/SDF: V2000/V3000 block parsing, molecule counting
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
-    **28 scalar SQL functions** for molecular property extraction, format conversion,
-    and structural comparison. Ideal for cheminformatics datasets, drug discovery
-    pipelines, and molecular ML feature engineering.
+    **36 scalar SQL functions** for molecular property extraction, format conversion,
+    structural comparison, and physicochemical property prediction. Ideal for
+    cheminformatics datasets, drug discovery pipelines, and molecular ML feature
+    engineering.
 
-    **Architecture:** Rust (core logic) + C++ (DuckDB integration via FFI)
+    **LogP:** `logp_crippen()` implements the Wildman-Crippen atom-contribution
+    method (110 SMARTS patterns, 68 atom types) and matches RDKit's
+    `Crippen.MolLogP` exactly for small molecules.
+
+    **Architecture:** Rust (core logic, 5 crates) + C++ (DuckDB integration via FFI)

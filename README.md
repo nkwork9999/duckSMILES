@@ -47,9 +47,9 @@ SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 
 ---
 
-## Function Reference (35 functions)
+## Function Reference (36 functions)
 
-### SMILES Functions (6)
+### SMILES Functions (7)
 
 SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
 
@@ -121,6 +121,18 @@ Returns the monoisotopic exact mass, using the mass of the most abundant isotope
 SELECT round(mol_exact_mass('O'), 4);     -- 18.0106
 SELECT round(mol_exact_mass('CCO'), 4);   -- 46.0419
 SELECT round(mol_exact_mass('C(Cl)(Cl)Cl'), 4); -- 117.9144 (chloroform)
+```
+
+#### `logp_crippen(smiles) -> DOUBLE`
+
+Returns the **Wildman–Crippen LogP** (octanol/water partition coefficient prediction) using the atom-contribution method (S. A. Wildman, G. M. Crippen, *JCICS* 39, 868–873 (1999)). Implemented as a port of RDKit's `Crippen.txt` parameter table — 110 SMARTS patterns, 68 atom types, first-match-wins atom typing. Values match RDKit's `Crippen.MolLogP` exactly for small molecules and stay within the method's intrinsic ±0.68 log-unit accuracy on drug-like molecules. Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT round(logp_crippen('C'), 4);            -- 0.6361   (methane)
+SELECT round(logp_crippen('O'), 4);            -- -0.8247  (water)
+SELECT round(logp_crippen('c1ccccc1'), 4);     -- 1.6866   (benzene)
+SELECT round(logp_crippen('CCO'), 4);          -- -0.0014  (ethanol)
+SELECT round(logp_crippen('CC(=O)Oc1ccccc1C(=O)O'), 4); -- ~1.31  (aspirin)
 ```
 
 ---

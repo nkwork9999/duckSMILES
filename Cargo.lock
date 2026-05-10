@@ -4,20 +4,20 @@ version = 4
 
 [[package]]
 name = "ducksmiles_inchi"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "ducksmiles_mol"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "ducksmiles_pdb"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "ducksmiles_selfies"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "ducksmiles_smiles"
-version = "0.1.0"
+version = "0.2.0"
