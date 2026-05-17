@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, and Wildman-Crippen LogP from SQL
-  version: 0.2.0
+  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, and Morgan/ECFP fingerprints from SQL
+  version: 0.3.0
   language: C++
   build: cmake
   license: MIT
@@ -26,6 +26,10 @@ docs:
     SELECT round(logp_crippen('CCO'), 4);
     -- -0.0014
 
+    -- Morgan/ECFP fingerprint as 2048-bit BLOB (ECFP4 default)
+    SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS BIT));
+    -- 26   (aspirin popcount)
+
     -- Validate and extract InChI layers
     SELECT inchi_formula('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
     -- C2H4O2
@@ -45,7 +49,7 @@ docs:
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
-    **36 scalar SQL functions** for molecular property extraction, format conversion,
+    **38 scalar SQL functions** for molecular property extraction, format conversion,
     structural comparison, and physicochemical property prediction. Ideal for
     cheminformatics datasets, drug discovery pipelines, and molecular ML feature
     engineering.
@@ -53,5 +57,12 @@ docs:
     **LogP:** `logp_crippen()` implements the Wildman-Crippen atom-contribution
     method (110 SMARTS patterns, 68 atom types) and matches RDKit's
     `Crippen.MolLogP` exactly for small molecules.
+
+    **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
+    (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width
+    bit vector as `BLOB`. Defaults to ECFP4 (radius=2, 2048 bit); 3-arg overload
+    `morgan_fp_bits(smi, radius, n_bits)` exposes full control. Combine with
+    `CAST(... AS BIT)` for SQL-level Tanimoto similarity:
+    `bit_count(a & b)::DOUBLE / bit_count(a | b)`.
 
     **Architecture:** Rust (core logic, 5 crates) + C++ (DuckDB integration via FFI)

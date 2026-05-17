@@ -47,9 +47,9 @@ SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 
 ---
 
-## Function Reference (36 functions)
+## Function Reference (38 functions)
 
-### SMILES Functions (7)
+### SMILES Functions (9)
 
 SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
 
@@ -133,6 +133,37 @@ SELECT round(logp_crippen('O'), 4);            -- -0.8247  (water)
 SELECT round(logp_crippen('c1ccccc1'), 4);     -- 1.6866   (benzene)
 SELECT round(logp_crippen('CCO'), 4);          -- -0.0014  (ethanol)
 SELECT round(logp_crippen('CC(=O)Oc1ccccc1C(=O)O'), 4); -- ~1.31  (aspirin)
+```
+
+#### `add_hydrogens(smiles) -> VARCHAR`
+
+Returns the input SMILES with every implicit H atom rewritten as an explicit `[H]` vertex (verbose bracket form). The output round-trips through `parse` and composes safely with other descriptors. Useful as a preprocessing primitive for SMARTS that match `[#1]`. Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT add_hydrogens('CCO');
+-- [C]([C]([O][H])([H])[H])([H])([H])[H]
+```
+
+#### `morgan_fp_bits(smiles [, radius, n_bits]) -> BLOB`
+
+Returns a **Morgan / ECFP fingerprint** as a fixed-width bit vector (`ceil(n_bits/8)` bytes of BLOB). Defaults are radius=2 and n_bits=2048, i.e. **ECFP4 / 2048-bit** (the most common ML featurization choice). The 3-arg overload exposes full control: `radius` (ECFPn → radius=n/2) and `n_bits` (bit-vector width). Returns `NULL` for invalid SMILES.
+
+Algorithm: layered BFS over atom neighborhoods + `hash_combine` + dead-atom dedup, ported from RDKit's `MorganGenerator`. **Not bit-exact RDKit-compatible** (uses an independent hash function), but algorithmically equivalent.
+
+```sql
+-- ECFP4 (default): inspect popcount via CAST to BIT
+SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS BIT));  -- 26  (aspirin)
+
+-- ECFP6 with 4096 bits
+SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O', 3, 4096) AS BIT));  -- 33
+
+-- Tanimoto similarity via BIT operators
+WITH x AS (
+  SELECT CAST(morgan_fp_bits('CCO') AS BIT) AS a,
+         CAST(morgan_fp_bits('CCN') AS BIT) AS b
+)
+SELECT bit_count(a & b)::DOUBLE / bit_count(a | b) AS tanimoto FROM x;
+-- 0.3333
 ```
 
 ---
