@@ -85,6 +85,44 @@ static void AddHydrogensFunc(DataChunk &args, ExpressionState &state, Vector &re
 		});
 }
 
+// morgan_fp_bits(smi, radius, n_bits) → BLOB (ceil(n_bits/8) bytes).
+// 16 KiB buffer is enough for up to 131072-bit fingerprints (standard sizes are
+// 1024–4096).
+static constexpr size_t MORGAN_BUF_BYTES = 16384;
+
+static void MorganFpBitsFunc3(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	auto smi_data    = FlatVector::GetData<string_t>(args.data[0]);
+	auto radius_data = FlatVector::GetData<int32_t>(args.data[1]);
+	auto nbits_data  = FlatVector::GetData<int32_t>(args.data[2]);
+	auto &validity   = FlatVector::Validity(result);
+	for (idx_t i = 0; i < count; i++) {
+		int32_t r = radius_data[i];
+		int32_t n = nbits_data[i];
+		if (r < 0 || n <= 0) { validity.SetInvalid(i); continue; }
+		uint8_t buf[MORGAN_BUF_BYTES];
+		int32_t len = ds_morgan_fp_bits(
+			(const uint8_t *)smi_data[i].GetData(), smi_data[i].GetSize(),
+			(uint32_t)r, (uint32_t)n, buf, sizeof(buf));
+		if (len < 0) { validity.SetInvalid(i); continue; }
+		auto blob = StringVector::AddStringOrBlob(result, (const char *)buf, len);
+		FlatVector::GetData<string_t>(result)[i] = blob;
+	}
+}
+
+// morgan_fp_bits(smi) → BLOB with defaults: ECFP4 (radius=2, 2048 bits → 256 bytes).
+static void MorganFpBitsFunc1(DataChunk &args, ExpressionState &state, Vector &result) {
+	UnaryExecutor::ExecuteWithNulls<string_t, string_t>(args.data[0], result, args.size(),
+		[&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {
+			uint8_t buf[MORGAN_BUF_BYTES];
+			int32_t len = ds_morgan_fp_bits(
+				(const uint8_t *)input.GetData(), input.GetSize(),
+				2u, 2048u, buf, sizeof(buf));
+			if (len < 0) { mask.SetInvalid(idx); return string_t(); }
+			return StringVector::AddStringOrBlob(result, (const char *)buf, len);
+		});
+}
+
 // ============================================================================
 // InChI functions
 // ============================================================================
@@ -182,6 +220,10 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_exact_mass",  {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolExactMassFunc));
 	loader.RegisterFunction(ScalarFunction("logp_crippen",    {LogicalType::VARCHAR}, LogicalType::DOUBLE,  LogpCrippenFunc));
 	loader.RegisterFunction(ScalarFunction("add_hydrogens",   {LogicalType::VARCHAR}, LogicalType::VARCHAR, AddHydrogensFunc));
+	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",  {LogicalType::VARCHAR}, LogicalType::BLOB,    MorganFpBitsFunc1));
+	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",
+		{LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::INTEGER},
+		LogicalType::BLOB, MorganFpBitsFunc3));
 
 	// --- InChI layer extraction ---
 	loader.RegisterFunction(ScalarFunction("inchi_is_valid",           {LogicalType::VARCHAR}, LogicalType::BOOLEAN, InchiIsValidFunc));
