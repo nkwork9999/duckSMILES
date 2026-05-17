@@ -20,6 +20,11 @@ double ds_logp_crippen(const uint8_t *ptr, size_t len);
 // SMILES with explicit H atoms (verbose bracket form). Returns length written, or -1.
 int32_t ds_add_hydrogens(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 
+// Morgan/ECFP fingerprint. Writes ceil(n_bits/8) bytes. Returns bytes written or -1.
+int32_t ds_morgan_fp_bits(const uint8_t *ptr, size_t len,
+                          uint32_t radius, uint32_t n_bits,
+                          uint8_t *out, size_t out_cap);
+
 // ===================== InChI crate =====================
 
 int32_t ds_inchi_is_valid(const uint8_t *ptr, size_t len);
