@@ -47,9 +47,9 @@ SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 
 ---
 
-## Function Reference (38 functions)
+## Function Reference (39 functions)
 
-### SMILES Functions (9)
+### SMILES Functions (10)
 
 SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
 
@@ -157,13 +157,55 @@ SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS BIT));  -- 26  
 -- ECFP6 with 4096 bits
 SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O', 3, 4096) AS BIT));  -- 33
 
--- Tanimoto similarity via BIT operators
+-- Tanimoto similarity via BIT operators (see also: tanimoto_bit below)
 WITH x AS (
   SELECT CAST(morgan_fp_bits('CCO') AS BIT) AS a,
          CAST(morgan_fp_bits('CCN') AS BIT) AS b
 )
 SELECT bit_count(a & b)::DOUBLE / bit_count(a | b) AS tanimoto FROM x;
 -- 0.3333
+```
+
+#### `tanimoto_bit(blob_a, blob_b) -> DOUBLE`
+
+Computes **Tanimoto similarity** between two equal-length fingerprint BLOBs:
+`popcount(a & b) / popcount(a | b)`. Operates directly on the raw BLOB bytes
+(no `CAST AS BIT` round-trip), processing 8 bytes at a time via `u64::count_ones()`
+so it lowers to POPCNT on x86_64 and CNT on aarch64. Algorithmically equivalent
+to RDKit's `CalcBitmapTanimoto`.
+
+- **Length mismatch** → `InvalidInputException` with both byte sizes in the message
+  (better than a silent NULL — mixing different `n_bits` is a clear user error).
+- **Both BLOBs all-zero** → `0.0` (matches RDKit's `union == 0 ? 0.0` convention).
+- Bit-exact identical to the SQL-level `bit_count(CAST(a AS BIT) & CAST(b AS BIT))
+  / bit_count(CAST(a AS BIT) | CAST(b AS BIT))` form, but skips two casts per row.
+
+```sql
+-- Pairwise similarity vs a reference (aspirin)
+WITH ref AS (SELECT morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS fp)
+SELECT name,
+       round(tanimoto_bit(morgan_fp_bits(smiles), (SELECT fp FROM ref)), 4) AS sim
+FROM (VALUES
+  ('aspirin',        'CC(=O)Oc1ccccc1C(=O)O'),
+  ('salicylic acid', 'OC(=O)c1ccccc1O'),
+  ('paracetamol',    'CC(=O)Nc1ccc(O)cc1'),
+  ('caffeine',       'Cn1c(=O)c2c(ncn2C)n(C)c1=O'),
+  ('methane',        'C')
+) AS t(name, smiles)
+ORDER BY sim DESC;
+-- aspirin        1.0000
+-- salicylic acid 0.2162
+-- paracetamol    0.2162
+-- caffeine       0.1020
+-- methane        0.0000
+
+-- Specialized vs SQL-native — bit-exact identical:
+WITH q AS (SELECT morgan_fp_bits('CCO') AS a, morgan_fp_bits('CCN') AS b)
+SELECT tanimoto_bit(a, b)
+     = bit_count(CAST(a AS BIT) & CAST(b AS BIT))::DOUBLE
+     / bit_count(CAST(a AS BIT) | CAST(b AS BIT)) AS match
+FROM q;
+-- true
 ```
 
 ---
