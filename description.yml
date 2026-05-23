@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, and Morgan/ECFP fingerprints from SQL
-  version: 0.3.0
+  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, Morgan/ECFP fingerprints, and Tanimoto similarity from SQL
+  version: 0.4.0
   language: C++
   build: cmake
   license: MIT
@@ -30,6 +30,10 @@ docs:
     SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS BIT));
     -- 26   (aspirin popcount)
 
+    -- Tanimoto similarity between two fingerprint BLOBs (no CAST AS BIT needed)
+    SELECT round(tanimoto_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN')), 4);
+    -- 0.3333
+
     -- Validate and extract InChI layers
     SELECT inchi_formula('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
     -- C2H4O2
@@ -49,7 +53,7 @@ docs:
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
-    **38 scalar SQL functions** for molecular property extraction, format conversion,
+    **39 scalar SQL functions** for molecular property extraction, format conversion,
     structural comparison, and physicochemical property prediction. Ideal for
     cheminformatics datasets, drug discovery pipelines, and molecular ML feature
     engineering.
@@ -61,8 +65,14 @@ docs:
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width
     bit vector as `BLOB`. Defaults to ECFP4 (radius=2, 2048 bit); 3-arg overload
-    `morgan_fp_bits(smi, radius, n_bits)` exposes full control. Combine with
-    `CAST(... AS BIT)` for SQL-level Tanimoto similarity:
-    `bit_count(a & b)::DOUBLE / bit_count(a | b)`.
+    `morgan_fp_bits(smi, radius, n_bits)` exposes full control.
+
+    **Tanimoto similarity:** `tanimoto_bit(BLOB, BLOB) -> DOUBLE` computes
+    `popcount(a & b) / popcount(a | b)` directly on raw BLOB bytes (no
+    `CAST AS BIT` round-trip), processing 8 bytes at a time via `count_ones()`
+    so it lowers to POPCNT on x86_64 / CNT on aarch64. Mismatched lengths raise
+    a clear `InvalidInputException`; empty-vs-empty returns `0.0` (RDKit
+    convention). The SQL-level `bit_count(a & b)::DOUBLE / bit_count(a | b)`
+    is still available and produces bit-exact identical results.
 
     **Architecture:** Rust (core logic, 5 crates) + C++ (DuckDB integration via FFI)
