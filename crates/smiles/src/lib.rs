@@ -2,11 +2,13 @@ mod logp_crippen;
 mod morgan;
 mod parser;
 mod smarts;
+mod tanimoto;
 mod weights;
 
 use logp_crippen::calc_logp;
 use morgan::morgan_bits;
 use parser::parse;
+use tanimoto::tanimoto_bit;
 
 // =============================================================================
 // C FFI exports
@@ -106,6 +108,31 @@ pub extern "C" fn ds_add_hydrogens(
         }
         None => -1,
     }
+}
+
+/// Tanimoto similarity between two equal-length fingerprint BLOBs.
+///
+/// Returns:
+///   - `popcount(a & b) / popcount(a | b)` for normal inputs (range `[0.0, 1.0]`).
+///   - `0.0` if both blobs are all-zero (matches RDKit `CalcBitmapTanimoto`).
+///   - `NaN` if the lengths differ — the DuckDB extension surfaces this as
+///     an `InvalidInputException` so the user sees a clear error rather than
+///     a silent NULL.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_tanimoto_bit(
+    a_ptr: *const u8, a_len: usize,
+    b_ptr: *const u8, b_len: usize,
+) -> f64 {
+    if a_len != b_len {
+        return f64::NAN;
+    }
+    if a_len == 0 {
+        // Both empty → degenerate match RDKit's "both zero" path.
+        return 0.0;
+    }
+    let a = unsafe { std::slice::from_raw_parts(a_ptr, a_len) };
+    let b = unsafe { std::slice::from_raw_parts(b_ptr, b_len) };
+    tanimoto_bit(a, b)
 }
 
 /// Writes Morgan/ECFP fingerprint bits to buffer. Returns bytes written

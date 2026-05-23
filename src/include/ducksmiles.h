@@ -25,6 +25,11 @@ int32_t ds_morgan_fp_bits(const uint8_t *ptr, size_t len,
                           uint32_t radius, uint32_t n_bits,
                           uint8_t *out, size_t out_cap);
 
+// Tanimoto similarity over two raw fingerprint BLOBs. Returns NaN on length
+// mismatch; 0.0 on both-empty; popcount(a & b) / popcount(a | b) otherwise.
+double ds_tanimoto_bit(const uint8_t *a_ptr, size_t a_len,
+                       const uint8_t *b_ptr, size_t b_len);
+
 // ===================== InChI crate =====================
 
 int32_t ds_inchi_is_valid(const uint8_t *ptr, size_t len);

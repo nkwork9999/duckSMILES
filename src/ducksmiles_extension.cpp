@@ -7,6 +7,7 @@
 #include "duckdb/common/exception.hpp"
 #include "duckdb/function/scalar_function.hpp"
 #include "duckdb/common/vector_operations/unary_executor.hpp"
+#include "duckdb/common/vector_operations/binary_executor.hpp"
 
 #include <cmath>
 
@@ -123,6 +124,28 @@ static void MorganFpBitsFunc1(DataChunk &args, ExpressionState &state, Vector &r
 		});
 }
 
+// tanimoto_bit(BLOB, BLOB) → DOUBLE.
+// Computes popcount(a & b) / popcount(a | b) on the raw BLOB bytes —
+// no CAST AS BIT, no per-row table dispatch. Both arguments must be the
+// same length (typically the 256-byte BLOB produced by morgan_fp_bits).
+// BinaryExecutor handles flat / constant / dictionary vectors and NULL
+// propagation; we only worry about length-mismatch (clear user error).
+static void TanimotoBitFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	BinaryExecutor::Execute<string_t, string_t, double>(
+		args.data[0], args.data[1], result, args.size(),
+		[](string_t a, string_t b) -> double {
+			if (a.GetSize() != b.GetSize()) {
+				throw InvalidInputException(
+					"tanimoto_bit: BLOB lengths differ (%llu vs %llu bytes)",
+					(unsigned long long)a.GetSize(),
+					(unsigned long long)b.GetSize());
+			}
+			return ds_tanimoto_bit(
+				(const uint8_t *)a.GetData(), a.GetSize(),
+				(const uint8_t *)b.GetData(), b.GetSize());
+		});
+}
+
 // ============================================================================
 // InChI functions
 // ============================================================================
@@ -224,6 +247,9 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",
 		{LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::INTEGER},
 		LogicalType::BLOB, MorganFpBitsFunc3));
+	loader.RegisterFunction(ScalarFunction("tanimoto_bit",
+		{LogicalType::BLOB, LogicalType::BLOB},
+		LogicalType::DOUBLE, TanimotoBitFunc));
 
 	// --- InChI layer extraction ---
 	loader.RegisterFunction(ScalarFunction("inchi_is_valid",           {LogicalType::VARCHAR}, LogicalType::BOOLEAN, InchiIsValidFunc));
