@@ -3,6 +3,8 @@ mod morgan;
 mod parser;
 mod smarts;
 mod tanimoto;
+#[cfg(test)]
+pub(crate) mod test_fixtures;
 mod weights;
 
 use logp_crippen::calc_logp;
