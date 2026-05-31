@@ -3,7 +3,9 @@
 //! Faithful port of the algorithm in `RDKit/Code/DataStructs/BitOps.cpp`
 //! (`CalcBitmapTanimoto`):
 //!
-//!     Tanimoto(a, b) = popcount(a AND b) / popcount(a OR b)
+//! ```text
+//! Tanimoto(a, b) = popcount(a AND b) / popcount(a OR b)
+//! ```
 //!
 //! Two popcounts are computed in a single loop (AND and OR over the same
 //! bytes), matching RDKit's optimization.
@@ -98,8 +100,16 @@ mod tests {
     #[test]
     fn in_range_zero_to_one() {
         for seed in 0..16u8 {
-            let a: Vec<u8> = (0..256).map(|i| (i as u8).wrapping_mul(seed).wrapping_add(seed)).collect();
-            let b: Vec<u8> = (0..256).map(|i| (i as u8).wrapping_mul(seed.wrapping_add(7)).wrapping_add(13)).collect();
+            let a: Vec<u8> = (0..256)
+                .map(|i| (i as u8).wrapping_mul(seed).wrapping_add(seed))
+                .collect();
+            let b: Vec<u8> = (0..256)
+                .map(|i| {
+                    (i as u8)
+                        .wrapping_mul(seed.wrapping_add(7))
+                        .wrapping_add(13)
+                })
+                .collect();
             let t = tanimoto_bit(&a, &b);
             assert!((0.0..=1.0).contains(&t), "out of range: {t}");
         }

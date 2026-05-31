@@ -236,6 +236,8 @@ pub fn morgan_bits(mol: &Molecule, radius: u32, n_bits: u32) -> Vec<u8> {
 mod tests {
     use super::*;
     use crate::parser::parse;
+    use crate::tanimoto::tanimoto_bit;
+    use crate::test_fixtures;
 
     #[test]
     fn methane_round0_only() {
@@ -253,7 +255,7 @@ mod tests {
 
     #[test]
     fn ethanol_chain_no_ring() {
-        let mol = parse("CCO").unwrap();
+        let mol = parse(test_fixtures::ETHANOL).unwrap();
         let in_ring = compute_in_ring(&mol);
         assert!(in_ring.iter().all(|&x| !x), "no ring in CCO");
     }
@@ -267,15 +269,15 @@ mod tests {
 
     #[test]
     fn same_smiles_same_bits() {
-        let a = morgan_bits(&parse("CCO").unwrap(), 2, 2048);
-        let b = morgan_bits(&parse("CCO").unwrap(), 2, 2048);
+        let a = morgan_bits(&parse(test_fixtures::ETHANOL).unwrap(), 2, 2048);
+        let b = morgan_bits(&parse(test_fixtures::ETHANOL).unwrap(), 2, 2048);
         assert_eq!(a, b);
     }
 
     #[test]
     fn different_smiles_different_bits() {
-        let a = morgan_bits(&parse("CCO").unwrap(), 2, 2048);
-        let b = morgan_bits(&parse("c1ccccc1").unwrap(), 2, 2048);
+        let a = morgan_bits(&parse(test_fixtures::ETHANOL).unwrap(), 2, 2048);
+        let b = morgan_bits(&parse(test_fixtures::BENZENE).unwrap(), 2, 2048);
         assert_ne!(a, b);
     }
 
@@ -289,13 +291,13 @@ mod tests {
 
     #[test]
     fn bits_are_2048() {
-        let bits = morgan_bits(&parse("CCO").unwrap(), 2, 2048);
+        let bits = morgan_bits(&parse(test_fixtures::ETHANOL).unwrap(), 2, 2048);
         assert_eq!(bits.len(), 256);
     }
 
     #[test]
     fn aspirin_radius2_sets_many_bits() {
-        let mol = parse("CC(=O)Oc1ccccc1C(=O)O").unwrap();
+        let mol = parse(test_fixtures::ASPIRIN).unwrap();
         let bits = morgan_bits(&mol, 2, 2048);
         let pop: u32 = bits.iter().map(|b| b.count_ones()).sum();
         assert!(pop >= 10, "aspirin ECFP4 should set many bits, got {}", pop);
@@ -310,45 +312,60 @@ mod tests {
 
     #[test]
     fn caffeine_radius2_distinct_from_benzene() {
-        let caffeine = morgan_bits(&parse("Cn1c(=O)c2c(ncn2C)n(C)c1=O").unwrap(), 2, 2048);
-        let benzene  = morgan_bits(&parse("c1ccccc1").unwrap(), 2, 2048);
+        let caffeine = morgan_bits(&parse(test_fixtures::CAFFEINE).unwrap(), 2, 2048);
+        let benzene  = morgan_bits(&parse(test_fixtures::BENZENE).unwrap(), 2, 2048);
         assert_ne!(caffeine, benzene);
+    }
+
+    #[test]
+    fn tanimoto_ranks_similar_smiles_against_aspirin() {
+        let aspirin = morgan_bits(&parse(test_fixtures::ASPIRIN).unwrap(), 2, 2048);
+        let mut scored: Vec<_> = test_fixtures::ASPIRIN_SIMILARITY_SET
+            .iter()
+            .map(|entry| {
+                let fp = morgan_bits(&parse(entry.smiles).unwrap(), 2, 2048);
+                (entry.name, tanimoto_bit(&fp, &aspirin))
+            })
+            .collect();
+
+        scored.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(b.0)));
+
+        assert_eq!(scored[0].0, "aspirin");
+        assert_eq!(scored[0].1, 1.0);
+        assert_eq!(scored.last().unwrap().0, "methane");
+        assert_eq!(scored.last().unwrap().1, 0.0);
+        assert!(scored.iter().all(|(_, sim)| (0.0..=1.0).contains(sim)));
+        assert!(
+            scored.iter().position(|(name, _)| *name == "salicylic acid")
+                < scored.iter().position(|(name, _)| *name == "caffeine"),
+            "salicylic acid should rank above caffeine: {scored:?}"
+        );
     }
 
     #[test]
     fn popcount_report() {
         // Run with: cargo test -p ducksmiles_smiles morgan::tests::popcount_report -- --nocapture
-        let mols = [
-            ("methane",     "C"),
-            ("water",       "O"),
-            ("ethanol",     "CCO"),
-            ("benzene",     "c1ccccc1"),
-            ("phenol",      "c1ccccc1O"),
-            ("aspirin",     "CC(=O)Oc1ccccc1C(=O)O"),
-            ("caffeine",    "Cn1c(=O)c2c(ncn2C)n(C)c1=O"),
-            ("cholesterol", "CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C"),
-        ];
         eprintln!("\n=== ECFP4 (radius=2, 2048 bits) popcounts ===");
-        for (name, smi) in mols {
-            let mol = parse(smi).unwrap_or_else(|| panic!("parse failed for {}", smi));
+        for entry in test_fixtures::ECFP_REPORT_SET {
+            let mol = parse(entry.smiles).unwrap_or_else(|| panic!("parse failed for {}", entry.smiles));
             let bits = morgan_bits(&mol, 2, 2048);
             let pop: u32 = bits.iter().map(|b| b.count_ones()).sum();
-            eprintln!("  {:<12} ({:<2} atoms) → {} bits", name, mol.atoms.len(), pop);
+            eprintln!("  {:<12} ({:<2} atoms) → {} bits", entry.name, mol.atoms.len(), pop);
         }
         eprintln!("\n=== ECFP6 (radius=3, 4096 bits) popcounts ===");
-        for (name, smi) in mols {
-            let mol = parse(smi).unwrap();
+        for entry in test_fixtures::ECFP_REPORT_SET {
+            let mol = parse(entry.smiles).unwrap();
             let bits = morgan_bits(&mol, 3, 4096);
             let pop: u32 = bits.iter().map(|b| b.count_ones()).sum();
-            eprintln!("  {:<12} → {} bits", name, pop);
+            eprintln!("  {:<12} → {} bits", entry.name, pop);
         }
         // First 8 bytes of the BLOB for the article's "fp" column display
         eprintln!("\n=== First bytes of ECFP4/2048 BLOB ===");
-        for (name, smi) in mols {
-            let mol = parse(smi).unwrap();
+        for entry in test_fixtures::ECFP_REPORT_SET {
+            let mol = parse(entry.smiles).unwrap();
             let bits = morgan_bits(&mol, 2, 2048);
             let hex: String = bits.iter().take(8).map(|b| format!("\\x{:02x}", b)).collect();
-            eprintln!("  {:<12} → {}...", name, hex);
+            eprintln!("  {:<12} → {}...", entry.name, hex);
         }
     }
 }
