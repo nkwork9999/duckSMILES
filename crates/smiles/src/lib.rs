@@ -5,12 +5,14 @@ mod smarts;
 mod tanimoto;
 #[cfg(test)]
 pub(crate) mod test_fixtures;
+mod tpsa;
 mod weights;
 
 use logp_crippen::calc_logp;
 use morgan::morgan_bits;
 use parser::parse;
 use tanimoto::tanimoto_bit;
+use tpsa::calc_tpsa;
 
 // =============================================================================
 // C FFI exports
@@ -88,6 +90,16 @@ pub extern "C" fn ds_logp_crippen(ptr: *const u8, len: usize) -> f64 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
         Some(mol) => calc_logp(&mol),
+        None => f64::NAN,
+    }
+}
+
+/// Returns RDKit-default TPSA (N/O only), or NaN on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_tpsa(ptr: *const u8, len: usize) -> f64 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => calc_tpsa(&mol),
         None => f64::NAN,
     }
 }
@@ -210,6 +222,19 @@ mod tests {
     fn test_aspirin() {
         let mol = parse("CC(=O)Oc1ccccc1C(=O)O").unwrap();
         assert_eq!(mol.formula(), "C9H8O4");
+    }
+
+    #[test]
+    fn test_tpsa_ffi() {
+        let smiles = b"CC(=O)Oc1ccccc1C(=O)O";
+        let got = ds_tpsa(smiles.as_ptr(), smiles.len());
+        assert!((got - 63.60).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_tpsa_ffi_invalid_is_nan() {
+        let smiles = b"not_a_molecule";
+        assert!(ds_tpsa(smiles.as_ptr(), smiles.len()).is_nan());
     }
 
     #[test]

@@ -1,6 +1,6 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, Morgan/ECFP fingerprints, and Tanimoto similarity from SQL
+  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP fingerprints, and Tanimoto similarity from SQL
   version: 0.4.0
   language: C++
   build: cmake
@@ -26,6 +26,10 @@ docs:
     SELECT round(logp_crippen('CCO'), 4);
     -- -0.0014
 
+    -- Topological polar surface area (RDKit default N/O scope)
+    SELECT round(tpsa('CC(=O)Oc1ccccc1C(=O)O'), 2);
+    -- 63.60
+
     -- Morgan/ECFP fingerprint as 2048-bit BLOB (ECFP4 default)
     SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS BIT));
     -- 26   (aspirin popcount)
@@ -47,13 +51,13 @@ docs:
     library dependencies (no RDKit required).
 
     **Supported Formats:**
-    - SMILES: Molecular validation, formula, weight, atom/bond counts, LogP
+    - SMILES: Molecular validation, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
     - MOL/SDF: V2000/V3000 block parsing, molecule counting
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
-    **39 scalar SQL functions** for molecular property extraction, format conversion,
+    **40 scalar SQL functions** for molecular property extraction, format conversion,
     structural comparison, and physicochemical property prediction. Ideal for
     cheminformatics datasets, drug discovery pipelines, and molecular ML feature
     engineering.
@@ -61,6 +65,10 @@ docs:
     **LogP:** `logp_crippen()` implements the Wildman-Crippen atom-contribution
     method (110 SMARTS patterns, 68 atom types) and matches RDKit's
     `Crippen.MolLogP` exactly for small molecules.
+
+    **TPSA:** `tpsa()` implements RDKit's default topological polar surface area
+    atom-contribution method for nitrogen and oxygen atoms, returning a scalar
+    descriptor suitable for drug-likeness filters and molecular ML features.
 
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width

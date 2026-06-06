@@ -135,6 +135,18 @@ SELECT round(logp_crippen('CCO'), 4);          -- -0.0014  (ethanol)
 SELECT round(logp_crippen('CC(=O)Oc1ccccc1C(=O)O'), 4); -- ~1.31  (aspirin)
 ```
 
+#### `tpsa(smiles) -> DOUBLE`
+
+Returns the **Topological Polar Surface Area** using RDKit's default Ertl-style atom-contribution scope: nitrogen and oxygen atoms are included; sulfur and phosphorus are excluded. Useful for drug-likeness filters, permeability heuristics, and molecular ML features. Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT round(tpsa('O'), 2);                            -- 31.50  (water)
+SELECT round(tpsa('CCO'), 2);                          -- 20.23  (ethanol)
+SELECT round(tpsa('CC(=O)O'), 2);                      -- 37.30  (acetic acid)
+SELECT round(tpsa('CC(=O)Oc1ccccc1C(=O)O'), 2);        -- 63.60  (aspirin)
+SELECT round(tpsa('c1ccncc1'), 2);                     -- 12.89  (pyridine)
+```
+
 #### `add_hydrogens(smiles) -> VARCHAR`
 
 Returns the input SMILES with every implicit H atom rewritten as an explicit `[H]` vertex (verbose bracket form). The output round-trips through `parse` and composes safely with other descriptors. Useful as a preprocessing primitive for SMARTS that match `[#1]`. Returns `NULL` for invalid SMILES.
