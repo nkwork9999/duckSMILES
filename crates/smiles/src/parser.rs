@@ -67,6 +67,17 @@ pub struct Molecule {
     pub bond_count: i32,
 }
 
+/// Result of ring perception over a molecule.
+#[derive(Clone, Debug)]
+pub struct RingInfo {
+    /// Per-atom: true if the atom lies on at least one ring.
+    pub atom_in_ring: Vec<bool>,
+    /// Per-bond (indexed like `Molecule::bonds`): true if the bond is a ring bond.
+    pub bond_in_ring: Vec<bool>,
+    /// A smallest-set-of-smallest-rings, each ring as a list of bond indices.
+    pub rings: Vec<Vec<usize>>,
+}
+
 impl Molecule {
     /// Return (neighbor_index, bond_order) pairs for the given atom.
     pub fn neighbors(&self, idx: usize) -> Vec<(usize, BondOrder)> {
@@ -182,6 +193,179 @@ impl Molecule {
             }
         }
         mass
+    }
+
+    /// Build an adjacency list of (neighbor, bond_index) for every atom.
+    /// Bond index refers into `self.bonds`. Used by ring perception and by
+    /// SMARTS ring-bond (`@` / `!@`) matching.
+    pub fn adjacency(&self) -> Vec<Vec<(usize, usize)>> {
+        let mut adj = vec![Vec::new(); self.atoms.len()];
+        for (bi, b) in self.bonds.iter().enumerate() {
+            if b.a < adj.len() && b.b < adj.len() {
+                adj[b.a].push((b.b, bi));
+                adj[b.b].push((b.a, bi));
+            }
+        }
+        adj
+    }
+
+    /// Number of disconnected fragments (connected components) over the
+    /// atom/bond graph. Matches RDKit `MolOps::getMolFrags(...).size()`,
+    /// which is what MACCS bit 166 (`> 1` fragment) keys on.
+    pub fn fragment_count(&self) -> usize {
+        let n = self.atoms.len();
+        if n == 0 {
+            return 0;
+        }
+        let adj = self.adjacency();
+        let mut seen = vec![false; n];
+        let mut comps = 0;
+        for start in 0..n {
+            if seen[start] {
+                continue;
+            }
+            comps += 1;
+            let mut stack = vec![start];
+            seen[start] = true;
+            while let Some(u) = stack.pop() {
+                for &(v, _) in &adj[u] {
+                    if !seen[v] {
+                        seen[v] = true;
+                        stack.push(v);
+                    }
+                }
+            }
+        }
+        comps
+    }
+
+    /// Ring perception. Returns, for the whole molecule:
+    ///   - `atom_in_ring`: per-atom flag (true if the atom lies on any cycle)
+    ///   - `bond_in_ring`: per-bond flag (true if the bond lies on any cycle)
+    ///   - `rings`: a Smallest-Set-of-Smallest-Rings as lists of bond indices
+    ///
+    /// A bond is a ring bond iff it is *not* a bridge: removing it leaves its
+    /// endpoints still connected. Ring atoms are the endpoints of ring bonds.
+    /// The SSSR is built greedily by collecting, for each ring bond, the
+    /// shortest cycle through it (BFS shortest path between its endpoints in the
+    /// graph with that bond removed), then deduplicating by bond-set. This is
+    /// sufficient for MACCS, which only needs ring sizes and aromatic-ring
+    /// counts, not a canonical SSSR.
+    pub fn ring_info(&self) -> RingInfo {
+        let n = self.atoms.len();
+        let nb = self.bonds.len();
+        let adj = self.adjacency();
+
+        // --- ring bonds = non-bridges ---
+        // A bond is a ring bond iff removing it leaves its endpoints connected.
+        // Molecules are tiny, so a per-bond connectivity check (BFS with that
+        // bond skipped) is both simple and unambiguously correct.
+        let mut bond_in_ring = vec![false; nb];
+        for (bi, b) in self.bonds.iter().enumerate() {
+            if Self::connected_without(b.a, b.b, bi, &adj, n) {
+                bond_in_ring[bi] = true;
+            }
+        }
+
+        let mut atom_in_ring = vec![false; n];
+        for (bi, b) in self.bonds.iter().enumerate() {
+            if bond_in_ring[bi] {
+                atom_in_ring[b.a] = true;
+                atom_in_ring[b.b] = true;
+            }
+        }
+
+        // --- collect a smallest cycle through each ring bond ---
+        let mut rings: Vec<Vec<usize>> = Vec::new();
+        let mut seen_keys: std::collections::HashSet<Vec<usize>> = std::collections::HashSet::new();
+        for (bi, b) in self.bonds.iter().enumerate() {
+            if !bond_in_ring[bi] {
+                continue;
+            }
+            if let Some(cycle_bonds) = self.shortest_cycle_through(b.a, b.b, bi, &adj) {
+                let mut key = cycle_bonds.clone();
+                key.sort_unstable();
+                if seen_keys.insert(key) {
+                    rings.push(cycle_bonds);
+                }
+            }
+        }
+
+        RingInfo {
+            atom_in_ring,
+            bond_in_ring,
+            rings,
+        }
+    }
+
+    /// True if `a` can reach `b` in the graph with bond `skip` removed.
+    fn connected_without(
+        a: usize,
+        b: usize,
+        skip: usize,
+        adj: &[Vec<(usize, usize)>],
+        n: usize,
+    ) -> bool {
+        let mut visited = vec![false; n];
+        let mut stack = vec![a];
+        visited[a] = true;
+        while let Some(u) = stack.pop() {
+            if u == b {
+                return true;
+            }
+            for &(v, bi) in &adj[u] {
+                if bi == skip || visited[v] {
+                    continue;
+                }
+                visited[v] = true;
+                stack.push(v);
+            }
+        }
+        false
+    }
+
+    /// BFS shortest path between `a` and `b` in the graph with bond `skip`
+    /// removed, returning the cycle's bond indices (the path bonds plus `skip`).
+    fn shortest_cycle_through(
+        &self,
+        a: usize,
+        b: usize,
+        skip: usize,
+        adj: &[Vec<(usize, usize)>],
+    ) -> Option<Vec<usize>> {
+        let n = self.atoms.len();
+        let mut prev: Vec<(usize, usize)> = vec![(usize::MAX, usize::MAX); n]; // (prev_atom, bond)
+        let mut visited = vec![false; n];
+        let mut queue = std::collections::VecDeque::new();
+        queue.push_back(a);
+        visited[a] = true;
+        while let Some(u) = queue.pop_front() {
+            if u == b {
+                break;
+            }
+            for &(v, bi) in &adj[u] {
+                if bi == skip || visited[v] {
+                    continue;
+                }
+                visited[v] = true;
+                prev[v] = (u, bi);
+                queue.push_back(v);
+            }
+        }
+        if !visited[b] {
+            return None;
+        }
+        let mut bonds = vec![skip];
+        let mut cur = b;
+        while cur != a {
+            let (p, bi) = prev[cur];
+            if bi == usize::MAX {
+                return None;
+            }
+            bonds.push(bi);
+            cur = p;
+        }
+        Some(bonds)
     }
 
     /// Serialize molecule to SMILES with every atom written in bracket form
@@ -932,6 +1116,51 @@ mod tests {
     fn check_parse(smiles: &str, expected_heavy: usize) {
         let mol = parse(smiles).unwrap_or_else(|| panic!("Failed to parse: {}", smiles));
         assert_eq!(mol.heavy_atom_count(), expected_heavy, "Heavy atom count mismatch for {}", smiles);
+    }
+
+    // --- Ring perception & fragments ---
+
+    #[test]
+    fn ring_benzene() {
+        let mol = parse("c1ccccc1").unwrap();
+        let ri = mol.ring_info();
+        assert!(ri.atom_in_ring.iter().all(|&x| x), "all benzene atoms in ring");
+        assert_eq!(ri.rings.len(), 1, "benzene has 1 ring");
+        assert_eq!(ri.rings[0].len(), 6, "benzene ring has 6 bonds");
+    }
+
+    #[test]
+    fn ring_acyclic_has_no_rings() {
+        let mol = parse("CCO").unwrap();
+        let ri = mol.ring_info();
+        assert!(ri.atom_in_ring.iter().all(|&x| !x));
+        assert!(ri.bond_in_ring.iter().all(|&x| !x));
+        assert_eq!(ri.rings.len(), 0);
+    }
+
+    #[test]
+    fn ring_naphthalene_two_rings() {
+        let mol = parse("c1ccc2ccccc2c1").unwrap();
+        let ri = mol.ring_info();
+        assert_eq!(ri.rings.len(), 2, "naphthalene has 2 rings");
+        // 10 atoms all in ring
+        assert_eq!(ri.atom_in_ring.iter().filter(|&&x| x).count(), 10);
+    }
+
+    #[test]
+    fn ring_substituent_not_in_ring() {
+        // toluene: the methyl C is not in the ring
+        let mol = parse("Cc1ccccc1").unwrap();
+        let ri = mol.ring_info();
+        assert!(!ri.atom_in_ring[0], "methyl carbon not in ring");
+        assert_eq!(ri.atom_in_ring.iter().filter(|&&x| x).count(), 6);
+    }
+
+    #[test]
+    fn fragments_single_and_salt() {
+        assert_eq!(parse("CCO").unwrap().fragment_count(), 1);
+        assert_eq!(parse("[Na+].[Cl-]").unwrap().fragment_count(), 2);
+        assert_eq!(parse("CC(=O)[O-].[Na+]").unwrap().fragment_count(), 2);
     }
 
     // --- Simple organic molecules ---

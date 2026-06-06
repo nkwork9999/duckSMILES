@@ -1,4 +1,5 @@
 mod logp_crippen;
+mod maccs;
 mod morgan;
 mod parser;
 mod smarts;
@@ -13,6 +14,13 @@ use morgan::morgan_bits;
 use parser::parse;
 use tanimoto::tanimoto_bit;
 use tpsa::calc_tpsa;
+
+/// Re-exports used by the `maccs_verify` example (Python-RDKit cross-check).
+/// Not part of the C ABI; kept minimal.
+pub mod verify {
+    pub use crate::maccs::{maccs_bits, on_bits, MACCS_N_BYTES};
+    pub use crate::parser::parse;
+}
 
 // =============================================================================
 // C FFI exports
@@ -174,6 +182,28 @@ pub extern "C" fn ds_morgan_fp_bits(
     }
 }
 
+/// Writes the 166 MACCS keys to `out` as a fixed 21-byte (167-bit) buffer.
+/// Returns bytes written (always 21), or -1 on invalid SMILES / buffer too small.
+///
+/// Bit `n` (1..=166) is stored at `byte = n / 8`, `offset = n % 8`. Bit 0 and
+/// bit 1 (isotope) are always 0, matching RDKit's `ExplicitBitVect(167)`.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_maccs_keys(
+    ptr: *const u8, len: usize,
+    out: *mut u8, out_cap: usize,
+) -> i32 {
+    if out_cap < maccs::MACCS_N_BYTES { return -1; }
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let bits = maccs::maccs_bits(&mol);
+            unsafe { std::ptr::copy_nonoverlapping(bits.as_ptr(), out, maccs::MACCS_N_BYTES); }
+            maccs::MACCS_N_BYTES as i32
+        }
+        None => -1,
+    }
+}
+
 // =============================================================================
 // Tests
 // =============================================================================
@@ -235,6 +265,34 @@ mod tests {
     fn test_tpsa_ffi_invalid_is_nan() {
         let smiles = b"not_a_molecule";
         assert!(ds_tpsa(smiles.as_ptr(), smiles.len()).is_nan());
+    }
+
+    #[test]
+    fn test_maccs_ffi() {
+        let smiles = b"CCO";
+        let mut buf = [0u8; 21];
+        let n = ds_maccs_keys(smiles.as_ptr(), smiles.len(), buf.as_mut_ptr(), buf.len());
+        assert_eq!(n, 21);
+        // bit 164 (any oxygen) → byte 20, offset 4
+        assert_ne!(buf[164 / 8] & (1 << (164 % 8)), 0);
+        // bit 0 and 1 never set
+        assert_eq!(buf[0] & 0b11, 0);
+    }
+
+    #[test]
+    fn test_maccs_ffi_invalid_is_neg1() {
+        let smiles = b"not_a_molecule";
+        let mut buf = [0u8; 21];
+        let n = ds_maccs_keys(smiles.as_ptr(), smiles.len(), buf.as_mut_ptr(), buf.len());
+        assert_eq!(n, -1);
+    }
+
+    #[test]
+    fn test_maccs_ffi_small_buffer_is_neg1() {
+        let smiles = b"CCO";
+        let mut buf = [0u8; 20]; // too small (need 21)
+        let n = ds_maccs_keys(smiles.as_ptr(), smiles.len(), buf.as_mut_ptr(), buf.len());
+        assert_eq!(n, -1);
     }
 
     #[test]

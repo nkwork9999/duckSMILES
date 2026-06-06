@@ -47,9 +47,9 @@ SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 
 ---
 
-## Function Reference (39 functions)
+## Function Reference (40 functions)
 
-### SMILES Functions (10)
+### SMILES Functions (11)
 
 SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
 
@@ -218,6 +218,32 @@ SELECT tanimoto_bit(a, b)
      / bit_count(CAST(a AS BIT) | CAST(b AS BIT)) AS match
 FROM q;
 -- true
+```
+
+#### `maccs_keys(smiles) -> BLOB`
+
+Returns the **166 MACCS structural keys** as a fixed **21-byte (167-bit)** BLOB, ported from RDKit's `MACCS.cpp`. Bit `n` corresponds to RDKit MACCS key number `n` (bit 0 unused; bit 1, the isotope key, always 0). Returns `NULL` for invalid SMILES.
+
+Unlike Morgan/ECFP (hashed local environments), each MACCS bit is a fixed yes/no structural question: most are SMARTS substructure matches, some are count thresholds (e.g. "≥2 oxygens"), and a few are special rules (per-atom element scan, "≥2 aromatic rings", multi-fragment). Lighter and more interpretable than Morgan, at coarser resolution.
+
+**Bit-for-bit verified** against RDKit's `MACCSkeys.GenMACCSKeys` for aromatic SMILES written in lowercase form (`c1ccccc1`). Kekulé-written aromatic rings (`C1=CC=CC=C1`) depend on aromaticity perception, which the SMILES parser does not yet perform — write aromatic rings in lowercase for RDKit-identical output.
+
+```sql
+-- 21-byte fixed width (vs Morgan's 256 bytes at 2048 bit)
+SELECT octet_length(maccs_keys('CCO'));  -- 21
+
+-- Drops straight into tanimoto_bit alongside Morgan
+WITH ref AS (SELECT maccs_keys('CC(=O)Oc1ccccc1C(=O)O') AS fp)
+SELECT name,
+       round(tanimoto_bit(maccs_keys(smiles), (SELECT fp FROM ref)), 4) AS sim_maccs
+FROM (VALUES
+  ('aspirin',        'CC(=O)Oc1ccccc1C(=O)O'),
+  ('salicylic acid', 'O=C(O)c1ccccc1O'),
+  ('acetaminophen',  'CC(=O)Nc1ccc(O)cc1'),
+  ('benzene',        'c1ccccc1'),
+  ('ethanol',        'CCO')
+) AS t(name, smiles)
+ORDER BY sim_maccs DESC;
 ```
 
 ---

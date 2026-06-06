@@ -125,6 +125,21 @@ static void MorganFpBitsFunc1(DataChunk &args, ExpressionState &state, Vector &r
 		});
 }
 
+// maccs_keys(smi) → BLOB (fixed 21 bytes, 167-bit MACCS vector).
+static constexpr size_t MACCS_BUF_BYTES = 21;
+
+static void MaccsKeysFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	UnaryExecutor::ExecuteWithNulls<string_t, string_t>(args.data[0], result, args.size(),
+		[&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {
+			uint8_t buf[MACCS_BUF_BYTES];
+			int32_t len = ds_maccs_keys(
+				(const uint8_t *)input.GetData(), input.GetSize(),
+				buf, sizeof(buf));
+			if (len < 0) { mask.SetInvalid(idx); return string_t(); }
+			return StringVector::AddStringOrBlob(result, (const char *)buf, len);
+		});
+}
+
 // tanimoto_bit(BLOB, BLOB) → DOUBLE.
 // Computes popcount(a & b) / popcount(a | b) on the raw BLOB bytes —
 // no CAST AS BIT, no per-row table dispatch. Both arguments must be the
@@ -249,6 +264,7 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",
 		{LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::INTEGER},
 		LogicalType::BLOB, MorganFpBitsFunc3));
+	loader.RegisterFunction(ScalarFunction("maccs_keys",      {LogicalType::VARCHAR}, LogicalType::BLOB,    MaccsKeysFunc));
 	loader.RegisterFunction(ScalarFunction("tanimoto_bit",
 		{LogicalType::BLOB, LogicalType::BLOB},
 		LogicalType::DOUBLE, TanimotoBitFunc));
