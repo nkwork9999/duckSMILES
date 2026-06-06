@@ -16,6 +16,7 @@ int32_t ds_mol_formula(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_
 double ds_mol_weight(const uint8_t *ptr, size_t len);
 double ds_mol_exact_mass(const uint8_t *ptr, size_t len);
 double ds_logp_crippen(const uint8_t *ptr, size_t len);
+double ds_tpsa(const uint8_t *ptr, size_t len);
 
 // SMILES with explicit H atoms (verbose bracket form). Returns length written, or -1.
 int32_t ds_add_hydrogens(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
@@ -24,6 +25,11 @@ int32_t ds_add_hydrogens(const uint8_t *ptr, size_t len, uint8_t *out, size_t ou
 int32_t ds_morgan_fp_bits(const uint8_t *ptr, size_t len,
                           uint32_t radius, uint32_t n_bits,
                           uint8_t *out, size_t out_cap);
+
+// MACCS keys fingerprint. Writes a fixed 21 bytes (167-bit vector; bits 1..=166
+// are the public keys). Returns bytes written (21) or -1.
+int32_t ds_maccs_keys(const uint8_t *ptr, size_t len,
+                      uint8_t *out, size_t out_cap);
 
 // Tanimoto similarity over two raw fingerprint BLOBs. Returns NaN on length
 // mismatch; 0.0 on both-empty; popcount(a & b) / popcount(a | b) otherwise.

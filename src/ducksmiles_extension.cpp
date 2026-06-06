@@ -72,6 +72,7 @@ DEFINE_STR_FUNC(MolFormulaFunc, ds_mol_formula)
 DEFINE_DOUBLE_FUNC(MolWeightFunc, ds_mol_weight)
 DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
 DEFINE_DOUBLE_FUNC(LogpCrippenFunc, ds_logp_crippen)
+DEFINE_DOUBLE_FUNC(TpsaFunc, ds_tpsa)
 
 // add_hydrogens uses a larger 16KB buffer to handle drug-sized molecules
 // (verbose SMILES with all H broken out can be ~5x the heavy-atom SMILES length).
@@ -119,6 +120,21 @@ static void MorganFpBitsFunc1(DataChunk &args, ExpressionState &state, Vector &r
 			int32_t len = ds_morgan_fp_bits(
 				(const uint8_t *)input.GetData(), input.GetSize(),
 				2u, 2048u, buf, sizeof(buf));
+			if (len < 0) { mask.SetInvalid(idx); return string_t(); }
+			return StringVector::AddStringOrBlob(result, (const char *)buf, len);
+		});
+}
+
+// maccs_keys(smi) → BLOB (fixed 21 bytes, 167-bit MACCS vector).
+static constexpr size_t MACCS_BUF_BYTES = 21;
+
+static void MaccsKeysFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	UnaryExecutor::ExecuteWithNulls<string_t, string_t>(args.data[0], result, args.size(),
+		[&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {
+			uint8_t buf[MACCS_BUF_BYTES];
+			int32_t len = ds_maccs_keys(
+				(const uint8_t *)input.GetData(), input.GetSize(),
+				buf, sizeof(buf));
 			if (len < 0) { mask.SetInvalid(idx); return string_t(); }
 			return StringVector::AddStringOrBlob(result, (const char *)buf, len);
 		});
@@ -242,11 +258,13 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_weight",      {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolWeightFunc));
 	loader.RegisterFunction(ScalarFunction("mol_exact_mass",  {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolExactMassFunc));
 	loader.RegisterFunction(ScalarFunction("logp_crippen",    {LogicalType::VARCHAR}, LogicalType::DOUBLE,  LogpCrippenFunc));
+	loader.RegisterFunction(ScalarFunction("tpsa",            {LogicalType::VARCHAR}, LogicalType::DOUBLE,  TpsaFunc));
 	loader.RegisterFunction(ScalarFunction("add_hydrogens",   {LogicalType::VARCHAR}, LogicalType::VARCHAR, AddHydrogensFunc));
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",  {LogicalType::VARCHAR}, LogicalType::BLOB,    MorganFpBitsFunc1));
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",
 		{LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::INTEGER},
 		LogicalType::BLOB, MorganFpBitsFunc3));
+	loader.RegisterFunction(ScalarFunction("maccs_keys",      {LogicalType::VARCHAR}, LogicalType::BLOB,    MaccsKeysFunc));
 	loader.RegisterFunction(ScalarFunction("tanimoto_bit",
 		{LogicalType::BLOB, LogicalType::BLOB},
 		LogicalType::DOUBLE, TanimotoBitFunc));

@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, Morgan/ECFP fingerprints, and Tanimoto similarity from SQL
-  version: 0.4.0
+  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
+  version: 0.5.0
   language: C++
   build: cmake
   license: MIT
@@ -26,6 +26,10 @@ docs:
     SELECT round(logp_crippen('CCO'), 4);
     -- -0.0014
 
+    -- Topological polar surface area (RDKit default N/O scope)
+    SELECT round(tpsa('CC(=O)Oc1ccccc1C(=O)O'), 2);
+    -- 63.60
+
     -- Morgan/ECFP fingerprint as 2048-bit BLOB (ECFP4 default)
     SELECT bit_count(CAST(morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS BIT));
     -- 26   (aspirin popcount)
@@ -33,6 +37,10 @@ docs:
     -- Tanimoto similarity between two fingerprint BLOBs (no CAST AS BIT needed)
     SELECT round(tanimoto_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN')), 4);
     -- 0.3333
+
+    -- MACCS keys fingerprint as a 21-byte (167-bit) BLOB (matches RDKit)
+    SELECT octet_length(maccs_keys('CCO'));
+    -- 21
 
     -- Validate and extract InChI layers
     SELECT inchi_formula('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)');
@@ -47,13 +55,13 @@ docs:
     library dependencies (no RDKit required).
 
     **Supported Formats:**
-    - SMILES: Molecular validation, formula, weight, atom/bond counts, LogP
+    - SMILES: Molecular validation, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
     - MOL/SDF: V2000/V3000 block parsing, molecule counting
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
-    **39 scalar SQL functions** for molecular property extraction, format conversion,
+    **41 scalar SQL functions** for molecular property extraction, format conversion,
     structural comparison, and physicochemical property prediction. Ideal for
     cheminformatics datasets, drug discovery pipelines, and molecular ML feature
     engineering.
@@ -62,10 +70,23 @@ docs:
     method (110 SMARTS patterns, 68 atom types) and matches RDKit's
     `Crippen.MolLogP` exactly for small molecules.
 
+    **TPSA:** `tpsa()` implements RDKit's default topological polar surface area
+    atom-contribution method for nitrogen and oxygen atoms, returning a scalar
+    descriptor suitable for drug-likeness filters and molecular ML features.
+
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width
     bit vector as `BLOB`. Defaults to ECFP4 (radius=2, 2048 bit); 3-arg overload
     `morgan_fp_bits(smi, radius, n_bits)` exposes full control.
+
+    **MACCS keys:** `maccs_keys()` ports RDKit's `MACCS.cpp` — the 166 public
+    structural keys as a fixed 21-byte (167-bit) `BLOB`, with bit `n` matching
+    RDKit's key number. Each bit is a SMARTS substructure question (presence,
+    count threshold, or a special rule like the per-atom element scan, the
+    "≥2 aromatic rings" key, and the multi-fragment key). Drops straight into
+    `tanimoto_bit()` alongside Morgan, so SQL alone can contrast the two
+    fingerprints' design philosophies. Bit-for-bit verified against RDKit's
+    `MACCSkeys.GenMACCSKeys` (aromatic SMILES written in lowercase form).
 
     **Tanimoto similarity:** `tanimoto_bit(BLOB, BLOB) -> DOUBLE` computes
     `popcount(a & b) / popcount(a | b)` directly on raw BLOB bytes (no
