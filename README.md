@@ -163,6 +163,32 @@ SELECT canonical_smiles('c1ccccc1');     -- c1ccccc1
 SELECT canonical_smiles('C1CCCCC1');     -- C1CCCCC1
 ```
 
+#### `murcko_scaffold(smiles) -> VARCHAR`
+
+Returns the Bemis-Murcko scaffold: ring systems plus linker atoms that connect ring systems, with terminal side chains pruned. Acyclic molecules return an empty string. Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT murcko_scaffold('Cc1ccccc1');                  -- c1ccccc1
+SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O');      -- c1ccccc1
+SELECT murcko_scaffold('c1ccccc1CCc2ccccc2');         -- keeps both rings and the linker
+```
+
+#### `generic_scaffold(smiles) -> VARCHAR`
+
+Returns the generic Bemis-Murcko scaffold by converting scaffold atoms to carbon and scaffold bonds to single bonds. This mirrors the common RDKit workflow of extracting a Murcko scaffold and making it generic for scaffold-class grouping.
+
+```sql
+SELECT generic_scaffold('c1ccccn1');  -- C1CCCCC1
+```
+
+#### `ring_systems_json(smiles) -> VARCHAR`
+
+Returns ring systems as JSON. Each system includes 1-based atom indices, bond indices, ring count, aromatic flag, and the individual rings assigned to the system. Acyclic molecules return `[]`.
+
+```sql
+SELECT ring_systems_json('c1ccc2ccccc2c1');
+```
+
 #### `add_hydrogens(smiles) -> VARCHAR`
 
 Returns the input SMILES with every implicit H atom rewritten as an explicit `[H]` vertex (verbose bracket form). The output round-trips through `parse` and composes safely with other descriptors. Useful as a preprocessing primitive for SMARTS that match `[#1]`. Returns `NULL` for invalid SMILES.

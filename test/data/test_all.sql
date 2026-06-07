@@ -4,7 +4,7 @@
 -- ==========================================================================
 
 -- ============================
--- 1. SMILES functions (6)
+-- 1. SMILES functions
 -- ============================
 .print '=== SMILES: mol_is_valid, mol_formula, mol_num_atoms, mol_num_bonds, mol_weight, mol_exact_mass ==='
 
@@ -23,6 +23,12 @@ FROM read_csv('test/data/smiles.csv');
 SELECT mol_is_valid('not_a_molecule') AS should_be_false,
        mol_formula('not_a_molecule') AS should_be_null,
        mol_num_atoms('not_a_molecule') AS should_be_null2;
+
+.print '=== SMILES: Bemis-Murcko scaffold functions ==='
+
+SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O') AS aspirin_scaffold,
+       generic_scaffold('c1ccccn1') AS pyridine_generic,
+       ring_systems_json('c1ccccc1') AS benzene_ring_system;
 
 -- ============================
 -- 2. InChI functions (11)

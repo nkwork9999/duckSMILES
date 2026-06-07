@@ -1,6 +1,6 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, canonical SMILES normalization, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
+  description: Cheminformatics toolkit for DuckDB - SMILES, canonical SMILES normalization, Murcko scaffolds, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
   version: 0.5.0
   language: C++
   build: cmake
@@ -24,6 +24,10 @@ docs:
 
     -- Normalize a common Kekule aromatic form
     SELECT canonical_smiles('C1=CC=CC=C1');
+    -- c1ccccc1
+
+    -- Bemis-Murcko scaffold extraction
+    SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O');
     -- c1ccccc1
 
     -- Wildman-Crippen LogP (matches RDKit)
@@ -59,7 +63,7 @@ docs:
     library dependencies (no RDKit required).
 
     **Supported Formats:**
-    - SMILES: Molecular validation, canonical SMILES normalization, formula, weight, atom/bond counts, LogP, TPSA
+    - SMILES: Molecular validation, canonical SMILES normalization, Bemis-Murcko scaffolds, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
     - MOL/SDF: V2000/V3000 CTAB parsing, molecule counting, complete atom/bond/property JSON extraction
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
@@ -83,6 +87,12 @@ docs:
     six-membered Kekule aromaticity perception, normalizing common forms like
     `C1=CC=CC=C1` to `c1ccccc1`. It is intentionally smaller than RDKit's full
     canonicalization, sanitization, valence, and stereo stack.
+
+    **Bemis-Murcko scaffolds:** `murcko_scaffold()` removes terminal side chains
+    while retaining ring systems and linkers between ring systems.
+    `generic_scaffold()` converts the resulting framework to carbon/single-bond
+    form for scaffold-class grouping, and `ring_systems_json()` exposes the
+    perceived ring systems and individual rings as ordered JSON.
 
     **MOL/SDF structure JSON:** `mol_block_atoms_json()`,
     `mol_block_bonds_json()`, and `mol_block_json()` expose the parsed atom

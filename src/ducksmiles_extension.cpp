@@ -119,6 +119,9 @@ DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
 DEFINE_DOUBLE_FUNC(LogpCrippenFunc, ds_logp_crippen)
 DEFINE_DOUBLE_FUNC(TpsaFunc, ds_tpsa)
 DEFINE_STR_FUNC(CanonicalSmilesFunc, ds_canonical_smiles)
+DEFINE_DYNAMIC_STR_FUNC(MurckoScaffoldFunc, ds_murcko_scaffold)
+DEFINE_DYNAMIC_STR_FUNC(GenericScaffoldFunc, ds_generic_scaffold)
+DEFINE_DYNAMIC_STR_FUNC(RingSystemsJsonFunc, ds_ring_systems_json)
 DEFINE_INT_FUNC(NumHAcceptorsFunc, ds_num_h_acceptors)
 DEFINE_INT_FUNC(NumHDonorsFunc, ds_num_h_donors)
 DEFINE_INT_FUNC(NumRotatableBondsFunc, ds_num_rotatable_bonds)
@@ -444,6 +447,9 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("logp_crippen",    {LogicalType::VARCHAR}, LogicalType::DOUBLE,  LogpCrippenFunc));
 	loader.RegisterFunction(ScalarFunction("tpsa",            {LogicalType::VARCHAR}, LogicalType::DOUBLE,  TpsaFunc));
 	loader.RegisterFunction(ScalarFunction("canonical_smiles", {LogicalType::VARCHAR}, LogicalType::VARCHAR, CanonicalSmilesFunc));
+	loader.RegisterFunction(ScalarFunction("murcko_scaffold", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MurckoScaffoldFunc));
+	loader.RegisterFunction(ScalarFunction("generic_scaffold", {LogicalType::VARCHAR}, LogicalType::VARCHAR, GenericScaffoldFunc));
+	loader.RegisterFunction(ScalarFunction("ring_systems_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, RingSystemsJsonFunc));
 	loader.RegisterFunction(ScalarFunction("num_h_acceptors", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHAcceptorsFunc));
 	loader.RegisterFunction(ScalarFunction("num_h_donors",    {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHDonorsFunc));
 	loader.RegisterFunction(ScalarFunction("num_rotatable_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumRotatableBondsFunc));

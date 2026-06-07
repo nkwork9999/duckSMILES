@@ -294,6 +294,40 @@ SELECT logp_crippen('');
 NULL
 
 # ============================================================================
+# SMILES: Bemis-Murcko scaffolds and ring systems
+# ============================================================================
+
+query I
+SELECT murcko_scaffold('Cc1ccccc1');
+----
+c1ccccc1
+
+query I
+SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O');
+----
+c1ccccc1
+
+query I
+SELECT length(murcko_scaffold('CCCC'));
+----
+0
+
+query I
+SELECT generic_scaffold('c1ccccn1');
+----
+C1CCCCC1
+
+query I
+SELECT ring_systems_json('c1ccccc1');
+----
+[{"index":1,"num_atoms":6,"num_bonds":6,"num_rings":1,"aromatic":true,"atoms":[1,2,3,4,5,6],"bonds":[1,2,3,4,5,6],"rings":[{"index":1,"size":6,"aromatic":true,"atoms":[1,2,3,4,5,6],"bonds":[1,2,3,4,5,6]}]}]
+
+query I
+SELECT murcko_scaffold('not_a_molecule');
+----
+NULL
+
+# ============================================================================
 # SMILES: add_hydrogens (return SMILES with explicit H atoms)
 # ============================================================================
 

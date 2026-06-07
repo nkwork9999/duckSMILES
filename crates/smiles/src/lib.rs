@@ -2,6 +2,7 @@ mod logp_crippen;
 mod maccs;
 mod morgan;
 mod parser;
+mod scaffold;
 mod smarts;
 mod tanimoto;
 #[cfg(test)]
@@ -12,6 +13,7 @@ mod weights;
 use logp_crippen::calc_logp;
 use morgan::morgan_bits;
 use parser::{parse, BondOrder, Molecule};
+use scaffold::{generic_scaffold_smiles, murcko_scaffold_smiles, ring_systems_json};
 use smarts::{count_unique, matches_mol, parse_smarts};
 use tanimoto::tanimoto_bit;
 use tpsa::calc_tpsa;
@@ -162,6 +164,18 @@ fn fraction_csp3(mol: &Molecule) -> f64 {
 // C FFI exports
 // =============================================================================
 
+fn write_required(src: &[u8], out: *mut u8, out_cap: usize) -> i32 {
+    if out.is_null() || out_cap < src.len() {
+        return src.len() as i32;
+    }
+    if !src.is_empty() {
+        unsafe {
+            std::ptr::copy_nonoverlapping(src.as_ptr(), out, src.len());
+        }
+    }
+    src.len() as i32
+}
+
 /// Returns 1 if valid SMILES, 0 otherwise
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_is_valid(ptr: *const u8, len: usize) -> i32 {
@@ -270,6 +284,57 @@ pub extern "C" fn ds_canonical_smiles(
                 std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len());
             }
             bytes.len() as i32
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_murcko_scaffold(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let scaffold = murcko_scaffold_smiles(&mol);
+            write_required(scaffold.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_generic_scaffold(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let scaffold = generic_scaffold_smiles(&mol);
+            write_required(scaffold.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_ring_systems_json(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let json = ring_systems_json(&mol);
+            write_required(json.as_bytes(), out, out_cap)
         }
         None => -1,
     }
@@ -520,6 +585,29 @@ mod tests {
         String::from_utf8_lossy(&buf[..n as usize]).to_string()
     }
 
+    fn read_ffi_string<F: FnMut(*mut u8, usize) -> i32>(mut f: F) -> Option<String> {
+        let needed = f(std::ptr::null_mut(), 0);
+        if needed < 0 {
+            return None;
+        }
+        let mut buf = vec![0u8; needed as usize];
+        let n = f(buf.as_mut_ptr(), buf.len());
+        assert_eq!(n, needed);
+        Some(String::from_utf8(buf).unwrap())
+    }
+
+    fn murcko_ffi(smiles: &str) -> Option<String> {
+        read_ffi_string(|out, cap| ds_murcko_scaffold(smiles.as_ptr(), smiles.len(), out, cap))
+    }
+
+    fn generic_scaffold_ffi(smiles: &str) -> Option<String> {
+        read_ffi_string(|out, cap| ds_generic_scaffold(smiles.as_ptr(), smiles.len(), out, cap))
+    }
+
+    fn ring_systems_ffi(smiles: &str) -> Option<String> {
+        read_ffi_string(|out, cap| ds_ring_systems_json(smiles.as_ptr(), smiles.len(), out, cap))
+    }
+
     fn maccs_ffi(smiles: &str) -> [u8; 21] {
         let mut buf = [0u8; 21];
         let n = ds_maccs_keys(smiles.as_ptr(), smiles.len(), buf.as_mut_ptr(), buf.len());
@@ -610,6 +698,24 @@ mod tests {
         assert_eq!(canonical_ffi("C1=CC=CC=C1"), "c1ccccc1");
         assert_eq!(canonical_ffi("c1ccccc1"), "c1ccccc1");
         assert_eq!(canonical_ffi("C1CCCCC1"), "C1CCCCC1");
+    }
+
+    #[test]
+    fn scaffold_ffi_basics() {
+        assert_eq!(murcko_ffi("Cc1ccccc1").unwrap(), "c1ccccc1");
+        assert_eq!(murcko_ffi("CC(=O)Oc1ccccc1C(=O)O").unwrap(), "c1ccccc1");
+        assert_eq!(murcko_ffi("CCCC").unwrap(), "");
+        assert_eq!(generic_scaffold_ffi("c1ccccn1").unwrap(), "C1CCCCC1");
+        assert_eq!(murcko_ffi("not_a_molecule"), None);
+    }
+
+    #[test]
+    fn ring_systems_json_ffi_basics() {
+        assert_eq!(
+            ring_systems_ffi("c1ccccc1").unwrap(),
+            "[{\"index\":1,\"num_atoms\":6,\"num_bonds\":6,\"num_rings\":1,\"aromatic\":true,\"atoms\":[1,2,3,4,5,6],\"bonds\":[1,2,3,4,5,6],\"rings\":[{\"index\":1,\"size\":6,\"aromatic\":true,\"atoms\":[1,2,3,4,5,6],\"bonds\":[1,2,3,4,5,6]}]}]"
+        );
+        assert_eq!(ring_systems_ffi("CCCC").unwrap(), "[]");
     }
 
     #[test]
