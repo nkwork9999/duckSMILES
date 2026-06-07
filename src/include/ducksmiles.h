@@ -17,6 +17,7 @@ double ds_mol_weight(const uint8_t *ptr, size_t len);
 double ds_mol_exact_mass(const uint8_t *ptr, size_t len);
 double ds_logp_crippen(const uint8_t *ptr, size_t len);
 double ds_tpsa(const uint8_t *ptr, size_t len);
+int32_t ds_canonical_smiles(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 int32_t ds_num_h_acceptors(const uint8_t *ptr, size_t len);
 int32_t ds_num_h_donors(const uint8_t *ptr, size_t len);
 int32_t ds_num_rotatable_bonds(const uint8_t *ptr, size_t len);

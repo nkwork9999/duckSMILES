@@ -1,6 +1,6 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
+  description: Cheminformatics toolkit for DuckDB - SMILES, canonical SMILES normalization, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
   version: 0.5.0
   language: C++
   build: cmake
@@ -21,6 +21,10 @@ docs:
     -- Calculate molecular weight
     SELECT round(mol_weight('c1ccccc1'), 2);
     -- 78.11
+
+    -- Normalize a common Kekule aromatic form
+    SELECT canonical_smiles('C1=CC=CC=C1');
+    -- c1ccccc1
 
     -- Wildman-Crippen LogP (matches RDKit)
     SELECT round(logp_crippen('CCO'), 4);
@@ -55,13 +59,13 @@ docs:
     library dependencies (no RDKit required).
 
     **Supported Formats:**
-    - SMILES: Molecular validation, formula, weight, atom/bond counts, LogP, TPSA
+    - SMILES: Molecular validation, canonical SMILES normalization, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
     - MOL/SDF: V2000/V3000 block parsing, molecule counting
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
-    **41 scalar SQL functions** for molecular property extraction, format conversion,
+    **SQL scalar functions** for molecular property extraction, format conversion,
     structural comparison, and physicochemical property prediction. Ideal for
     cheminformatics datasets, drug discovery pipelines, and molecular ML feature
     engineering.
@@ -73,6 +77,12 @@ docs:
     **TPSA:** `tpsa()` implements RDKit's default topological polar surface area
     atom-contribution method for nitrogen and oxygen atoms, returning a scalar
     descriptor suitable for drug-likeness filters and molecular ML features.
+
+    **Canonical SMILES:** `canonical_smiles()` returns a deterministic normalized
+    SMILES string for the supported graph subset and includes conservative
+    six-membered Kekule aromaticity perception, normalizing common forms like
+    `C1=CC=CC=C1` to `c1ccccc1`. It is intentionally smaller than RDKit's full
+    canonicalization, sanitization, valence, and stereo stack.
 
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width
@@ -86,7 +96,8 @@ docs:
     "≥2 aromatic rings" key, and the multi-fragment key). Drops straight into
     `tanimoto_bit()` alongside Morgan, so SQL alone can contrast the two
     fingerprints' design philosophies. Bit-for-bit verified against RDKit's
-    `MACCSkeys.GenMACCSKeys` (aromatic SMILES written in lowercase form).
+    `MACCSkeys.GenMACCSKeys` for lowercase aromatic SMILES; common six-membered
+    Kekule aromatic forms are normalized by the conservative aromaticity pass.
 
     **Tanimoto similarity:** `tanimoto_bit(BLOB, BLOB) -> DOUBLE` computes
     `popcount(a & b) / popcount(a | b)` directly on raw BLOB bytes (no

@@ -43,13 +43,17 @@ SELECT round(mol_weight('c1ccccc1'), 2);
 -- Validate SMILES
 SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 -- true, false
+
+-- Normalize a common Kekule aromatic form
+SELECT canonical_smiles('C1=CC=CC=C1');
+-- c1ccccc1
 ```
 
 ---
 
-## Function Reference (40 functions)
+## Function Reference
 
-### SMILES Functions (11)
+### SMILES Functions
 
 SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
 
@@ -65,7 +69,7 @@ SELECT mol_is_valid('not_a_molecule');-- false
 SELECT mol_is_valid('');              -- false
 ```
 
-**Supported SMILES features:** organic subset atoms (B, C, N, O, P, S, F, Cl, Br, I), aromatic atoms (c, n, o, s, p, b), bracket atoms (`[NH3+]`, `[Fe+2]`, `[13C@@H]`), branches, ring closures, disconnected fragments (`.`), bond types (single `-`, double `=`, triple `#`), implicit hydrogens (valence-based).
+**Supported SMILES features:** organic subset atoms (B, C, N, O, P, S, F, Cl, Br, I), aromatic atoms (c, n, o, s, p, b), bracket atoms (`[NH3+]`, `[Fe+2]`, `[13C@@H]`), branches, ring closures, disconnected fragments (`.`), bond types (single `-`, double `=`, triple `#`), implicit hydrogens (valence-based), and conservative six-membered Kekule aromaticity perception for common benzene/pyridine-like rings. This is intentionally smaller than RDKit's full sanitization, valence model, stereochemistry handling, and canonicalization stack.
 
 #### `mol_formula(smiles) -> VARCHAR`
 
@@ -147,6 +151,18 @@ SELECT round(tpsa('CC(=O)Oc1ccccc1C(=O)O'), 2);        -- 63.60  (aspirin)
 SELECT round(tpsa('c1ccncc1'), 2);                     -- 12.89  (pyridine)
 ```
 
+#### `canonical_smiles(smiles) -> VARCHAR`
+
+Returns a deterministic normalized SMILES string for the parser's supported graph subset. It also runs the conservative aromaticity perception pass, so common six-membered Kekule aromatic rings are emitted in lowercase aromatic form. Returns `NULL` for invalid SMILES.
+
+This is useful for SQL-side deduplication and for normalizing common descriptor inputs, but it is not a replacement for RDKit's full canonical SMILES implementation: stereochemical canonicalization, full sanitization, and broad aromaticity models remain outside this lightweight subset.
+
+```sql
+SELECT canonical_smiles('C1=CC=CC=C1');  -- c1ccccc1
+SELECT canonical_smiles('c1ccccc1');     -- c1ccccc1
+SELECT canonical_smiles('C1CCCCC1');     -- C1CCCCC1
+```
+
 #### `add_hydrogens(smiles) -> VARCHAR`
 
 Returns the input SMILES with every implicit H atom rewritten as an explicit `[H]` vertex (verbose bracket form). The output round-trips through `parse` and composes safely with other descriptors. Useful as a preprocessing primitive for SMARTS that match `[#1]`. Returns `NULL` for invalid SMILES.
@@ -226,7 +242,7 @@ Returns the **166 MACCS structural keys** as a fixed **21-byte (167-bit)** BLOB,
 
 Unlike Morgan/ECFP (hashed local environments), each MACCS bit is a fixed yes/no structural question: most are SMARTS substructure matches, some are count thresholds (e.g. "≥2 oxygens"), and a few are special rules (per-atom element scan, "≥2 aromatic rings", multi-fragment). Lighter and more interpretable than Morgan, at coarser resolution.
 
-**Bit-for-bit verified** against RDKit's `MACCSkeys.GenMACCSKeys` for aromatic SMILES written in lowercase form (`c1ccccc1`). Kekulé-written aromatic rings (`C1=CC=CC=C1`) depend on aromaticity perception, which the SMILES parser does not yet perform — write aromatic rings in lowercase for RDKit-identical output.
+**Bit-for-bit verified** against RDKit's `MACCSkeys.GenMACCSKeys` for aromatic SMILES written in lowercase form (`c1ccccc1`). Common six-membered Kekule aromatic forms (`C1=CC=CC=C1`) are now normalized by the conservative aromaticity perception pass, but broader RDKit aromaticity and sanitization behavior is intentionally not claimed.
 
 ```sql
 -- 21-byte fixed width (vs Morgan's 256 bytes at 2048 bit)

@@ -101,7 +101,8 @@ fn is_terminal_heavy_atom(mol: &Molecule, idx: usize) -> bool {
     mol.neighbors(idx)
         .iter()
         .filter(|(nbr, _)| mol.atoms[*nbr].symbol != "H")
-        .count() <= 1
+        .count()
+        <= 1
 }
 
 fn is_amide_like_bond(mol: &Molecule, a: usize, b: usize) -> bool {
@@ -165,7 +166,11 @@ fn fraction_csp3(mol: &Molecule) -> f64 {
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_is_valid(ptr: *const u8, len: usize) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
-    if parse(s).is_some() { 1 } else { 0 }
+    if parse(s).is_some() {
+        1
+    } else {
+        0
+    }
 }
 
 /// Returns heavy atom count, or -1 on invalid
@@ -190,17 +195,16 @@ pub extern "C" fn ds_mol_num_bonds(ptr: *const u8, len: usize) -> i32 {
 
 /// Writes molecular formula to buffer. Returns length written, or -1 on invalid.
 #[unsafe(no_mangle)]
-pub extern "C" fn ds_mol_formula(
-    ptr: *const u8, len: usize,
-    out: *mut u8, out_cap: usize,
-) -> i32 {
+pub extern "C" fn ds_mol_formula(ptr: *const u8, len: usize, out: *mut u8, out_cap: usize) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
         Some(mol) => {
             let formula = mol.formula();
             let bytes = formula.as_bytes();
             let n = bytes.len().min(out_cap);
-            unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n); }
+            unsafe {
+                std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n);
+            }
             n as i32
         }
         None => -1,
@@ -244,6 +248,30 @@ pub extern "C" fn ds_tpsa(ptr: *const u8, len: usize) -> f64 {
     match parse(s) {
         Some(mol) => calc_tpsa(&mol),
         None => f64::NAN,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_canonical_smiles(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let canonical = mol.canonical_smiles();
+            let bytes = canonical.as_bytes();
+            if bytes.len() > out_cap {
+                return -1;
+            }
+            unsafe {
+                std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len());
+            }
+            bytes.len() as i32
+        }
+        None => -1,
     }
 }
 
@@ -312,24 +340,42 @@ pub extern "C" fn ds_fraction_csp3(ptr: *const u8, len: usize) -> f64 {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_has_substructure(
-    smiles_ptr: *const u8, smiles_len: usize,
-    smarts_ptr: *const u8, smarts_len: usize,
+    smiles_ptr: *const u8,
+    smiles_len: usize,
+    smarts_ptr: *const u8,
+    smarts_len: usize,
 ) -> i32 {
-    let smiles = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len)) };
-    let smarts = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(smarts_ptr, smarts_len)) };
+    let smiles = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len))
+    };
+    let smarts = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smarts_ptr, smarts_len))
+    };
     match (parse(smiles), parse_smarts(smarts)) {
-        (Some(mol), Some(pattern)) => if matches_mol(&pattern, &mol) { 1 } else { 0 },
+        (Some(mol), Some(pattern)) => {
+            if matches_mol(&pattern, &mol) {
+                1
+            } else {
+                0
+            }
+        }
         _ => -1,
     }
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_substructure_count(
-    smiles_ptr: *const u8, smiles_len: usize,
-    smarts_ptr: *const u8, smarts_len: usize,
+    smiles_ptr: *const u8,
+    smiles_len: usize,
+    smarts_ptr: *const u8,
+    smarts_len: usize,
 ) -> i32 {
-    let smiles = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len)) };
-    let smarts = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(smarts_ptr, smarts_len)) };
+    let smiles = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len))
+    };
+    let smarts = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smarts_ptr, smarts_len))
+    };
     match (parse(smiles), parse_smarts(smarts)) {
         (Some(mol), Some(pattern)) => count_unique(&pattern, &mol) as i32,
         _ => -1,
@@ -340,8 +386,10 @@ pub extern "C" fn ds_mol_substructure_count(
 /// Result is a verbose bracket-form SMILES that round-trips through parse.
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_add_hydrogens(
-    ptr: *const u8, len: usize,
-    out: *mut u8, out_cap: usize,
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
 ) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
@@ -349,7 +397,9 @@ pub extern "C" fn ds_add_hydrogens(
             let smi = mol.with_explicit_hydrogens().to_smiles_verbose();
             let bytes = smi.as_bytes();
             let n = bytes.len().min(out_cap);
-            unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n); }
+            unsafe {
+                std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n);
+            }
             n as i32
         }
         None => -1,
@@ -366,8 +416,10 @@ pub extern "C" fn ds_add_hydrogens(
 ///     a silent NULL.
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_tanimoto_bit(
-    a_ptr: *const u8, a_len: usize,
-    b_ptr: *const u8, b_len: usize,
+    a_ptr: *const u8,
+    a_len: usize,
+    b_ptr: *const u8,
+    b_len: usize,
 ) -> f64 {
     if a_len != b_len {
         return f64::NAN;
@@ -388,18 +440,27 @@ pub extern "C" fn ds_tanimoto_bit(
 /// `n_bits`: target bit-vector width (e.g. 2048). Capped to `out_cap * 8`.
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_morgan_fp_bits(
-    ptr: *const u8, len: usize,
-    radius: u32, n_bits: u32,
-    out: *mut u8, out_cap: usize,
+    ptr: *const u8,
+    len: usize,
+    radius: u32,
+    n_bits: u32,
+    out: *mut u8,
+    out_cap: usize,
 ) -> i32 {
-    if n_bits == 0 { return -1; }
+    if n_bits == 0 {
+        return -1;
+    }
     let n_bytes = ((n_bits as usize) + 7) / 8;
-    if n_bytes > out_cap { return -1; }
+    if n_bytes > out_cap {
+        return -1;
+    }
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
         Some(mol) => {
             let bits = morgan_bits(&mol, radius, n_bits);
-            unsafe { std::ptr::copy_nonoverlapping(bits.as_ptr(), out, n_bytes); }
+            unsafe {
+                std::ptr::copy_nonoverlapping(bits.as_ptr(), out, n_bytes);
+            }
             n_bytes as i32
         }
         None => -1,
@@ -412,16 +473,17 @@ pub extern "C" fn ds_morgan_fp_bits(
 /// Bit `n` (1..=166) is stored at `byte = n / 8`, `offset = n % 8`. Bit 0 and
 /// bit 1 (isotope) are always 0, matching RDKit's `ExplicitBitVect(167)`.
 #[unsafe(no_mangle)]
-pub extern "C" fn ds_maccs_keys(
-    ptr: *const u8, len: usize,
-    out: *mut u8, out_cap: usize,
-) -> i32 {
-    if out_cap < maccs::MACCS_N_BYTES { return -1; }
+pub extern "C" fn ds_maccs_keys(ptr: *const u8, len: usize, out: *mut u8, out_cap: usize) -> i32 {
+    if out_cap < maccs::MACCS_N_BYTES {
+        return -1;
+    }
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
         Some(mol) => {
             let bits = maccs::maccs_bits(&mol);
-            unsafe { std::ptr::copy_nonoverlapping(bits.as_ptr(), out, maccs::MACCS_N_BYTES); }
+            unsafe {
+                std::ptr::copy_nonoverlapping(bits.as_ptr(), out, maccs::MACCS_N_BYTES);
+            }
             maccs::MACCS_N_BYTES as i32
         }
         None => -1,
@@ -449,6 +511,13 @@ mod tests {
 
     fn tpsa_ffi(smiles: &str) -> f64 {
         ds_tpsa(smiles.as_ptr(), smiles.len())
+    }
+
+    fn canonical_ffi(smiles: &str) -> String {
+        let mut buf = [0u8; 1024];
+        let n = ds_canonical_smiles(smiles.as_ptr(), smiles.len(), buf.as_mut_ptr(), buf.len());
+        assert!(n >= 0, "canonical_smiles failed for {smiles}");
+        String::from_utf8_lossy(&buf[..n as usize]).to_string()
     }
 
     fn maccs_ffi(smiles: &str) -> [u8; 21] {
@@ -481,12 +550,22 @@ mod tests {
         assert_eq!(ds_ring_count(ethanol.as_ptr(), ethanol.len()), 0);
         assert_eq!(ds_num_aromatic_rings(ethanol.as_ptr(), ethanol.len()), 0);
         assert_eq!(ds_num_heteroatoms(ethanol.as_ptr(), ethanol.len()), 1);
-        assert_close("ethanol fraction_csp3", ds_fraction_csp3(ethanol.as_ptr(), ethanol.len()), 1.0, 1e-12);
+        assert_close(
+            "ethanol fraction_csp3",
+            ds_fraction_csp3(ethanol.as_ptr(), ethanol.len()),
+            1.0,
+            1e-12,
+        );
 
         let benzene = "c1ccccc1";
         assert_eq!(ds_ring_count(benzene.as_ptr(), benzene.len()), 1);
         assert_eq!(ds_num_aromatic_rings(benzene.as_ptr(), benzene.len()), 1);
-        assert_close("benzene fraction_csp3", ds_fraction_csp3(benzene.as_ptr(), benzene.len()), 0.0, 1e-12);
+        assert_close(
+            "benzene fraction_csp3",
+            ds_fraction_csp3(benzene.as_ptr(), benzene.len()),
+            0.0,
+            1e-12,
+        );
 
         let butane = "CCCC";
         assert_eq!(ds_num_rotatable_bonds(butane.as_ptr(), butane.len()), 1);
@@ -524,6 +603,13 @@ mod tests {
             ),
             6
         );
+    }
+
+    #[test]
+    fn canonical_smiles_aromatizes_kekule_forms() {
+        assert_eq!(canonical_ffi("C1=CC=CC=C1"), "c1ccccc1");
+        assert_eq!(canonical_ffi("c1ccccc1"), "c1ccccc1");
+        assert_eq!(canonical_ffi("C1CCCCC1"), "C1CCCCC1");
     }
 
     #[test]
