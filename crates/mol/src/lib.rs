@@ -245,11 +245,16 @@ mod tests {
     use super::*;
 
     const MOL: &str = "ethanol\n  test\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0\n    1.5400    0.0000    0.0000 C   0  0  0  0  0\n    2.3100    1.3300    0.0000 O   0  0  0  0  0\n  1  2  1  0\n  2  3  2  0\nM  END\n";
+    const MOL_V3000: &str = "ethanol_v3000\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 3 2 0 0 0\nM  V30 BEGIN ATOM\nM  V30 1 C 0.0000 0.0000 0.0000 0\nM  V30 2 C 1.5400 0.0000 0.0000 0 CFG=0\nM  V30 3 O 2.3100 1.3300 1.0000 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 1 1 1 2 CFG=0\nM  V30 2 2 2 3\nM  V30 END BOND\nM  V30 END CTAB\nM  END\n";
 
     #[test]
     fn test_ffi_formula() {
         let mut buf = [0u8; 64];
         let len = ds_mol_block_formula(MOL.as_ptr(), MOL.len(), buf.as_mut_ptr(), buf.len());
+        assert!(len > 0);
+        assert_eq!(&buf[..len as usize], b"C2O");
+
+        let len = ds_mol_block_formula(MOL_V3000.as_ptr(), MOL_V3000.len(), buf.as_mut_ptr(), buf.len());
         assert!(len > 0);
         assert_eq!(&buf[..len as usize], b"C2O");
     }
@@ -258,6 +263,8 @@ mod tests {
     fn test_ffi_weight() {
         let w = ds_mol_block_weight(MOL.as_ptr(), MOL.len());
         assert!((w - (12.011 * 2.0 + 15.999)).abs() < 0.01);
+        let w_v3000 = ds_mol_block_weight(MOL_V3000.as_ptr(), MOL_V3000.len());
+        assert!((w_v3000 - (12.011 * 2.0 + 15.999)).abs() < 0.01);
     }
 
     #[test]
@@ -271,6 +278,15 @@ mod tests {
         assert!((ds_mol_block_max_x(MOL.as_ptr(), MOL.len()) - 2.31).abs() < 0.01);
         assert_eq!(ds_mol_block_min_y(MOL.as_ptr(), MOL.len()), 0.0);
         assert!((ds_mol_block_max_y(MOL.as_ptr(), MOL.len()) - 1.33).abs() < 0.01);
+
+        assert_eq!(ds_mol_block_has_3d(MOL_V3000.as_ptr(), MOL_V3000.len()), 1);
+        assert_eq!(ds_mol_block_num_atoms(MOL_V3000.as_ptr(), MOL_V3000.len()), 3);
+        assert_eq!(ds_mol_block_num_bonds(MOL_V3000.as_ptr(), MOL_V3000.len()), 2);
+        assert!((ds_mol_block_centroid_x(MOL_V3000.as_ptr(), MOL_V3000.len()) - 1.283333).abs() < 0.01);
+        assert!((ds_mol_block_centroid_y(MOL_V3000.as_ptr(), MOL_V3000.len()) - 0.443333).abs() < 0.01);
+        assert!((ds_mol_block_centroid_z(MOL_V3000.as_ptr(), MOL_V3000.len()) - 0.333333).abs() < 0.01);
+        assert_eq!(ds_mol_block_min_z(MOL_V3000.as_ptr(), MOL_V3000.len()), 0.0);
+        assert_eq!(ds_mol_block_max_z(MOL_V3000.as_ptr(), MOL_V3000.len()), 1.0);
     }
 
     fn read_ffi_string<F: FnMut(*mut u8, usize) -> i32>(mut f: F) -> Option<String> {
@@ -315,11 +331,21 @@ mod tests {
             json,
             "[{\"name\":\"ID\",\"value\":\"123\"},{\"name\":\"NOTE\",\"value\":\"line one\\nline two\"}]"
         );
+
+        let mol_v3000 = format!("{}> <ID>\nV3000-1\n\n", MOL_V3000);
+        let id_value_v3000 = read_ffi_string(|out, cap| {
+            ds_mol_block_property(
+                mol_v3000.as_ptr(), mol_v3000.len(),
+                id.as_ptr(), id.len(),
+                out, cap,
+            )
+        }).unwrap();
+        assert_eq!(id_value_v3000, "V3000-1");
     }
 
     #[test]
     fn test_ffi_sdf_property_and_json() {
-        let sdf = format!("{}> <ID>\n1\n\n$$$$\n{}> <ID>\n2\n\n$$$$\n", MOL, MOL);
+        let sdf = format!("{}> <ID>\n1\n\n$$$$\n{}> <ID>\n2\n\n$$$$\n", MOL, MOL_V3000);
         let key = "ID";
 
         let second = read_ffi_string(|out, cap| {
@@ -336,7 +362,7 @@ mod tests {
         }).unwrap();
         assert_eq!(
             json,
-            "[{\"record\":1,\"name\":\"ethanol\",\"properties\":[{\"name\":\"ID\",\"value\":\"1\"}]},{\"record\":2,\"name\":\"ethanol\",\"properties\":[{\"name\":\"ID\",\"value\":\"2\"}]}]"
+            "[{\"record\":1,\"name\":\"ethanol\",\"properties\":[{\"name\":\"ID\",\"value\":\"1\"}]},{\"record\":2,\"name\":\"ethanol_v3000\",\"properties\":[{\"name\":\"ID\",\"value\":\"2\"}]}]"
         );
     }
 }

@@ -431,7 +431,7 @@ SELECT inchi_skeleton_match(
 
 ### MOL/SDF Functions
 
-MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns.
+MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns. V3000 support covers `COUNTS`, `ATOM`, and `BOND` CTAB blocks, including V3000 line continuation records, so the same MOL block functions work across V2000 and V3000 inputs.
 
 #### `mol_block_name(mol) -> VARCHAR`
 
@@ -479,6 +479,16 @@ SELECT mol_block_name(mol_text) AS name,
        round(mol_block_weight(mol_text), 2) AS weight,
        mol_block_num_atoms(mol_text) AS atoms,
        mol_block_num_bonds(mol_text) AS bonds
+FROM molecules;
+```
+
+The same functions accept V3000 CTAB records:
+
+```sql
+SELECT mol_block_formula(v3000_mol) AS formula,
+       mol_block_num_atoms(v3000_mol) AS atoms,
+       mol_block_num_bonds(v3000_mol) AS bonds,
+       mol_block_has_3d(v3000_mol) AS has_3d
 FROM molecules;
 ```
 

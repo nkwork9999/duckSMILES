@@ -61,7 +61,7 @@ docs:
     **Supported Formats:**
     - SMILES: Molecular validation, canonical SMILES normalization, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
-    - MOL/SDF: V2000/V3000 block parsing, molecule counting, complete SDF property-block extraction
+    - MOL/SDF: V2000/V3000 CTAB parsing, molecule counting, complete SDF property-block extraction
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
@@ -89,6 +89,11 @@ docs:
     blocks from `> <FIELD>` headers. Multi-line values, empty values, duplicate
     field names, and original field order are preserved; JSON output uses ordered
     arrays of `{name, value}` entries rather than lossy objects.
+
+    **MOL V3000:** MOL/SDF extraction functions parse V3000 `COUNTS`, `ATOM`,
+    and `BOND` CTAB blocks, including line continuation records, so formula,
+    weight, atom/bond counts, 3D coordinate summaries, and SDF properties work
+    across both V2000 and V3000 inputs.
 
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width

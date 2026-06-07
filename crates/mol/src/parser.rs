@@ -1,4 +1,4 @@
-/// SDF/MOL V2000 parser
+/// SDF/MOL V2000/V3000 parser
 
 #[derive(Debug, Clone)]
 pub struct Atom {
@@ -201,58 +201,9 @@ pub fn sdf_properties_json(mols: &[Molecule]) -> String {
     out
 }
 
-/// Parse a single MOL block (V2000)
-pub fn parse_mol(text: &str) -> Option<Molecule> {
-    let lines: Vec<&str> = text.lines().collect();
-    if lines.len() < 4 {
-        return None;
-    }
-
-    let name = lines[0].trim().to_string();
-    // lines[1]: program/timestamp, lines[2]: comment
-    // lines[3]: counts line
-    let counts = lines[3];
-    if counts.len() < 6 {
-        return None;
-    }
-    let num_atoms = counts[0..3].trim().parse::<usize>().ok()?;
-    let num_bonds = counts[3..6].trim().parse::<usize>().ok()?;
-
-    if lines.len() < 4 + num_atoms + num_bonds {
-        return None;
-    }
-
-    // Atom block
-    let mut atoms = Vec::with_capacity(num_atoms);
-    for i in 0..num_atoms {
-        let line = lines[4 + i];
-        if line.len() < 34 {
-            continue;
-        }
-        let x = parse_f32(&line[0..10]);
-        let y = parse_f32(&line[10..20]);
-        let z = parse_f32(&line[20..30]);
-        let symbol = line[30..34].trim().to_string();
-        atoms.push(Atom { x, y, z, symbol });
-    }
-
-    // Bond block
-    let mut bonds = Vec::with_capacity(num_bonds);
-    for i in 0..num_bonds {
-        let line = lines[4 + num_atoms + i];
-        if line.len() < 9 {
-            continue;
-        }
-        let a1 = parse_u32(&line[0..3]);
-        let a2 = parse_u32(&line[3..6]);
-        let bt = line[6..9].trim().parse::<u8>().unwrap_or(1);
-        bonds.push(Bond { atom1: a1, atom2: a2, bond_type: bt });
-    }
-
-    // Properties (SDF style): `> <FIELD>` header followed by zero or more
-    // value lines, terminated by a blank line or record delimiter.
+fn parse_sdf_properties(lines: &[&str], start: usize) -> Vec<(String, String)> {
     let mut properties = Vec::new();
-    let mut i = 4 + num_atoms + num_bonds;
+    let mut i = start;
     while i < lines.len() {
         let line = lines[i];
         if line.starts_with("$$$$") {
@@ -279,8 +230,167 @@ pub fn parse_mol(text: &str) -> Option<Molecule> {
             i += 1;
         }
     }
+    properties
+}
+
+fn parse_mol_v2000(lines: &[&str]) -> Option<Molecule> {
+    let name = lines[0].trim().to_string();
+    let counts = lines[3];
+    if counts.len() < 6 {
+        return None;
+    }
+    let num_atoms = counts[0..3].trim().parse::<usize>().ok()?;
+    let num_bonds = counts[3..6].trim().parse::<usize>().ok()?;
+
+    if lines.len() < 4 + num_atoms + num_bonds {
+        return None;
+    }
+
+    let mut atoms = Vec::with_capacity(num_atoms);
+    for i in 0..num_atoms {
+        let line = lines[4 + i];
+        if line.len() < 34 {
+            continue;
+        }
+        let x = parse_f32(&line[0..10]);
+        let y = parse_f32(&line[10..20]);
+        let z = parse_f32(&line[20..30]);
+        let symbol = line[30..34].trim().to_string();
+        atoms.push(Atom { x, y, z, symbol });
+    }
+
+    let mut bonds = Vec::with_capacity(num_bonds);
+    for i in 0..num_bonds {
+        let line = lines[4 + num_atoms + i];
+        if line.len() < 9 {
+            continue;
+        }
+        let a1 = parse_u32(&line[0..3]);
+        let a2 = parse_u32(&line[3..6]);
+        let bt = line[6..9].trim().parse::<u8>().unwrap_or(1);
+        bonds.push(Bond { atom1: a1, atom2: a2, bond_type: bt });
+    }
+
+    let properties = parse_sdf_properties(lines, 4 + num_atoms + num_bonds);
 
     Some(Molecule { name, atoms, bonds, properties })
+}
+
+fn v3000_records(lines: &[&str]) -> Vec<String> {
+    let mut records = Vec::new();
+    let mut current = String::new();
+    for line in lines {
+        if !line.starts_with("M  V30") {
+            continue;
+        }
+        let mut payload = line.get(6..).unwrap_or("").trim_start().to_string();
+        let continued = payload.trim_end().ends_with('-');
+        if continued {
+            payload = payload.trim_end_matches('-').trim_end().to_string();
+        }
+
+        if !current.is_empty() && !payload.is_empty() {
+            current.push(' ');
+        }
+        current.push_str(&payload);
+
+        if !continued {
+            records.push(current.trim().to_string());
+            current.clear();
+        }
+    }
+    if !current.trim().is_empty() {
+        records.push(current.trim().to_string());
+    }
+    records
+}
+
+fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
+    let name = lines[0].trim().to_string();
+    let records = v3000_records(lines);
+    let counts = records.iter().find(|record| record.starts_with("COUNTS "))?;
+    let counts_parts: Vec<&str> = counts.split_whitespace().collect();
+    if counts_parts.len() < 3 {
+        return None;
+    }
+    let num_atoms = counts_parts[1].parse::<usize>().ok()?;
+    let num_bonds = counts_parts[2].parse::<usize>().ok()?;
+
+    let mut atoms = Vec::with_capacity(num_atoms);
+    let mut bonds = Vec::with_capacity(num_bonds);
+    let mut in_atom_block = false;
+    let mut in_bond_block = false;
+
+    for record in &records {
+        match record.as_str() {
+            "BEGIN ATOM" => {
+                in_atom_block = true;
+                in_bond_block = false;
+                continue;
+            }
+            "END ATOM" => {
+                in_atom_block = false;
+                continue;
+            }
+            "BEGIN BOND" => {
+                in_bond_block = true;
+                in_atom_block = false;
+                continue;
+            }
+            "END BOND" => {
+                in_bond_block = false;
+                continue;
+            }
+            _ => {}
+        }
+
+        if in_atom_block {
+            let parts: Vec<&str> = record.split_whitespace().collect();
+            if parts.len() < 6 {
+                continue;
+            }
+            let symbol = parts[1].to_string();
+            let x = parse_f32(parts[2]);
+            let y = parse_f32(parts[3]);
+            let z = parse_f32(parts[4]);
+            atoms.push(Atom { x, y, z, symbol });
+        } else if in_bond_block {
+            let parts: Vec<&str> = record.split_whitespace().collect();
+            if parts.len() < 4 {
+                continue;
+            }
+            let bt = parts[1].parse::<u8>().unwrap_or(1);
+            let a1 = parse_u32(parts[2]);
+            let a2 = parse_u32(parts[3]);
+            bonds.push(Bond { atom1: a1, atom2: a2, bond_type: bt });
+        }
+    }
+
+    if atoms.len() != num_atoms || bonds.len() != num_bonds {
+        return None;
+    }
+
+    let property_start = lines
+        .iter()
+        .position(|line| line.trim() == "M  END")
+        .map(|idx| idx + 1)
+        .unwrap_or(lines.len());
+    let properties = parse_sdf_properties(lines, property_start);
+
+    Some(Molecule { name, atoms, bonds, properties })
+}
+
+/// Parse a single MOL block (V2000 or V3000)
+pub fn parse_mol(text: &str) -> Option<Molecule> {
+    let lines: Vec<&str> = text.lines().collect();
+    if lines.len() < 4 {
+        return None;
+    }
+    if lines[3].contains("V3000") || lines.iter().any(|line| line.starts_with("M  V30")) {
+        parse_mol_v3000(&lines)
+    } else {
+        parse_mol_v2000(&lines)
+    }
 }
 
 /// Parse SDF file (multiple molecules separated by $$$$)
@@ -297,6 +407,8 @@ mod tests {
     use super::*;
 
     const SAMPLE_MOL: &str = "ethanol\n  test\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0\n    1.5400    0.0000    0.0000 C   0  0  0  0  0\n    2.3100    1.3300    0.0000 O   0  0  0  0  0\n  1  2  1  0\n  2  3  2  0\nM  END\n";
+    const SAMPLE_MOL_V3000: &str = "ethanol_v3000\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 3 2 0 0 0\nM  V30 BEGIN ATOM\nM  V30 1 C 0.0000 0.0000 0.0000 0\nM  V30 2 C 1.5400 0.0000 0.0000 0 CFG=0\nM  V30 3 O 2.3100 1.3300 1.0000 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 1 1 1 2 CFG=0\nM  V30 2 2 2 3\nM  V30 END BOND\nM  V30 END CTAB\nM  END\n";
+    const SAMPLE_MOL_V3000_CONTINUED: &str = "continued_v3000\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 3 2 0 0 0\nM  V30 BEGIN ATOM\nM  V30 1 C 0.0000 0.0000 0.0000 0\nM  V30 2 C 1.5400 0.0000 0.0000 0 ATTCHPT=(2 1 -\nM  V30 2)\nM  V30 3 O 2.3100 1.3300 1.0000 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 1 1 1 2\nM  V30 2 2 2 3\nM  V30 END BOND\nM  V30 END CTAB\nM  END\n";
 
     #[test]
     fn test_parse_mol() {
@@ -308,9 +420,35 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_mol_v3000() {
+        let mol = parse_mol(SAMPLE_MOL_V3000).unwrap();
+        assert_eq!(mol.name, "ethanol_v3000");
+        assert_eq!(mol.atoms.len(), 3);
+        assert_eq!(mol.bonds.len(), 2);
+        assert_eq!(mol.atoms[0].symbol, "C");
+        assert_eq!(mol.atoms[2].symbol, "O");
+        assert_eq!(mol.bonds[0].atom1, 1);
+        assert_eq!(mol.bonds[0].atom2, 2);
+        assert_eq!(mol.bonds[0].bond_type, 1);
+        assert_eq!(mol.bonds[1].bond_type, 2);
+        assert!(mol.has_3d());
+        assert!((mol.centroid().unwrap().2 - 0.333333).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_parse_mol_v3000_line_continuation() {
+        let mol = parse_mol(SAMPLE_MOL_V3000_CONTINUED).unwrap();
+        assert_eq!(mol.atoms.len(), 3);
+        assert_eq!(mol.bonds.len(), 2);
+        assert_eq!(mol.formula(), "C2O");
+    }
+
+    #[test]
     fn test_formula() {
         let mol = parse_mol(SAMPLE_MOL).unwrap();
         assert_eq!(mol.formula(), "C2O");
+        let mol_v3000 = parse_mol(SAMPLE_MOL_V3000).unwrap();
+        assert_eq!(mol_v3000.formula(), "C2O");
     }
 
     #[test]
@@ -318,6 +456,9 @@ mod tests {
         let mol = parse_mol(SAMPLE_MOL).unwrap();
         let w = mol.weight();
         assert!((w - (12.011 * 2.0 + 15.999)).abs() < 0.01);
+        let mol_v3000 = parse_mol(SAMPLE_MOL_V3000).unwrap();
+        let w_v3000 = mol_v3000.weight();
+        assert!((w_v3000 - (12.011 * 2.0 + 15.999)).abs() < 0.01);
     }
 
     #[test]
@@ -325,6 +466,26 @@ mod tests {
         let sdf = format!("{}$$$$\n{}$$$$\n", SAMPLE_MOL, SAMPLE_MOL);
         let mols = parse_sdf(&sdf);
         assert_eq!(mols.len(), 2);
+        let sdf_v3000 = format!("{}$$$$\n{}$$$$\n", SAMPLE_MOL, SAMPLE_MOL_V3000);
+        let mols_v3000 = parse_sdf(&sdf_v3000);
+        assert_eq!(mols_v3000.len(), 2);
+        assert_eq!(mols_v3000[1].name, "ethanol_v3000");
+        assert_eq!(mols_v3000[1].formula(), "C2O");
+    }
+
+    #[test]
+    fn test_sdf_v3000_properties() {
+        let sdf = format!(
+            "{}> <ID>\nV3000-1\n\n> <NOTE>\nline one\nline two\n\n$$$$\n",
+            SAMPLE_MOL_V3000
+        );
+        let mol = parse_sdf(&sdf).pop().unwrap();
+        assert_eq!(mol.property("ID"), Some("V3000-1"));
+        assert_eq!(mol.property("NOTE"), Some("line one\nline two"));
+        assert_eq!(
+            mol.properties_json(),
+            "[{\"name\":\"ID\",\"value\":\"V3000-1\"},{\"name\":\"NOTE\",\"value\":\"line one\\nline two\"}]"
+        );
     }
 
     #[test]
