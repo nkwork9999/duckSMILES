@@ -21,6 +21,22 @@ int32_t ds_canonical_smiles(const uint8_t *ptr, size_t len, uint8_t *out, size_t
 int32_t ds_murcko_scaffold(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 int32_t ds_generic_scaffold(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 int32_t ds_ring_systems_json(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+int32_t ds_mol_hash(const uint8_t *smiles_ptr, size_t smiles_len,
+                    const uint8_t *method_ptr, size_t method_len,
+                    uint8_t *out, size_t out_cap);
+int32_t ds_mol_hash_methods_json(uint8_t *out, size_t out_cap);
+int32_t ds_largest_fragment(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+int32_t ds_strip_salts(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+int32_t ds_neutralize_charges(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+int32_t ds_normalize_smiles(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+int32_t ds_fragment_parent(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+int32_t ds_mcs_smarts(const uint8_t *a_ptr, size_t a_len,
+                      const uint8_t *b_ptr, size_t b_len,
+                      uint8_t *out, size_t out_cap);
+int32_t ds_mcs_json(const uint8_t *a_ptr, size_t a_len,
+                    const uint8_t *b_ptr, size_t b_len,
+                    uint8_t *out, size_t out_cap);
+int32_t ds_scaffold_network_json(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 int32_t ds_num_h_acceptors(const uint8_t *ptr, size_t len);
 int32_t ds_num_h_donors(const uint8_t *ptr, size_t len);
 int32_t ds_num_rotatable_bonds(const uint8_t *ptr, size_t len);

@@ -113,6 +113,20 @@ SELECT name,
 FROM read_csv('test/data/selfies.csv');
 
 -- ============================
+-- 5b. SMILES graph analysis, standardization, and MCS
+-- ============================
+.print '=== SMILES: MolHash, standardization, SMARTS extensions, MCS, scaffold network ==='
+
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'formula') AS formula_hash,
+       mol_hash('CC(=O)[O-].[Na+]', 'element_graph') AS element_graph,
+       mol_hash('CC(=O)[O-].[Na+]', 'anonymous_graph') AS anonymous_graph,
+       strip_salts('CCO.CN.[Cl-]') AS stripped,
+       fragment_parent('CC(=O)[O-].[Na+]') AS parent,
+       mol_substructure_count('c1ccccc1', '[r6;x2]') AS aromatic_ring_atoms,
+       mcs_smarts('CC(=O)O', 'CC(=O)N') AS mcs,
+       scaffold_network_json('Cc1ccccc1') AS scaffold_network;
+
+-- ============================
 -- 6. MOL/SDF functions - inline test
 -- ============================
 .print '=== MOL block functions ==='

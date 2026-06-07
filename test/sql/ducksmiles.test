@@ -352,6 +352,95 @@ SELECT mol_substructure_matches_json('not_a_molecule', 'C');
 NULL
 
 # ============================================================================
+# SMILES: MolHash, standardization, MCS, and extended SMARTS predicates
+# ============================================================================
+
+query I
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'formula');
+----
+C2H3NaO2
+
+query I
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');
+----
+C(C)(O)O.[Na]
+
+query I
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'anonymous_graph');
+----
+C.C(C)(C)C
+
+query I
+SELECT mol_hash('CCO', 'does_not_exist');
+----
+NULL
+
+query I
+SELECT mol_hash_methods();
+----
+["canonical_smiles","formula","net_charge","degree_vector","atom_bond_counts","element_graph","bond_order_graph","anonymous_graph","murcko_scaffold","generic_scaffold"]
+
+query I
+SELECT largest_fragment('CC(=O)[O-].[Na+]');
+----
+C(C)(=O)[O-]
+
+query I
+SELECT strip_salts('CCO.CN.[Cl-]');
+----
+C(C)O.CN
+
+query I
+SELECT neutralize_charges('CC(=O)[O-].[Na+]');
+----
+C(C)(=O)O.[Na+]
+
+query I
+SELECT fragment_parent('CC(=O)[O-].[Na+]');
+----
+C(C)(=O)O
+
+query I
+SELECT normalize_smiles('C1=CC=CC=C1');
+----
+c1ccccc1
+
+query I
+SELECT mol_has_substructure('[13CH4]', '[13C]');
+----
+true
+
+query I
+SELECT mol_has_substructure('[CH4:7]', '[C:7]');
+----
+true
+
+query I
+SELECT mol_has_substructure('F[C@H](Cl)Br', '[C@H]');
+----
+true
+
+query I
+SELECT mol_substructure_count('c1ccccc1', '[r6;x2]');
+----
+6
+
+query I
+SELECT mcs_smarts('CC(=O)O', 'CC(=O)N');
+----
+C(C)=O
+
+query I
+SELECT mcs_json('CC(=O)O', 'CC(=O)N');
+----
+{"num_atoms":3,"num_bonds":2,"smarts":"C(C)=O","atoms_a":[1,2,3],"atoms_b":[1,2,3],"atom_pairs":[{"a":1,"b":1},{"a":2,"b":2},{"a":3,"b":3}]}
+
+query I
+SELECT scaffold_network_json('Cc1ccccc1') LIKE '%"kind":"murcko_scaffold"%"smiles":"c1ccccc1"%';
+----
+true
+
+# ============================================================================
 # SMILES: add_hydrogens (return SMILES with explicit H atoms)
 # ============================================================================
 

@@ -71,6 +71,7 @@ pub fn generic_scaffold_smiles(mol: &Molecule) -> String {
             charge: 0,
             aromatic: false,
             in_bracket: false,
+            ..Default::default()
         };
     }
     for bond in &mut scaffold.bonds {

@@ -72,6 +72,9 @@ pub struct Atom {
     pub charge: i32,
     pub aromatic: bool,
     pub in_bracket: bool,
+    pub isotope: Option<u16>,
+    pub atom_map: Option<u32>,
+    pub chirality: Option<String>,
 }
 
 impl Default for Atom {
@@ -82,6 +85,9 @@ impl Default for Atom {
             charge: 0,
             aromatic: false,
             in_bracket: false,
+            isotope: None,
+            atom_map: None,
+            chirality: None,
         }
     }
 }
@@ -137,6 +143,7 @@ impl Molecule {
                     charge: 0,
                     aromatic: false,
                     in_bracket: true,
+                    ..Default::default()
                 });
                 bonds.push(Bond {
                     a: i,
@@ -197,6 +204,10 @@ impl Molecule {
 
     pub fn heavy_atom_count(&self) -> usize {
         self.atoms.iter().filter(|a| a.symbol != "H").count()
+    }
+
+    pub fn total_charge(&self) -> i32 {
+        self.atoms.iter().map(|atom| atom.charge).sum()
     }
 
     pub fn molecular_weight(&self) -> f64 {
@@ -628,7 +639,7 @@ impl Molecule {
         rendered.join(".")
     }
 
-    fn components(&self) -> Vec<Vec<usize>> {
+    pub fn components(&self) -> Vec<Vec<usize>> {
         let n = self.atoms.len();
         let adj = self.adjacency();
         let mut seen = vec![false; n];
@@ -653,6 +664,47 @@ impl Molecule {
             components.push(comp);
         }
         components
+    }
+
+    pub fn subgraph_from_atoms(&self, atoms_to_keep: &[usize]) -> Option<Molecule> {
+        let mut keep = vec![false; self.atoms.len()];
+        for &idx in atoms_to_keep {
+            if idx >= keep.len() {
+                return None;
+            }
+            keep[idx] = true;
+        }
+
+        let mut index_map = vec![usize::MAX; self.atoms.len()];
+        let mut atoms = Vec::new();
+        for (idx, atom) in self.atoms.iter().enumerate() {
+            if keep[idx] {
+                index_map[idx] = atoms.len();
+                atoms.push(atom.clone());
+            }
+        }
+        if atoms.is_empty() {
+            return None;
+        }
+
+        let mut bonds = Vec::new();
+        for bond in &self.bonds {
+            let a = index_map[bond.a];
+            let b = index_map[bond.b];
+            if a != usize::MAX && b != usize::MAX {
+                bonds.push(Bond {
+                    a,
+                    b,
+                    order: bond.order,
+                });
+            }
+        }
+
+        Some(Molecule {
+            bond_count: bonds.len() as i32,
+            atoms,
+            bonds,
+        })
     }
 
     fn simple_cycle_smiles(&self, component: &[usize]) -> Option<String> {
@@ -863,6 +915,9 @@ fn atom_smiles_token(atom: &Atom) -> String {
     let bare_allowed = atom.charge == 0
         && atom.symbol != "H"
         && is_organic(&atom.symbol)
+        && atom.isotope.is_none()
+        && atom.atom_map.is_none()
+        && atom.chirality.is_none()
         && (!atom.in_bracket || (atom.aromatic && atom.hydrogen == 0));
     if bare_allowed {
         return if atom.aromatic {
@@ -874,10 +929,16 @@ fn atom_smiles_token(atom: &Atom) -> String {
 
     let mut out = String::new();
     out.push('[');
+    if let Some(isotope) = atom.isotope {
+        out.push_str(&isotope.to_string());
+    }
     if atom.aromatic {
         out.push_str(&atom.symbol.to_ascii_lowercase());
     } else {
         out.push_str(&atom.symbol);
+    }
+    if let Some(chirality) = &atom.chirality {
+        out.push_str(chirality);
     }
     if atom.hydrogen > 0 {
         out.push('H');
@@ -895,6 +956,10 @@ fn atom_smiles_token(atom: &Atom) -> String {
         if atom.charge < -1 {
             out.push_str(&(-atom.charge).to_string());
         }
+    }
+    if let Some(atom_map) = atom.atom_map {
+        out.push(':');
+        out.push_str(&atom_map.to_string());
     }
     out.push(']');
     out
@@ -947,9 +1012,13 @@ fn parse_bracket_atom(chars: &[char], pos: &mut usize) -> Option<Atom> {
         ..Default::default()
     };
 
-    // Skip isotope
+    let isotope_start = *pos;
     while *pos < chars.len() && chars[*pos].is_ascii_digit() {
         *pos += 1;
+    }
+    if *pos > isotope_start {
+        let isotope: String = chars[isotope_start..*pos].iter().collect();
+        atom.isotope = isotope.parse::<u16>().ok();
     }
     if *pos >= chars.len() {
         return None;
@@ -981,9 +1050,13 @@ fn parse_bracket_atom(chars: &[char], pos: &mut usize) -> Option<Atom> {
         return None;
     }
 
-    // Skip chirality (@, @@)
-    while *pos < chars.len() && chars[*pos] == '@' {
+    if *pos < chars.len() && chars[*pos] == '@' {
+        let start = *pos;
         *pos += 1;
+        if *pos < chars.len() && chars[*pos] == '@' {
+            *pos += 1;
+        }
+        atom.chirality = Some(chars[start..*pos].iter().collect());
     }
 
     // Explicit H
@@ -1012,6 +1085,19 @@ fn parse_bracket_atom(chars: &[char], pos: &mut usize) -> Option<Atom> {
                 *pos += 1;
             }
         }
+    }
+
+    if *pos < chars.len() && chars[*pos] == ':' {
+        *pos += 1;
+        let start = *pos;
+        while *pos < chars.len() && chars[*pos].is_ascii_digit() {
+            *pos += 1;
+        }
+        if start == *pos {
+            return None;
+        }
+        let atom_map: String = chars[start..*pos].iter().collect();
+        atom.atom_map = atom_map.parse::<u32>().ok();
     }
 
     if *pos >= chars.len() || chars[*pos] != ']' {

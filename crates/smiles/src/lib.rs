@@ -1,9 +1,12 @@
 mod logp_crippen;
 mod maccs;
+mod mcs;
+mod molhash;
 mod morgan;
 mod parser;
 mod scaffold;
 mod smarts;
+mod standardize;
 mod tanimoto;
 #[cfg(test)]
 pub(crate) mod test_fixtures;
@@ -11,10 +14,16 @@ mod tpsa;
 mod weights;
 
 use logp_crippen::calc_logp;
+use mcs::{mcs_json, mcs_smarts, scaffold_network_json};
+use molhash::{methods_json as mol_hash_methods_json, mol_hash};
 use morgan::morgan_bits;
 use parser::{parse, BondOrder, Molecule};
 use scaffold::{generic_scaffold_smiles, murcko_scaffold_smiles, ring_systems_json};
 use smarts::{count_unique, matches_mol, parse_smarts, unique_matches_json};
+use standardize::{
+    fragment_parent_smiles, largest_fragment_smiles, neutralize_charges_smiles, normalize_smiles,
+    strip_salts_smiles,
+};
 use tanimoto::tanimoto_bit;
 use tpsa::calc_tpsa;
 
@@ -341,6 +350,170 @@ pub extern "C" fn ds_ring_systems_json(
 }
 
 #[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_hash(
+    smiles_ptr: *const u8,
+    smiles_len: usize,
+    method_ptr: *const u8,
+    method_len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let smiles = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len))
+    };
+    let method = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(method_ptr, method_len))
+    };
+    match parse(smiles).and_then(|mol| mol_hash(&mol, method)) {
+        Some(hash) => write_required(hash.as_bytes(), out, out_cap),
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_hash_methods_json(out: *mut u8, out_cap: usize) -> i32 {
+    let json = mol_hash_methods_json();
+    write_required(json.as_bytes(), out, out_cap)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_largest_fragment(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let smiles = largest_fragment_smiles(&mol);
+            write_required(smiles.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_strip_salts(ptr: *const u8, len: usize, out: *mut u8, out_cap: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let smiles = strip_salts_smiles(&mol);
+            write_required(smiles.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_neutralize_charges(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let smiles = neutralize_charges_smiles(&mol);
+            write_required(smiles.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_normalize_smiles(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let smiles = normalize_smiles(&mol);
+            write_required(smiles.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_fragment_parent(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let smiles = fragment_parent_smiles(&mol);
+            write_required(smiles.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mcs_smarts(
+    a_ptr: *const u8,
+    a_len: usize,
+    b_ptr: *const u8,
+    b_len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let a = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(a_ptr, a_len)) };
+    let b = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(b_ptr, b_len)) };
+    match (parse(a), parse(b)) {
+        (Some(a_mol), Some(b_mol)) => {
+            let smarts = mcs_smarts(&a_mol, &b_mol);
+            write_required(smarts.as_bytes(), out, out_cap)
+        }
+        _ => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mcs_json(
+    a_ptr: *const u8,
+    a_len: usize,
+    b_ptr: *const u8,
+    b_len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let a = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(a_ptr, a_len)) };
+    let b = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(b_ptr, b_len)) };
+    match (parse(a), parse(b)) {
+        (Some(a_mol), Some(b_mol)) => {
+            let json = mcs_json(&a_mol, &b_mol);
+            write_required(json.as_bytes(), out, out_cap)
+        }
+        _ => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_scaffold_network_json(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => {
+            let json = scaffold_network_json(&mol);
+            write_required(json.as_bytes(), out, out_cap)
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
 pub extern "C" fn ds_num_h_acceptors(ptr: *const u8, len: usize) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
@@ -632,6 +805,36 @@ mod tests {
         read_ffi_string(|out, cap| ds_ring_systems_json(smiles.as_ptr(), smiles.len(), out, cap))
     }
 
+    fn mol_hash_ffi(smiles: &str, method: &str) -> Option<String> {
+        read_ffi_string(|out, cap| {
+            ds_mol_hash(
+                smiles.as_ptr(),
+                smiles.len(),
+                method.as_ptr(),
+                method.len(),
+                out,
+                cap,
+            )
+        })
+    }
+
+    fn string_ffi(
+        smiles: &str,
+        f: extern "C" fn(*const u8, usize, *mut u8, usize) -> i32,
+    ) -> Option<String> {
+        read_ffi_string(|out, cap| f(smiles.as_ptr(), smiles.len(), out, cap))
+    }
+
+    fn mcs_smarts_ffi(a: &str, b: &str) -> Option<String> {
+        read_ffi_string(|out, cap| {
+            ds_mcs_smarts(a.as_ptr(), a.len(), b.as_ptr(), b.len(), out, cap)
+        })
+    }
+
+    fn mcs_json_ffi(a: &str, b: &str) -> Option<String> {
+        read_ffi_string(|out, cap| ds_mcs_json(a.as_ptr(), a.len(), b.as_ptr(), b.len(), out, cap))
+    }
+
     fn substructure_matches_json_ffi(smiles: &str, smarts: &str) -> Option<String> {
         read_ffi_string(|out, cap| {
             ds_mol_substructure_matches_json(
@@ -760,6 +963,52 @@ mod tests {
             "[{\"index\":1,\"num_atoms\":6,\"num_bonds\":6,\"num_rings\":1,\"aromatic\":true,\"atoms\":[1,2,3,4,5,6],\"bonds\":[1,2,3,4,5,6],\"rings\":[{\"index\":1,\"size\":6,\"aromatic\":true,\"atoms\":[1,2,3,4,5,6],\"bonds\":[1,2,3,4,5,6]}]}]"
         );
         assert_eq!(ring_systems_ffi("CCCC").unwrap(), "[]");
+    }
+
+    #[test]
+    fn molhash_ffi_basics() {
+        assert_eq!(
+            mol_hash_ffi("CC(=O)[O-].[Na+]", "formula").unwrap(),
+            "C2H3NaO2"
+        );
+        assert_eq!(mol_hash_ffi("CC(=O)[O-].[Na+]", "net_charge").unwrap(), "0");
+        assert_eq!(
+            mol_hash_ffi("Cc1ccccc1", "murcko_scaffold").unwrap(),
+            "c1ccccc1"
+        );
+        assert_eq!(mol_hash_ffi("CCO", "does_not_exist"), None);
+        let methods = read_ffi_string(|out, cap| ds_mol_hash_methods_json(out, cap)).unwrap();
+        assert!(methods.contains("anonymous_graph"));
+    }
+
+    #[test]
+    fn standardization_ffi_basics() {
+        let salt = "CC(=O)[O-].[Na+]";
+        assert_eq!(
+            string_ffi(salt, ds_largest_fragment).unwrap(),
+            "C(C)(=O)[O-]"
+        );
+        assert_eq!(string_ffi(salt, ds_strip_salts).unwrap(), "C(C)(=O)[O-]");
+        assert_eq!(
+            string_ffi(salt, ds_neutralize_charges).unwrap(),
+            "C(C)(=O)O.[Na+]"
+        );
+        assert_eq!(string_ffi(salt, ds_fragment_parent).unwrap(), "C(C)(=O)O");
+        assert_eq!(
+            string_ffi("C1=CC=CC=C1", ds_normalize_smiles).unwrap(),
+            "c1ccccc1"
+        );
+    }
+
+    #[test]
+    fn mcs_and_scaffold_network_ffi_basics() {
+        assert_eq!(mcs_smarts_ffi("CC(=O)O", "CC(=O)N").unwrap(), "C(C)=O");
+        let json = mcs_json_ffi("CC(=O)O", "CC(=O)N").unwrap();
+        assert!(json.contains("\"num_atoms\":3"));
+        assert!(json.contains("\"smarts\":\"C(C)=O\""));
+        let network = string_ffi("Cc1ccccc1", ds_scaffold_network_json).unwrap();
+        assert!(network.contains("\"murcko_scaffold\""));
+        assert!(network.contains("c1ccccc1"));
     }
 
     #[test]

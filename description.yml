@@ -1,6 +1,6 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, SMARTS substructure match JSON, canonical SMILES normalization, Murcko scaffolds, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
+  description: Cheminformatics toolkit for DuckDB - SMILES, SMARTS substructure match JSON, MolHash, standardization, MCS, scaffold networks, canonical SMILES normalization, Murcko scaffolds, InChI, MOL/SDF, PDB, SELFIES, LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
   version: 0.5.0
   language: C++
   build: cmake
@@ -32,6 +32,18 @@ docs:
 
     -- SMARTS substructure atom mappings as JSON
     SELECT mol_substructure_matches_json('CC(=O)O', 'C=O');
+
+    -- MolHash-style SQL grouping keys
+    SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');
+    -- C(C)(O)O.[Na]
+
+    -- Salt handling and parent normalization
+    SELECT fragment_parent('CC(=O)[O-].[Na+]');
+    -- C(C)(=O)O
+
+    -- Maximum common substructure
+    SELECT mcs_smarts('CC(=O)O', 'CC(=O)N');
+    -- C(C)=O
 
     -- Wildman-Crippen LogP (matches RDKit)
     SELECT round(logp_crippen('CCO'), 4);
@@ -66,7 +78,7 @@ docs:
     library dependencies (no RDKit required).
 
     **Supported Formats:**
-    - SMILES/SMARTS: Molecular validation, substructure search with match JSON, canonical SMILES normalization, Bemis-Murcko scaffolds, formula, weight, atom/bond counts, LogP, TPSA
+    - SMILES/SMARTS: Molecular validation, substructure search with match JSON, MolHash, standardization, MCS, scaffold networks, canonical SMILES normalization, Bemis-Murcko scaffolds, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
     - MOL/SDF: V2000/V3000 CTAB parsing, molecule counting, complete atom/bond/property JSON extraction
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
@@ -101,6 +113,21 @@ docs:
     `mol_substructure_count()` expose boolean and uniquified count queries.
     `mol_substructure_matches_json()` returns each unique match's atom mapping
     as ordered JSON with 1-based target atom indices in SMARTS pattern atom order.
+    The matcher supports ring closures, recursive SMARTS, `R/R0`, `r`, `x`,
+    `D`, `v`, isotope, atom-map, and bracket-chirality predicates.
+
+    **MolHash and standardization:** `mol_hash()` exposes SQL grouping keys such
+    as `formula`, `net_charge`, `degree_vector`, `element_graph`,
+    `bond_order_graph`, `anonymous_graph`, `murcko_scaffold`, and
+    `generic_scaffold`; `mol_hash_methods()` lists supported methods.
+    `largest_fragment()`, `strip_salts()`, `neutralize_charges()`,
+    `normalize_smiles()`, and `fragment_parent()` provide SQL-native cleanup for
+    supplier salts and registry-like compound tables.
+
+    **MCS and scaffold network:** `mcs_smarts()` computes a connected maximum
+    common subgraph for two molecules, `mcs_json()` includes 1-based atom
+    mappings, and `scaffold_network_json()` emits molecule, Murcko, generic
+    scaffold, and ring-system nodes plus edges.
 
     **MOL/SDF structure JSON:** `mol_block_atoms_json()`,
     `mol_block_bonds_json()`, and `mol_block_json()` expose the parsed atom

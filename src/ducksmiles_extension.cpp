@@ -106,6 +106,33 @@ static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { 
 		}); \
 }
 
+#define DEFINE_BINARY_DYNAMIC_STR_FUNC(FuncName, RustFunc) \
+static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
+	idx_t count = args.size(); \
+	args.data[0].Flatten(count); \
+	args.data[1].Flatten(count); \
+	auto left_data = FlatVector::GetData<string_t>(args.data[0]); \
+	auto right_data = FlatVector::GetData<string_t>(args.data[1]); \
+	auto result_data = FlatVector::GetData<string_t>(result); \
+	auto &validity = FlatVector::Validity(result); \
+	auto &left_validity = FlatVector::Validity(args.data[0]); \
+	auto &right_validity = FlatVector::Validity(args.data[1]); \
+	for (idx_t i = 0; i < count; i++) { \
+		if (!left_validity.RowIsValid(i) || !right_validity.RowIsValid(i)) { \
+			validity.SetInvalid(i); \
+			continue; \
+		} \
+		auto left = left_data[i]; \
+		auto right = right_data[i]; \
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t { \
+			return RustFunc( \
+				(const uint8_t *)left.GetData(), left.GetSize(), \
+				(const uint8_t *)right.GetData(), right.GetSize(), \
+				out, cap); \
+		}); \
+	} \
+}
+
 // ============================================================================
 // SMILES functions
 // ============================================================================
@@ -122,6 +149,15 @@ DEFINE_STR_FUNC(CanonicalSmilesFunc, ds_canonical_smiles)
 DEFINE_DYNAMIC_STR_FUNC(MurckoScaffoldFunc, ds_murcko_scaffold)
 DEFINE_DYNAMIC_STR_FUNC(GenericScaffoldFunc, ds_generic_scaffold)
 DEFINE_DYNAMIC_STR_FUNC(RingSystemsJsonFunc, ds_ring_systems_json)
+DEFINE_BINARY_DYNAMIC_STR_FUNC(MolHashFunc, ds_mol_hash)
+DEFINE_DYNAMIC_STR_FUNC(LargestFragmentFunc, ds_largest_fragment)
+DEFINE_DYNAMIC_STR_FUNC(StripSaltsFunc, ds_strip_salts)
+DEFINE_DYNAMIC_STR_FUNC(NeutralizeChargesFunc, ds_neutralize_charges)
+DEFINE_DYNAMIC_STR_FUNC(NormalizeSmilesFunc, ds_normalize_smiles)
+DEFINE_DYNAMIC_STR_FUNC(FragmentParentFunc, ds_fragment_parent)
+DEFINE_BINARY_DYNAMIC_STR_FUNC(McsSmartsFunc, ds_mcs_smarts)
+DEFINE_BINARY_DYNAMIC_STR_FUNC(McsJsonFunc, ds_mcs_json)
+DEFINE_DYNAMIC_STR_FUNC(ScaffoldNetworkJsonFunc, ds_scaffold_network_json)
 DEFINE_INT_FUNC(NumHAcceptorsFunc, ds_num_h_acceptors)
 DEFINE_INT_FUNC(NumHDonorsFunc, ds_num_h_donors)
 DEFINE_INT_FUNC(NumRotatableBondsFunc, ds_num_rotatable_bonds)
@@ -129,6 +165,17 @@ DEFINE_INT_FUNC(RingCountFunc, ds_ring_count)
 DEFINE_INT_FUNC(NumAromaticRingsFunc, ds_num_aromatic_rings)
 DEFINE_INT_FUNC(NumHeteroatomsFunc, ds_num_heteroatoms)
 DEFINE_DOUBLE_FUNC(FractionCsp3Func, ds_fraction_csp3)
+
+static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	auto result_data = FlatVector::GetData<string_t>(result);
+	auto &validity = FlatVector::Validity(result);
+	for (idx_t i = 0; i < count; i++) {
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
+			return ds_mol_hash_methods_json(out, cap);
+		});
+	}
+}
 
 static void MolHasSubstructureFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	idx_t count = args.size();
@@ -476,6 +523,22 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("murcko_scaffold", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MurckoScaffoldFunc));
 	loader.RegisterFunction(ScalarFunction("generic_scaffold", {LogicalType::VARCHAR}, LogicalType::VARCHAR, GenericScaffoldFunc));
 	loader.RegisterFunction(ScalarFunction("ring_systems_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, RingSystemsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_hash",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, MolHashFunc));
+	loader.RegisterFunction(ScalarFunction("mol_hash_methods", {}, LogicalType::VARCHAR, MolHashMethodsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("largest_fragment", {LogicalType::VARCHAR}, LogicalType::VARCHAR, LargestFragmentFunc));
+	loader.RegisterFunction(ScalarFunction("strip_salts",      {LogicalType::VARCHAR}, LogicalType::VARCHAR, StripSaltsFunc));
+	loader.RegisterFunction(ScalarFunction("neutralize_charges", {LogicalType::VARCHAR}, LogicalType::VARCHAR, NeutralizeChargesFunc));
+	loader.RegisterFunction(ScalarFunction("normalize_smiles", {LogicalType::VARCHAR}, LogicalType::VARCHAR, NormalizeSmilesFunc));
+	loader.RegisterFunction(ScalarFunction("fragment_parent",  {LogicalType::VARCHAR}, LogicalType::VARCHAR, FragmentParentFunc));
+	loader.RegisterFunction(ScalarFunction("mcs_smarts",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, McsSmartsFunc));
+	loader.RegisterFunction(ScalarFunction("mcs_json",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, McsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("scaffold_network_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, ScaffoldNetworkJsonFunc));
 	loader.RegisterFunction(ScalarFunction("num_h_acceptors", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHAcceptorsFunc));
 	loader.RegisterFunction(ScalarFunction("num_h_donors",    {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHDonorsFunc));
 	loader.RegisterFunction(ScalarFunction("num_rotatable_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumRotatableBondsFunc));

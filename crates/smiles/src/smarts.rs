@@ -10,10 +10,10 @@
 //!
 //! Supported atom features:
 //! - Element symbols (C, Cl, etc.) and aromatic (c, n, ...)
-//! - `[#n]` atomic number, `[Hn]`, `[Xn]`, `[+n]`, `[-n]`, `[R]`/`[R0]`
+//! - `[#n]` atomic number, isotope, `[Hn]`, `[Xn]`, `[Dn]`, `[vn]`, `[+n]`, `[-n]`, `[R]`/`[R0]`, `[rn]`, `[xn]`
 //! - Operators: `;` (AND_LO), `,` (OR), implicit AND_HI, `!` (NOT)
 //! - `A` / `a` (aliphatic / aromatic wildcards), `*` (any)
-//! - Atom lists via `,`: `[N,O,P]`
+//! - Atom lists via `,`: `[N,O,P]`, atom maps (`:n`), and bracket chirality (`@`/`@@`)
 //! - Recursive environments `$(...)`
 //!
 //! Supported bond features:
@@ -28,18 +28,25 @@ use crate::parser::{BondOrder, Molecule, RingInfo};
 
 #[derive(Clone, Debug)]
 pub enum Primitive {
-    Any,                          // *
-    AnyAliphatic,                 // A
-    AnyAromatic,                  // a
-    AliphaticElement(String),     // uppercase or [C]
-    AromaticElement(String),      // lowercase or [c]
-    AtomicNum(u8),                // #<n>
-    TotalH(u8),                   // H or H<n>
-    Connections(u8),              // X<n>
-    PositiveCharge(u8),           // + or +<n>
-    NegativeCharge(u8),           // - or -<n>
-    InRing(bool),                 // R (true) or R0 (false)
-    Recursive(Box<Pattern>),      // $(...)
+    Any,                      // *
+    AnyAliphatic,             // A
+    AnyAromatic,              // a
+    AliphaticElement(String), // uppercase or [C]
+    AromaticElement(String),  // lowercase or [c]
+    AtomicNum(u8),            // #<n>
+    Isotope(u16),             // leading isotope mass, e.g. [13C]
+    TotalH(u8),               // H or H<n>
+    Connections(u8),          // X<n>
+    Degree(u8),               // D<n> explicit graph degree
+    Valence(u8),              // v<n> bond valence + implicit H
+    PositiveCharge(u8),       // + or +<n>
+    NegativeCharge(u8),       // - or -<n>
+    InRing(bool),             // R (true) or R0 (false)
+    RingSize(u8),             // r or r<n>
+    RingConnections(u8),      // x<n>
+    AtomMap(u32),             // :<n>
+    Chiral(String),           // @ or @@
+    Recursive(Box<Pattern>),  // $(...)
 }
 
 #[derive(Clone, Debug)]
@@ -60,15 +67,15 @@ pub struct AtomPattern {
 /// each possibly negated.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BondSpec {
-    Default,    // single OR aromatic (no explicit symbol)
-    Single,     // -
-    Double,     // =
-    Triple,     // #
-    Aromatic,   // :
+    Default,     // single OR aromatic (no explicit symbol)
+    Single,      // -
+    Double,      // =
+    Triple,      // #
+    Aromatic,    // :
     NotAromatic, // !:
-    Any,        // ~
-    InRing,     // @
-    NotInRing,  // !@
+    Any,         // ~
+    InRing,      // @
+    NotInRing,   // !@
 }
 
 /// A bond constraint is one or more `BondSpec`s that must ALL hold. This models
@@ -320,13 +327,62 @@ fn is_known_element(s: &str) -> bool {
     // Two-letter organic-subset-like elements used in Crippen.txt
     matches!(
         s,
-        "He" | "Li" | "Be" | "Ne" | "Na" | "Mg" | "Al" | "Si" | "Ar" | "Ca"
-            | "Sc" | "Ti" | "Cr" | "Mn" | "Fe" | "Co" | "Ni" | "Cu" | "Zn"
-            | "Ga" | "Ge" | "As" | "Se" | "Br" | "Kr" | "Rb" | "Sr" | "Zr"
-            | "Nb" | "Mo" | "Tc" | "Ru" | "Rh" | "Pd" | "Ag" | "Cd" | "In"
-            | "Sn" | "Sb" | "Te" | "Xe" | "Cs" | "Ba" | "Hf" | "Ta" | "Re"
-            | "Os" | "Ir" | "Pt" | "Au" | "Hg" | "Tl" | "Pb" | "Bi" | "Po"
-            | "At" | "Cl"
+        "He" | "Li"
+            | "Be"
+            | "Ne"
+            | "Na"
+            | "Mg"
+            | "Al"
+            | "Si"
+            | "Ar"
+            | "Ca"
+            | "Sc"
+            | "Ti"
+            | "Cr"
+            | "Mn"
+            | "Fe"
+            | "Co"
+            | "Ni"
+            | "Cu"
+            | "Zn"
+            | "Ga"
+            | "Ge"
+            | "As"
+            | "Se"
+            | "Br"
+            | "Kr"
+            | "Rb"
+            | "Sr"
+            | "Zr"
+            | "Nb"
+            | "Mo"
+            | "Tc"
+            | "Ru"
+            | "Rh"
+            | "Pd"
+            | "Ag"
+            | "Cd"
+            | "In"
+            | "Sn"
+            | "Sb"
+            | "Te"
+            | "Xe"
+            | "Cs"
+            | "Ba"
+            | "Hf"
+            | "Ta"
+            | "Re"
+            | "Os"
+            | "Ir"
+            | "Pt"
+            | "Au"
+            | "Hg"
+            | "Tl"
+            | "Pb"
+            | "Bi"
+            | "Po"
+            | "At"
+            | "Cl"
     )
 }
 
@@ -435,12 +491,25 @@ fn parse_primitive(chars: &[char], pos: &mut usize) -> Option<(Primitive, bool)>
     }
     let c = chars[*pos];
 
-    // Skip leading isotope digits (ignored — Crippen/MACCS don't care)
     if c.is_ascii_digit() {
-        while *pos < chars.len() && chars[*pos].is_ascii_digit() {
+        let isotope = read_number(chars, pos)?;
+        return Some((Primitive::Isotope(isotope as u16), false));
+    }
+
+    if c == ':' {
+        *pos += 1;
+        let atom_map = read_number(chars, pos)?;
+        return Some((Primitive::AtomMap(atom_map), false));
+    }
+
+    if c == '@' {
+        let start = *pos;
+        *pos += 1;
+        if *pos < chars.len() && chars[*pos] == '@' {
             *pos += 1;
         }
-        return parse_primitive(chars, pos);
+        let chiral: String = chars[start..*pos].iter().collect();
+        return Some((Primitive::Chiral(chiral), false));
     }
 
     match c {
@@ -492,6 +561,21 @@ fn parse_primitive(chars: &[char], pos: &mut usize) -> Option<(Primitive, bool)>
                 Some((Primitive::InRing(true), true))
             }
         }
+        'r' => {
+            *pos += 1;
+            let size = if *pos < chars.len() && chars[*pos].is_ascii_digit() {
+                read_number(chars, pos)? as u8
+            } else {
+                1
+            };
+            Some((Primitive::RingSize(size), true))
+        }
+        'x' => {
+            *pos += 1;
+            let d = chars.get(*pos)?.to_digit(10)? as u8;
+            *pos += 1;
+            Some((Primitive::RingConnections(d), true))
+        }
         'A' => {
             *pos += 1;
             if *pos < chars.len() && chars[*pos].is_ascii_lowercase() {
@@ -528,6 +612,17 @@ fn parse_primitive(chars: &[char], pos: &mut usize) -> Option<(Primitive, bool)>
             let d = chars.get(*pos)?.to_digit(10)? as u8;
             *pos += 1;
             Some((Primitive::Connections(d), false))
+        }
+        'D' => {
+            *pos += 1;
+            let d = chars.get(*pos)?.to_digit(10)? as u8;
+            *pos += 1;
+            Some((Primitive::Degree(d), false))
+        }
+        'v' => {
+            *pos += 1;
+            let valence = read_number(chars, pos)? as u8;
+            Some((Primitive::Valence(valence), false))
         }
         '+' => {
             *pos += 1;
@@ -603,7 +698,11 @@ impl<'a> MatchCtx<'a> {
     fn new(mol: &'a Molecule, needs_ring: bool) -> Self {
         MatchCtx {
             mol,
-            ring: if needs_ring { Some(mol.ring_info()) } else { None },
+            ring: if needs_ring {
+                Some(mol.ring_info())
+            } else {
+                None
+            },
             adj: mol.adjacency(),
         }
     }
@@ -782,8 +881,11 @@ fn prim_matches(prim: &Primitive, ctx: &MatchCtx, idx: usize) -> bool {
         Primitive::AliphaticElement(sym) => !atom.aromatic && &atom.symbol == sym,
         Primitive::AromaticElement(sym) => atom.aromatic && &atom.symbol == sym,
         Primitive::AtomicNum(n) => atomic_num(&atom.symbol) == *n,
+        Primitive::Isotope(isotope) => atom.isotope == Some(*isotope),
         Primitive::TotalH(n) => total_h(mol, idx) == *n as i32,
         Primitive::Connections(n) => total_connections(mol, idx) == *n as usize,
+        Primitive::Degree(n) => explicit_degree(mol, idx) == *n as usize,
+        Primitive::Valence(n) => total_valence(mol, idx) == *n as i32,
         Primitive::PositiveCharge(n) => atom.charge == *n as i32,
         Primitive::NegativeCharge(n) => atom.charge == -(*n as i32),
         Primitive::InRing(want) => {
@@ -794,6 +896,10 @@ fn prim_matches(prim: &Primitive, ctx: &MatchCtx, idx: usize) -> bool {
                 .unwrap_or(false);
             in_ring == *want
         }
+        Primitive::RingSize(size) => ring_size_matches(ctx, idx, *size),
+        Primitive::RingConnections(n) => ring_connections(ctx, idx) == *n as usize,
+        Primitive::AtomMap(atom_map) => atom.atom_map == Some(*atom_map),
+        Primitive::Chiral(chiral) => atom.chirality.as_deref() == Some(chiral.as_str()),
         Primitive::Recursive(sub) => {
             // The recursive environment must match with its atom 0 anchored at idx.
             match_at_ctx(sub, ctx, idx)
@@ -817,6 +923,62 @@ fn total_connections(mol: &Molecule, idx: usize) -> usize {
     let direct_neighbors = mol.neighbors(idx).len();
     let implicit_h = mol.atoms[idx].hydrogen.max(0) as usize;
     direct_neighbors + implicit_h
+}
+
+fn explicit_degree(mol: &Molecule, idx: usize) -> usize {
+    mol.neighbors(idx)
+        .iter()
+        .filter(|(nbr, _)| mol.atoms[*nbr].symbol != "H")
+        .count()
+}
+
+fn total_valence(mol: &Molecule, idx: usize) -> i32 {
+    mol.neighbors(idx)
+        .iter()
+        .map(|(_, order)| match order {
+            BondOrder::Single | BondOrder::Aromatic => 1,
+            BondOrder::Double => 2,
+            BondOrder::Triple => 3,
+        })
+        .sum::<i32>()
+        + mol.atoms[idx].hydrogen.max(0)
+}
+
+fn ring_connections(ctx: &MatchCtx, idx: usize) -> usize {
+    let Some(ring) = ctx.ring.as_ref() else {
+        return 0;
+    };
+    let adj = ctx.mol.adjacency();
+    adj.get(idx)
+        .map(|neighbors| {
+            neighbors
+                .iter()
+                .filter(|(_, bond_idx)| ring.bond_in_ring.get(*bond_idx).copied().unwrap_or(false))
+                .count()
+        })
+        .unwrap_or(0)
+}
+
+fn ring_size_matches(ctx: &MatchCtx, idx: usize, size: u8) -> bool {
+    let Some(ring) = ctx.ring.as_ref() else {
+        return false;
+    };
+    if size == 0 {
+        return !ring.atom_in_ring.get(idx).copied().unwrap_or(false);
+    }
+    if size == 1 {
+        return ring.atom_in_ring.get(idx).copied().unwrap_or(false);
+    }
+    ring.rings.iter().any(|ring_bonds| {
+        let mut atoms = std::collections::HashSet::new();
+        for &bond_idx in ring_bonds {
+            if let Some(bond) = ctx.mol.bonds.get(bond_idx) {
+                atoms.insert(bond.a);
+                atoms.insert(bond.b);
+            }
+        }
+        atoms.contains(&idx) && atoms.len() == size as usize
+    })
 }
 
 // =============================================================================
@@ -921,18 +1083,76 @@ fn json_escape(s: &str) -> String {
 
 fn atomic_num(sym: &str) -> u8 {
     match sym {
-        "H" => 1, "He" => 2, "Li" => 3, "Be" => 4, "B" => 5, "C" => 6, "N" => 7,
-        "O" => 8, "F" => 9, "Ne" => 10, "Na" => 11, "Mg" => 12, "Al" => 13, "Si" => 14,
-        "P" => 15, "S" => 16, "Cl" => 17, "Ar" => 18, "K" => 19, "Ca" => 20,
-        "Sc" => 21, "Ti" => 22, "V" => 23, "Cr" => 24, "Mn" => 25, "Fe" => 26,
-        "Co" => 27, "Ni" => 28, "Cu" => 29, "Zn" => 30, "Ga" => 31, "Ge" => 32,
-        "As" => 33, "Se" => 34, "Br" => 35, "Kr" => 36, "Rb" => 37, "Sr" => 38,
-        "Y" => 39, "Zr" => 40, "Nb" => 41, "Mo" => 42, "Tc" => 43, "Ru" => 44,
-        "Rh" => 45, "Pd" => 46, "Ag" => 47, "Cd" => 48, "In" => 49, "Sn" => 50,
-        "Sb" => 51, "Te" => 52, "I" => 53, "Xe" => 54, "Cs" => 55, "Ba" => 56,
-        "Hf" => 72, "Ta" => 73, "W" => 74, "Re" => 75, "Os" => 76, "Ir" => 77,
-        "Pt" => 78, "Au" => 79, "Hg" => 80, "Tl" => 81, "Pb" => 82, "Bi" => 83,
-        "Po" => 84, "At" => 85,
+        "H" => 1,
+        "He" => 2,
+        "Li" => 3,
+        "Be" => 4,
+        "B" => 5,
+        "C" => 6,
+        "N" => 7,
+        "O" => 8,
+        "F" => 9,
+        "Ne" => 10,
+        "Na" => 11,
+        "Mg" => 12,
+        "Al" => 13,
+        "Si" => 14,
+        "P" => 15,
+        "S" => 16,
+        "Cl" => 17,
+        "Ar" => 18,
+        "K" => 19,
+        "Ca" => 20,
+        "Sc" => 21,
+        "Ti" => 22,
+        "V" => 23,
+        "Cr" => 24,
+        "Mn" => 25,
+        "Fe" => 26,
+        "Co" => 27,
+        "Ni" => 28,
+        "Cu" => 29,
+        "Zn" => 30,
+        "Ga" => 31,
+        "Ge" => 32,
+        "As" => 33,
+        "Se" => 34,
+        "Br" => 35,
+        "Kr" => 36,
+        "Rb" => 37,
+        "Sr" => 38,
+        "Y" => 39,
+        "Zr" => 40,
+        "Nb" => 41,
+        "Mo" => 42,
+        "Tc" => 43,
+        "Ru" => 44,
+        "Rh" => 45,
+        "Pd" => 46,
+        "Ag" => 47,
+        "Cd" => 48,
+        "In" => 49,
+        "Sn" => 50,
+        "Sb" => 51,
+        "Te" => 52,
+        "I" => 53,
+        "Xe" => 54,
+        "Cs" => 55,
+        "Ba" => 56,
+        "Hf" => 72,
+        "Ta" => 73,
+        "W" => 74,
+        "Re" => 75,
+        "Os" => 76,
+        "Ir" => 77,
+        "Pt" => 78,
+        "Au" => 79,
+        "Hg" => 80,
+        "Tl" => 81,
+        "Pb" => 82,
+        "Bi" => 83,
+        "Po" => 84,
+        "At" => 85,
         _ => 0,
     }
 }
@@ -979,10 +1199,22 @@ mod tests {
 
     #[test]
     fn parse_explicit_bonds() {
-        assert_eq!(parse_smarts("C=O").unwrap().bonds[0].specs, vec![BondSpec::Double]);
-        assert_eq!(parse_smarts("C#N").unwrap().bonds[0].specs, vec![BondSpec::Triple]);
-        assert_eq!(parse_smarts("c:c").unwrap().bonds[0].specs, vec![BondSpec::Aromatic]);
-        assert_eq!(parse_smarts("C-C").unwrap().bonds[0].specs, vec![BondSpec::Single]);
+        assert_eq!(
+            parse_smarts("C=O").unwrap().bonds[0].specs,
+            vec![BondSpec::Double]
+        );
+        assert_eq!(
+            parse_smarts("C#N").unwrap().bonds[0].specs,
+            vec![BondSpec::Triple]
+        );
+        assert_eq!(
+            parse_smarts("c:c").unwrap().bonds[0].specs,
+            vec![BondSpec::Aromatic]
+        );
+        assert_eq!(
+            parse_smarts("C-C").unwrap().bonds[0].specs,
+            vec![BondSpec::Single]
+        );
     }
 
     #[test]
@@ -1213,7 +1445,11 @@ mod tests {
     fn match_three_atom_chain() {
         let pat = parse_smarts("O=CN").unwrap();
         let mol = parse("NC(=O)N").unwrap();
-        assert!(mol.atoms.iter().enumerate().any(|(i, _)| match_at(&pat, &mol, i)));
+        assert!(mol
+            .atoms
+            .iter()
+            .enumerate()
+            .any(|(i, _)| match_at(&pat, &mol, i)));
     }
 
     #[test]
@@ -1369,6 +1605,26 @@ mod tests {
             unique_matches_json(&pat, &mol),
             "[{\"match\":1,\"atom_indices\":[2,3],\"atoms\":[{\"query_atom\":1,\"target_atom\":2,\"symbol\":\"C\"},{\"query_atom\":2,\"target_atom\":3,\"symbol\":\"O\"}]}]"
         );
+    }
+
+    #[test]
+    fn extended_smarts_atom_predicates_match() {
+        assert!(matches_anywhere("[D1]", "CCO"));
+        assert!(matches_anywhere("[D2]", "CCC"));
+        assert!(matches_anywhere("[v4]", "C"));
+        assert!(matches_anywhere("[r6]", "c1ccccc1"));
+        assert!(matches_anywhere("[x2]", "c1ccccc1"));
+        assert!(!matches_anywhere("[r5]", "c1ccccc1"));
+    }
+
+    #[test]
+    fn isotope_atom_map_and_chirality_predicates_match() {
+        assert!(matches_anywhere("[13C]", "[13CH4]"));
+        assert!(!matches_anywhere("[13C]", "C"));
+        assert!(matches_anywhere("[C:7]", "[CH4:7]"));
+        assert!(!matches_anywhere("[C:8]", "[CH4:7]"));
+        assert!(matches_anywhere("[C@H]", "F[C@H](Cl)Br"));
+        assert!(!matches_anywhere("[C@@H]", "F[C@H](Cl)Br"));
     }
 
     #[test]

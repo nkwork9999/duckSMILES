@@ -2,7 +2,7 @@
 
 **SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
-Analyze SMILES, InChI, MOL/SDF, PDB, and SELFIES molecular structures directly from SQL — no Python, no RDKit, no setup.
+Analyze SMILES, SMARTS, InChI, MOL/SDF, PDB, and SELFIES molecular structures directly from SQL — no Python, no RDKit, no setup.
 
 **A lightweight, zero-dependency alternative to RDKit for common cheminformatics SQL queries.**
 
@@ -47,6 +47,14 @@ SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 -- Normalize a common Kekule aromatic form
 SELECT canonical_smiles('C1=CC=CC=C1');
 -- c1ccccc1
+
+-- SQL-native dedup/grouping hash
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');
+-- C(C)(O)O.[Na]
+
+-- Salt handling and parent normalization
+SELECT fragment_parent('CC(=O)[O-].[Na+]');
+-- C(C)(=O)O
 ```
 
 ---
@@ -69,7 +77,7 @@ SELECT mol_is_valid('not_a_molecule');-- false
 SELECT mol_is_valid('');              -- false
 ```
 
-**Supported SMILES features:** organic subset atoms (B, C, N, O, P, S, F, Cl, Br, I), aromatic atoms (c, n, o, s, p, b), bracket atoms (`[NH3+]`, `[Fe+2]`, `[13C@@H]`), branches, ring closures, disconnected fragments (`.`), bond types (single `-`, double `=`, triple `#`), implicit hydrogens (valence-based), and conservative six-membered Kekule aromaticity perception for common benzene/pyridine-like rings. This is intentionally smaller than RDKit's full sanitization, valence model, stereochemistry handling, and canonicalization stack.
+**Supported SMILES features:** organic subset atoms (B, C, N, O, P, S, F, Cl, Br, I), aromatic atoms (c, n, o, s, p, b), bracket atoms (`[NH3+]`, `[Fe+2]`, `[13C@@H:7]`), isotope / atom-map / `@` / `@@` metadata retention, branches, ring closures, disconnected fragments (`.`), bond types (single `-`, double `=`, triple `#`), implicit hydrogens (valence-based), and conservative six-membered Kekule aromaticity perception for common benzene/pyridine-like rings. This is intentionally smaller than RDKit's full sanitization, valence model, stereochemical canonicalization, and broad aromaticity stack.
 
 #### `mol_formula(smiles) -> VARCHAR`
 
@@ -204,6 +212,46 @@ Returns every unique SMARTS match as JSON. Each match includes `atom_indices` (1
 ```sql
 SELECT mol_substructure_matches_json('CC(=O)O', 'C=O');
 -- [{"match":1,"atom_indices":[2,3],"atoms":[{"query_atom":1,"target_atom":2,"symbol":"C"},{"query_atom":2,"target_atom":3,"symbol":"O"}]}]
+```
+
+SMARTS atom predicates include element / aromaticity, `#`, `H`, `X`, `D`, `v`, charge, `R/R0`, `r`, `x`, isotope, atom map (`:n`), bracket chirality (`@`/`@@`), ring bonds, recursive SMARTS, and boolean operators (`!`, `;`, `,`, implicit AND).
+
+#### `mol_hash(smiles, method) -> VARCHAR`
+
+Returns stable SQL grouping keys for molecular deduplication and graph bucketing. Supported methods are exposed by `mol_hash_methods()` and include `canonical_smiles`, `formula`, `net_charge`, `degree_vector`, `atom_bond_counts`, `element_graph`, `bond_order_graph`, `anonymous_graph`, `murcko_scaffold`, and `generic_scaffold`. Unknown methods and invalid SMILES return `NULL`.
+
+```sql
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'formula');          -- C2H3NaO2
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');    -- C(C)(O)O.[Na]
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'anonymous_graph');  -- C.C(C)(C)C
+SELECT mol_hash_methods();
+```
+
+#### `largest_fragment(smiles) -> VARCHAR`
+#### `strip_salts(smiles) -> VARCHAR`
+#### `neutralize_charges(smiles) -> VARCHAR`
+#### `normalize_smiles(smiles) -> VARCHAR`
+#### `fragment_parent(smiles) -> VARCHAR`
+
+SQL-native standardization helpers for dirty supplier or registry data. `largest_fragment` returns the largest connected component. `strip_salts` drops inorganic counterions when an organic component exists. `neutralize_charges` protonates common anions and removes removable cationic hydrogens while leaving metal ions charged. `normalize_smiles` neutralizes and canonicalizes with the local aromaticity model. `fragment_parent` strips salts, picks the main organic fragment, neutralizes it, and returns a canonical parent.
+
+```sql
+SELECT largest_fragment('CC(=O)[O-].[Na+]');     -- C(C)(=O)[O-]
+SELECT strip_salts('CCO.CN.[Cl-]');              -- C(C)O.CN
+SELECT neutralize_charges('CC(=O)[O-].[Na+]');   -- C(C)(=O)O.[Na+]
+SELECT fragment_parent('CC(=O)[O-].[Na+]');      -- C(C)(=O)O
+```
+
+#### `mcs_smarts(smiles_a, smiles_b) -> VARCHAR`
+#### `mcs_json(smiles_a, smiles_b) -> VARCHAR`
+#### `scaffold_network_json(smiles) -> VARCHAR`
+
+`mcs_smarts` returns an exact connected maximum common subgraph for two parsed molecules under the local atom/bond compatibility rules. `mcs_json` also returns 1-based atom mappings. `scaffold_network_json` emits molecule, Murcko scaffold, generic scaffold, and ring-system nodes plus scaffold edges as JSON.
+
+```sql
+SELECT mcs_smarts('CC(=O)O', 'CC(=O)N');  -- C(C)=O
+SELECT mcs_json('CC(=O)O', 'CC(=O)N');
+SELECT scaffold_network_json('Cc1ccccc1');
 ```
 
 #### `add_hydrogens(smiles) -> VARCHAR`
