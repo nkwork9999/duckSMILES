@@ -76,6 +76,14 @@ double ds_mol_block_weight(const uint8_t *data, size_t len);
 int32_t ds_mol_block_num_atoms(const uint8_t *data, size_t len);
 int32_t ds_mol_block_num_bonds(const uint8_t *data, size_t len);
 int32_t ds_mol_block_name(const uint8_t *data, size_t len, uint8_t *out, size_t cap);
+int32_t ds_mol_block_property(const uint8_t *data, size_t len,
+                              const uint8_t *key, size_t key_len,
+                              uint8_t *out, size_t cap);
+int32_t ds_mol_block_properties_json(const uint8_t *data, size_t len, uint8_t *out, size_t cap);
+int32_t ds_sdf_property(const uint8_t *data, size_t len, int32_t record_index,
+                        const uint8_t *key, size_t key_len,
+                        uint8_t *out, size_t cap);
+int32_t ds_sdf_properties_json(const uint8_t *data, size_t len, uint8_t *out, size_t cap);
 int32_t ds_mol_block_has_3d(const uint8_t *data, size_t len);
 double ds_mol_block_centroid_x(const uint8_t *data, size_t len);
 double ds_mol_block_centroid_y(const uint8_t *data, size_t len);

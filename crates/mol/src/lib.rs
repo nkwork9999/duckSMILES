@@ -14,6 +14,14 @@ fn write_buf(src: &[u8], out: *mut u8, cap: usize) -> i32 {
     n as i32
 }
 
+fn write_buf_required(src: &[u8], out: *mut u8, cap: usize) -> i32 {
+    if out.is_null() || cap < src.len() {
+        return src.len() as i32;
+    }
+    unsafe { std::ptr::copy_nonoverlapping(src.as_ptr(), out, src.len()); }
+    src.len() as i32
+}
+
 /// Count molecules in SDF text
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_sdf_count(data: *const u8, len: usize) -> i32 {
@@ -69,6 +77,78 @@ pub extern "C" fn ds_mol_block_name(data: *const u8, len: usize, out: *mut u8, c
         Some(mol) => write_buf(mol.name.as_bytes(), out, cap),
         None => -1,
     }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_block_property(
+    data: *const u8,
+    len: usize,
+    key: *const u8,
+    key_len: usize,
+    out: *mut u8,
+    cap: usize,
+) -> i32 {
+    if data.is_null() || key.is_null() || len == 0 {
+        return -1;
+    }
+    let key = as_str(key, key_len);
+    match parser::parse_mol(as_str(data, len)).and_then(|mol| mol.property(key).map(str::to_owned))
+    {
+        Some(value) => write_buf_required(value.as_bytes(), out, cap),
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_block_properties_json(
+    data: *const u8,
+    len: usize,
+    out: *mut u8,
+    cap: usize,
+) -> i32 {
+    if data.is_null() || len == 0 {
+        return -1;
+    }
+    match parser::parse_mol(as_str(data, len)) {
+        Some(mol) => write_buf_required(mol.properties_json().as_bytes(), out, cap),
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_sdf_property(
+    data: *const u8,
+    len: usize,
+    record_index: i32,
+    key: *const u8,
+    key_len: usize,
+    out: *mut u8,
+    cap: usize,
+) -> i32 {
+    if data.is_null() || key.is_null() || len == 0 || record_index <= 0 {
+        return -1;
+    }
+    let key = as_str(key, key_len);
+    let mols = parser::parse_sdf(as_str(data, len));
+    let idx = (record_index - 1) as usize;
+    match mols.get(idx).and_then(|mol| mol.property(key).map(str::to_owned)) {
+        Some(value) => write_buf_required(value.as_bytes(), out, cap),
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_sdf_properties_json(
+    data: *const u8,
+    len: usize,
+    out: *mut u8,
+    cap: usize,
+) -> i32 {
+    if data.is_null() || len == 0 {
+        return -1;
+    }
+    let mols = parser::parse_sdf(as_str(data, len));
+    write_buf_required(parser::sdf_properties_json(&mols).as_bytes(), out, cap)
 }
 
 #[unsafe(no_mangle)]
@@ -191,5 +271,72 @@ mod tests {
         assert!((ds_mol_block_max_x(MOL.as_ptr(), MOL.len()) - 2.31).abs() < 0.01);
         assert_eq!(ds_mol_block_min_y(MOL.as_ptr(), MOL.len()), 0.0);
         assert!((ds_mol_block_max_y(MOL.as_ptr(), MOL.len()) - 1.33).abs() < 0.01);
+    }
+
+    fn read_ffi_string<F: FnMut(*mut u8, usize) -> i32>(mut f: F) -> Option<String> {
+        let needed = f(std::ptr::null_mut(), 0);
+        if needed < 0 {
+            return None;
+        }
+        let mut buf = vec![0u8; needed as usize];
+        let n = f(buf.as_mut_ptr(), buf.len());
+        assert_eq!(n, needed);
+        Some(String::from_utf8(buf).unwrap())
+    }
+
+    #[test]
+    fn test_ffi_mol_block_property_and_json() {
+        let mol = format!("{}> <ID>\n123\n\n> <NOTE>\nline one\nline two\n\n", MOL);
+        let id = "ID";
+        let note = "NOTE";
+
+        let id_value = read_ffi_string(|out, cap| {
+            ds_mol_block_property(
+                mol.as_ptr(), mol.len(),
+                id.as_ptr(), id.len(),
+                out, cap,
+            )
+        }).unwrap();
+        assert_eq!(id_value, "123");
+
+        let note_value = read_ffi_string(|out, cap| {
+            ds_mol_block_property(
+                mol.as_ptr(), mol.len(),
+                note.as_ptr(), note.len(),
+                out, cap,
+            )
+        }).unwrap();
+        assert_eq!(note_value, "line one\nline two");
+
+        let json = read_ffi_string(|out, cap| {
+            ds_mol_block_properties_json(mol.as_ptr(), mol.len(), out, cap)
+        }).unwrap();
+        assert_eq!(
+            json,
+            "[{\"name\":\"ID\",\"value\":\"123\"},{\"name\":\"NOTE\",\"value\":\"line one\\nline two\"}]"
+        );
+    }
+
+    #[test]
+    fn test_ffi_sdf_property_and_json() {
+        let sdf = format!("{}> <ID>\n1\n\n$$$$\n{}> <ID>\n2\n\n$$$$\n", MOL, MOL);
+        let key = "ID";
+
+        let second = read_ffi_string(|out, cap| {
+            ds_sdf_property(
+                sdf.as_ptr(), sdf.len(), 2,
+                key.as_ptr(), key.len(),
+                out, cap,
+            )
+        }).unwrap();
+        assert_eq!(second, "2");
+
+        let json = read_ffi_string(|out, cap| {
+            ds_sdf_properties_json(sdf.as_ptr(), sdf.len(), out, cap)
+        }).unwrap();
+        assert_eq!(
+            json,
+            "[{\"record\":1,\"name\":\"ethanol\",\"properties\":[{\"name\":\"ID\",\"value\":\"1\"}]},{\"record\":2,\"name\":\"ethanol\",\"properties\":[{\"name\":\"ID\",\"value\":\"2\"}]}]"
+        );
     }
 }

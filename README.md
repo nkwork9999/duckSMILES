@@ -429,13 +429,32 @@ SELECT inchi_skeleton_match(
 
 ---
 
-### MOL/SDF Functions (6)
+### MOL/SDF Functions
 
 MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns.
 
 #### `mol_block_name(mol) -> VARCHAR`
 
 Extracts the molecule name from the first line of the MOL block header.
+
+#### `mol_block_property(mol, key) -> VARCHAR`
+
+Extracts an SDF data field from a single MOL/SDF record. Property parsing follows the SDF data item structure: a `> <FIELD_NAME>` header, zero or more value lines, and a blank-line terminator. Multi-line values are preserved with newline characters; empty values are returned as an empty string; duplicate property names are preserved internally and this function returns the first matching value. Returns `NULL` if the molecule block is invalid or the property is absent.
+
+```sql
+SELECT mol_block_property(sdf_record, 'PUBCHEM_COMPOUND_CID') AS cid
+FROM records;
+```
+
+#### `mol_block_properties_json(mol) -> VARCHAR`
+
+Returns all SDF data fields from a single MOL/SDF record as an ordered JSON array of `{name, value}` entries. The array form intentionally preserves duplicate property names and original property order.
+
+```sql
+SELECT mol_block_properties_json(sdf_record) AS properties_json
+FROM records;
+-- [{"name":"ID","value":"123"},{"name":"NOTE","value":"line one\nline two"}]
+```
 
 #### `mol_block_formula(mol) -> VARCHAR`
 
@@ -469,6 +488,25 @@ Counts the number of molecules in an SDF file by counting `$$$$` delimiters. Use
 
 ```sql
 SELECT sdf_count(sdf_text) AS num_molecules FROM sdf_files;
+```
+
+#### `sdf_property(sdf, record_index, key) -> VARCHAR`
+
+Extracts a property from a specific SDF record. `record_index` is 1-based, matching SQL row-numbering conventions. Returns the first matching value in that record, or `NULL` if the record or key is absent.
+
+```sql
+SELECT sdf_property(sdf_text, 2, 'PUBCHEM_IUPAC_NAME') AS second_name
+FROM sdf_files;
+```
+
+#### `sdf_properties_json(sdf) -> VARCHAR`
+
+Returns every parsed SDF record's property block as JSON. Each record includes its 1-based record number, MOL header name, and an ordered `properties` array. Multi-line values, empty values, duplicate field names, and field order are preserved.
+
+```sql
+SELECT sdf_properties_json(sdf_text) AS all_sdf_properties
+FROM sdf_files;
+-- [{"record":1,"name":"aspirin","properties":[{"name":"ID","value":"2244"}]}]
 ```
 
 ---

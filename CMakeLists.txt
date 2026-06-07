@@ -115,11 +115,17 @@ set(RUST_STATIC_LIBS "")
 foreach(CRATE ${RUST_CRATE_NAMES})
     list(APPEND RUST_STATIC_LIBS "${RUST_DIR}/${CARGO_TARGET_DIR}/${RUST_LIB_PREFIX}ducksmiles_${CRATE}${RUST_LIB_SUFFIX}")
 endforeach()
+file(GLOB_RECURSE RUST_SOURCES CONFIGURE_DEPENDS
+    "${RUST_DIR}/Cargo.toml"
+    "${RUST_DIR}/crates/*/Cargo.toml"
+    "${RUST_DIR}/crates/*/src/*.rs"
+)
 
 if(WIN32)
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
         COMMAND ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"
         VERBATIM
@@ -128,6 +134,7 @@ else()
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
         COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"
         VERBATIM

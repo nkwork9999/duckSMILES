@@ -61,7 +61,7 @@ docs:
     **Supported Formats:**
     - SMILES: Molecular validation, canonical SMILES normalization, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
-    - MOL/SDF: V2000/V3000 block parsing, molecule counting
+    - MOL/SDF: V2000/V3000 block parsing, molecule counting, complete SDF property-block extraction
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
@@ -83,6 +83,12 @@ docs:
     six-membered Kekule aromaticity perception, normalizing common forms like
     `C1=CC=CC=C1` to `c1ccccc1`. It is intentionally smaller than RDKit's full
     canonicalization, sanitization, valence, and stereo stack.
+
+    **SDF properties:** `mol_block_property()`, `mol_block_properties_json()`,
+    `sdf_property()`, and `sdf_properties_json()` parse complete SDF data item
+    blocks from `> <FIELD>` headers. Multi-line values, empty values, duplicate
+    field names, and original field order are preserved; JSON output uses ordered
+    arrays of `{name, value}` entries rather than lossy objects.
 
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width

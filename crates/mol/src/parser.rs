@@ -116,6 +116,17 @@ impl Molecule {
         }
         Some([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
     }
+
+    pub fn property(&self, key: &str) -> Option<&str> {
+        self.properties
+            .iter()
+            .find(|(name, _)| name == key)
+            .map(|(_, value)| value.as_str())
+    }
+
+    pub fn properties_json(&self) -> String {
+        properties_to_json(&self.properties)
+    }
 }
 
 fn parse_f32(s: &str) -> f32 {
@@ -124,6 +135,70 @@ fn parse_f32(s: &str) -> f32 {
 
 fn parse_u32(s: &str) -> u32 {
     s.trim().parse::<u32>().unwrap_or(0)
+}
+
+fn parse_property_name(line: &str) -> Option<String> {
+    if !line.starts_with('>') {
+        return None;
+    }
+    let start = line.find('<')?;
+    let rest = &line[start + 1..];
+    let end = rest.find('>')?;
+    Some(rest[..end].to_string())
+}
+
+fn json_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for ch in s.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{08}' => out.push_str("\\b"),
+            '\u{0c}' => out.push_str("\\f"),
+            ch if ch <= '\u{1f}' => {
+                out.push_str(&format!("\\u{:04x}", ch as u32));
+            }
+            _ => out.push(ch),
+        }
+    }
+    out
+}
+
+pub fn properties_to_json(properties: &[(String, String)]) -> String {
+    let mut out = String::from("[");
+    for (i, (name, value)) in properties.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str("{\"name\":\"");
+        out.push_str(&json_escape(name));
+        out.push_str("\",\"value\":\"");
+        out.push_str(&json_escape(value));
+        out.push_str("\"}");
+    }
+    out.push(']');
+    out
+}
+
+pub fn sdf_properties_json(mols: &[Molecule]) -> String {
+    let mut out = String::from("[");
+    for (i, mol) in mols.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str("{\"record\":");
+        out.push_str(&(i + 1).to_string());
+        out.push_str(",\"name\":\"");
+        out.push_str(&json_escape(&mol.name));
+        out.push_str("\",\"properties\":");
+        out.push_str(&mol.properties_json());
+        out.push('}');
+    }
+    out.push(']');
+    out
 }
 
 /// Parse a single MOL block (V2000)
@@ -174,28 +249,34 @@ pub fn parse_mol(text: &str) -> Option<Molecule> {
         bonds.push(Bond { atom1: a1, atom2: a2, bond_type: bt });
     }
 
-    // Properties (SDF style)
+    // Properties (SDF style): `> <FIELD>` header followed by zero or more
+    // value lines, terminated by a blank line or record delimiter.
     let mut properties = Vec::new();
-    let mut prop_name = String::new();
-    let mut in_prop = false;
-    for &line in &lines[4 + num_atoms + num_bonds..] {
-        if line.starts_with("M  END") {
-            continue;
+    let mut i = 4 + num_atoms + num_bonds;
+    while i < lines.len() {
+        let line = lines[i];
+        if line.starts_with("$$$$") {
+            break;
         }
-        if line.starts_with("> <") {
-            let end = line.find('>').map(|_| {
-                line[3..].find('>').map(|p| p + 3).unwrap_or(line.len())
-            }).unwrap_or(line.len());
-            prop_name = line[3..end].to_string();
-            in_prop = true;
-        } else if in_prop {
-            let val = line.trim();
-            if val.is_empty() {
-                in_prop = false;
-            } else {
-                properties.push((prop_name.clone(), val.to_string()));
-                in_prop = false;
+        let Some(prop_name) = parse_property_name(line) else {
+            i += 1;
+            continue;
+        };
+
+        i += 1;
+        let mut value_lines = Vec::new();
+        while i < lines.len() {
+            let value_line = lines[i];
+            if value_line.starts_with("$$$$") || value_line.trim().is_empty() {
+                break;
             }
+            value_lines.push(value_line);
+            i += 1;
+        }
+        properties.push((prop_name, value_lines.join("\n")));
+
+        while i < lines.len() && lines[i].trim().is_empty() {
+            i += 1;
         }
     }
 
@@ -205,8 +286,9 @@ pub fn parse_mol(text: &str) -> Option<Molecule> {
 /// Parse SDF file (multiple molecules separated by $$$$)
 pub fn parse_sdf(text: &str) -> Vec<Molecule> {
     text.split("$$$$")
+        .map(|block| block.trim_matches(|c| c == '\n' || c == '\r'))
         .filter(|block| !block.trim().is_empty())
-        .filter_map(|block| parse_mol(block.trim()))
+        .filter_map(parse_mol)
         .collect()
 }
 
@@ -243,5 +325,32 @@ mod tests {
         let sdf = format!("{}$$$$\n{}$$$$\n", SAMPLE_MOL, SAMPLE_MOL);
         let mols = parse_sdf(&sdf);
         assert_eq!(mols.len(), 2);
+    }
+
+    #[test]
+    fn test_sdf_properties_preserve_multiline_duplicates_and_empty_values() {
+        let sdf = format!(
+            "{}> <ID>\n123\n\n> <NOTE>\nline one\nline two\n\n> <ID>\n456\n\n> <EMPTY>\n\n$$$$\n",
+            SAMPLE_MOL
+        );
+        let mol = parse_sdf(&sdf).pop().unwrap();
+        assert_eq!(mol.property("ID"), Some("123"));
+        assert_eq!(mol.property("NOTE"), Some("line one\nline two"));
+        assert_eq!(mol.property("EMPTY"), Some(""));
+        assert_eq!(mol.properties.len(), 4);
+        assert_eq!(
+            mol.properties_json(),
+            "[{\"name\":\"ID\",\"value\":\"123\"},{\"name\":\"NOTE\",\"value\":\"line one\\nline two\"},{\"name\":\"ID\",\"value\":\"456\"},{\"name\":\"EMPTY\",\"value\":\"\"}]"
+        );
+    }
+
+    #[test]
+    fn test_sdf_properties_json_includes_record_names() {
+        let sdf = format!("{}> <ID>\n1\n\n$$$$\n{}> <ID>\n2\n\n$$$$\n", SAMPLE_MOL, SAMPLE_MOL);
+        let mols = parse_sdf(&sdf);
+        assert_eq!(
+            sdf_properties_json(&mols),
+            "[{\"record\":1,\"name\":\"ethanol\",\"properties\":[{\"name\":\"ID\",\"value\":\"1\"}]},{\"record\":2,\"name\":\"ethanol\",\"properties\":[{\"name\":\"ID\",\"value\":\"2\"}]}]"
+        );
     }
 }
