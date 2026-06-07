@@ -294,6 +294,153 @@ SELECT logp_crippen('');
 NULL
 
 # ============================================================================
+# SMILES: Bemis-Murcko scaffolds and ring systems
+# ============================================================================
+
+query I
+SELECT murcko_scaffold('Cc1ccccc1');
+----
+c1ccccc1
+
+query I
+SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O');
+----
+c1ccccc1
+
+query I
+SELECT length(murcko_scaffold('CCCC'));
+----
+0
+
+query I
+SELECT generic_scaffold('c1ccccn1');
+----
+C1CCCCC1
+
+query I
+SELECT ring_systems_json('c1ccccc1');
+----
+[{"index":1,"num_atoms":6,"num_bonds":6,"num_rings":1,"aromatic":true,"atoms":[1,2,3,4,5,6],"bonds":[1,2,3,4,5,6],"rings":[{"index":1,"size":6,"aromatic":true,"atoms":[1,2,3,4,5,6],"bonds":[1,2,3,4,5,6]}]}]
+
+query I
+SELECT murcko_scaffold('not_a_molecule');
+----
+NULL
+
+# ============================================================================
+# SMILES/SMARTS: substructure match mappings
+# ============================================================================
+
+query I
+SELECT mol_substructure_matches_json('CC(=O)O', 'C=O');
+----
+[{"match":1,"atom_indices":[2,3],"atoms":[{"query_atom":1,"target_atom":2,"symbol":"C"},{"query_atom":2,"target_atom":3,"symbol":"O"}]}]
+
+query I
+SELECT mol_substructure_matches_json('CCC', '[#6]~[#6]');
+----
+[{"match":1,"atom_indices":[1,2],"atoms":[{"query_atom":1,"target_atom":1,"symbol":"C"},{"query_atom":2,"target_atom":2,"symbol":"C"}]},{"match":2,"atom_indices":[2,3],"atoms":[{"query_atom":1,"target_atom":2,"symbol":"C"},{"query_atom":2,"target_atom":3,"symbol":"C"}]}]
+
+query I
+SELECT mol_substructure_matches_json('CCO', 'N');
+----
+[]
+
+query I
+SELECT mol_substructure_matches_json('not_a_molecule', 'C');
+----
+NULL
+
+# ============================================================================
+# SMILES: MolHash, standardization, MCS, and extended SMARTS predicates
+# ============================================================================
+
+query I
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'formula');
+----
+C2H3NaO2
+
+query I
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');
+----
+C(C)(O)O.[Na]
+
+query I
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'anonymous_graph');
+----
+C.C(C)(C)C
+
+query I
+SELECT mol_hash('CCO', 'does_not_exist');
+----
+NULL
+
+query I
+SELECT mol_hash_methods();
+----
+["canonical_smiles","formula","net_charge","degree_vector","atom_bond_counts","element_graph","bond_order_graph","anonymous_graph","murcko_scaffold","generic_scaffold"]
+
+query I
+SELECT largest_fragment('CC(=O)[O-].[Na+]');
+----
+C(C)(=O)[O-]
+
+query I
+SELECT strip_salts('CCO.CN.[Cl-]');
+----
+C(C)O.CN
+
+query I
+SELECT neutralize_charges('CC(=O)[O-].[Na+]');
+----
+C(C)(=O)O.[Na+]
+
+query I
+SELECT fragment_parent('CC(=O)[O-].[Na+]');
+----
+C(C)(=O)O
+
+query I
+SELECT normalize_smiles('C1=CC=CC=C1');
+----
+c1ccccc1
+
+query I
+SELECT mol_has_substructure('[13CH4]', '[13C]');
+----
+true
+
+query I
+SELECT mol_has_substructure('[CH4:7]', '[C:7]');
+----
+true
+
+query I
+SELECT mol_has_substructure('F[C@H](Cl)Br', '[C@H]');
+----
+true
+
+query I
+SELECT mol_substructure_count('c1ccccc1', '[r6;x2]');
+----
+6
+
+query I
+SELECT mcs_smarts('CC(=O)O', 'CC(=O)N');
+----
+C(C)=O
+
+query I
+SELECT mcs_json('CC(=O)O', 'CC(=O)N');
+----
+{"num_atoms":3,"num_bonds":2,"smarts":"C(C)=O","atoms_a":[1,2,3],"atoms_b":[1,2,3],"atom_pairs":[{"a":1,"b":1},{"a":2,"b":2},{"a":3,"b":3}]}
+
+query I
+SELECT scaffold_network_json('Cc1ccccc1') LIKE '%"kind":"murcko_scaffold"%"smiles":"c1ccccc1"%';
+----
+true
+
+# ============================================================================
 # SMILES: add_hydrogens (return SMILES with explicit H atoms)
 # ============================================================================
 
@@ -360,3 +507,63 @@ query I
 SELECT add_hydrogens('');
 ----
 NULL
+
+# ============================================================================
+# MOL/SDF: structural JSON extraction
+# ============================================================================
+
+query I
+WITH m AS (
+    SELECT 'ethanol' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  3  2  0  0  0  0  0  0  0  0999 V2000' || chr(10) ||
+           '    0.0000    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    1.5400    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    2.3100    1.3300    0.0000 O   0  0  0  0  0' || chr(10) ||
+           '  1  2  1  0' || chr(10) ||
+           '  2  3  2  0' || chr(10) ||
+           'M  END' || chr(10) AS mol
+)
+SELECT mol_block_atoms_json(mol) LIKE '%"index":3,"symbol":"O","x":2.31,"y":1.33,"z":0%'
+FROM m;
+----
+true
+
+query I
+WITH m AS (
+    SELECT 'ethanol' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  3  2  0  0  0  0  0  0  0  0999 V2000' || chr(10) ||
+           '    0.0000    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    1.5400    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    2.3100    1.3300    0.0000 O   0  0  0  0  0' || chr(10) ||
+           '  1  2  1  0' || chr(10) ||
+           '  2  3  2  0' || chr(10) ||
+           'M  END' || chr(10) AS mol
+)
+SELECT mol_block_bonds_json(mol) LIKE '%"index":2,"atom1":2,"atom2":3,"bond_type":2%'
+FROM m;
+----
+true
+
+query I
+WITH m AS (
+    SELECT 'ethanol_v3000' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  0  0  0     0  0            999 V3000' || chr(10) ||
+           'M  V30 BEGIN CTAB' || chr(10) ||
+           'M  V30 COUNTS 3 2 0 0 0' || chr(10) ||
+           'M  V30 BEGIN ATOM' || chr(10) ||
+           'M  V30 1 C 0.0000 0.0000 0.0000 0' || chr(10) ||
+           'M  V30 2 C 1.5400 0.0000 0.0000 0 CFG=0' || chr(10) ||
+           'M  V30 3 O 2.3100 1.3300 1.0000 0' || chr(10) ||
+           'M  V30 END ATOM' || chr(10) ||
+           'M  V30 BEGIN BOND' || chr(10) ||
+           'M  V30 1 1 1 2 CFG=0' || chr(10) ||
+           'M  V30 2 2 2 3' || chr(10) ||
+           'M  V30 END BOND' || chr(10) ||
+           'M  V30 END CTAB' || chr(10) ||
+           'M  END' || chr(10) ||
+           '> <ID>' || chr(10) || 'V3000-1' || chr(10) || chr(10) AS mol
+)
+SELECT mol_block_json(mol) LIKE '%"name":"ethanol_v3000"%"has_3d":true%"properties":[{"name":"ID","value":"V3000-1"}]%'
+FROM m;
+----
+true

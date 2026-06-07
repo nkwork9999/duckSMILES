@@ -1,5 +1,5 @@
-use std::collections::{BTreeMap, HashMap};
 use crate::weights;
+use std::collections::{BTreeMap, HashMap};
 
 const ORGANIC_SUBSET: &[&str] = &["B", "C", "N", "O", "P", "S", "F", "Cl", "Br", "I"];
 
@@ -13,14 +13,40 @@ fn is_aromatic_char(c: char) -> bool {
 
 fn default_valence(sym: &str, aromatic: bool) -> i32 {
     match sym {
-        "B" => if aromatic { 2 } else { 3 },
-        "C" => if aromatic { 3 } else { 4 },
-        "N" => if aromatic { 2 } else { 3 },
+        "B" => {
+            if aromatic {
+                2
+            } else {
+                3
+            }
+        }
+        "C" => {
+            if aromatic {
+                3
+            } else {
+                4
+            }
+        }
+        "N" => {
+            if aromatic {
+                2
+            } else {
+                3
+            }
+        }
         "O" => 2,
         "P" => 3,
         "S" => 2,
         "F" | "Cl" | "Br" | "I" => 1,
         _ => 0,
+    }
+}
+
+fn bond_valence(order: BondOrder) -> i32 {
+    match order {
+        BondOrder::Single | BondOrder::Aromatic => 1,
+        BondOrder::Double => 2,
+        BondOrder::Triple => 3,
     }
 }
 
@@ -46,6 +72,9 @@ pub struct Atom {
     pub charge: i32,
     pub aromatic: bool,
     pub in_bracket: bool,
+    pub isotope: Option<u16>,
+    pub atom_map: Option<u32>,
+    pub chirality: Option<String>,
 }
 
 impl Default for Atom {
@@ -56,6 +85,9 @@ impl Default for Atom {
             charge: 0,
             aromatic: false,
             in_bracket: false,
+            isotope: None,
+            atom_map: None,
+            chirality: None,
         }
     }
 }
@@ -111,6 +143,7 @@ impl Molecule {
                     charge: 0,
                     aromatic: false,
                     in_bracket: true,
+                    ..Default::default()
                 });
                 bonds.push(Bond {
                     a: i,
@@ -171,6 +204,10 @@ impl Molecule {
 
     pub fn heavy_atom_count(&self) -> usize {
         self.atoms.iter().filter(|a| a.symbol != "H").count()
+    }
+
+    pub fn total_charge(&self) -> i32 {
+        self.atoms.iter().map(|atom| atom.charge).sum()
     }
 
     pub fn molecular_weight(&self) -> f64 {
@@ -237,6 +274,72 @@ impl Molecule {
             }
         }
         comps
+    }
+
+    /// Perceive a conservative aromatic subset from Kekule input.
+    ///
+    /// This intentionally does not try to be full RDKit sanitization. It covers
+    /// the common six-membered alternating single/double rings that users often
+    /// write as Kekule benzene/pyridine forms (`C1=CC=CC=C1`) and rewrites those
+    /// ring atoms/bonds to the same aromatic model used by lowercase SMILES.
+    pub fn perceive_aromaticity(&mut self) {
+        let ring_info = self.ring_info();
+        for ring in ring_info.rings {
+            if ring.len() != 6 {
+                continue;
+            }
+
+            let mut atoms_in_ring = Vec::new();
+            let mut n_single = 0;
+            let mut n_double = 0;
+            let mut compatible = true;
+
+            for &bond_idx in &ring {
+                let Some(bond) = self.bonds.get(bond_idx).copied() else {
+                    compatible = false;
+                    break;
+                };
+                match bond.order {
+                    BondOrder::Single => n_single += 1,
+                    BondOrder::Double => n_double += 1,
+                    BondOrder::Aromatic => {
+                        n_single += 1;
+                        n_double += 1;
+                    }
+                    BondOrder::Triple => {
+                        compatible = false;
+                        break;
+                    }
+                }
+                if !atoms_in_ring.contains(&bond.a) {
+                    atoms_in_ring.push(bond.a);
+                }
+                if !atoms_in_ring.contains(&bond.b) {
+                    atoms_in_ring.push(bond.b);
+                }
+            }
+
+            if !compatible || atoms_in_ring.len() != 6 {
+                continue;
+            }
+            if !(n_double == 3 && n_single == 3) {
+                continue;
+            }
+            if atoms_in_ring.iter().any(|&idx| {
+                let atom = &self.atoms[idx];
+                atom.charge != 0
+                    || !matches!(atom.symbol.as_str(), "B" | "C" | "N" | "O" | "P" | "S")
+            }) {
+                continue;
+            }
+
+            for &idx in &atoms_in_ring {
+                self.atoms[idx].aromatic = true;
+            }
+            for &bond_idx in &ring {
+                self.bonds[bond_idx].order = BondOrder::Aromatic;
+            }
+        }
     }
 
     /// Ring perception. Returns, for the whole molecule:
@@ -445,7 +548,14 @@ impl Molecule {
 
         // Emit ring-closure digits for already-visited neighbors at function entry.
         for (other_idx, order) in pending.iter().filter(|(idx, _)| visited[*idx]) {
-            emit_ring_closure(atom_idx, *other_idx, *order, ring_id_for_pair, next_ring_id, output);
+            emit_ring_closure(
+                atom_idx,
+                *other_idx,
+                *order,
+                ring_id_for_pair,
+                next_ring_id,
+                output,
+            );
         }
 
         // Iterate the originally-unvisited neighbors in order. A neighbor that becomes
@@ -498,6 +608,369 @@ impl Molecule {
             }
         }
     }
+
+    /// Deterministic normalized SMILES. This is intentionally smaller than
+    /// RDKit's full canonicalizer, but it is stable for the parser's supported
+    /// graph subset and emits perceived aromatic rings in lowercase form.
+    pub fn canonical_smiles(&self) -> String {
+        if self.atoms.is_empty() {
+            return String::new();
+        }
+
+        let components = self.components();
+        let mut rendered = Vec::new();
+        for component in components {
+            if let Some(cycle) = self.simple_cycle_smiles(&component) {
+                rendered.push(cycle);
+                continue;
+            }
+            let mut best: Option<String> = None;
+            for &start in &component {
+                let candidate = self.component_smiles_from(start, &component);
+                if best.as_ref().map(|s| candidate < *s).unwrap_or(true) {
+                    best = Some(candidate);
+                }
+            }
+            if let Some(s) = best {
+                rendered.push(s);
+            }
+        }
+        rendered.sort();
+        rendered.join(".")
+    }
+
+    pub fn components(&self) -> Vec<Vec<usize>> {
+        let n = self.atoms.len();
+        let adj = self.adjacency();
+        let mut seen = vec![false; n];
+        let mut components = Vec::new();
+        for start in 0..n {
+            if seen[start] {
+                continue;
+            }
+            let mut comp = Vec::new();
+            let mut stack = vec![start];
+            seen[start] = true;
+            while let Some(u) = stack.pop() {
+                comp.push(u);
+                for &(v, _) in &adj[u] {
+                    if !seen[v] {
+                        seen[v] = true;
+                        stack.push(v);
+                    }
+                }
+            }
+            comp.sort_unstable();
+            components.push(comp);
+        }
+        components
+    }
+
+    pub fn subgraph_from_atoms(&self, atoms_to_keep: &[usize]) -> Option<Molecule> {
+        let mut keep = vec![false; self.atoms.len()];
+        for &idx in atoms_to_keep {
+            if idx >= keep.len() {
+                return None;
+            }
+            keep[idx] = true;
+        }
+
+        let mut index_map = vec![usize::MAX; self.atoms.len()];
+        let mut atoms = Vec::new();
+        for (idx, atom) in self.atoms.iter().enumerate() {
+            if keep[idx] {
+                index_map[idx] = atoms.len();
+                atoms.push(atom.clone());
+            }
+        }
+        if atoms.is_empty() {
+            return None;
+        }
+
+        let mut bonds = Vec::new();
+        for bond in &self.bonds {
+            let a = index_map[bond.a];
+            let b = index_map[bond.b];
+            if a != usize::MAX && b != usize::MAX {
+                bonds.push(Bond {
+                    a,
+                    b,
+                    order: bond.order,
+                });
+            }
+        }
+
+        Some(Molecule {
+            bond_count: bonds.len() as i32,
+            atoms,
+            bonds,
+        })
+    }
+
+    fn simple_cycle_smiles(&self, component: &[usize]) -> Option<String> {
+        if component.len() < 3 {
+            return None;
+        }
+        let mut in_component = vec![false; self.atoms.len()];
+        for &idx in component {
+            in_component[idx] = true;
+        }
+
+        let mut cycle_bonds = 0;
+        for bond in &self.bonds {
+            if in_component[bond.a] && in_component[bond.b] {
+                cycle_bonds += 1;
+            }
+        }
+        if cycle_bonds != component.len() {
+            return None;
+        }
+
+        for &idx in component {
+            let degree = self
+                .neighbors(idx)
+                .into_iter()
+                .filter(|(nbr, _)| in_component[*nbr])
+                .count();
+            if degree != 2 {
+                return None;
+            }
+        }
+
+        let mut candidates = Vec::new();
+        for &start in component {
+            let starts = self
+                .neighbors(start)
+                .into_iter()
+                .filter(|(nbr, _)| in_component[*nbr])
+                .collect::<Vec<_>>();
+            for (first_next, first_order) in starts {
+                let mut atoms_order = vec![start, first_next];
+                let mut bond_orders = vec![first_order];
+                let mut prev = start;
+                let mut cur = first_next;
+
+                loop {
+                    let nexts = self
+                        .neighbors(cur)
+                        .into_iter()
+                        .filter(|(nbr, _)| in_component[*nbr] && *nbr != prev)
+                        .collect::<Vec<_>>();
+                    if nexts.len() != 1 {
+                        break;
+                    }
+                    let (next, order) = nexts[0];
+                    bond_orders.push(order);
+                    if next == start {
+                        if atoms_order.len() == component.len() {
+                            candidates.push(render_cycle_smiles(self, &atoms_order, &bond_orders));
+                        }
+                        break;
+                    }
+                    if atoms_order.contains(&next) || atoms_order.len() >= component.len() {
+                        break;
+                    }
+                    atoms_order.push(next);
+                    prev = cur;
+                    cur = next;
+                }
+            }
+        }
+
+        candidates.into_iter().min()
+    }
+
+    fn component_smiles_from(&self, start: usize, component: &[usize]) -> String {
+        let mut in_component = vec![false; self.atoms.len()];
+        for &idx in component {
+            in_component[idx] = true;
+        }
+        let mut visited = vec![false; self.atoms.len()];
+        let mut ring_id_for_pair = std::collections::HashMap::new();
+        let mut next_ring_id = 1;
+        let mut output = String::new();
+        self.dfs_canonical_smiles(
+            start,
+            None,
+            &in_component,
+            &mut visited,
+            &mut ring_id_for_pair,
+            &mut next_ring_id,
+            &mut output,
+        );
+        output
+    }
+
+    fn dfs_canonical_smiles(
+        &self,
+        atom_idx: usize,
+        from: Option<usize>,
+        in_component: &[bool],
+        visited: &mut [bool],
+        ring_id_for_pair: &mut std::collections::HashMap<(usize, usize), usize>,
+        next_ring_id: &mut usize,
+        output: &mut String,
+    ) {
+        visited[atom_idx] = true;
+        output.push_str(&atom_smiles_token(&self.atoms[atom_idx]));
+
+        let mut pending: Vec<(usize, BondOrder)> = self
+            .neighbors(atom_idx)
+            .into_iter()
+            .filter(|(n_idx, _)| Some(*n_idx) != from && in_component[*n_idx])
+            .collect();
+        pending.sort_by(|(a_idx, a_order), (b_idx, b_order)| {
+            canonical_neighbor_key(self, *a_idx, *a_order)
+                .cmp(&canonical_neighbor_key(self, *b_idx, *b_order))
+        });
+
+        for (other_idx, order) in pending.iter().filter(|(idx, _)| visited[*idx]) {
+            emit_ring_closure(
+                atom_idx,
+                *other_idx,
+                *order,
+                ring_id_for_pair,
+                next_ring_id,
+                output,
+            );
+        }
+
+        let unvisited_at_entry: Vec<(usize, BondOrder)> = pending
+            .iter()
+            .filter(|(idx, _)| !visited[*idx])
+            .copied()
+            .collect();
+
+        for (i, (next_idx, order)) in unvisited_at_entry.iter().enumerate() {
+            if visited[*next_idx] {
+                emit_ring_closure(
+                    atom_idx,
+                    *next_idx,
+                    *order,
+                    ring_id_for_pair,
+                    next_ring_id,
+                    output,
+                );
+                continue;
+            }
+            let any_after = unvisited_at_entry
+                .iter()
+                .skip(i + 1)
+                .any(|(idx, _)| !visited[*idx]);
+            let is_last = !any_after;
+            if !is_last {
+                output.push('(');
+            }
+            output.push_str(bond_smiles_symbol(*order));
+            self.dfs_canonical_smiles(
+                *next_idx,
+                Some(atom_idx),
+                in_component,
+                visited,
+                ring_id_for_pair,
+                next_ring_id,
+                output,
+            );
+            if !is_last {
+                output.push(')');
+            }
+        }
+    }
+}
+
+fn render_cycle_smiles(mol: &Molecule, atoms_order: &[usize], bond_orders: &[BondOrder]) -> String {
+    let mut out = String::new();
+    out.push_str(&atom_smiles_token(&mol.atoms[atoms_order[0]]));
+    out.push('1');
+    for i in 1..atoms_order.len() {
+        out.push_str(bond_smiles_symbol(bond_orders[i - 1]));
+        out.push_str(&atom_smiles_token(&mol.atoms[atoms_order[i]]));
+    }
+    if let Some(order) = bond_orders.last() {
+        out.push_str(bond_smiles_symbol(*order));
+    }
+    out.push('1');
+    out
+}
+
+fn canonical_neighbor_key(
+    mol: &Molecule,
+    idx: usize,
+    order: BondOrder,
+) -> (String, i32, usize, u8) {
+    (
+        atom_smiles_token(&mol.atoms[idx]),
+        mol.neighbors(idx).len() as i32,
+        idx,
+        match order {
+            BondOrder::Single => 0,
+            BondOrder::Aromatic => 1,
+            BondOrder::Double => 2,
+            BondOrder::Triple => 3,
+        },
+    )
+}
+
+fn atom_smiles_token(atom: &Atom) -> String {
+    let bare_allowed = atom.charge == 0
+        && atom.symbol != "H"
+        && is_organic(&atom.symbol)
+        && atom.isotope.is_none()
+        && atom.atom_map.is_none()
+        && atom.chirality.is_none()
+        && (!atom.in_bracket || (atom.aromatic && atom.hydrogen == 0));
+    if bare_allowed {
+        return if atom.aromatic {
+            atom.symbol.to_ascii_lowercase()
+        } else {
+            atom.symbol.clone()
+        };
+    }
+
+    let mut out = String::new();
+    out.push('[');
+    if let Some(isotope) = atom.isotope {
+        out.push_str(&isotope.to_string());
+    }
+    if atom.aromatic {
+        out.push_str(&atom.symbol.to_ascii_lowercase());
+    } else {
+        out.push_str(&atom.symbol);
+    }
+    if let Some(chirality) = &atom.chirality {
+        out.push_str(chirality);
+    }
+    if atom.hydrogen > 0 {
+        out.push('H');
+        if atom.hydrogen > 1 {
+            out.push_str(&atom.hydrogen.to_string());
+        }
+    }
+    if atom.charge > 0 {
+        out.push('+');
+        if atom.charge > 1 {
+            out.push_str(&atom.charge.to_string());
+        }
+    } else if atom.charge < 0 {
+        out.push('-');
+        if atom.charge < -1 {
+            out.push_str(&(-atom.charge).to_string());
+        }
+    }
+    if let Some(atom_map) = atom.atom_map {
+        out.push(':');
+        out.push_str(&atom_map.to_string());
+    }
+    out.push(']');
+    out
+}
+
+fn bond_smiles_symbol(order: BondOrder) -> &'static str {
+    match order {
+        BondOrder::Single | BondOrder::Aromatic => "",
+        BondOrder::Double => "=",
+        BondOrder::Triple => "#",
+    }
 }
 
 fn emit_ring_closure(
@@ -534,11 +1007,18 @@ fn emit_ring_closure(
 
 /// Parse bracket atom: [NH3+], [Fe+2], [13C@@H], etc.
 fn parse_bracket_atom(chars: &[char], pos: &mut usize) -> Option<Atom> {
-    let mut atom = Atom { in_bracket: true, ..Default::default() };
+    let mut atom = Atom {
+        in_bracket: true,
+        ..Default::default()
+    };
 
-    // Skip isotope
+    let isotope_start = *pos;
     while *pos < chars.len() && chars[*pos].is_ascii_digit() {
         *pos += 1;
+    }
+    if *pos > isotope_start {
+        let isotope: String = chars[isotope_start..*pos].iter().collect();
+        atom.isotope = isotope.parse::<u16>().ok();
     }
     if *pos >= chars.len() {
         return None;
@@ -570,9 +1050,13 @@ fn parse_bracket_atom(chars: &[char], pos: &mut usize) -> Option<Atom> {
         return None;
     }
 
-    // Skip chirality (@, @@)
-    while *pos < chars.len() && chars[*pos] == '@' {
+    if *pos < chars.len() && chars[*pos] == '@' {
+        let start = *pos;
         *pos += 1;
+        if *pos < chars.len() && chars[*pos] == '@' {
+            *pos += 1;
+        }
+        atom.chirality = Some(chars[start..*pos].iter().collect());
     }
 
     // Explicit H
@@ -601,6 +1085,19 @@ fn parse_bracket_atom(chars: &[char], pos: &mut usize) -> Option<Atom> {
                 *pos += 1;
             }
         }
+    }
+
+    if *pos < chars.len() && chars[*pos] == ':' {
+        *pos += 1;
+        let start = *pos;
+        while *pos < chars.len() && chars[*pos].is_ascii_digit() {
+            *pos += 1;
+        }
+        if start == *pos {
+            return None;
+        }
+        let atom_map: String = chars[start..*pos].iter().collect();
+        atom.atom_map = atom_map.parse::<u32>().ok();
     }
 
     if *pos >= chars.len() || chars[*pos] != ']' {
@@ -652,7 +1149,9 @@ pub fn parse(smi: &str) -> Option<Molecule> {
 
         // Branch
         if c == '(' {
-            if prev_atom < 0 { return None; }
+            if prev_atom < 0 {
+                return None;
+            }
             branch_stack.push(prev_atom);
             pos += 1;
             continue;
@@ -693,11 +1192,14 @@ pub fn parse(smi: &str) -> Option<Molecule> {
             let ring_num;
             if c == '%' {
                 pos += 1;
-                if pos + 1 >= chars.len() || !chars[pos].is_ascii_digit() || !chars[pos + 1].is_ascii_digit() {
+                if pos + 1 >= chars.len()
+                    || !chars[pos].is_ascii_digit()
+                    || !chars[pos + 1].is_ascii_digit()
+                {
                     return None;
                 }
                 ring_num = ((chars[pos] as i32) - ('0' as i32)) * 10
-                         + ((chars[pos + 1] as i32) - ('0' as i32));
+                    + ((chars[pos + 1] as i32) - ('0' as i32));
                 pos += 2;
             } else {
                 ring_num = (c as i32) - ('0' as i32);
@@ -834,8 +1336,21 @@ pub fn parse(smi: &str) -> Option<Molecule> {
         return None;
     }
 
-    // Compute implicit H for non-bracket organic subset atoms
-    for (i, atom) in atoms.iter_mut().enumerate() {
+    let mut mol = Molecule {
+        atoms,
+        bonds,
+        bond_count,
+    };
+    mol.perceive_aromaticity();
+
+    let mut degree = vec![0; mol.atoms.len()];
+    for bond in &mol.bonds {
+        let valence = bond_valence(bond.order);
+        degree[bond.a] += valence;
+        degree[bond.b] += valence;
+    }
+
+    for (i, atom) in mol.atoms.iter_mut().enumerate() {
         if atom.in_bracket {
             continue;
         }
@@ -844,7 +1359,7 @@ pub fn parse(smi: &str) -> Option<Molecule> {
         atom.hydrogen = implicit_h;
     }
 
-    Some(Molecule { atoms, bonds, bond_count })
+    Some(mol)
 }
 
 #[cfg(test)]
@@ -908,8 +1423,40 @@ mod tests {
         let mol = parse("c1ccccc1").unwrap();
         assert_eq!(mol.bonds.len(), 6);
         for b in &mol.bonds {
-            assert_eq!(b.order, BondOrder::Aromatic, "benzene bond should be aromatic");
+            assert_eq!(
+                b.order,
+                BondOrder::Aromatic,
+                "benzene bond should be aromatic"
+            );
         }
+    }
+
+    #[test]
+    fn test_kekule_benzene_perceives_aromaticity() {
+        let mol = parse("C1=CC=CC=C1").unwrap();
+        assert_eq!(mol.formula(), "C6H6");
+        assert!(mol.atoms.iter().all(|atom| atom.aromatic));
+        assert!(mol
+            .bonds
+            .iter()
+            .all(|bond| bond.order == BondOrder::Aromatic));
+        assert_eq!(mol.canonical_smiles(), "c1ccccc1");
+    }
+
+    #[test]
+    fn test_kekule_pyridine_perceives_aromaticity() {
+        let mol = parse("C1=CC=NC=C1").unwrap();
+        assert_eq!(mol.formula(), "C5H5N");
+        assert!(mol.atoms.iter().all(|atom| atom.aromatic));
+        assert_eq!(mol.canonical_smiles(), "c1ccccn1");
+    }
+
+    #[test]
+    fn test_nonaromatic_cyclohexane_stays_aliphatic() {
+        let mol = parse("C1CCCCC1").unwrap();
+        assert_eq!(mol.formula(), "C6H12");
+        assert!(mol.atoms.iter().all(|atom| !atom.aromatic));
+        assert!(mol.bonds.iter().all(|bond| bond.order == BondOrder::Single));
     }
 
     #[test]
@@ -995,7 +1542,10 @@ mod tests {
 
     #[test]
     fn test_to_smiles_verbose_methane() {
-        let s = parse("C").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        let s = parse("C")
+            .unwrap()
+            .with_explicit_hydrogens()
+            .to_smiles_verbose();
         // [C]([H])([H])([H])[H]
         let parsed = parse(&s).expect("round-trip parse");
         assert_eq!(parsed.atoms.len(), 5);
@@ -1004,7 +1554,10 @@ mod tests {
 
     #[test]
     fn test_to_smiles_verbose_ethanol() {
-        let s = parse("CCO").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        let s = parse("CCO")
+            .unwrap()
+            .with_explicit_hydrogens()
+            .to_smiles_verbose();
         let parsed = parse(&s).expect("round-trip parse");
         assert_eq!(parsed.atoms.len(), 9);
         assert_eq!(parsed.heavy_atom_count(), 3);
@@ -1012,7 +1565,10 @@ mod tests {
 
     #[test]
     fn test_to_smiles_verbose_water() {
-        let s = parse("O").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        let s = parse("O")
+            .unwrap()
+            .with_explicit_hydrogens()
+            .to_smiles_verbose();
         let parsed = parse(&s).expect("round-trip parse");
         assert_eq!(parsed.atoms.len(), 3);
         assert_eq!(parsed.heavy_atom_count(), 1);
@@ -1020,7 +1576,10 @@ mod tests {
 
     #[test]
     fn test_to_smiles_verbose_benzene() {
-        let s = parse("c1ccccc1").unwrap().with_explicit_hydrogens().to_smiles_verbose();
+        let s = parse("c1ccccc1")
+            .unwrap()
+            .with_explicit_hydrogens()
+            .to_smiles_verbose();
         let parsed = parse(&s).expect("round-trip parse");
         // 6 C + 6 H = 12 atoms; round-trip preserves heavy atom count
         assert_eq!(parsed.heavy_atom_count(), 6);
@@ -1108,14 +1667,29 @@ mod tests {
     /// Helper: parse must succeed, check formula and heavy atom count
     fn check(smiles: &str, expected_formula: &str, expected_heavy: usize) {
         let mol = parse(smiles).unwrap_or_else(|| panic!("Failed to parse: {}", smiles));
-        assert_eq!(mol.formula(), expected_formula, "Formula mismatch for {}", smiles);
-        assert_eq!(mol.heavy_atom_count(), expected_heavy, "Heavy atom count mismatch for {}", smiles);
+        assert_eq!(
+            mol.formula(),
+            expected_formula,
+            "Formula mismatch for {}",
+            smiles
+        );
+        assert_eq!(
+            mol.heavy_atom_count(),
+            expected_heavy,
+            "Heavy atom count mismatch for {}",
+            smiles
+        );
     }
 
     /// Helper: parse must succeed (formula not checked, just parsability + heavy atoms)
     fn check_parse(smiles: &str, expected_heavy: usize) {
         let mol = parse(smiles).unwrap_or_else(|| panic!("Failed to parse: {}", smiles));
-        assert_eq!(mol.heavy_atom_count(), expected_heavy, "Heavy atom count mismatch for {}", smiles);
+        assert_eq!(
+            mol.heavy_atom_count(),
+            expected_heavy,
+            "Heavy atom count mismatch for {}",
+            smiles
+        );
     }
 
     // --- Ring perception & fragments ---
@@ -1124,7 +1698,10 @@ mod tests {
     fn ring_benzene() {
         let mol = parse("c1ccccc1").unwrap();
         let ri = mol.ring_info();
-        assert!(ri.atom_in_ring.iter().all(|&x| x), "all benzene atoms in ring");
+        assert!(
+            ri.atom_in_ring.iter().all(|&x| x),
+            "all benzene atoms in ring"
+        );
         assert_eq!(ri.rings.len(), 1, "benzene has 1 ring");
         assert_eq!(ri.rings[0].len(), 6, "benzene ring has 6 bonds");
     }
@@ -1166,160 +1743,256 @@ mod tests {
     // --- Simple organic molecules ---
 
     #[test]
-    fn test_methane() { check("C", "CH4", 1); }
+    fn test_methane() {
+        check("C", "CH4", 1);
+    }
 
     #[test]
-    fn test_ethane() { check("CC", "C2H6", 2); }
+    fn test_ethane() {
+        check("CC", "C2H6", 2);
+    }
 
     #[test]
-    fn test_propane() { check("CCC", "C3H8", 3); }
+    fn test_propane() {
+        check("CCC", "C3H8", 3);
+    }
 
     #[test]
-    fn test_butane() { check("CCCC", "C4H10", 4); }
+    fn test_butane() {
+        check("CCCC", "C4H10", 4);
+    }
 
     #[test]
-    fn test_isobutane() { check("CC(C)C", "C4H10", 4); }
+    fn test_isobutane() {
+        check("CC(C)C", "C4H10", 4);
+    }
 
     #[test]
-    fn test_neopentane() { check("CC(C)(C)C", "C5H12", 5); }
+    fn test_neopentane() {
+        check("CC(C)(C)C", "C5H12", 5);
+    }
 
     #[test]
-    fn test_ethylene() { check("C=C", "C2H4", 2); }
+    fn test_ethylene() {
+        check("C=C", "C2H4", 2);
+    }
 
     #[test]
-    fn test_acetylene() { check("C#C", "C2H2", 2); }
+    fn test_acetylene() {
+        check("C#C", "C2H2", 2);
+    }
 
     #[test]
-    fn test_propylene() { check("CC=C", "C3H6", 3); }
+    fn test_propylene() {
+        check("CC=C", "C3H6", 3);
+    }
 
     #[test]
-    fn test_1_3_butadiene() { check("C=CC=C", "C4H6", 4); }
+    fn test_1_3_butadiene() {
+        check("C=CC=C", "C4H6", 4);
+    }
 
     // --- Alcohols, aldehydes, ketones, acids ---
 
     #[test]
-    fn test_methanol() { check("CO", "CH4O", 2); }
+    fn test_methanol() {
+        check("CO", "CH4O", 2);
+    }
 
     #[test]
-    fn test_formaldehyde() { check("C=O", "CH2O", 2); }
+    fn test_formaldehyde() {
+        check("C=O", "CH2O", 2);
+    }
 
     #[test]
-    fn test_acetone() { check("CC(=O)C", "C3H6O", 4); }
+    fn test_acetone() {
+        check("CC(=O)C", "C3H6O", 4);
+    }
 
     #[test]
-    fn test_acetic_acid() { check("CC(=O)O", "C2H4O2", 4); }
+    fn test_acetic_acid() {
+        check("CC(=O)O", "C2H4O2", 4);
+    }
 
     #[test]
-    fn test_formic_acid() { check("O=CO", "CH2O2", 3); }
+    fn test_formic_acid() {
+        check("O=CO", "CH2O2", 3);
+    }
 
     #[test]
-    fn test_glycerol() { check("OCC(O)CO", "C3H8O3", 6); }
+    fn test_glycerol() {
+        check("OCC(O)CO", "C3H8O3", 6);
+    }
 
     // --- Amines, amides ---
 
     #[test]
-    fn test_methylamine() { check("CN", "CH5N", 2); }
+    fn test_methylamine() {
+        check("CN", "CH5N", 2);
+    }
 
     #[test]
-    fn test_dimethylamine() { check("CNC", "C2H7N", 3); }
+    fn test_dimethylamine() {
+        check("CNC", "C2H7N", 3);
+    }
 
     #[test]
-    fn test_trimethylamine() { check("CN(C)C", "C3H9N", 4); }
+    fn test_trimethylamine() {
+        check("CN(C)C", "C3H9N", 4);
+    }
 
     #[test]
-    fn test_urea() { check("NC(=O)N", "CH4N2O", 4); }
+    fn test_urea() {
+        check("NC(=O)N", "CH4N2O", 4);
+    }
 
     #[test]
-    fn test_acetamide() { check("CC(=O)N", "C2H5NO", 4); }
+    fn test_acetamide() {
+        check("CC(=O)N", "C2H5NO", 4);
+    }
 
     // --- Halogens ---
 
     #[test]
-    fn test_chloromethane() { check("CCl", "CH3Cl", 2); }
+    fn test_chloromethane() {
+        check("CCl", "CH3Cl", 2);
+    }
 
     #[test]
-    fn test_bromomethane() { check("CBr", "CH3Br", 2); }
+    fn test_bromomethane() {
+        check("CBr", "CH3Br", 2);
+    }
 
     #[test]
-    fn test_iodomethane() { check("CI", "CH3I", 2); }
+    fn test_iodomethane() {
+        check("CI", "CH3I", 2);
+    }
 
     #[test]
-    fn test_fluoromethane() { check("CF", "CH3F", 2); }
+    fn test_fluoromethane() {
+        check("CF", "CH3F", 2);
+    }
 
     #[test]
-    fn test_dichloromethane() { check("ClCCl", "CH2Cl2", 3); }
+    fn test_dichloromethane() {
+        check("ClCCl", "CH2Cl2", 3);
+    }
 
     #[test]
-    fn test_chloroform() { check("ClC(Cl)Cl", "CHCl3", 4); }
+    fn test_chloroform() {
+        check("ClC(Cl)Cl", "CHCl3", 4);
+    }
 
     #[test]
-    fn test_carbon_tetrachloride() { check("ClC(Cl)(Cl)Cl", "CCl4", 5); }
+    fn test_carbon_tetrachloride() {
+        check("ClC(Cl)(Cl)Cl", "CCl4", 5);
+    }
 
     // --- Aromatic compounds ---
 
     #[test]
-    fn test_toluene() { check("Cc1ccccc1", "C7H8", 7); }
+    fn test_toluene() {
+        check("Cc1ccccc1", "C7H8", 7);
+    }
 
     #[test]
-    fn test_phenol() { check("Oc1ccccc1", "C6H6O", 7); }
+    fn test_phenol() {
+        check("Oc1ccccc1", "C6H6O", 7);
+    }
 
     #[test]
-    fn test_aniline() { check("Nc1ccccc1", "C6H7N", 7); }
+    fn test_aniline() {
+        check("Nc1ccccc1", "C6H7N", 7);
+    }
 
     #[test]
-    fn test_benzoic_acid() { check("OC(=O)c1ccccc1", "C7H6O2", 9); }
+    fn test_benzoic_acid() {
+        check("OC(=O)c1ccccc1", "C7H6O2", 9);
+    }
 
     #[test]
-    fn test_nitrobenzene() { check("c1ccc([N+](=O)[O-])cc1", "C6H5NO2", 9); }
+    fn test_nitrobenzene() {
+        check("c1ccc([N+](=O)[O-])cc1", "C6H5NO2", 9);
+    }
 
     #[test]
-    fn test_styrene() { check("C=Cc1ccccc1", "C8H8", 8); }
+    fn test_styrene() {
+        check("C=Cc1ccccc1", "C8H8", 8);
+    }
 
     #[test]
-    fn test_biphenyl() { check("c1ccc(-c2ccccc2)cc1", "C12H10", 12); }
+    fn test_biphenyl() {
+        check("c1ccc(-c2ccccc2)cc1", "C12H10", 12);
+    }
 
     #[test]
-    fn test_anthracene() { check("c1ccc2cc3ccccc3cc2c1", "C14H10", 14); }
+    fn test_anthracene() {
+        check("c1ccc2cc3ccccc3cc2c1", "C14H10", 14);
+    }
 
     // --- Heterocycles ---
 
     #[test]
-    fn test_pyridine() { check("c1ccncc1", "C5H5N", 6); }
+    fn test_pyridine() {
+        check("c1ccncc1", "C5H5N", 6);
+    }
 
     #[test]
-    fn test_pyrrole() { check("c1cc[nH]c1", "C4H5N", 5); }
+    fn test_pyrrole() {
+        check("c1cc[nH]c1", "C4H5N", 5);
+    }
 
     #[test]
-    fn test_furan() { check("c1ccoc1", "C4H4O", 5); }
+    fn test_furan() {
+        check("c1ccoc1", "C4H4O", 5);
+    }
 
     #[test]
-    fn test_thiophene() { check("c1ccsc1", "C4H4S", 5); }
+    fn test_thiophene() {
+        check("c1ccsc1", "C4H4S", 5);
+    }
 
     #[test]
-    fn test_imidazole() { check("c1c[nH]cn1", "C3H4N2", 5); }
+    fn test_imidazole() {
+        check("c1c[nH]cn1", "C3H4N2", 5);
+    }
 
     #[test]
-    fn test_indole() { check("c1ccc2[nH]ccc2c1", "C8H7N", 9); }
+    fn test_indole() {
+        check("c1ccc2[nH]ccc2c1", "C8H7N", 9);
+    }
 
     #[test]
-    fn test_quinoline() { check("c1ccc2ncccc2c1", "C9H7N", 10); }
+    fn test_quinoline() {
+        check("c1ccc2ncccc2c1", "C9H7N", 10);
+    }
 
     // --- Rings ---
 
     #[test]
-    fn test_cyclopropane() { check("C1CC1", "C3H6", 3); }
+    fn test_cyclopropane() {
+        check("C1CC1", "C3H6", 3);
+    }
 
     #[test]
-    fn test_cyclobutane() { check("C1CCC1", "C4H8", 4); }
+    fn test_cyclobutane() {
+        check("C1CCC1", "C4H8", 4);
+    }
 
     #[test]
-    fn test_cyclopentane() { check("C1CCCC1", "C5H10", 5); }
+    fn test_cyclopentane() {
+        check("C1CCCC1", "C5H10", 5);
+    }
 
     #[test]
-    fn test_cycloheptane() { check("C1CCCCCC1", "C7H14", 7); }
+    fn test_cycloheptane() {
+        check("C1CCCCCC1", "C7H14", 7);
+    }
 
     #[test]
-    fn test_cyclooctane() { check("C1CCCCCCC1", "C8H16", 8); }
+    fn test_cyclooctane() {
+        check("C1CCCCCCC1", "C8H16", 8);
+    }
 
     // --- Drugs / bioactive molecules ---
 
@@ -1365,12 +2038,18 @@ mod tests {
 
     #[test]
     fn test_penicillin_g_core() {
-        check_parse("CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)NC(=O)Cc3ccccc3)C(=O)O)C", 23);
+        check_parse(
+            "CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)NC(=O)Cc3ccccc3)C(=O)O)C",
+            23,
+        );
     }
 
     #[test]
     fn test_cholesterol() {
-        check_parse("C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C", 28);
+        check_parse(
+            "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C",
+            28,
+        );
     }
 
     #[test]
@@ -1380,112 +2059,175 @@ mod tests {
 
     #[test]
     fn test_sucrose() {
-        check_parse("OC[C@H]1OC(O[C@@]2(CO)O[C@H](CO)[C@@H](O)[C@@H]2O)[C@H](O)[C@@H](O)[C@@H]1O", 23); // 12C + 11O = 23 heavy
+        check_parse(
+            "OC[C@H]1OC(O[C@@]2(CO)O[C@H](CO)[C@@H](O)[C@@H]2O)[C@H](O)[C@@H](O)[C@@H]1O",
+            23,
+        ); // 12C + 11O = 23 heavy
     }
 
     // --- Amino acids ---
 
     #[test]
-    fn test_glycine() { check("NCC(=O)O", "C2H5NO2", 5); }
+    fn test_glycine() {
+        check("NCC(=O)O", "C2H5NO2", 5);
+    }
 
     #[test]
-    fn test_alanine() { check("C[C@@H](N)C(=O)O", "C3H7NO2", 6); }
+    fn test_alanine() {
+        check("C[C@@H](N)C(=O)O", "C3H7NO2", 6);
+    }
 
     #[test]
-    fn test_valine() { check("CC(C)[C@@H](N)C(=O)O", "C5H11NO2", 8); }
+    fn test_valine() {
+        check("CC(C)[C@@H](N)C(=O)O", "C5H11NO2", 8);
+    }
 
     #[test]
-    fn test_leucine() { check("CC(C)C[C@@H](N)C(=O)O", "C6H13NO2", 9); }
+    fn test_leucine() {
+        check("CC(C)C[C@@H](N)C(=O)O", "C6H13NO2", 9);
+    }
 
     #[test]
-    fn test_phenylalanine() { check_parse("[C@@H](Cc1ccccc1)(N)C(=O)O", 12); }
+    fn test_phenylalanine() {
+        check_parse("[C@@H](Cc1ccccc1)(N)C(=O)O", 12);
+    }
 
     #[test]
-    fn test_tryptophan() { check_parse("N[C@@H](Cc1c[nH]c2ccccc12)C(=O)O", 15); }
+    fn test_tryptophan() {
+        check_parse("N[C@@H](Cc1c[nH]c2ccccc12)C(=O)O", 15);
+    }
 
     #[test]
-    fn test_cysteine() { check("N[C@@H](CS)C(=O)O", "C3H7NO2S", 7); }
+    fn test_cysteine() {
+        check("N[C@@H](CS)C(=O)O", "C3H7NO2S", 7);
+    }
 
     #[test]
-    fn test_methionine() { check("CSCC[C@@H](N)C(=O)O", "C5H11NO2S", 9); }
+    fn test_methionine() {
+        check("CSCC[C@@H](N)C(=O)O", "C5H11NO2S", 9);
+    }
 
     #[test]
-    fn test_proline() { check_parse("OC(=O)[C@@H]1CCCN1", 8); }
+    fn test_proline() {
+        check_parse("OC(=O)[C@@H]1CCCN1", 8);
+    }
 
     #[test]
-    fn test_histidine() { check_parse("N[C@@H](Cc1c[nH]cn1)C(=O)O", 11); }
+    fn test_histidine() {
+        check_parse("N[C@@H](Cc1c[nH]cn1)C(=O)O", 11);
+    }
 
     // --- Sulfur compounds ---
 
     #[test]
-    fn test_dimethyl_sulfoxide() { check("CS(=O)C", "C2H6OS", 4); }
+    fn test_dimethyl_sulfoxide() {
+        check("CS(=O)C", "C2H6OS", 4);
+    }
 
     #[test]
-    fn test_thioacetone() { check("CC(=S)C", "C3H6S", 4); }
+    fn test_thioacetone() {
+        check("CC(=S)C", "C3H6S", 4);
+    }
 
     #[test]
-    fn test_methanethiol() { check("CS", "CH4S", 2); }
+    fn test_methanethiol() {
+        check("CS", "CH4S", 2);
+    }
 
     // --- Phosphorus ---
 
     #[test]
-    fn test_trimethylphosphine() { check("CP(C)C", "C3H9P", 4); }
+    fn test_trimethylphosphine() {
+        check("CP(C)C", "C3H9P", 4);
+    }
 
     // --- Boron ---
 
     #[test]
-    fn test_borane() { check_parse("[BH3]", 1); }
+    fn test_borane() {
+        check_parse("[BH3]", 1);
+    }
 
     #[test]
-    fn test_phenylboronic_acid() { check("OB(O)c1ccccc1", "C6H7BO2", 9); }
+    fn test_phenylboronic_acid() {
+        check("OB(O)c1ccccc1", "C6H7BO2", 9);
+    }
 
     // --- Charged species ---
 
     #[test]
-    fn test_ammonium() { check_parse("[NH4+]", 1); }
+    fn test_ammonium() {
+        check_parse("[NH4+]", 1);
+    }
 
     #[test]
-    fn test_hydroxide() { check_parse("[OH-]", 1); }
+    fn test_hydroxide() {
+        check_parse("[OH-]", 1);
+    }
 
     #[test]
-    fn test_acetate() { check_parse("CC(=O)[O-]", 4); }
+    fn test_acetate() {
+        check_parse("CC(=O)[O-]", 4);
+    }
 
     #[test]
-    fn test_sodium_chloride() { check_parse("[Na+].[Cl-]", 2); }
+    fn test_sodium_chloride() {
+        check_parse("[Na+].[Cl-]", 2);
+    }
 
     #[test]
-    fn test_calcium_chloride() { check_parse("[Ca+2].[Cl-].[Cl-]", 3); }
+    fn test_calcium_chloride() {
+        check_parse("[Ca+2].[Cl-].[Cl-]", 3);
+    }
 
     #[test]
-    fn test_sulfate() { check_parse("[O-]S(=O)(=O)[O-]", 5); }
+    fn test_sulfate() {
+        check_parse("[O-]S(=O)(=O)[O-]", 5);
+    }
 
     // --- Stereo SMILES (chirality/cis-trans) — just check parsability ---
 
     #[test]
-    fn test_cis_2_butene() { check_parse(r"C/C=C\C", 4); }
+    fn test_cis_2_butene() {
+        check_parse(r"C/C=C\C", 4);
+    }
 
     #[test]
-    fn test_trans_2_butene() { check_parse("C/C=C/C", 4); }
+    fn test_trans_2_butene() {
+        check_parse("C/C=C/C", 4);
+    }
 
     #[test]
-    fn test_l_alanine() { check_parse("[C@@H](N)(C)C(=O)O", 6); }
+    fn test_l_alanine() {
+        check_parse("[C@@H](N)(C)C(=O)O", 6);
+    }
 
     #[test]
-    fn test_d_alanine() { check_parse("[C@H](N)(C)C(=O)O", 6); }
+    fn test_d_alanine() {
+        check_parse("[C@H](N)(C)C(=O)O", 6);
+    }
 
     // --- Multi-ring / fused systems ---
 
     #[test]
-    fn test_adamantane() { check("C1C2CC3CC1CC(C2)C3", "C10H16", 10); }
+    fn test_adamantane() {
+        check("C1C2CC3CC1CC(C2)C3", "C10H16", 10);
+    }
 
     #[test]
-    fn test_cubane() { check("C12C3C4C1C5C3C4C25", "C8H8", 8); }
+    fn test_cubane() {
+        check("C12C3C4C1C5C3C4C25", "C8H8", 8);
+    }
 
     #[test]
-    fn test_decalin() { check("C1CCC2CCCCC2C1", "C10H18", 10); }
+    fn test_decalin() {
+        check("C1CCC2CCCCC2C1", "C10H18", 10);
+    }
 
     #[test]
-    fn test_fluorene() { check("c1ccc2c(c1)Cc1ccccc1-2", "C13H10", 13); }
+    fn test_fluorene() {
+        check("c1ccc2c(c1)Cc1ccccc1-2", "C13H10", 13);
+    }
 
     // --- Two-digit ring closures ---
 
@@ -1499,13 +2241,19 @@ mod tests {
     // --- Edge cases ---
 
     #[test]
-    fn test_single_bracket_atom() { check_parse("[Cu]", 1); }
+    fn test_single_bracket_atom() {
+        check_parse("[Cu]", 1);
+    }
 
     #[test]
-    fn test_isotope_bracket() { check_parse("[13CH4]", 1); }
+    fn test_isotope_bracket() {
+        check_parse("[13CH4]", 1);
+    }
 
     #[test]
-    fn test_wildcard_bracket() { check_parse("[*]", 1); }
+    fn test_wildcard_bracket() {
+        check_parse("[*]", 1);
+    }
 
     #[test]
     fn test_deep_branch() {
@@ -1525,19 +2273,29 @@ mod tests {
     // =================================================================
 
     #[test]
-    fn test_adenine() { check("c1nc(N)c2nc[nH]c2n1", "C5H5N5", 10); }
+    fn test_adenine() {
+        check("c1nc(N)c2nc[nH]c2n1", "C5H5N5", 10);
+    }
 
     #[test]
-    fn test_guanine() { check("c1nc2c(n1)[nH]c(=O)n2N", "C4H4N5O", 10); }
+    fn test_guanine() {
+        check("c1nc2c(n1)[nH]c(=O)n2N", "C4H4N5O", 10);
+    }
 
     #[test]
-    fn test_cytosine() { check("c1cnc(=O)[nH]c1N", "C4H5N3O", 8); }
+    fn test_cytosine() {
+        check("c1cnc(=O)[nH]c1N", "C4H5N3O", 8);
+    }
 
     #[test]
-    fn test_thymine() { check("Cc1c[nH]c(=O)[nH]c1=O", "C5H6N2O2", 9); }
+    fn test_thymine() {
+        check("Cc1c[nH]c(=O)[nH]c1=O", "C5H6N2O2", 9);
+    }
 
     #[test]
-    fn test_uracil() { check("c1c[nH]c(=O)[nH]c1=O", "C4H4N2O2", 8); }
+    fn test_uracil() {
+        check("c1c[nH]c(=O)[nH]c1=O", "C4H4N2O2", 8);
+    }
 
     // =================================================================
     // Steroids (beyond cholesterol)
@@ -1550,17 +2308,26 @@ mod tests {
 
     #[test]
     fn test_progesterone() {
-        check_parse("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CCC4=CC(=O)CC[C@@]34C)C", 23);
+        check_parse(
+            "CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CCC4=CC(=O)CC[C@@]34C)C",
+            23,
+        );
     }
 
     #[test]
     fn test_cortisol() {
-        check_parse("C[C@@]12C[C@@H](O)[C@H]3[C@@H](CCC4=CC(=O)CC[C@@]43C)[C@@H]1CC[C@]2(O)C(=O)CO", 26);
+        check_parse(
+            "C[C@@]12C[C@@H](O)[C@H]3[C@@H](CCC4=CC(=O)CC[C@@]43C)[C@@H]1CC[C@]2(O)C(=O)CO",
+            26,
+        );
     }
 
     #[test]
     fn test_testosterone() {
-        check_parse("C[C@]12CC[C@H]3[C@@H](CCC4=CC(=O)CC[C@@]43C)[C@@H]1CC[C@@H]2O", 21);
+        check_parse(
+            "C[C@]12CC[C@H]3[C@@H](CCC4=CC(=O)CC[C@@]43C)[C@@H]1CC[C@@H]2O",
+            21,
+        );
     }
 
     // =================================================================
@@ -1574,7 +2341,10 @@ mod tests {
 
     #[test]
     fn test_methotrexate() {
-        check_parse("CN(Cc1cnc2nc(N)nc(N)c2n1)c1ccc(C(=O)N[C@@H](CCC(=O)O)C(=O)O)cc1", 33);
+        check_parse(
+            "CN(Cc1cnc2nc(N)nc(N)c2n1)c1ccc(C(=O)N[C@@H](CCC(=O)O)C(=O)O)cc1",
+            33,
+        );
     }
 
     #[test]
@@ -1762,7 +2532,10 @@ mod tests {
     #[test]
     fn test_cyclodextrin_fragment() {
         // Maltose-like fragment (2 glucose units)
-        check_parse("OC[C@H]1OC(O[C@@H]2[C@@H](O)[C@H](O)[C@@H](O)OC2CO)[C@H](O)[C@@H](O)[C@@H]1O", 23);
+        check_parse(
+            "OC[C@H]1OC(O[C@@H]2[C@@H](O)[C@H](O)[C@@H](O)OC2CO)[C@H](O)[C@@H](O)[C@@H]1O",
+            23,
+        );
     }
 
     // =================================================================
@@ -1873,7 +2646,10 @@ mod tests {
 
     #[test]
     fn test_codeine() {
-        check_parse("COc1ccc2C[C@H]3N(C)CC[C@@]45c2c1O[C@H]4[C@@H](O)C=C[C@@H]35", 22);
+        check_parse(
+            "COc1ccc2C[C@H]3N(C)CC[C@@]45c2c1O[C@H]4[C@@H](O)C=C[C@@H]35",
+            22,
+        );
     }
 
     // =================================================================
@@ -1989,31 +2765,49 @@ mod tests {
     // =================================================================
 
     #[test]
-    fn test_isoleucine() { check("CC[C@H](C)[C@@H](N)C(=O)O", "C6H13NO2", 9); }
+    fn test_isoleucine() {
+        check("CC[C@H](C)[C@@H](N)C(=O)O", "C6H13NO2", 9);
+    }
 
     #[test]
-    fn test_serine() { check("N[C@@H](CO)C(=O)O", "C3H7NO3", 7); }
+    fn test_serine() {
+        check("N[C@@H](CO)C(=O)O", "C3H7NO3", 7);
+    }
 
     #[test]
-    fn test_threonine() { check("C[C@@H](O)[C@@H](N)C(=O)O", "C4H9NO3", 8); }
+    fn test_threonine() {
+        check("C[C@@H](O)[C@@H](N)C(=O)O", "C4H9NO3", 8);
+    }
 
     #[test]
-    fn test_aspartate() { check("N[C@@H](CC(=O)O)C(=O)O", "C4H7NO4", 9); }
+    fn test_aspartate() {
+        check("N[C@@H](CC(=O)O)C(=O)O", "C4H7NO4", 9);
+    }
 
     #[test]
-    fn test_asparagine() { check("N[C@@H](CC(=O)N)C(=O)O", "C4H8N2O3", 9); }
+    fn test_asparagine() {
+        check("N[C@@H](CC(=O)N)C(=O)O", "C4H8N2O3", 9);
+    }
 
     #[test]
-    fn test_glutamine() { check("N[C@@H](CCC(=O)N)C(=O)O", "C5H10N2O3", 10); }
+    fn test_glutamine() {
+        check("N[C@@H](CCC(=O)N)C(=O)O", "C5H10N2O3", 10);
+    }
 
     #[test]
-    fn test_lysine() { check("NCCCC[C@@H](N)C(=O)O", "C6H14N2O2", 10); }
+    fn test_lysine() {
+        check("NCCCC[C@@H](N)C(=O)O", "C6H14N2O2", 10);
+    }
 
     #[test]
-    fn test_arginine() { check_parse("N[C@@H](CCCNC(=N)N)C(=O)O", 12); }
+    fn test_arginine() {
+        check_parse("N[C@@H](CCCNC(=N)N)C(=O)O", 12);
+    }
 
     #[test]
-    fn test_tyrosine() { check_parse("N[C@@H](Cc1ccc(O)cc1)C(=O)O", 13); }
+    fn test_tyrosine() {
+        check_parse("N[C@@H](Cc1ccc(O)cc1)C(=O)O", 13);
+    }
 
     // =================================================================
     // Edge cases: very large / complex

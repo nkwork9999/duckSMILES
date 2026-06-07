@@ -2,7 +2,7 @@
 
 **SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
-Analyze SMILES, InChI, MOL/SDF, PDB, and SELFIES molecular structures directly from SQL — no Python, no RDKit, no setup.
+Analyze SMILES, SMARTS, InChI, MOL/SDF, PDB, and SELFIES molecular structures directly from SQL — no Python, no RDKit, no setup.
 
 **A lightweight, zero-dependency alternative to RDKit for common cheminformatics SQL queries.**
 
@@ -43,13 +43,25 @@ SELECT round(mol_weight('c1ccccc1'), 2);
 -- Validate SMILES
 SELECT mol_is_valid('CCO'), mol_is_valid('invalid');
 -- true, false
+
+-- Normalize a common Kekule aromatic form
+SELECT canonical_smiles('C1=CC=CC=C1');
+-- c1ccccc1
+
+-- SQL-native dedup/grouping hash
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');
+-- C(C)(O)O.[Na]
+
+-- Salt handling and parent normalization
+SELECT fragment_parent('CC(=O)[O-].[Na+]');
+-- C(C)(=O)O
 ```
 
 ---
 
-## Function Reference (40 functions)
+## Function Reference
 
-### SMILES Functions (11)
+### SMILES Functions
 
 SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
 
@@ -65,7 +77,7 @@ SELECT mol_is_valid('not_a_molecule');-- false
 SELECT mol_is_valid('');              -- false
 ```
 
-**Supported SMILES features:** organic subset atoms (B, C, N, O, P, S, F, Cl, Br, I), aromatic atoms (c, n, o, s, p, b), bracket atoms (`[NH3+]`, `[Fe+2]`, `[13C@@H]`), branches, ring closures, disconnected fragments (`.`), bond types (single `-`, double `=`, triple `#`), implicit hydrogens (valence-based).
+**Supported SMILES features:** organic subset atoms (B, C, N, O, P, S, F, Cl, Br, I), aromatic atoms (c, n, o, s, p, b), bracket atoms (`[NH3+]`, `[Fe+2]`, `[13C@@H:7]`), isotope / atom-map / `@` / `@@` metadata retention, branches, ring closures, disconnected fragments (`.`), bond types (single `-`, double `=`, triple `#`), implicit hydrogens (valence-based), and conservative six-membered Kekule aromaticity perception for common benzene/pyridine-like rings. This is intentionally smaller than RDKit's full sanitization, valence model, stereochemical canonicalization, and broad aromaticity stack.
 
 #### `mol_formula(smiles) -> VARCHAR`
 
@@ -147,6 +159,101 @@ SELECT round(tpsa('CC(=O)Oc1ccccc1C(=O)O'), 2);        -- 63.60  (aspirin)
 SELECT round(tpsa('c1ccncc1'), 2);                     -- 12.89  (pyridine)
 ```
 
+#### `canonical_smiles(smiles) -> VARCHAR`
+
+Returns a deterministic normalized SMILES string for the parser's supported graph subset. It also runs the conservative aromaticity perception pass, so common six-membered Kekule aromatic rings are emitted in lowercase aromatic form. Returns `NULL` for invalid SMILES.
+
+This is useful for SQL-side deduplication and for normalizing common descriptor inputs, but it is not a replacement for RDKit's full canonical SMILES implementation: stereochemical canonicalization, full sanitization, and broad aromaticity models remain outside this lightweight subset.
+
+```sql
+SELECT canonical_smiles('C1=CC=CC=C1');  -- c1ccccc1
+SELECT canonical_smiles('c1ccccc1');     -- c1ccccc1
+SELECT canonical_smiles('C1CCCCC1');     -- C1CCCCC1
+```
+
+#### `murcko_scaffold(smiles) -> VARCHAR`
+
+Returns the Bemis-Murcko scaffold: ring systems plus linker atoms that connect ring systems, with terminal side chains pruned. Acyclic molecules return an empty string. Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT murcko_scaffold('Cc1ccccc1');                  -- c1ccccc1
+SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O');      -- c1ccccc1
+SELECT murcko_scaffold('c1ccccc1CCc2ccccc2');         -- keeps both rings and the linker
+```
+
+#### `generic_scaffold(smiles) -> VARCHAR`
+
+Returns the generic Bemis-Murcko scaffold by converting scaffold atoms to carbon and scaffold bonds to single bonds. This mirrors the common RDKit workflow of extracting a Murcko scaffold and making it generic for scaffold-class grouping.
+
+```sql
+SELECT generic_scaffold('c1ccccn1');  -- C1CCCCC1
+```
+
+#### `ring_systems_json(smiles) -> VARCHAR`
+
+Returns ring systems as JSON. Each system includes 1-based atom indices, bond indices, ring count, aromatic flag, and the individual rings assigned to the system. Acyclic molecules return `[]`.
+
+```sql
+SELECT ring_systems_json('c1ccc2ccccc2c1');
+```
+
+#### `mol_has_substructure(smiles, smarts) -> BOOLEAN`
+
+Returns `true` when the molecule contains at least one match for the SMARTS query. Returns `NULL` for invalid SMILES or unsupported SMARTS.
+
+#### `mol_substructure_count(smiles, smarts) -> INTEGER`
+
+Returns the number of unique SMARTS matches, deduplicated by the set of matched molecule atoms, mirroring RDKit's `SubstructMatch(..., uniquify=true)` behavior.
+
+#### `mol_substructure_matches_json(smiles, smarts) -> VARCHAR`
+
+Returns every unique SMARTS match as JSON. Each match includes `atom_indices` (1-based target atom indices in SMARTS pattern atom order) and an `atoms` mapping array with `query_atom`, `target_atom`, and target atom `symbol`.
+
+```sql
+SELECT mol_substructure_matches_json('CC(=O)O', 'C=O');
+-- [{"match":1,"atom_indices":[2,3],"atoms":[{"query_atom":1,"target_atom":2,"symbol":"C"},{"query_atom":2,"target_atom":3,"symbol":"O"}]}]
+```
+
+SMARTS atom predicates include element / aromaticity, `#`, `H`, `X`, `D`, `v`, charge, `R/R0`, `r`, `x`, isotope, atom map (`:n`), bracket chirality (`@`/`@@`), ring bonds, recursive SMARTS, and boolean operators (`!`, `;`, `,`, implicit AND).
+
+#### `mol_hash(smiles, method) -> VARCHAR`
+
+Returns stable SQL grouping keys for molecular deduplication and graph bucketing. Supported methods are exposed by `mol_hash_methods()` and include `canonical_smiles`, `formula`, `net_charge`, `degree_vector`, `atom_bond_counts`, `element_graph`, `bond_order_graph`, `anonymous_graph`, `murcko_scaffold`, and `generic_scaffold`. Unknown methods and invalid SMILES return `NULL`.
+
+```sql
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'formula');          -- C2H3NaO2
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');    -- C(C)(O)O.[Na]
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'anonymous_graph');  -- C.C(C)(C)C
+SELECT mol_hash_methods();
+```
+
+#### `largest_fragment(smiles) -> VARCHAR`
+#### `strip_salts(smiles) -> VARCHAR`
+#### `neutralize_charges(smiles) -> VARCHAR`
+#### `normalize_smiles(smiles) -> VARCHAR`
+#### `fragment_parent(smiles) -> VARCHAR`
+
+SQL-native standardization helpers for dirty supplier or registry data. `largest_fragment` returns the largest connected component. `strip_salts` drops inorganic counterions when an organic component exists. `neutralize_charges` protonates common anions and removes removable cationic hydrogens while leaving metal ions charged. `normalize_smiles` neutralizes and canonicalizes with the local aromaticity model. `fragment_parent` strips salts, picks the main organic fragment, neutralizes it, and returns a canonical parent.
+
+```sql
+SELECT largest_fragment('CC(=O)[O-].[Na+]');     -- C(C)(=O)[O-]
+SELECT strip_salts('CCO.CN.[Cl-]');              -- C(C)O.CN
+SELECT neutralize_charges('CC(=O)[O-].[Na+]');   -- C(C)(=O)O.[Na+]
+SELECT fragment_parent('CC(=O)[O-].[Na+]');      -- C(C)(=O)O
+```
+
+#### `mcs_smarts(smiles_a, smiles_b) -> VARCHAR`
+#### `mcs_json(smiles_a, smiles_b) -> VARCHAR`
+#### `scaffold_network_json(smiles) -> VARCHAR`
+
+`mcs_smarts` returns an exact connected maximum common subgraph for two parsed molecules under the local atom/bond compatibility rules. `mcs_json` also returns 1-based atom mappings. `scaffold_network_json` emits molecule, Murcko scaffold, generic scaffold, and ring-system nodes plus scaffold edges as JSON.
+
+```sql
+SELECT mcs_smarts('CC(=O)O', 'CC(=O)N');  -- C(C)=O
+SELECT mcs_json('CC(=O)O', 'CC(=O)N');
+SELECT scaffold_network_json('Cc1ccccc1');
+```
+
 #### `add_hydrogens(smiles) -> VARCHAR`
 
 Returns the input SMILES with every implicit H atom rewritten as an explicit `[H]` vertex (verbose bracket form). The output round-trips through `parse` and composes safely with other descriptors. Useful as a preprocessing primitive for SMARTS that match `[#1]`. Returns `NULL` for invalid SMILES.
@@ -226,7 +333,7 @@ Returns the **166 MACCS structural keys** as a fixed **21-byte (167-bit)** BLOB,
 
 Unlike Morgan/ECFP (hashed local environments), each MACCS bit is a fixed yes/no structural question: most are SMARTS substructure matches, some are count thresholds (e.g. "≥2 oxygens"), and a few are special rules (per-atom element scan, "≥2 aromatic rings", multi-fragment). Lighter and more interpretable than Morgan, at coarser resolution.
 
-**Bit-for-bit verified** against RDKit's `MACCSkeys.GenMACCSKeys` for aromatic SMILES written in lowercase form (`c1ccccc1`). Kekulé-written aromatic rings (`C1=CC=CC=C1`) depend on aromaticity perception, which the SMILES parser does not yet perform — write aromatic rings in lowercase for RDKit-identical output.
+**Bit-for-bit verified** against RDKit's `MACCSkeys.GenMACCSKeys` for aromatic SMILES written in lowercase form (`c1ccccc1`). Common six-membered Kekule aromatic forms (`C1=CC=CC=C1`) are now normalized by the conservative aromaticity perception pass, but broader RDKit aromaticity and sanitization behavior is intentionally not claimed.
 
 ```sql
 -- 21-byte fixed width (vs Morgan's 256 bytes at 2048 bit)
@@ -413,13 +520,51 @@ SELECT inchi_skeleton_match(
 
 ---
 
-### MOL/SDF Functions (6)
+### MOL/SDF Functions
 
-MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns.
+MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns. V3000 support covers `COUNTS`, `ATOM`, and `BOND` CTAB blocks, including V3000 line continuation records, so the same MOL block functions work across V2000 and V3000 inputs. Structural JSON functions expose the complete parsed atom table, bond table, and SDF property block from SQL.
 
 #### `mol_block_name(mol) -> VARCHAR`
 
 Extracts the molecule name from the first line of the MOL block header.
+
+#### `mol_block_property(mol, key) -> VARCHAR`
+
+Extracts an SDF data field from a single MOL/SDF record. Property parsing follows the SDF data item structure: a `> <FIELD_NAME>` header, zero or more value lines, and a blank-line terminator. Multi-line values are preserved with newline characters; empty values are returned as an empty string; duplicate property names are preserved internally and this function returns the first matching value. Returns `NULL` if the molecule block is invalid or the property is absent.
+
+```sql
+SELECT mol_block_property(sdf_record, 'PUBCHEM_COMPOUND_CID') AS cid
+FROM records;
+```
+
+#### `mol_block_properties_json(mol) -> VARCHAR`
+
+Returns all SDF data fields from a single MOL/SDF record as an ordered JSON array of `{name, value}` entries. The array form intentionally preserves duplicate property names and original property order.
+
+```sql
+SELECT mol_block_properties_json(sdf_record) AS properties_json
+FROM records;
+-- [{"name":"ID","value":"123"},{"name":"NOTE","value":"line one\nline two"}]
+```
+
+#### `mol_block_atoms_json(mol) -> VARCHAR`
+
+Returns the parsed atom block as an ordered JSON array. Each atom includes 1-based `index`, `symbol`, and numeric `x`, `y`, `z` coordinates. Works for both V2000 atom lines and V3000 `ATOM` records.
+
+#### `mol_block_bonds_json(mol) -> VARCHAR`
+
+Returns the parsed bond block as an ordered JSON array. Each bond includes 1-based `index`, 1-based `atom1`/`atom2` endpoints, and the numeric MOL bond type.
+
+#### `mol_block_json(mol) -> VARCHAR`
+
+Returns a complete parsed MOL/SDF record as a JSON object with `name`, `formula`, `weight`, `num_atoms`, `num_bonds`, `has_3d`, `atoms`, `bonds`, and `properties`.
+
+```sql
+SELECT mol_block_atoms_json(sdf_record) AS atoms,
+       mol_block_bonds_json(sdf_record) AS bonds,
+       mol_block_json(sdf_record) AS mol_json
+FROM records;
+```
 
 #### `mol_block_formula(mol) -> VARCHAR`
 
@@ -447,12 +592,41 @@ SELECT mol_block_name(mol_text) AS name,
 FROM molecules;
 ```
 
+The same functions accept V3000 CTAB records:
+
+```sql
+SELECT mol_block_formula(v3000_mol) AS formula,
+       mol_block_num_atoms(v3000_mol) AS atoms,
+       mol_block_num_bonds(v3000_mol) AS bonds,
+       mol_block_has_3d(v3000_mol) AS has_3d
+FROM molecules;
+```
+
 #### `sdf_count(sdf) -> INTEGER`
 
 Counts the number of molecules in an SDF file by counting `$$$$` delimiters. Useful for quickly checking dataset size without fully parsing each molecule.
 
 ```sql
 SELECT sdf_count(sdf_text) AS num_molecules FROM sdf_files;
+```
+
+#### `sdf_property(sdf, record_index, key) -> VARCHAR`
+
+Extracts a property from a specific SDF record. `record_index` is 1-based, matching SQL row-numbering conventions. Returns the first matching value in that record, or `NULL` if the record or key is absent.
+
+```sql
+SELECT sdf_property(sdf_text, 2, 'PUBCHEM_IUPAC_NAME') AS second_name
+FROM sdf_files;
+```
+
+#### `sdf_properties_json(sdf) -> VARCHAR`
+
+Returns every parsed SDF record's property block as JSON. Each record includes its 1-based record number, MOL header name, and an ordered `properties` array. Multi-line values, empty values, duplicate field names, and field order are preserved.
+
+```sql
+SELECT sdf_properties_json(sdf_text) AS all_sdf_properties
+FROM sdf_files;
+-- [{"record":1,"name":"aspirin","properties":[{"name":"ID","value":"2244"}]}]
 ```
 
 ---

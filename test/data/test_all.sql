@@ -4,7 +4,7 @@
 -- ==========================================================================
 
 -- ============================
--- 1. SMILES functions (6)
+-- 1. SMILES functions
 -- ============================
 .print '=== SMILES: mol_is_valid, mol_formula, mol_num_atoms, mol_num_bonds, mol_weight, mol_exact_mass ==='
 
@@ -23,6 +23,18 @@ FROM read_csv('test/data/smiles.csv');
 SELECT mol_is_valid('not_a_molecule') AS should_be_false,
        mol_formula('not_a_molecule') AS should_be_null,
        mol_num_atoms('not_a_molecule') AS should_be_null2;
+
+.print '=== SMILES: Bemis-Murcko scaffold functions ==='
+
+SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O') AS aspirin_scaffold,
+       generic_scaffold('c1ccccn1') AS pyridine_generic,
+       ring_systems_json('c1ccccc1') AS benzene_ring_system;
+
+.print '=== SMILES/SMARTS: substructure match JSON ==='
+
+SELECT mol_has_substructure('CC(=O)O', 'C=O') AS has_carbonyl,
+       mol_substructure_count('CCC', '[#6]~[#6]') AS cc_bonds,
+       mol_substructure_matches_json('CC(=O)O', 'C=O') AS carbonyl_matches;
 
 -- ============================
 -- 2. InChI functions (11)
@@ -101,7 +113,21 @@ SELECT name,
 FROM read_csv('test/data/selfies.csv');
 
 -- ============================
--- 6. MOL/SDF functions (6) - inline test
+-- 5b. SMILES graph analysis, standardization, and MCS
+-- ============================
+.print '=== SMILES: MolHash, standardization, SMARTS extensions, MCS, scaffold network ==='
+
+SELECT mol_hash('CC(=O)[O-].[Na+]', 'formula') AS formula_hash,
+       mol_hash('CC(=O)[O-].[Na+]', 'element_graph') AS element_graph,
+       mol_hash('CC(=O)[O-].[Na+]', 'anonymous_graph') AS anonymous_graph,
+       strip_salts('CCO.CN.[Cl-]') AS stripped,
+       fragment_parent('CC(=O)[O-].[Na+]') AS parent,
+       mol_substructure_count('c1ccccc1', '[r6;x2]') AS aromatic_ring_atoms,
+       mcs_smarts('CC(=O)O', 'CC(=O)N') AS mcs,
+       scaffold_network_json('Cc1ccccc1') AS scaffold_network;
+
+-- ============================
+-- 6. MOL/SDF functions - inline test
 -- ============================
 .print '=== MOL block functions ==='
 
@@ -109,6 +135,31 @@ SELECT mol_block_name(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0 
 mol_block_formula(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n   -0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5000    1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0\n  2  3  1  0\nM  END\n') AS formula,
 mol_block_num_atoms(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n   -0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5000    1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0\n  2  3  1  0\nM  END\n') AS atoms,
 mol_block_num_bonds(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n   -0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5000    1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0\n  2  3  1  0\nM  END\n') AS bonds;
+
+.print '=== MOL/SDF structural JSON ==='
+
+WITH mol AS (
+    SELECT 'ethanol_v3000' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  0  0  0     0  0            999 V3000' || chr(10) ||
+           'M  V30 BEGIN CTAB' || chr(10) ||
+           'M  V30 COUNTS 3 2 0 0 0' || chr(10) ||
+           'M  V30 BEGIN ATOM' || chr(10) ||
+           'M  V30 1 C 0.0000 0.0000 0.0000 0' || chr(10) ||
+           'M  V30 2 C 1.5400 0.0000 0.0000 0 CFG=0' || chr(10) ||
+           'M  V30 3 O 2.3100 1.3300 1.0000 0' || chr(10) ||
+           'M  V30 END ATOM' || chr(10) ||
+           'M  V30 BEGIN BOND' || chr(10) ||
+           'M  V30 1 1 1 2 CFG=0' || chr(10) ||
+           'M  V30 2 2 2 3' || chr(10) ||
+           'M  V30 END BOND' || chr(10) ||
+           'M  V30 END CTAB' || chr(10) ||
+           'M  END' || chr(10) ||
+           '> <ID>' || chr(10) || 'V3000-1' || chr(10) || chr(10) AS block
+)
+SELECT mol_block_atoms_json(block) AS atoms,
+       mol_block_bonds_json(block) AS bonds,
+       mol_block_json(block) AS mol_json
+FROM mol;
 
 -- ============================
 -- 7. Structure functions (4) - PDB inline test

@@ -1,6 +1,6 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, InChI, MOL/SDF, PDB, SELFIES, Wildman-Crippen LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
+  description: Cheminformatics toolkit for DuckDB - SMILES, SMARTS substructure match JSON, MolHash, standardization, MCS, scaffold networks, canonical SMILES normalization, Murcko scaffolds, InChI, MOL/SDF, PDB, SELFIES, LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
   version: 0.5.0
   language: C++
   build: cmake
@@ -21,6 +21,29 @@ docs:
     -- Calculate molecular weight
     SELECT round(mol_weight('c1ccccc1'), 2);
     -- 78.11
+
+    -- Normalize a common Kekule aromatic form
+    SELECT canonical_smiles('C1=CC=CC=C1');
+    -- c1ccccc1
+
+    -- Bemis-Murcko scaffold extraction
+    SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O');
+    -- c1ccccc1
+
+    -- SMARTS substructure atom mappings as JSON
+    SELECT mol_substructure_matches_json('CC(=O)O', 'C=O');
+
+    -- MolHash-style SQL grouping keys
+    SELECT mol_hash('CC(=O)[O-].[Na+]', 'element_graph');
+    -- C(C)(O)O.[Na]
+
+    -- Salt handling and parent normalization
+    SELECT fragment_parent('CC(=O)[O-].[Na+]');
+    -- C(C)(=O)O
+
+    -- Maximum common substructure
+    SELECT mcs_smarts('CC(=O)O', 'CC(=O)N');
+    -- C(C)=O
 
     -- Wildman-Crippen LogP (matches RDKit)
     SELECT round(logp_crippen('CCO'), 4);
@@ -55,13 +78,13 @@ docs:
     library dependencies (no RDKit required).
 
     **Supported Formats:**
-    - SMILES: Molecular validation, formula, weight, atom/bond counts, LogP, TPSA
+    - SMILES/SMARTS: Molecular validation, substructure search with match JSON, MolHash, standardization, MCS, scaffold networks, canonical SMILES normalization, Bemis-Murcko scaffolds, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
-    - MOL/SDF: V2000/V3000 block parsing, molecule counting
+    - MOL/SDF: V2000/V3000 CTAB parsing, molecule counting, complete atom/bond/property JSON extraction
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
-    **41 scalar SQL functions** for molecular property extraction, format conversion,
+    **SQL scalar functions** for molecular property extraction, format conversion,
     structural comparison, and physicochemical property prediction. Ideal for
     cheminformatics datasets, drug discovery pipelines, and molecular ML feature
     engineering.
@@ -73,6 +96,52 @@ docs:
     **TPSA:** `tpsa()` implements RDKit's default topological polar surface area
     atom-contribution method for nitrogen and oxygen atoms, returning a scalar
     descriptor suitable for drug-likeness filters and molecular ML features.
+
+    **Canonical SMILES:** `canonical_smiles()` returns a deterministic normalized
+    SMILES string for the supported graph subset and includes conservative
+    six-membered Kekule aromaticity perception, normalizing common forms like
+    `C1=CC=CC=C1` to `c1ccccc1`. It is intentionally smaller than RDKit's full
+    canonicalization, sanitization, valence, and stereo stack.
+
+    **Bemis-Murcko scaffolds:** `murcko_scaffold()` removes terminal side chains
+    while retaining ring systems and linkers between ring systems.
+    `generic_scaffold()` converts the resulting framework to carbon/single-bond
+    form for scaffold-class grouping, and `ring_systems_json()` exposes the
+    perceived ring systems and individual rings as ordered JSON.
+
+    **SMARTS substructure search:** `mol_has_substructure()` and
+    `mol_substructure_count()` expose boolean and uniquified count queries.
+    `mol_substructure_matches_json()` returns each unique match's atom mapping
+    as ordered JSON with 1-based target atom indices in SMARTS pattern atom order.
+    The matcher supports ring closures, recursive SMARTS, `R/R0`, `r`, `x`,
+    `D`, `v`, isotope, atom-map, and bracket-chirality predicates.
+
+    **MolHash and standardization:** `mol_hash()` exposes SQL grouping keys such
+    as `formula`, `net_charge`, `degree_vector`, `element_graph`,
+    `bond_order_graph`, `anonymous_graph`, `murcko_scaffold`, and
+    `generic_scaffold`; `mol_hash_methods()` lists supported methods.
+    `largest_fragment()`, `strip_salts()`, `neutralize_charges()`,
+    `normalize_smiles()`, and `fragment_parent()` provide SQL-native cleanup for
+    supplier salts and registry-like compound tables.
+
+    **MCS and scaffold network:** `mcs_smarts()` computes a connected maximum
+    common subgraph for two molecules, `mcs_json()` includes 1-based atom
+    mappings, and `scaffold_network_json()` emits molecule, Murcko, generic
+    scaffold, and ring-system nodes plus edges.
+
+    **MOL/SDF structure JSON:** `mol_block_atoms_json()`,
+    `mol_block_bonds_json()`, and `mol_block_json()` expose the parsed atom
+    table, bond table, and complete MOL/SDF record from SQL. SDF property
+    functions (`mol_block_property()`, `mol_block_properties_json()`,
+    `sdf_property()`, and `sdf_properties_json()`) parse complete data item
+    blocks from `> <FIELD>` headers. Multi-line values, empty values, duplicate
+    field names, and original field order are preserved; JSON output uses ordered
+    arrays rather than lossy objects.
+
+    **MOL V3000:** MOL/SDF extraction functions parse V3000 `COUNTS`, `ATOM`,
+    and `BOND` CTAB blocks, including line continuation records, so formula,
+    weight, atom/bond counts, full atom/bond JSON, 3D coordinate summaries, and
+    SDF properties work across both V2000 and V3000 inputs.
 
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width
@@ -86,7 +155,8 @@ docs:
     "≥2 aromatic rings" key, and the multi-fragment key). Drops straight into
     `tanimoto_bit()` alongside Morgan, so SQL alone can contrast the two
     fingerprints' design philosophies. Bit-for-bit verified against RDKit's
-    `MACCSkeys.GenMACCSKeys` (aromatic SMILES written in lowercase form).
+    `MACCSkeys.GenMACCSKeys` for lowercase aromatic SMILES; common six-membered
+    Kekule aromatic forms are normalized by the conservative aromaticity pass.
 
     **Tanimoto similarity:** `tanimoto_bit(BLOB, BLOB) -> DOUBLE` computes
     `popcount(a & b) / popcount(a | b)` directly on raw BLOB bytes (no

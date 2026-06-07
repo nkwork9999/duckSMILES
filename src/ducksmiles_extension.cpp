@@ -10,6 +10,7 @@
 #include "duckdb/common/vector_operations/binary_executor.hpp"
 
 #include <cmath>
+#include <vector>
 
 namespace duckdb {
 
@@ -48,6 +49,17 @@ static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { 
 		}); \
 }
 
+// VARCHAR → BOOLEAN with NULL on -1 sentinel
+#define DEFINE_SENTINEL_BOOL_FUNC(FuncName, RustFunc) \
+static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
+	UnaryExecutor::ExecuteWithNulls<string_t, bool>(args.data[0], result, args.size(), \
+		[](string_t input, ValidityMask &mask, idx_t idx) -> bool { \
+			int32_t val = RustFunc((const uint8_t *)input.GetData(), input.GetSize()); \
+			if (val < 0) { mask.SetInvalid(idx); return false; } \
+			return val == 1; \
+		}); \
+}
+
 // VARCHAR → VARCHAR via Rust buffer-writing FFI. NULL on -1.
 #define DEFINE_STR_FUNC(FuncName, RustFunc) \
 static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
@@ -59,6 +71,66 @@ static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { 
 			if (len == 0) { return StringVector::AddString(result, ""); } \
 			return StringVector::AddString(result, (const char *)buf, len); \
 		}); \
+}
+
+template <class Callback>
+static string_t DynamicStringResult(Vector &result, ValidityMask &mask, idx_t idx, Callback callback) {
+	int32_t needed = callback(nullptr, 0);
+	if (needed < 0) {
+		mask.SetInvalid(idx);
+		return string_t();
+	}
+	if (needed == 0) {
+		return StringVector::AddString(result, "");
+	}
+
+	std::vector<uint8_t> buf((size_t)needed);
+	int32_t actual = callback(buf.data(), buf.size());
+	if (actual < 0) {
+		mask.SetInvalid(idx);
+		return string_t();
+	}
+	if (actual != needed) {
+		throw InvalidInputException("ducksmiles string FFI length changed between sizing and writing");
+	}
+	return StringVector::AddString(result, (const char *)buf.data(), buf.size());
+}
+
+#define DEFINE_DYNAMIC_STR_FUNC(FuncName, RustFunc) \
+static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
+	UnaryExecutor::ExecuteWithNulls<string_t, string_t>(args.data[0], result, args.size(), \
+		[&](string_t input, ValidityMask &mask, idx_t idx) -> string_t { \
+			return DynamicStringResult(result, mask, idx, [&](uint8_t *out, size_t cap) -> int32_t { \
+				return RustFunc((const uint8_t *)input.GetData(), input.GetSize(), out, cap); \
+			}); \
+		}); \
+}
+
+#define DEFINE_BINARY_DYNAMIC_STR_FUNC(FuncName, RustFunc) \
+static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
+	idx_t count = args.size(); \
+	args.data[0].Flatten(count); \
+	args.data[1].Flatten(count); \
+	auto left_data = FlatVector::GetData<string_t>(args.data[0]); \
+	auto right_data = FlatVector::GetData<string_t>(args.data[1]); \
+	auto result_data = FlatVector::GetData<string_t>(result); \
+	auto &validity = FlatVector::Validity(result); \
+	auto &left_validity = FlatVector::Validity(args.data[0]); \
+	auto &right_validity = FlatVector::Validity(args.data[1]); \
+	for (idx_t i = 0; i < count; i++) { \
+		if (!left_validity.RowIsValid(i) || !right_validity.RowIsValid(i)) { \
+			validity.SetInvalid(i); \
+			continue; \
+		} \
+		auto left = left_data[i]; \
+		auto right = right_data[i]; \
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t { \
+			return RustFunc( \
+				(const uint8_t *)left.GetData(), left.GetSize(), \
+				(const uint8_t *)right.GetData(), right.GetSize(), \
+				out, cap); \
+		}); \
+	} \
 }
 
 // ============================================================================
@@ -73,6 +145,101 @@ DEFINE_DOUBLE_FUNC(MolWeightFunc, ds_mol_weight)
 DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
 DEFINE_DOUBLE_FUNC(LogpCrippenFunc, ds_logp_crippen)
 DEFINE_DOUBLE_FUNC(TpsaFunc, ds_tpsa)
+DEFINE_STR_FUNC(CanonicalSmilesFunc, ds_canonical_smiles)
+DEFINE_DYNAMIC_STR_FUNC(MurckoScaffoldFunc, ds_murcko_scaffold)
+DEFINE_DYNAMIC_STR_FUNC(GenericScaffoldFunc, ds_generic_scaffold)
+DEFINE_DYNAMIC_STR_FUNC(RingSystemsJsonFunc, ds_ring_systems_json)
+DEFINE_BINARY_DYNAMIC_STR_FUNC(MolHashFunc, ds_mol_hash)
+DEFINE_DYNAMIC_STR_FUNC(LargestFragmentFunc, ds_largest_fragment)
+DEFINE_DYNAMIC_STR_FUNC(StripSaltsFunc, ds_strip_salts)
+DEFINE_DYNAMIC_STR_FUNC(NeutralizeChargesFunc, ds_neutralize_charges)
+DEFINE_DYNAMIC_STR_FUNC(NormalizeSmilesFunc, ds_normalize_smiles)
+DEFINE_DYNAMIC_STR_FUNC(FragmentParentFunc, ds_fragment_parent)
+DEFINE_BINARY_DYNAMIC_STR_FUNC(McsSmartsFunc, ds_mcs_smarts)
+DEFINE_BINARY_DYNAMIC_STR_FUNC(McsJsonFunc, ds_mcs_json)
+DEFINE_DYNAMIC_STR_FUNC(ScaffoldNetworkJsonFunc, ds_scaffold_network_json)
+DEFINE_INT_FUNC(NumHAcceptorsFunc, ds_num_h_acceptors)
+DEFINE_INT_FUNC(NumHDonorsFunc, ds_num_h_donors)
+DEFINE_INT_FUNC(NumRotatableBondsFunc, ds_num_rotatable_bonds)
+DEFINE_INT_FUNC(RingCountFunc, ds_ring_count)
+DEFINE_INT_FUNC(NumAromaticRingsFunc, ds_num_aromatic_rings)
+DEFINE_INT_FUNC(NumHeteroatomsFunc, ds_num_heteroatoms)
+DEFINE_DOUBLE_FUNC(FractionCsp3Func, ds_fraction_csp3)
+
+static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	auto result_data = FlatVector::GetData<string_t>(result);
+	auto &validity = FlatVector::Validity(result);
+	for (idx_t i = 0; i < count; i++) {
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
+			return ds_mol_hash_methods_json(out, cap);
+		});
+	}
+}
+
+static void MolHasSubstructureFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
+	auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
+	auto result_data = FlatVector::GetData<bool>(result);
+	auto &validity = FlatVector::Validity(result);
+	for (idx_t i = 0; i < count; i++) {
+		int32_t val = ds_mol_has_substructure(
+			(const uint8_t *)smi_data[i].GetData(), smi_data[i].GetSize(),
+			(const uint8_t *)smarts_data[i].GetData(), smarts_data[i].GetSize());
+		if (val < 0) {
+			validity.SetInvalid(i);
+			result_data[i] = false;
+		} else {
+			result_data[i] = val == 1;
+		}
+	}
+}
+
+static void MolSubstructureCountFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
+	auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
+	auto result_data = FlatVector::GetData<int32_t>(result);
+	auto &validity = FlatVector::Validity(result);
+	for (idx_t i = 0; i < count; i++) {
+		int32_t val = ds_mol_substructure_count(
+			(const uint8_t *)smi_data[i].GetData(), smi_data[i].GetSize(),
+			(const uint8_t *)smarts_data[i].GetData(), smarts_data[i].GetSize());
+		if (val < 0) {
+			validity.SetInvalid(i);
+			result_data[i] = 0;
+		} else {
+			result_data[i] = val;
+		}
+	}
+}
+
+static void MolSubstructureMatchesJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
+	auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
+	auto result_data = FlatVector::GetData<string_t>(result);
+	auto &validity = FlatVector::Validity(result);
+	auto &smi_validity = FlatVector::Validity(args.data[0]);
+	auto &smarts_validity = FlatVector::Validity(args.data[1]);
+	for (idx_t i = 0; i < count; i++) {
+		if (!smi_validity.RowIsValid(i) || !smarts_validity.RowIsValid(i)) {
+			validity.SetInvalid(i);
+			continue;
+		}
+		auto smi = smi_data[i];
+		auto smarts = smarts_data[i];
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
+			return ds_mol_substructure_matches_json(
+				(const uint8_t *)smi.GetData(), smi.GetSize(),
+				(const uint8_t *)smarts.GetData(), smarts.GetSize(),
+				out, cap);
+		});
+	}
+}
 
 // add_hydrogens uses a larger 16KB buffer to handle drug-sized molecules
 // (verbose SMILES with all H broken out can be ~5x the heavy-atom SMILES length).
@@ -216,7 +383,79 @@ DEFINE_DOUBLE_FUNC(MolBlockWeightFunc, ds_mol_block_weight)
 DEFINE_INT_FUNC(MolBlockNumAtomsFunc, ds_mol_block_num_atoms)
 DEFINE_INT_FUNC(MolBlockNumBondsFunc, ds_mol_block_num_bonds)
 DEFINE_STR_FUNC(MolBlockNameFunc, ds_mol_block_name)
+DEFINE_DYNAMIC_STR_FUNC(MolBlockPropertiesJsonFunc, ds_mol_block_properties_json)
+DEFINE_DYNAMIC_STR_FUNC(MolBlockAtomsJsonFunc, ds_mol_block_atoms_json)
+DEFINE_DYNAMIC_STR_FUNC(MolBlockBondsJsonFunc, ds_mol_block_bonds_json)
+DEFINE_DYNAMIC_STR_FUNC(MolBlockJsonFunc, ds_mol_block_json)
+DEFINE_DYNAMIC_STR_FUNC(SdfPropertiesJsonFunc, ds_sdf_properties_json)
 DEFINE_INT_FUNC(SdfCountFunc, ds_sdf_count)
+DEFINE_SENTINEL_BOOL_FUNC(MolBlockHas3dFunc, ds_mol_block_has_3d)
+DEFINE_DOUBLE_FUNC(MolBlockCentroidXFunc, ds_mol_block_centroid_x)
+DEFINE_DOUBLE_FUNC(MolBlockCentroidYFunc, ds_mol_block_centroid_y)
+DEFINE_DOUBLE_FUNC(MolBlockCentroidZFunc, ds_mol_block_centroid_z)
+DEFINE_DOUBLE_FUNC(MolBlockRadiusOfGyrationFunc, ds_mol_block_radius_of_gyration)
+DEFINE_DOUBLE_FUNC(MolBlockMinXFunc, ds_mol_block_min_x)
+DEFINE_DOUBLE_FUNC(MolBlockMaxXFunc, ds_mol_block_max_x)
+DEFINE_DOUBLE_FUNC(MolBlockMinYFunc, ds_mol_block_min_y)
+DEFINE_DOUBLE_FUNC(MolBlockMaxYFunc, ds_mol_block_max_y)
+DEFINE_DOUBLE_FUNC(MolBlockMinZFunc, ds_mol_block_min_z)
+DEFINE_DOUBLE_FUNC(MolBlockMaxZFunc, ds_mol_block_max_z)
+
+static void MolBlockPropertyFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	auto mol_data = FlatVector::GetData<string_t>(args.data[0]);
+	auto key_data = FlatVector::GetData<string_t>(args.data[1]);
+	auto result_data = FlatVector::GetData<string_t>(result);
+	auto &validity = FlatVector::Validity(result);
+	auto &mol_validity = FlatVector::Validity(args.data[0]);
+	auto &key_validity = FlatVector::Validity(args.data[1]);
+	for (idx_t i = 0; i < count; i++) {
+		if (!mol_validity.RowIsValid(i) || !key_validity.RowIsValid(i)) {
+			validity.SetInvalid(i);
+			continue;
+		}
+		auto mol = mol_data[i];
+		auto key = key_data[i];
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
+			return ds_mol_block_property(
+				(const uint8_t *)mol.GetData(), mol.GetSize(),
+				(const uint8_t *)key.GetData(), key.GetSize(),
+				out, cap);
+		});
+	}
+}
+
+static void SdfPropertyFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	args.data[2].Flatten(count);
+	auto sdf_data = FlatVector::GetData<string_t>(args.data[0]);
+	auto index_data = FlatVector::GetData<int32_t>(args.data[1]);
+	auto key_data = FlatVector::GetData<string_t>(args.data[2]);
+	auto result_data = FlatVector::GetData<string_t>(result);
+	auto &validity = FlatVector::Validity(result);
+	auto &sdf_validity = FlatVector::Validity(args.data[0]);
+	auto &index_validity = FlatVector::Validity(args.data[1]);
+	auto &key_validity = FlatVector::Validity(args.data[2]);
+	for (idx_t i = 0; i < count; i++) {
+		if (!sdf_validity.RowIsValid(i) || !index_validity.RowIsValid(i) || !key_validity.RowIsValid(i)) {
+			validity.SetInvalid(i);
+			continue;
+		}
+		auto sdf = sdf_data[i];
+		auto key = key_data[i];
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
+			return ds_sdf_property(
+				(const uint8_t *)sdf.GetData(), sdf.GetSize(),
+				index_data[i],
+				(const uint8_t *)key.GetData(), key.GetSize(),
+				out, cap);
+		});
+	}
+}
 
 // ============================================================================
 // PDB/CIF/XYZ functions — format arg hardcoded to 0 (auto-detect)
@@ -236,6 +475,27 @@ DEFINE_STRUCTURE_INT_FUNC(StructureAtomCountFunc, ds_structure_atom_count)
 DEFINE_STRUCTURE_INT_FUNC(StructureChainCountFunc, ds_structure_chain_count)
 DEFINE_STRUCTURE_INT_FUNC(StructureResidueCountFunc, ds_structure_residue_count)
 DEFINE_STRUCTURE_INT_FUNC(StructureModelCountFunc, ds_structure_model_count)
+
+#define DEFINE_STRUCTURE_DOUBLE_FUNC(FuncName, RustFunc) \
+static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
+	UnaryExecutor::ExecuteWithNulls<string_t, double>(args.data[0], result, args.size(), \
+		[](string_t input, ValidityMask &mask, idx_t idx) -> double { \
+			double val = RustFunc((const uint8_t *)input.GetData(), input.GetSize(), 0); \
+			if (std::isnan(val)) { mask.SetInvalid(idx); return 0.0; } \
+			return val; \
+		}); \
+}
+
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureCentroidXFunc, ds_structure_centroid_x)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureCentroidYFunc, ds_structure_centroid_y)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureCentroidZFunc, ds_structure_centroid_z)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureRadiusOfGyrationFunc, ds_structure_radius_of_gyration)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureMinXFunc, ds_structure_min_x)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureMaxXFunc, ds_structure_max_x)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureMinYFunc, ds_structure_min_y)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureMaxYFunc, ds_structure_max_y)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureMinZFunc, ds_structure_min_z)
+DEFINE_STRUCTURE_DOUBLE_FUNC(StructureMaxZFunc, ds_structure_max_z)
 
 // ============================================================================
 // SELFIES functions
@@ -259,6 +519,42 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_exact_mass",  {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolExactMassFunc));
 	loader.RegisterFunction(ScalarFunction("logp_crippen",    {LogicalType::VARCHAR}, LogicalType::DOUBLE,  LogpCrippenFunc));
 	loader.RegisterFunction(ScalarFunction("tpsa",            {LogicalType::VARCHAR}, LogicalType::DOUBLE,  TpsaFunc));
+	loader.RegisterFunction(ScalarFunction("canonical_smiles", {LogicalType::VARCHAR}, LogicalType::VARCHAR, CanonicalSmilesFunc));
+	loader.RegisterFunction(ScalarFunction("murcko_scaffold", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MurckoScaffoldFunc));
+	loader.RegisterFunction(ScalarFunction("generic_scaffold", {LogicalType::VARCHAR}, LogicalType::VARCHAR, GenericScaffoldFunc));
+	loader.RegisterFunction(ScalarFunction("ring_systems_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, RingSystemsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_hash",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, MolHashFunc));
+	loader.RegisterFunction(ScalarFunction("mol_hash_methods", {}, LogicalType::VARCHAR, MolHashMethodsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("largest_fragment", {LogicalType::VARCHAR}, LogicalType::VARCHAR, LargestFragmentFunc));
+	loader.RegisterFunction(ScalarFunction("strip_salts",      {LogicalType::VARCHAR}, LogicalType::VARCHAR, StripSaltsFunc));
+	loader.RegisterFunction(ScalarFunction("neutralize_charges", {LogicalType::VARCHAR}, LogicalType::VARCHAR, NeutralizeChargesFunc));
+	loader.RegisterFunction(ScalarFunction("normalize_smiles", {LogicalType::VARCHAR}, LogicalType::VARCHAR, NormalizeSmilesFunc));
+	loader.RegisterFunction(ScalarFunction("fragment_parent",  {LogicalType::VARCHAR}, LogicalType::VARCHAR, FragmentParentFunc));
+	loader.RegisterFunction(ScalarFunction("mcs_smarts",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, McsSmartsFunc));
+	loader.RegisterFunction(ScalarFunction("mcs_json",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, McsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("scaffold_network_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, ScaffoldNetworkJsonFunc));
+	loader.RegisterFunction(ScalarFunction("num_h_acceptors", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHAcceptorsFunc));
+	loader.RegisterFunction(ScalarFunction("num_h_donors",    {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHDonorsFunc));
+	loader.RegisterFunction(ScalarFunction("num_rotatable_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumRotatableBondsFunc));
+	loader.RegisterFunction(ScalarFunction("ring_count",      {LogicalType::VARCHAR}, LogicalType::INTEGER, RingCountFunc));
+	loader.RegisterFunction(ScalarFunction("num_aromatic_rings", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAromaticRingsFunc));
+	loader.RegisterFunction(ScalarFunction("num_heteroatoms", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHeteroatomsFunc));
+	loader.RegisterFunction(ScalarFunction("fraction_csp3",   {LogicalType::VARCHAR}, LogicalType::DOUBLE,  FractionCsp3Func));
+	loader.RegisterFunction(ScalarFunction("mol_has_substructure",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::BOOLEAN, MolHasSubstructureFunc));
+	loader.RegisterFunction(ScalarFunction("mol_substructure_count",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::INTEGER, MolSubstructureCountFunc));
+	loader.RegisterFunction(ScalarFunction("mol_substructure_matches_json",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, MolSubstructureMatchesJsonFunc));
 	loader.RegisterFunction(ScalarFunction("add_hydrogens",   {LogicalType::VARCHAR}, LogicalType::VARCHAR, AddHydrogensFunc));
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",  {LogicalType::VARCHAR}, LogicalType::BLOB,    MorganFpBitsFunc1));
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",
@@ -296,13 +592,41 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_block_num_atoms",  {LogicalType::VARCHAR}, LogicalType::INTEGER, MolBlockNumAtomsFunc));
 	loader.RegisterFunction(ScalarFunction("mol_block_num_bonds",  {LogicalType::VARCHAR}, LogicalType::INTEGER, MolBlockNumBondsFunc));
 	loader.RegisterFunction(ScalarFunction("mol_block_name",       {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockNameFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_property",   {LogicalType::VARCHAR, LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockPropertyFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_properties_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockPropertiesJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_atoms_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockAtomsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_bonds_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockBondsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_json",       {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_has_3d",     {LogicalType::VARCHAR}, LogicalType::BOOLEAN, MolBlockHas3dFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_centroid_x", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockCentroidXFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_centroid_y", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockCentroidYFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_centroid_z", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockCentroidZFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_radius_of_gyration", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockRadiusOfGyrationFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_min_x",      {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockMinXFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_max_x",      {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockMaxXFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_min_y",      {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockMinYFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_max_y",      {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockMaxYFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_min_z",      {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockMinZFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_max_z",      {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockMaxZFunc));
 	loader.RegisterFunction(ScalarFunction("sdf_count",            {LogicalType::VARCHAR}, LogicalType::INTEGER, SdfCountFunc));
+	loader.RegisterFunction(ScalarFunction("sdf_property",         {LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::VARCHAR}, LogicalType::VARCHAR, SdfPropertyFunc));
+	loader.RegisterFunction(ScalarFunction("sdf_properties_json",  {LogicalType::VARCHAR}, LogicalType::VARCHAR, SdfPropertiesJsonFunc));
 
 	// --- PDB/CIF/XYZ structure ---
 	loader.RegisterFunction(ScalarFunction("structure_atom_count",    {LogicalType::VARCHAR}, LogicalType::INTEGER, StructureAtomCountFunc));
 	loader.RegisterFunction(ScalarFunction("structure_chain_count",   {LogicalType::VARCHAR}, LogicalType::INTEGER, StructureChainCountFunc));
 	loader.RegisterFunction(ScalarFunction("structure_residue_count", {LogicalType::VARCHAR}, LogicalType::INTEGER, StructureResidueCountFunc));
 	loader.RegisterFunction(ScalarFunction("structure_model_count",   {LogicalType::VARCHAR}, LogicalType::INTEGER, StructureModelCountFunc));
+	loader.RegisterFunction(ScalarFunction("structure_centroid_x",    {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureCentroidXFunc));
+	loader.RegisterFunction(ScalarFunction("structure_centroid_y",    {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureCentroidYFunc));
+	loader.RegisterFunction(ScalarFunction("structure_centroid_z",    {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureCentroidZFunc));
+	loader.RegisterFunction(ScalarFunction("structure_radius_of_gyration", {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureRadiusOfGyrationFunc));
+	loader.RegisterFunction(ScalarFunction("structure_min_x",         {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureMinXFunc));
+	loader.RegisterFunction(ScalarFunction("structure_max_x",         {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureMaxXFunc));
+	loader.RegisterFunction(ScalarFunction("structure_min_y",         {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureMinYFunc));
+	loader.RegisterFunction(ScalarFunction("structure_max_y",         {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureMaxYFunc));
+	loader.RegisterFunction(ScalarFunction("structure_min_z",         {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureMinZFunc));
+	loader.RegisterFunction(ScalarFunction("structure_max_z",         {LogicalType::VARCHAR}, LogicalType::DOUBLE, StructureMaxZFunc));
 
 	// --- SELFIES ---
 	loader.RegisterFunction(ScalarFunction("smiles_to_selfies",    {LogicalType::VARCHAR}, LogicalType::VARCHAR, SmilesToSelfiesFunc));
