@@ -63,6 +63,59 @@ impl Molecule {
     pub fn weight(&self) -> f64 {
         self.atoms.iter().map(|a| atomic_weight(&a.symbol)).sum()
     }
+
+    pub fn has_3d(&self) -> bool {
+        self.atoms.iter().any(|a| a.z.abs() > 1e-4)
+    }
+
+    pub fn centroid(&self) -> Option<(f64, f64, f64)> {
+        if self.atoms.is_empty() {
+            return None;
+        }
+        let n = self.atoms.len() as f64;
+        let (sx, sy, sz) = self.atoms.iter().fold((0.0, 0.0, 0.0), |acc, atom| {
+            (
+                acc.0 + atom.x as f64,
+                acc.1 + atom.y as f64,
+                acc.2 + atom.z as f64,
+            )
+        });
+        Some((sx / n, sy / n, sz / n))
+    }
+
+    pub fn radius_of_gyration(&self) -> Option<f64> {
+        let (cx, cy, cz) = self.centroid()?;
+        let n = self.atoms.len() as f64;
+        let sum_sq = self.atoms.iter().map(|atom| {
+            let dx = atom.x as f64 - cx;
+            let dy = atom.y as f64 - cy;
+            let dz = atom.z as f64 - cz;
+            dx * dx + dy * dy + dz * dz
+        }).sum::<f64>();
+        Some((sum_sq / n).sqrt())
+    }
+
+    pub fn coordinate_bounds(&self) -> Option<[(f64, f64); 3]> {
+        let first = self.atoms.first()?;
+        let mut min_x = first.x as f64;
+        let mut min_y = first.y as f64;
+        let mut min_z = first.z as f64;
+        let mut max_x = min_x;
+        let mut max_y = min_y;
+        let mut max_z = min_z;
+        for atom in self.atoms.iter().skip(1) {
+            let x = atom.x as f64;
+            let y = atom.y as f64;
+            let z = atom.z as f64;
+            min_x = min_x.min(x);
+            min_y = min_y.min(y);
+            min_z = min_z.min(z);
+            max_x = max_x.max(x);
+            max_y = max_y.max(y);
+            max_z = max_z.max(z);
+        }
+        Some([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
+    }
 }
 
 fn parse_f32(s: &str) -> f32 {
