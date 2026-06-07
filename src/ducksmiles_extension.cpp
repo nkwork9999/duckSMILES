@@ -308,6 +308,9 @@ DEFINE_INT_FUNC(MolBlockNumAtomsFunc, ds_mol_block_num_atoms)
 DEFINE_INT_FUNC(MolBlockNumBondsFunc, ds_mol_block_num_bonds)
 DEFINE_STR_FUNC(MolBlockNameFunc, ds_mol_block_name)
 DEFINE_DYNAMIC_STR_FUNC(MolBlockPropertiesJsonFunc, ds_mol_block_properties_json)
+DEFINE_DYNAMIC_STR_FUNC(MolBlockAtomsJsonFunc, ds_mol_block_atoms_json)
+DEFINE_DYNAMIC_STR_FUNC(MolBlockBondsJsonFunc, ds_mol_block_bonds_json)
+DEFINE_DYNAMIC_STR_FUNC(MolBlockJsonFunc, ds_mol_block_json)
 DEFINE_DYNAMIC_STR_FUNC(SdfPropertiesJsonFunc, ds_sdf_properties_json)
 DEFINE_INT_FUNC(SdfCountFunc, ds_sdf_count)
 DEFINE_SENTINEL_BOOL_FUNC(MolBlockHas3dFunc, ds_mol_block_has_3d)
@@ -493,6 +496,9 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_block_name",       {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockNameFunc));
 	loader.RegisterFunction(ScalarFunction("mol_block_property",   {LogicalType::VARCHAR, LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockPropertyFunc));
 	loader.RegisterFunction(ScalarFunction("mol_block_properties_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockPropertiesJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_atoms_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockAtomsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_bonds_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockBondsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("mol_block_json",       {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolBlockJsonFunc));
 	loader.RegisterFunction(ScalarFunction("mol_block_has_3d",     {LogicalType::VARCHAR}, LogicalType::BOOLEAN, MolBlockHas3dFunc));
 	loader.RegisterFunction(ScalarFunction("mol_block_centroid_x", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockCentroidXFunc));
 	loader.RegisterFunction(ScalarFunction("mol_block_centroid_y", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolBlockCentroidYFunc));

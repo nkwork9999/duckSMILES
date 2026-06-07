@@ -101,7 +101,7 @@ SELECT name,
 FROM read_csv('test/data/selfies.csv');
 
 -- ============================
--- 6. MOL/SDF functions (6) - inline test
+-- 6. MOL/SDF functions - inline test
 -- ============================
 .print '=== MOL block functions ==='
 
@@ -109,6 +109,31 @@ SELECT mol_block_name(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0 
 mol_block_formula(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n   -0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5000    1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0\n  2  3  1  0\nM  END\n') AS formula,
 mol_block_num_atoms(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n   -0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5000    1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0\n  2  3  1  0\nM  END\n') AS atoms,
 mol_block_num_bonds(E'  Ethanol\n     RDKit          3D\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n   -0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7500    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5000    1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0\n  2  3  1  0\nM  END\n') AS bonds;
+
+.print '=== MOL/SDF structural JSON ==='
+
+WITH mol AS (
+    SELECT 'ethanol_v3000' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  0  0  0     0  0            999 V3000' || chr(10) ||
+           'M  V30 BEGIN CTAB' || chr(10) ||
+           'M  V30 COUNTS 3 2 0 0 0' || chr(10) ||
+           'M  V30 BEGIN ATOM' || chr(10) ||
+           'M  V30 1 C 0.0000 0.0000 0.0000 0' || chr(10) ||
+           'M  V30 2 C 1.5400 0.0000 0.0000 0 CFG=0' || chr(10) ||
+           'M  V30 3 O 2.3100 1.3300 1.0000 0' || chr(10) ||
+           'M  V30 END ATOM' || chr(10) ||
+           'M  V30 BEGIN BOND' || chr(10) ||
+           'M  V30 1 1 1 2 CFG=0' || chr(10) ||
+           'M  V30 2 2 2 3' || chr(10) ||
+           'M  V30 END BOND' || chr(10) ||
+           'M  V30 END CTAB' || chr(10) ||
+           'M  END' || chr(10) ||
+           '> <ID>' || chr(10) || 'V3000-1' || chr(10) || chr(10) AS block
+)
+SELECT mol_block_atoms_json(block) AS atoms,
+       mol_block_bonds_json(block) AS bonds,
+       mol_block_json(block) AS mol_json
+FROM mol;
 
 -- ============================
 -- 7. Structure functions (4) - PDB inline test

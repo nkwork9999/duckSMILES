@@ -360,3 +360,63 @@ query I
 SELECT add_hydrogens('');
 ----
 NULL
+
+# ============================================================================
+# MOL/SDF: structural JSON extraction
+# ============================================================================
+
+query I
+WITH m AS (
+    SELECT 'ethanol' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  3  2  0  0  0  0  0  0  0  0999 V2000' || chr(10) ||
+           '    0.0000    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    1.5400    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    2.3100    1.3300    0.0000 O   0  0  0  0  0' || chr(10) ||
+           '  1  2  1  0' || chr(10) ||
+           '  2  3  2  0' || chr(10) ||
+           'M  END' || chr(10) AS mol
+)
+SELECT mol_block_atoms_json(mol) LIKE '%"index":3,"symbol":"O","x":2.31,"y":1.33,"z":0%'
+FROM m;
+----
+true
+
+query I
+WITH m AS (
+    SELECT 'ethanol' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  3  2  0  0  0  0  0  0  0  0999 V2000' || chr(10) ||
+           '    0.0000    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    1.5400    0.0000    0.0000 C   0  0  0  0  0' || chr(10) ||
+           '    2.3100    1.3300    0.0000 O   0  0  0  0  0' || chr(10) ||
+           '  1  2  1  0' || chr(10) ||
+           '  2  3  2  0' || chr(10) ||
+           'M  END' || chr(10) AS mol
+)
+SELECT mol_block_bonds_json(mol) LIKE '%"index":2,"atom1":2,"atom2":3,"bond_type":2%'
+FROM m;
+----
+true
+
+query I
+WITH m AS (
+    SELECT 'ethanol_v3000' || chr(10) || '  test' || chr(10) || chr(10) ||
+           '  0  0  0     0  0            999 V3000' || chr(10) ||
+           'M  V30 BEGIN CTAB' || chr(10) ||
+           'M  V30 COUNTS 3 2 0 0 0' || chr(10) ||
+           'M  V30 BEGIN ATOM' || chr(10) ||
+           'M  V30 1 C 0.0000 0.0000 0.0000 0' || chr(10) ||
+           'M  V30 2 C 1.5400 0.0000 0.0000 0 CFG=0' || chr(10) ||
+           'M  V30 3 O 2.3100 1.3300 1.0000 0' || chr(10) ||
+           'M  V30 END ATOM' || chr(10) ||
+           'M  V30 BEGIN BOND' || chr(10) ||
+           'M  V30 1 1 1 2 CFG=0' || chr(10) ||
+           'M  V30 2 2 2 3' || chr(10) ||
+           'M  V30 END BOND' || chr(10) ||
+           'M  V30 END CTAB' || chr(10) ||
+           'M  END' || chr(10) ||
+           '> <ID>' || chr(10) || 'V3000-1' || chr(10) || chr(10) AS mol
+)
+SELECT mol_block_json(mol) LIKE '%"name":"ethanol_v3000"%"has_3d":true%"properties":[{"name":"ID","value":"V3000-1"}]%'
+FROM m;
+----
+true

@@ -61,7 +61,7 @@ docs:
     **Supported Formats:**
     - SMILES: Molecular validation, canonical SMILES normalization, formula, weight, atom/bond counts, LogP, TPSA
     - InChI/InChIKey: Layer extraction, stereochemistry detection, skeleton matching
-    - MOL/SDF: V2000/V3000 CTAB parsing, molecule counting, complete SDF property-block extraction
+    - MOL/SDF: V2000/V3000 CTAB parsing, molecule counting, complete atom/bond/property JSON extraction
     - PDB/CIF/XYZ: Protein structure analysis (atom, chain, residue, model counts)
     - SELFIES: Bidirectional SMILES-SELFIES conversion for ML pipelines
 
@@ -84,16 +84,19 @@ docs:
     `C1=CC=CC=C1` to `c1ccccc1`. It is intentionally smaller than RDKit's full
     canonicalization, sanitization, valence, and stereo stack.
 
-    **SDF properties:** `mol_block_property()`, `mol_block_properties_json()`,
-    `sdf_property()`, and `sdf_properties_json()` parse complete SDF data item
+    **MOL/SDF structure JSON:** `mol_block_atoms_json()`,
+    `mol_block_bonds_json()`, and `mol_block_json()` expose the parsed atom
+    table, bond table, and complete MOL/SDF record from SQL. SDF property
+    functions (`mol_block_property()`, `mol_block_properties_json()`,
+    `sdf_property()`, and `sdf_properties_json()`) parse complete data item
     blocks from `> <FIELD>` headers. Multi-line values, empty values, duplicate
     field names, and original field order are preserved; JSON output uses ordered
-    arrays of `{name, value}` entries rather than lossy objects.
+    arrays rather than lossy objects.
 
     **MOL V3000:** MOL/SDF extraction functions parse V3000 `COUNTS`, `ATOM`,
     and `BOND` CTAB blocks, including line continuation records, so formula,
-    weight, atom/bond counts, 3D coordinate summaries, and SDF properties work
-    across both V2000 and V3000 inputs.
+    weight, atom/bond counts, full atom/bond JSON, 3D coordinate summaries, and
+    SDF properties work across both V2000 and V3000 inputs.
 
     **Morgan / ECFP fingerprint:** `morgan_fp_bits()` ports RDKit's MorganGenerator
     (layered BFS + hash_combine + dead-atom dedup) to Rust and returns a fixed-width

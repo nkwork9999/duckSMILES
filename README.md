@@ -431,7 +431,7 @@ SELECT inchi_skeleton_match(
 
 ### MOL/SDF Functions
 
-MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns. V3000 support covers `COUNTS`, `ATOM`, and `BOND` CTAB blocks, including V3000 line continuation records, so the same MOL block functions work across V2000 and V3000 inputs.
+MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns. V3000 support covers `COUNTS`, `ATOM`, and `BOND` CTAB blocks, including V3000 line continuation records, so the same MOL block functions work across V2000 and V3000 inputs. Structural JSON functions expose the complete parsed atom table, bond table, and SDF property block from SQL.
 
 #### `mol_block_name(mol) -> VARCHAR`
 
@@ -454,6 +454,25 @@ Returns all SDF data fields from a single MOL/SDF record as an ordered JSON arra
 SELECT mol_block_properties_json(sdf_record) AS properties_json
 FROM records;
 -- [{"name":"ID","value":"123"},{"name":"NOTE","value":"line one\nline two"}]
+```
+
+#### `mol_block_atoms_json(mol) -> VARCHAR`
+
+Returns the parsed atom block as an ordered JSON array. Each atom includes 1-based `index`, `symbol`, and numeric `x`, `y`, `z` coordinates. Works for both V2000 atom lines and V3000 `ATOM` records.
+
+#### `mol_block_bonds_json(mol) -> VARCHAR`
+
+Returns the parsed bond block as an ordered JSON array. Each bond includes 1-based `index`, 1-based `atom1`/`atom2` endpoints, and the numeric MOL bond type.
+
+#### `mol_block_json(mol) -> VARCHAR`
+
+Returns a complete parsed MOL/SDF record as a JSON object with `name`, `formula`, `weight`, `num_atoms`, `num_bonds`, `has_3d`, `atoms`, `bonds`, and `properties`.
+
+```sql
+SELECT mol_block_atoms_json(sdf_record) AS atoms,
+       mol_block_bonds_json(sdf_record) AS bonds,
+       mol_block_json(sdf_record) AS mol_json
+FROM records;
 ```
 
 #### `mol_block_formula(mol) -> VARCHAR`

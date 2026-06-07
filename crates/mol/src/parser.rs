@@ -26,11 +26,24 @@ pub struct Molecule {
 // Atomic weights for common elements
 fn atomic_weight(sym: &str) -> f64 {
     match sym {
-        "H" => 1.008, "He" => 4.003,
-        "C" => 12.011, "N" => 14.007, "O" => 15.999, "F" => 18.998,
-        "P" => 30.974, "S" => 32.06, "Cl" => 35.45, "Br" => 79.904,
-        "I" => 126.904, "Na" => 22.990, "K" => 39.098, "Ca" => 40.078,
-        "Fe" => 55.845, "Si" => 28.086, "Se" => 78.971, "B" => 10.81,
+        "H" => 1.008,
+        "He" => 4.003,
+        "C" => 12.011,
+        "N" => 14.007,
+        "O" => 15.999,
+        "F" => 18.998,
+        "P" => 30.974,
+        "S" => 32.06,
+        "Cl" => 35.45,
+        "Br" => 79.904,
+        "I" => 126.904,
+        "Na" => 22.990,
+        "K" => 39.098,
+        "Ca" => 40.078,
+        "Fe" => 55.845,
+        "Si" => 28.086,
+        "Se" => 78.971,
+        "B" => 10.81,
         _ => 0.0,
     }
 }
@@ -45,17 +58,23 @@ impl Molecule {
         let mut result = String::new();
         if let Some(&c) = counts.get("C") {
             result.push('C');
-            if c > 1 { result.push_str(&c.to_string()); }
+            if c > 1 {
+                result.push_str(&c.to_string());
+            }
             counts.remove("C");
             if let Some(&h) = counts.get("H") {
                 result.push('H');
-                if h > 1 { result.push_str(&h.to_string()); }
+                if h > 1 {
+                    result.push_str(&h.to_string());
+                }
                 counts.remove("H");
             }
         }
         for (sym, count) in &counts {
             result.push_str(sym);
-            if *count > 1 { result.push_str(&count.to_string()); }
+            if *count > 1 {
+                result.push_str(&count.to_string());
+            }
         }
         result
     }
@@ -86,12 +105,16 @@ impl Molecule {
     pub fn radius_of_gyration(&self) -> Option<f64> {
         let (cx, cy, cz) = self.centroid()?;
         let n = self.atoms.len() as f64;
-        let sum_sq = self.atoms.iter().map(|atom| {
-            let dx = atom.x as f64 - cx;
-            let dy = atom.y as f64 - cy;
-            let dz = atom.z as f64 - cz;
-            dx * dx + dy * dy + dz * dz
-        }).sum::<f64>();
+        let sum_sq = self
+            .atoms
+            .iter()
+            .map(|atom| {
+                let dx = atom.x as f64 - cx;
+                let dy = atom.y as f64 - cy;
+                let dz = atom.z as f64 - cz;
+                dx * dx + dy * dy + dz * dz
+            })
+            .sum::<f64>();
         Some((sum_sq / n).sqrt())
     }
 
@@ -126,6 +149,37 @@ impl Molecule {
 
     pub fn properties_json(&self) -> String {
         properties_to_json(&self.properties)
+    }
+
+    pub fn atoms_json(&self) -> String {
+        atoms_to_json(&self.atoms)
+    }
+
+    pub fn bonds_json(&self) -> String {
+        bonds_to_json(&self.bonds)
+    }
+
+    pub fn mol_json(&self) -> String {
+        let mut out = String::from("{\"name\":\"");
+        out.push_str(&json_escape(&self.name));
+        out.push_str("\",\"formula\":\"");
+        out.push_str(&json_escape(&self.formula()));
+        out.push_str("\",\"weight\":");
+        push_json_f64(&mut out, self.weight());
+        out.push_str(",\"num_atoms\":");
+        out.push_str(&self.atoms.len().to_string());
+        out.push_str(",\"num_bonds\":");
+        out.push_str(&self.bonds.len().to_string());
+        out.push_str(",\"has_3d\":");
+        out.push_str(if self.has_3d() { "true" } else { "false" });
+        out.push_str(",\"atoms\":");
+        out.push_str(&self.atoms_json());
+        out.push_str(",\"bonds\":");
+        out.push_str(&self.bonds_json());
+        out.push_str(",\"properties\":");
+        out.push_str(&self.properties_json());
+        out.push('}');
+        out
     }
 }
 
@@ -164,6 +218,64 @@ fn json_escape(s: &str) -> String {
             _ => out.push(ch),
         }
     }
+    out
+}
+
+fn push_json_f32(out: &mut String, value: f32) {
+    if value == 0.0 {
+        out.push('0');
+    } else {
+        out.push_str(&value.to_string());
+    }
+}
+
+fn push_json_f64(out: &mut String, value: f64) {
+    if value == 0.0 {
+        out.push('0');
+    } else {
+        out.push_str(&value.to_string());
+    }
+}
+
+pub fn atoms_to_json(atoms: &[Atom]) -> String {
+    let mut out = String::from("[");
+    for (i, atom) in atoms.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str("{\"index\":");
+        out.push_str(&(i + 1).to_string());
+        out.push_str(",\"symbol\":\"");
+        out.push_str(&json_escape(&atom.symbol));
+        out.push_str("\",\"x\":");
+        push_json_f32(&mut out, atom.x);
+        out.push_str(",\"y\":");
+        push_json_f32(&mut out, atom.y);
+        out.push_str(",\"z\":");
+        push_json_f32(&mut out, atom.z);
+        out.push('}');
+    }
+    out.push(']');
+    out
+}
+
+pub fn bonds_to_json(bonds: &[Bond]) -> String {
+    let mut out = String::from("[");
+    for (i, bond) in bonds.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str("{\"index\":");
+        out.push_str(&(i + 1).to_string());
+        out.push_str(",\"atom1\":");
+        out.push_str(&bond.atom1.to_string());
+        out.push_str(",\"atom2\":");
+        out.push_str(&bond.atom2.to_string());
+        out.push_str(",\"bond_type\":");
+        out.push_str(&bond.bond_type.to_string());
+        out.push('}');
+    }
+    out.push(']');
     out
 }
 
@@ -268,12 +380,21 @@ fn parse_mol_v2000(lines: &[&str]) -> Option<Molecule> {
         let a1 = parse_u32(&line[0..3]);
         let a2 = parse_u32(&line[3..6]);
         let bt = line[6..9].trim().parse::<u8>().unwrap_or(1);
-        bonds.push(Bond { atom1: a1, atom2: a2, bond_type: bt });
+        bonds.push(Bond {
+            atom1: a1,
+            atom2: a2,
+            bond_type: bt,
+        });
     }
 
     let properties = parse_sdf_properties(lines, 4 + num_atoms + num_bonds);
 
-    Some(Molecule { name, atoms, bonds, properties })
+    Some(Molecule {
+        name,
+        atoms,
+        bonds,
+        properties,
+    })
 }
 
 fn v3000_records(lines: &[&str]) -> Vec<String> {
@@ -308,7 +429,9 @@ fn v3000_records(lines: &[&str]) -> Vec<String> {
 fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
     let name = lines[0].trim().to_string();
     let records = v3000_records(lines);
-    let counts = records.iter().find(|record| record.starts_with("COUNTS "))?;
+    let counts = records
+        .iter()
+        .find(|record| record.starts_with("COUNTS "))?;
     let counts_parts: Vec<&str> = counts.split_whitespace().collect();
     if counts_parts.len() < 3 {
         return None;
@@ -362,7 +485,11 @@ fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
             let bt = parts[1].parse::<u8>().unwrap_or(1);
             let a1 = parse_u32(parts[2]);
             let a2 = parse_u32(parts[3]);
-            bonds.push(Bond { atom1: a1, atom2: a2, bond_type: bt });
+            bonds.push(Bond {
+                atom1: a1,
+                atom2: a2,
+                bond_type: bt,
+            });
         }
     }
 
@@ -377,7 +504,12 @@ fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
         .unwrap_or(lines.len());
     let properties = parse_sdf_properties(lines, property_start);
 
-    Some(Molecule { name, atoms, bonds, properties })
+    Some(Molecule {
+        name,
+        atoms,
+        bonds,
+        properties,
+    })
 }
 
 /// Parse a single MOL block (V2000 or V3000)
@@ -462,6 +594,30 @@ mod tests {
     }
 
     #[test]
+    fn test_atoms_bonds_and_mol_json() {
+        let mol = parse_mol(SAMPLE_MOL_V3000).unwrap();
+        assert_eq!(
+            mol.atoms_json(),
+            "[{\"index\":1,\"symbol\":\"C\",\"x\":0,\"y\":0,\"z\":0},{\"index\":2,\"symbol\":\"C\",\"x\":1.54,\"y\":0,\"z\":0},{\"index\":3,\"symbol\":\"O\",\"x\":2.31,\"y\":1.33,\"z\":1}]"
+        );
+        assert_eq!(
+            mol.bonds_json(),
+            "[{\"index\":1,\"atom1\":1,\"atom2\":2,\"bond_type\":1},{\"index\":2,\"atom1\":2,\"atom2\":3,\"bond_type\":2}]"
+        );
+
+        let mol_with_props = parse_sdf(&format!(
+            "{}> <ID>\nV3000-1\n\n> <NOTE>\nline one\nline two\n\n$$$$\n",
+            SAMPLE_MOL_V3000
+        ))
+        .pop()
+        .unwrap();
+        assert_eq!(
+            mol_with_props.mol_json(),
+            "{\"name\":\"ethanol_v3000\",\"formula\":\"C2O\",\"weight\":40.021,\"num_atoms\":3,\"num_bonds\":2,\"has_3d\":true,\"atoms\":[{\"index\":1,\"symbol\":\"C\",\"x\":0,\"y\":0,\"z\":0},{\"index\":2,\"symbol\":\"C\",\"x\":1.54,\"y\":0,\"z\":0},{\"index\":3,\"symbol\":\"O\",\"x\":2.31,\"y\":1.33,\"z\":1}],\"bonds\":[{\"index\":1,\"atom1\":1,\"atom2\":2,\"bond_type\":1},{\"index\":2,\"atom1\":2,\"atom2\":3,\"bond_type\":2}],\"properties\":[{\"name\":\"ID\",\"value\":\"V3000-1\"},{\"name\":\"NOTE\",\"value\":\"line one\\nline two\"}]}"
+        );
+    }
+
+    #[test]
     fn test_sdf() {
         let sdf = format!("{}$$$$\n{}$$$$\n", SAMPLE_MOL, SAMPLE_MOL);
         let mols = parse_sdf(&sdf);
@@ -507,7 +663,10 @@ mod tests {
 
     #[test]
     fn test_sdf_properties_json_includes_record_names() {
-        let sdf = format!("{}> <ID>\n1\n\n$$$$\n{}> <ID>\n2\n\n$$$$\n", SAMPLE_MOL, SAMPLE_MOL);
+        let sdf = format!(
+            "{}> <ID>\n1\n\n$$$$\n{}> <ID>\n2\n\n$$$$\n",
+            SAMPLE_MOL, SAMPLE_MOL
+        );
         let mols = parse_sdf(&sdf);
         assert_eq!(
             sdf_properties_json(&mols),
