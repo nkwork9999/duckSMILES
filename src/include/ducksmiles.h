@@ -32,6 +32,9 @@ int32_t ds_mol_has_substructure(const uint8_t *smiles_ptr, size_t smiles_len,
                                 const uint8_t *smarts_ptr, size_t smarts_len);
 int32_t ds_mol_substructure_count(const uint8_t *smiles_ptr, size_t smiles_len,
                                   const uint8_t *smarts_ptr, size_t smarts_len);
+int32_t ds_mol_substructure_matches_json(const uint8_t *smiles_ptr, size_t smiles_len,
+                                         const uint8_t *smarts_ptr, size_t smarts_len,
+                                         uint8_t *out, size_t out_cap);
 
 // SMILES with explicit H atoms (verbose bracket form). Returns length written, or -1.
 int32_t ds_add_hydrogens(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);

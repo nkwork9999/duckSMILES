@@ -836,17 +836,87 @@ pub fn matches_mol(pat: &Pattern, mol: &Molecule) -> bool {
 /// were tuned against. We enumerate every anchored embedding and dedupe by the
 /// sorted set of mapped molecule atoms.
 pub fn count_unique(pat: &Pattern, mol: &Molecule) -> usize {
+    unique_matches(pat, mol).len()
+}
+
+/// Return unique substructure matches as pattern-atom ordered molecule atom
+/// mappings. Atom indices are 0-based internally; SQL JSON output converts
+/// them to 1-based indices.
+pub fn unique_matches(pat: &Pattern, mol: &Molecule) -> Vec<Vec<usize>> {
     let ctx = MatchCtx::new(mol, pat.needs_ring_info);
     let mut seen: std::collections::HashSet<Vec<usize>> = std::collections::HashSet::new();
+    let mut matches = Vec::new();
     for start in 0..mol.atoms.len() {
         for_each_match_at(pat, &ctx, start, &mut |mapping| {
             let mut key: Vec<usize> = mapping.to_vec();
             key.sort_unstable();
-            seen.insert(key);
+            if seen.insert(key) {
+                matches.push(mapping.to_vec());
+            }
             true
         });
     }
-    seen.len()
+    matches.sort();
+    matches
+}
+
+pub fn unique_matches_json(pat: &Pattern, mol: &Molecule) -> String {
+    let matches = unique_matches(pat, mol);
+    let mut out = String::from("[");
+    for (i, mapping) in matches.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str("{\"match\":");
+        out.push_str(&(i + 1).to_string());
+        out.push_str(",\"atom_indices\":");
+        push_usize_array_1based(&mut out, mapping);
+        out.push_str(",\"atoms\":[");
+        for (query_idx, &target_idx) in mapping.iter().enumerate() {
+            if query_idx > 0 {
+                out.push(',');
+            }
+            out.push_str("{\"query_atom\":");
+            out.push_str(&(query_idx + 1).to_string());
+            out.push_str(",\"target_atom\":");
+            out.push_str(&(target_idx + 1).to_string());
+            out.push_str(",\"symbol\":\"");
+            out.push_str(&json_escape(&mol.atoms[target_idx].symbol));
+            out.push_str("\"}");
+        }
+        out.push_str("]}");
+    }
+    out.push(']');
+    out
+}
+
+fn push_usize_array_1based(out: &mut String, values: &[usize]) {
+    out.push('[');
+    for (i, value) in values.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str(&(value + 1).to_string());
+    }
+    out.push(']');
+}
+
+fn json_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for ch in s.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{08}' => out.push_str("\\b"),
+            '\u{0c}' => out.push_str("\\f"),
+            ch if ch <= '\u{1f}' => out.push_str(&format!("\\u{:04x}", ch as u32)),
+            _ => out.push(ch),
+        }
+    }
+    out
 }
 
 fn atomic_num(sym: &str) -> u8 {
@@ -1278,6 +1348,27 @@ mod tests {
         let pat = parse_smarts("[#6]~[#6]").unwrap();
         let mol = parse("CC").unwrap();
         assert_eq!(count_unique(&pat, &mol), 1);
+    }
+
+    #[test]
+    fn unique_matches_preserve_pattern_order_after_dedup() {
+        let pat = parse_smarts("[#6]~[#6]").unwrap();
+        let mol = parse("CCC").unwrap();
+        assert_eq!(unique_matches(&pat, &mol), vec![vec![0, 1], vec![1, 2]]);
+
+        let pat = parse_smarts("C=O").unwrap();
+        let mol = parse("CC(=O)O").unwrap();
+        assert_eq!(unique_matches(&pat, &mol), vec![vec![1, 2]]);
+    }
+
+    #[test]
+    fn unique_matches_json_reports_atom_mapping() {
+        let pat = parse_smarts("C=O").unwrap();
+        let mol = parse("CC(=O)O").unwrap();
+        assert_eq!(
+            unique_matches_json(&pat, &mol),
+            "[{\"match\":1,\"atom_indices\":[2,3],\"atoms\":[{\"query_atom\":1,\"target_atom\":2,\"symbol\":\"C\"},{\"query_atom\":2,\"target_atom\":3,\"symbol\":\"O\"}]}]"
+        );
     }
 
     #[test]

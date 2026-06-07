@@ -168,6 +168,32 @@ static void MolSubstructureCountFunc(DataChunk &args, ExpressionState &state, Ve
 	}
 }
 
+static void MolSubstructureMatchesJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
+	auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
+	auto result_data = FlatVector::GetData<string_t>(result);
+	auto &validity = FlatVector::Validity(result);
+	auto &smi_validity = FlatVector::Validity(args.data[0]);
+	auto &smarts_validity = FlatVector::Validity(args.data[1]);
+	for (idx_t i = 0; i < count; i++) {
+		if (!smi_validity.RowIsValid(i) || !smarts_validity.RowIsValid(i)) {
+			validity.SetInvalid(i);
+			continue;
+		}
+		auto smi = smi_data[i];
+		auto smarts = smarts_data[i];
+		result_data[i] = DynamicStringResult(result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
+			return ds_mol_substructure_matches_json(
+				(const uint8_t *)smi.GetData(), smi.GetSize(),
+				(const uint8_t *)smarts.GetData(), smarts.GetSize(),
+				out, cap);
+		});
+	}
+}
+
 // add_hydrogens uses a larger 16KB buffer to handle drug-sized molecules
 // (verbose SMILES with all H broken out can be ~5x the heavy-atom SMILES length).
 static void AddHydrogensFunc(DataChunk &args, ExpressionState &state, Vector &result) {
@@ -463,6 +489,9 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_substructure_count",
 		{LogicalType::VARCHAR, LogicalType::VARCHAR},
 		LogicalType::INTEGER, MolSubstructureCountFunc));
+	loader.RegisterFunction(ScalarFunction("mol_substructure_matches_json",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR},
+		LogicalType::VARCHAR, MolSubstructureMatchesJsonFunc));
 	loader.RegisterFunction(ScalarFunction("add_hydrogens",   {LogicalType::VARCHAR}, LogicalType::VARCHAR, AddHydrogensFunc));
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",  {LogicalType::VARCHAR}, LogicalType::BLOB,    MorganFpBitsFunc1));
 	loader.RegisterFunction(ScalarFunction("morgan_fp_bits",

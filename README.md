@@ -189,6 +189,23 @@ Returns ring systems as JSON. Each system includes 1-based atom indices, bond in
 SELECT ring_systems_json('c1ccc2ccccc2c1');
 ```
 
+#### `mol_has_substructure(smiles, smarts) -> BOOLEAN`
+
+Returns `true` when the molecule contains at least one match for the SMARTS query. Returns `NULL` for invalid SMILES or unsupported SMARTS.
+
+#### `mol_substructure_count(smiles, smarts) -> INTEGER`
+
+Returns the number of unique SMARTS matches, deduplicated by the set of matched molecule atoms, mirroring RDKit's `SubstructMatch(..., uniquify=true)` behavior.
+
+#### `mol_substructure_matches_json(smiles, smarts) -> VARCHAR`
+
+Returns every unique SMARTS match as JSON. Each match includes `atom_indices` (1-based target atom indices in SMARTS pattern atom order) and an `atoms` mapping array with `query_atom`, `target_atom`, and target atom `symbol`.
+
+```sql
+SELECT mol_substructure_matches_json('CC(=O)O', 'C=O');
+-- [{"match":1,"atom_indices":[2,3],"atoms":[{"query_atom":1,"target_atom":2,"symbol":"C"},{"query_atom":2,"target_atom":3,"symbol":"O"}]}]
+```
+
 #### `add_hydrogens(smiles) -> VARCHAR`
 
 Returns the input SMILES with every implicit H atom rewritten as an explicit `[H]` vertex (verbose bracket form). The output round-trips through `parse` and composes safely with other descriptors. Useful as a preprocessing primitive for SMARTS that match `[#1]`. Returns `NULL` for invalid SMILES.

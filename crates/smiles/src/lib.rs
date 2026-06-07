@@ -14,7 +14,7 @@ use logp_crippen::calc_logp;
 use morgan::morgan_bits;
 use parser::{parse, BondOrder, Molecule};
 use scaffold::{generic_scaffold_smiles, murcko_scaffold_smiles, ring_systems_json};
-use smarts::{count_unique, matches_mol, parse_smarts};
+use smarts::{count_unique, matches_mol, parse_smarts, unique_matches_json};
 use tanimoto::tanimoto_bit;
 use tpsa::calc_tpsa;
 
@@ -447,6 +447,30 @@ pub extern "C" fn ds_mol_substructure_count(
     }
 }
 
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_substructure_matches_json(
+    smiles_ptr: *const u8,
+    smiles_len: usize,
+    smarts_ptr: *const u8,
+    smarts_len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let smiles = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len))
+    };
+    let smarts = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smarts_ptr, smarts_len))
+    };
+    match (parse(smiles), parse_smarts(smarts)) {
+        (Some(mol), Some(pattern)) => {
+            let json = unique_matches_json(&pattern, &mol);
+            write_required(json.as_bytes(), out, out_cap)
+        }
+        _ => -1,
+    }
+}
+
 /// Writes SMILES with explicit H atoms to buffer. Returns length written, or -1 on invalid.
 /// Result is a verbose bracket-form SMILES that round-trips through parse.
 #[unsafe(no_mangle)]
@@ -608,6 +632,19 @@ mod tests {
         read_ffi_string(|out, cap| ds_ring_systems_json(smiles.as_ptr(), smiles.len(), out, cap))
     }
 
+    fn substructure_matches_json_ffi(smiles: &str, smarts: &str) -> Option<String> {
+        read_ffi_string(|out, cap| {
+            ds_mol_substructure_matches_json(
+                smiles.as_ptr(),
+                smiles.len(),
+                smarts.as_ptr(),
+                smarts.len(),
+                out,
+                cap,
+            )
+        })
+    }
+
     fn maccs_ffi(smiles: &str) -> [u8; 21] {
         let mut buf = [0u8; 21];
         let n = ds_maccs_keys(smiles.as_ptr(), smiles.len(), buf.as_mut_ptr(), buf.len());
@@ -691,6 +728,13 @@ mod tests {
             ),
             6
         );
+
+        assert_eq!(
+            substructure_matches_json_ffi("CC(=O)O", "C=O").unwrap(),
+            "[{\"match\":1,\"atom_indices\":[2,3],\"atoms\":[{\"query_atom\":1,\"target_atom\":2,\"symbol\":\"C\"},{\"query_atom\":2,\"target_atom\":3,\"symbol\":\"O\"}]}]"
+        );
+        assert_eq!(substructure_matches_json_ffi("CCO", "N").unwrap(), "[]");
+        assert_eq!(substructure_matches_json_ffi("not_a_molecule", "C"), None);
     }
 
     #[test]

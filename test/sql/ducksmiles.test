@@ -328,6 +328,30 @@ SELECT murcko_scaffold('not_a_molecule');
 NULL
 
 # ============================================================================
+# SMILES/SMARTS: substructure match mappings
+# ============================================================================
+
+query I
+SELECT mol_substructure_matches_json('CC(=O)O', 'C=O');
+----
+[{"match":1,"atom_indices":[2,3],"atoms":[{"query_atom":1,"target_atom":2,"symbol":"C"},{"query_atom":2,"target_atom":3,"symbol":"O"}]}]
+
+query I
+SELECT mol_substructure_matches_json('CCC', '[#6]~[#6]');
+----
+[{"match":1,"atom_indices":[1,2],"atoms":[{"query_atom":1,"target_atom":1,"symbol":"C"},{"query_atom":2,"target_atom":2,"symbol":"C"}]},{"match":2,"atom_indices":[2,3],"atoms":[{"query_atom":1,"target_atom":2,"symbol":"C"},{"query_atom":2,"target_atom":3,"symbol":"C"}]}]
+
+query I
+SELECT mol_substructure_matches_json('CCO', 'N');
+----
+[]
+
+query I
+SELECT mol_substructure_matches_json('not_a_molecule', 'C');
+----
+NULL
+
+# ============================================================================
 # SMILES: add_hydrogens (return SMILES with explicit H atoms)
 # ============================================================================
 

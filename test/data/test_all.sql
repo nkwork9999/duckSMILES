@@ -30,6 +30,12 @@ SELECT murcko_scaffold('CC(=O)Oc1ccccc1C(=O)O') AS aspirin_scaffold,
        generic_scaffold('c1ccccn1') AS pyridine_generic,
        ring_systems_json('c1ccccc1') AS benzene_ring_system;
 
+.print '=== SMILES/SMARTS: substructure match JSON ==='
+
+SELECT mol_has_substructure('CC(=O)O', 'C=O') AS has_carbonyl,
+       mol_substructure_count('CCC', '[#6]~[#6]') AS cc_bonds,
+       mol_substructure_matches_json('CC(=O)O', 'C=O') AS carbonyl_matches;
+
 -- ============================
 -- 2. InChI functions (11)
 -- ============================
