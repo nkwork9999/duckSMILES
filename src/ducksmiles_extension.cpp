@@ -166,6 +166,7 @@ DEFINE_INT_FUNC(NumAromaticRingsFunc, ds_num_aromatic_rings)
 DEFINE_INT_FUNC(NumHeteroatomsFunc, ds_num_heteroatoms)
 DEFINE_DOUBLE_FUNC(FractionCsp3Func, ds_fraction_csp3)
 DEFINE_DOUBLE_FUNC(MolMrFunc, ds_mol_mr)
+DEFINE_DOUBLE_FUNC(QedFunc, ds_qed)
 DEFINE_INT_FUNC(NumAliphaticRingsFunc, ds_num_aliphatic_rings)
 DEFINE_INT_FUNC(NumSaturatedRingsFunc, ds_num_saturated_rings)
 DEFINE_INT_FUNC(NumAromaticHeterocyclesFunc, ds_num_aromatic_heterocycles)
@@ -642,6 +643,7 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("num_heteroatoms", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHeteroatomsFunc));
 	loader.RegisterFunction(ScalarFunction("fraction_csp3",   {LogicalType::VARCHAR}, LogicalType::DOUBLE,  FractionCsp3Func));
 	loader.RegisterFunction(ScalarFunction("mol_mr",          {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolMrFunc));
+	loader.RegisterFunction(ScalarFunction("qed",             {LogicalType::VARCHAR}, LogicalType::DOUBLE,  QedFunc));
 	loader.RegisterFunction(ScalarFunction("num_aliphatic_rings",        {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticRingsFunc));
 	loader.RegisterFunction(ScalarFunction("num_saturated_rings",        {LogicalType::VARCHAR}, LogicalType::INTEGER, NumSaturatedRingsFunc));
 	loader.RegisterFunction(ScalarFunction("num_aromatic_heterocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAromaticHeterocyclesFunc));

@@ -180,6 +180,18 @@ SELECT num_saturated_heterocycles('C1CCNCC1');  -- 1  (piperidine)
 SELECT num_aliphatic_carbocycles('C1=CCCCC1');  -- 1  (cyclohexene, unsaturated but non-aromatic)
 ```
 
+#### `qed(smiles) -> DOUBLE`
+
+Returns the **QED drug-likeness score** (Bickerton et al., *Nat. Chem.* 2012) in `[0, 1]` — a weighted geometric mean of eight desirability-mapped properties (MW, ALOGP, HBA, HBD, PSA, ROTB, aromatic rings, structural alerts). Port of RDKit's `Chem.QED.default` (`weights_mean`). Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT round(qed('CC(=O)Oc1ccccc1C(=O)O'), 3);   -- 0.550  (aspirin)
+SELECT round(qed('CN1C=NC2=C1C(=O)N(C(=O)N2C)C'), 3); -- 0.529 (caffeine)
+SELECT round(qed('N=C(CCSCc1csc(N=C(N)N)n1)NS(N)(=O)=O'), 3); -- 0.253 (QED paper ref)
+```
+
+Reproduces RDKit's reference values closely (paper molecules 0.253 / 0.234 land at 0.253 / 0.234). Two fidelity caveats, both minor: ROTB uses RDKit's *Strict* definition via a Rust bond pass (the engine doesn't parse bond-OR `-,:`), and 114 of 116 structural alerts are evaluated (the two skipped are multi-component `.` SMARTS). As RDKit's own `QED.py` notes, exact parity is bounded by the underlying LogP calculator anyway.
+
 #### `tpsa(smiles) -> DOUBLE`
 
 Returns the **Topological Polar Surface Area** using RDKit's default Ertl-style atom-contribution scope: nitrogen and oxygen atoms are included; sulfur and phosphorus are excluded. Useful for drug-likeness filters, permeability heuristics, and molecular ML features. Returns `NULL` for invalid SMILES.
