@@ -147,6 +147,39 @@ SELECT round(logp_crippen('CCO'), 4);          -- -0.0014  (ethanol)
 SELECT round(logp_crippen('CC(=O)Oc1ccccc1C(=O)O'), 4); -- ~1.31  (aspirin)
 ```
 
+#### `mol_mr(smiles) -> DOUBLE`
+
+Returns the **Wildman–Crippen molar refractivity (MolMR)**, computed from the *same* atom-contribution table and first-match-wins typing as `logp_crippen` (the MR column of RDKit's `Crippen.txt`). MR captures molecular volume + polarizability and is one of the eight descriptors feeding drug-likeness models. Matches RDKit's `Crippen.MolMR` for small molecules. Returns `NULL` for invalid SMILES.
+
+```sql
+SELECT round(mol_mr('C'), 3);          -- 6.731   (methane)
+SELECT round(mol_mr('c1ccccc1'), 3);   -- 26.442  (benzene)
+SELECT round(mol_mr('CC(=O)Oc1ccccc1C(=O)O'), 2); -- ~44.6 (aspirin)
+```
+
+#### Ring-count descriptors `-> INTEGER`
+
+RDKit's `rdMolDescriptors` ring breakdown, all over the SSSR ring set. A ring is **aromatic** when every ring bond is aromatic, **saturated** when every ring bond is single, **aliphatic** when it has ≥1 non-aromatic bond; **heterocycle**/**carbocycle** splits on whether any ring atom is non-carbon. (Aromaticity follows the parser's perception — see `num_aromatic_rings`.)
+
+| Function | Counts rings that are… |
+|----------|------------------------|
+| `num_aliphatic_rings`        | not fully aromatic (≥1 non-aromatic bond) |
+| `num_saturated_rings`        | all single bonds |
+| `num_aromatic_heterocycles`  | aromatic **and** contain a heteroatom |
+| `num_aromatic_carbocycles`   | aromatic, all-carbon |
+| `num_saturated_heterocycles` | saturated **and** contain a heteroatom |
+| `num_saturated_carbocycles`  | saturated, all-carbon |
+| `num_aliphatic_heterocycles` | aliphatic **and** contain a heteroatom |
+| `num_aliphatic_carbocycles`  | aliphatic, all-carbon |
+
+```sql
+SELECT num_aromatic_carbocycles('c1ccccc1');    -- 1  (benzene)
+SELECT num_aromatic_heterocycles('c1ccncc1');   -- 1  (pyridine)
+SELECT num_saturated_carbocycles('C1CCCCC1');   -- 1  (cyclohexane)
+SELECT num_saturated_heterocycles('C1CCNCC1');  -- 1  (piperidine)
+SELECT num_aliphatic_carbocycles('C1=CCCCC1');  -- 1  (cyclohexene, unsaturated but non-aromatic)
+```
+
 #### `tpsa(smiles) -> DOUBLE`
 
 Returns the **Topological Polar Surface Area** using RDKit's default Ertl-style atom-contribution scope: nitrogen and oxygen atoms are included; sulfur and phosphorus are excluded. Useful for drug-likeness filters, permeability heuristics, and molecular ML features. Returns `NULL` for invalid SMILES.

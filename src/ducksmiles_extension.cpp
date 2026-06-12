@@ -165,6 +165,15 @@ DEFINE_INT_FUNC(RingCountFunc, ds_ring_count)
 DEFINE_INT_FUNC(NumAromaticRingsFunc, ds_num_aromatic_rings)
 DEFINE_INT_FUNC(NumHeteroatomsFunc, ds_num_heteroatoms)
 DEFINE_DOUBLE_FUNC(FractionCsp3Func, ds_fraction_csp3)
+DEFINE_DOUBLE_FUNC(MolMrFunc, ds_mol_mr)
+DEFINE_INT_FUNC(NumAliphaticRingsFunc, ds_num_aliphatic_rings)
+DEFINE_INT_FUNC(NumSaturatedRingsFunc, ds_num_saturated_rings)
+DEFINE_INT_FUNC(NumAromaticHeterocyclesFunc, ds_num_aromatic_heterocycles)
+DEFINE_INT_FUNC(NumAromaticCarbocyclesFunc, ds_num_aromatic_carbocycles)
+DEFINE_INT_FUNC(NumSaturatedHeterocyclesFunc, ds_num_saturated_heterocycles)
+DEFINE_INT_FUNC(NumSaturatedCarbocyclesFunc, ds_num_saturated_carbocycles)
+DEFINE_INT_FUNC(NumAliphaticHeterocyclesFunc, ds_num_aliphatic_heterocycles)
+DEFINE_INT_FUNC(NumAliphaticCarbocyclesFunc, ds_num_aliphatic_carbocycles)
 
 static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	idx_t count = args.size();
@@ -632,6 +641,15 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("num_aromatic_rings", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAromaticRingsFunc));
 	loader.RegisterFunction(ScalarFunction("num_heteroatoms", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumHeteroatomsFunc));
 	loader.RegisterFunction(ScalarFunction("fraction_csp3",   {LogicalType::VARCHAR}, LogicalType::DOUBLE,  FractionCsp3Func));
+	loader.RegisterFunction(ScalarFunction("mol_mr",          {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolMrFunc));
+	loader.RegisterFunction(ScalarFunction("num_aliphatic_rings",        {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticRingsFunc));
+	loader.RegisterFunction(ScalarFunction("num_saturated_rings",        {LogicalType::VARCHAR}, LogicalType::INTEGER, NumSaturatedRingsFunc));
+	loader.RegisterFunction(ScalarFunction("num_aromatic_heterocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAromaticHeterocyclesFunc));
+	loader.RegisterFunction(ScalarFunction("num_aromatic_carbocycles",   {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAromaticCarbocyclesFunc));
+	loader.RegisterFunction(ScalarFunction("num_saturated_heterocycles", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumSaturatedHeterocyclesFunc));
+	loader.RegisterFunction(ScalarFunction("num_saturated_carbocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumSaturatedCarbocyclesFunc));
+	loader.RegisterFunction(ScalarFunction("num_aliphatic_heterocycles", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticHeterocyclesFunc));
+	loader.RegisterFunction(ScalarFunction("num_aliphatic_carbocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticCarbocyclesFunc));
 	loader.RegisterFunction(ScalarFunction("mol_has_substructure",
 		{LogicalType::VARCHAR, LogicalType::VARCHAR},
 		LogicalType::BOOLEAN, MolHasSubstructureFunc));
