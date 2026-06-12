@@ -622,3 +622,46 @@ query II
 SELECT num_aliphatic_rings('CCO'), num_aromatic_carbocycles('CCO');
 ----
 0	0
+
+# ============================================================================
+# Similarity metrics (dice / cosine / tversky / ...) over fingerprint BLOBs
+# ============================================================================
+
+# Self-similarity is 1.0 for the ratio-style metrics
+query I
+SELECT dice_bit(maccs_keys('CC(=O)Oc1ccccc1C(=O)O'), maccs_keys('CC(=O)Oc1ccccc1C(=O)O'));
+----
+1.0
+
+# Tversky with alpha=beta=1 reduces exactly to Tanimoto
+query I
+WITH q AS (SELECT morgan_fp_bits('CCO') AS a, morgan_fp_bits('CCN') AS b)
+SELECT tversky_bit(a, b, 1.0, 1.0) = tanimoto_bit(a, b) FROM q;
+----
+true
+
+# Tversky with alpha=beta=0.5 reduces exactly to Dice
+query I
+WITH q AS (SELECT morgan_fp_bits('CCO') AS a, morgan_fp_bits('CCN') AS b)
+SELECT abs(tversky_bit(a, b, 0.5, 0.5) - dice_bit(a, b)) < 1e-12 FROM q;
+----
+true
+
+# Russel divides by the full bit width, so it stays small
+query I
+WITH q AS (SELECT maccs_keys('CCO') AS a, maccs_keys('CCO') AS b)
+SELECT russel_bit(a, b) > 0.0 AND russel_bit(a, b) < tanimoto_bit(a, b) FROM q;
+----
+true
+
+# Length mismatch is a clear error, not a silent NULL
+statement error
+SELECT dice_bit(maccs_keys('CCO'), morgan_fp_bits('CCN'));
+----
+BLOB lengths differ
+
+# Tversky weights must be in [0, 1]
+statement error
+SELECT tversky_bit(maccs_keys('CCO'), maccs_keys('CCN'), 1.5, 0.0);
+----
+must both be in [0, 1]

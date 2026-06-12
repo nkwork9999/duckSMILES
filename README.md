@@ -360,6 +360,50 @@ FROM q;
 -- true
 ```
 
+#### Other similarity metrics — `dice_bit`, `cosine_bit`, `tversky_bit`, … `-> DOUBLE`
+
+The same raw-BLOB, no-cast machinery powers the rest of RDKit's
+`DataStructs` similarity family. All take two equal-length fingerprint BLOBs
+and share `tanimoto_bit`'s contract (length mismatch → `InvalidInputException`,
+both-empty → `0.0`). Formulas are faithful ports of
+`RDKit/Code/DataStructs/BitOps.cpp` (`c = popcount(a & b)`, `|a|`, `|b|` are the
+on-bit counts):
+
+| Function | Formula | Notes |
+|----------|---------|-------|
+| `dice_bit(a, b)`           | `2c / (\|a\| + \|b\|)`              | default metric for some RDKit FPs |
+| `cosine_bit(a, b)`         | `c / sqrt(\|a\|·\|b\|)`             | Ochiai coefficient |
+| `kulczynski_bit(a, b)`     | `c·(\|a\|+\|b\|) / (2·\|a\|·\|b\|)` | |
+| `sokal_bit(a, b)`          | `c / (2\|a\| + 2\|b\| − 3c)`        | |
+| `mcconnaughey_bit(a, b)`   | `(c·(\|a\|+\|b\|) − \|a\|·\|b\|) / (\|a\|·\|b\|)` | range `[−1, 1]` |
+| `asymmetric_bit(a, b)`     | `c / min(\|a\|, \|b\|)`             | |
+| `braun_blanquet_bit(a, b)` | `c / max(\|a\|, \|b\|)`             | |
+| `russel_bit(a, b)`         | `c / N`                             | `N` = total bit width |
+| `tversky_bit(a, b, α, β)`  | `c / (α\|a\| + β\|b\| + (1−α−β)c)`  | asymmetric; see below |
+
+`tversky_bit` takes two extra weights `α, β ∈ [0, 1]` (out-of-range → error).
+`α=β=1` reduces to Tanimoto; `α=β=0.5` to Dice; `α=0, β=1` gives a
+substructure-style score (how much of `b` is contained in `a`) — handy for
+"find molecules that contain this query fragment" searches.
+
+```sql
+-- Dice and Tversky vs a reference, same shape as tanimoto_bit
+WITH ref AS (SELECT morgan_fp_bits('CC(=O)Oc1ccccc1C(=O)O') AS fp)
+SELECT name,
+       round(dice_bit(morgan_fp_bits(smiles), (SELECT fp FROM ref)), 4)            AS dice,
+       round(tversky_bit(morgan_fp_bits(smiles), (SELECT fp FROM ref), 0.0, 1.0), 4) AS contains
+FROM (VALUES
+  ('aspirin',        'CC(=O)Oc1ccccc1C(=O)O'),
+  ('salicylic acid', 'OC(=O)c1ccccc1O')
+) AS t(name, smiles)
+ORDER BY dice DESC;
+
+-- α=β=1 is exactly Tanimoto:
+WITH q AS (SELECT morgan_fp_bits('CCO') AS a, morgan_fp_bits('CCN') AS b)
+SELECT tversky_bit(a, b, 1.0, 1.0) = tanimoto_bit(a, b) AS match FROM q;
+-- true
+```
+
 #### `maccs_keys(smiles) -> BLOB`
 
 Returns the **166 MACCS structural keys** as a fixed **21-byte (167-bit)** BLOB, ported from RDKit's `MACCS.cpp`. Bit `n` corresponds to RDKit MACCS key number `n` (bit 0 unused; bit 1, the isotope key, always 0). Returns `NULL` for invalid SMILES.

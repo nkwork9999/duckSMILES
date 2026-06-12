@@ -83,6 +83,30 @@ int32_t ds_maccs_keys(const uint8_t *ptr, size_t len,
 double ds_tanimoto_bit(const uint8_t *a_ptr, size_t a_len,
                        const uint8_t *b_ptr, size_t b_len);
 
+// Additional bit-fingerprint similarity metrics (RDKit DataStructs/BitOps.cpp).
+// Each returns NaN on length mismatch and 0.0 on both-empty, mirroring
+// ds_tanimoto_bit. See crates/smiles/src/similarity.rs for the exact formulas.
+double ds_dice_bit(const uint8_t *a_ptr, size_t a_len,
+                   const uint8_t *b_ptr, size_t b_len);
+double ds_cosine_bit(const uint8_t *a_ptr, size_t a_len,
+                     const uint8_t *b_ptr, size_t b_len);
+double ds_kulczynski_bit(const uint8_t *a_ptr, size_t a_len,
+                         const uint8_t *b_ptr, size_t b_len);
+double ds_sokal_bit(const uint8_t *a_ptr, size_t a_len,
+                    const uint8_t *b_ptr, size_t b_len);
+double ds_mcconnaughey_bit(const uint8_t *a_ptr, size_t a_len,
+                           const uint8_t *b_ptr, size_t b_len);
+double ds_asymmetric_bit(const uint8_t *a_ptr, size_t a_len,
+                         const uint8_t *b_ptr, size_t b_len);
+double ds_braun_blanquet_bit(const uint8_t *a_ptr, size_t a_len,
+                             const uint8_t *b_ptr, size_t b_len);
+double ds_russel_bit(const uint8_t *a_ptr, size_t a_len,
+                     const uint8_t *b_ptr, size_t b_len);
+// Tversky also returns NaN if alpha or beta is outside [0, 1].
+double ds_tversky_bit(const uint8_t *a_ptr, size_t a_len,
+                      const uint8_t *b_ptr, size_t b_len,
+                      double alpha, double beta);
+
 // ===================== InChI crate =====================
 
 int32_t ds_inchi_is_valid(const uint8_t *ptr, size_t len);

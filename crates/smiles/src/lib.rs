@@ -5,6 +5,7 @@ mod molhash;
 mod morgan;
 mod parser;
 mod scaffold;
+mod similarity;
 mod smarts;
 mod standardize;
 mod tanimoto;
@@ -831,6 +832,63 @@ pub extern "C" fn ds_tanimoto_bit(
     let a = unsafe { std::slice::from_raw_parts(a_ptr, a_len) };
     let b = unsafe { std::slice::from_raw_parts(b_ptr, b_len) };
     tanimoto_bit(a, b)
+}
+
+/// Generates a `ds_<name>_bit` FFI wrapper over two equal-length BLOBs that
+/// mirrors `ds_tanimoto_bit`'s contract: `NaN` on length mismatch, `0.0` on
+/// both-empty, otherwise delegates to the named `similarity::` function.
+macro_rules! similarity_ffi {
+    ($ffi:ident, $inner:path) => {
+        #[unsafe(no_mangle)]
+        pub extern "C" fn $ffi(
+            a_ptr: *const u8,
+            a_len: usize,
+            b_ptr: *const u8,
+            b_len: usize,
+        ) -> f64 {
+            if a_len != b_len {
+                return f64::NAN;
+            }
+            if a_len == 0 {
+                return 0.0;
+            }
+            let a = unsafe { std::slice::from_raw_parts(a_ptr, a_len) };
+            let b = unsafe { std::slice::from_raw_parts(b_ptr, b_len) };
+            $inner(a, b)
+        }
+    };
+}
+
+similarity_ffi!(ds_dice_bit, similarity::dice_bit);
+similarity_ffi!(ds_cosine_bit, similarity::cosine_bit);
+similarity_ffi!(ds_kulczynski_bit, similarity::kulczynski_bit);
+similarity_ffi!(ds_sokal_bit, similarity::sokal_bit);
+similarity_ffi!(ds_mcconnaughey_bit, similarity::mcconnaughey_bit);
+similarity_ffi!(ds_asymmetric_bit, similarity::asymmetric_bit);
+similarity_ffi!(ds_braun_blanquet_bit, similarity::braun_blanquet_bit);
+similarity_ffi!(ds_russel_bit, similarity::russel_bit);
+
+/// Tversky similarity over two raw fingerprint BLOBs with asymmetric weights
+/// `alpha`, `beta`. Returns `NaN` on length mismatch *or* if either weight is
+/// outside `[0, 1]`; `0.0` on both-empty. (`similarity::tversky_bit`.)
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_tversky_bit(
+    a_ptr: *const u8,
+    a_len: usize,
+    b_ptr: *const u8,
+    b_len: usize,
+    alpha: f64,
+    beta: f64,
+) -> f64 {
+    if a_len != b_len {
+        return f64::NAN;
+    }
+    if a_len == 0 {
+        return 0.0;
+    }
+    let a = unsafe { std::slice::from_raw_parts(a_ptr, a_len) };
+    let b = unsafe { std::slice::from_raw_parts(b_ptr, b_len) };
+    similarity::tversky_bit(a, b, alpha, beta)
 }
 
 /// Writes Morgan/ECFP fingerprint bits to buffer. Returns bytes written
