@@ -329,6 +329,92 @@ static void TanimotoBitFunc(DataChunk &args, ExpressionState &state, Vector &res
 		});
 }
 
+// <name>_bit(BLOB, BLOB) → DOUBLE for the rest of the symmetric similarity
+// family. Same length-mismatch contract as tanimoto_bit; SqlName is the label
+// shown in the error so the user sees the function they actually called.
+#define DEFINE_SIMILARITY_FUNC(FuncName, RustFunc, SqlName) \
+static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
+	BinaryExecutor::Execute<string_t, string_t, double>( \
+		args.data[0], args.data[1], result, args.size(), \
+		[](string_t a, string_t b) -> double { \
+			if (a.GetSize() != b.GetSize()) { \
+				throw InvalidInputException( \
+					SqlName ": BLOB lengths differ (%llu vs %llu bytes)", \
+					(unsigned long long)a.GetSize(), \
+					(unsigned long long)b.GetSize()); \
+			} \
+			return RustFunc( \
+				(const uint8_t *)a.GetData(), a.GetSize(), \
+				(const uint8_t *)b.GetData(), b.GetSize()); \
+		}); \
+}
+
+DEFINE_SIMILARITY_FUNC(DiceBitFunc, ds_dice_bit, "dice_bit")
+DEFINE_SIMILARITY_FUNC(CosineBitFunc, ds_cosine_bit, "cosine_bit")
+DEFINE_SIMILARITY_FUNC(KulczynskiBitFunc, ds_kulczynski_bit, "kulczynski_bit")
+DEFINE_SIMILARITY_FUNC(SokalBitFunc, ds_sokal_bit, "sokal_bit")
+DEFINE_SIMILARITY_FUNC(McConnaugheyBitFunc, ds_mcconnaughey_bit, "mcconnaughey_bit")
+DEFINE_SIMILARITY_FUNC(AsymmetricBitFunc, ds_asymmetric_bit, "asymmetric_bit")
+DEFINE_SIMILARITY_FUNC(BraunBlanquetBitFunc, ds_braun_blanquet_bit, "braun_blanquet_bit")
+DEFINE_SIMILARITY_FUNC(RusselBitFunc, ds_russel_bit, "russel_bit")
+
+// tversky_bit(BLOB, BLOB, alpha, beta) → DOUBLE. alpha/beta weight the two
+// fingerprints (both in [0, 1]); alpha=beta=1 reduces to Tanimoto, 0.5/0.5 to
+// Dice. DuckDB has no 4-ary executor, so we read each argument via
+// UnifiedVectorFormat (handles flat / constant / dictionary vectors + NULLs).
+static void TverskyBitFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	auto count = args.size();
+	UnifiedVectorFormat a_fmt, b_fmt, alpha_fmt, beta_fmt;
+	args.data[0].ToUnifiedFormat(count, a_fmt);
+	args.data[1].ToUnifiedFormat(count, b_fmt);
+	args.data[2].ToUnifiedFormat(count, alpha_fmt);
+	args.data[3].ToUnifiedFormat(count, beta_fmt);
+
+	auto a_vals = UnifiedVectorFormat::GetData<string_t>(a_fmt);
+	auto b_vals = UnifiedVectorFormat::GetData<string_t>(b_fmt);
+	auto alpha_vals = UnifiedVectorFormat::GetData<double>(alpha_fmt);
+	auto beta_vals = UnifiedVectorFormat::GetData<double>(beta_fmt);
+
+	result.SetVectorType(VectorType::FLAT_VECTOR);
+	auto out = FlatVector::GetData<double>(result);
+	auto &out_validity = FlatVector::Validity(result);
+
+	for (idx_t i = 0; i < count; i++) {
+		auto ai = a_fmt.sel->get_index(i);
+		auto bi = b_fmt.sel->get_index(i);
+		auto pi = alpha_fmt.sel->get_index(i);
+		auto qi = beta_fmt.sel->get_index(i);
+		if (!a_fmt.validity.RowIsValid(ai) || !b_fmt.validity.RowIsValid(bi) ||
+		    !alpha_fmt.validity.RowIsValid(pi) || !beta_fmt.validity.RowIsValid(qi)) {
+			out_validity.SetInvalid(i);
+			continue;
+		}
+		auto &a = a_vals[ai];
+		auto &b = b_vals[bi];
+		if (a.GetSize() != b.GetSize()) {
+			throw InvalidInputException(
+				"tversky_bit: BLOB lengths differ (%llu vs %llu bytes)",
+				(unsigned long long)a.GetSize(),
+				(unsigned long long)b.GetSize());
+		}
+		double alpha = alpha_vals[pi];
+		double beta = beta_vals[qi];
+		double sim = ds_tversky_bit(
+			(const uint8_t *)a.GetData(), a.GetSize(),
+			(const uint8_t *)b.GetData(), b.GetSize(),
+			alpha, beta);
+		if (std::isnan(sim)) {
+			throw InvalidInputException(
+				"tversky_bit: alpha and beta must both be in [0, 1] "
+				"(got alpha=%g, beta=%g)", alpha, beta);
+		}
+		out[i] = sim;
+	}
+	if (count == 1) {
+		result.SetVectorType(VectorType::CONSTANT_VECTOR);
+	}
+}
+
 // ============================================================================
 // InChI functions
 // ============================================================================
@@ -564,6 +650,25 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("tanimoto_bit",
 		{LogicalType::BLOB, LogicalType::BLOB},
 		LogicalType::DOUBLE, TanimotoBitFunc));
+	loader.RegisterFunction(ScalarFunction("dice_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, DiceBitFunc));
+	loader.RegisterFunction(ScalarFunction("cosine_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, CosineBitFunc));
+	loader.RegisterFunction(ScalarFunction("kulczynski_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, KulczynskiBitFunc));
+	loader.RegisterFunction(ScalarFunction("sokal_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, SokalBitFunc));
+	loader.RegisterFunction(ScalarFunction("mcconnaughey_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, McConnaugheyBitFunc));
+	loader.RegisterFunction(ScalarFunction("asymmetric_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, AsymmetricBitFunc));
+	loader.RegisterFunction(ScalarFunction("braun_blanquet_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, BraunBlanquetBitFunc));
+	loader.RegisterFunction(ScalarFunction("russel_bit",
+		{LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE, RusselBitFunc));
+	loader.RegisterFunction(ScalarFunction("tversky_bit",
+		{LogicalType::BLOB, LogicalType::BLOB, LogicalType::DOUBLE, LogicalType::DOUBLE},
+		LogicalType::DOUBLE, TverskyBitFunc));
 
 	// --- InChI layer extraction ---
 	loader.RegisterFunction(ScalarFunction("inchi_is_valid",           {LogicalType::VARCHAR}, LogicalType::BOOLEAN, InchiIsValidFunc));
