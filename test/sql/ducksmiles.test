@@ -665,3 +665,30 @@ statement error
 SELECT tversky_bit(maccs_keys('CCO'), maccs_keys('CCN'), 1.5, 0.0);
 ----
 must both be in [0, 1]
+
+# ============================================================================
+# QED drug-likeness
+# ============================================================================
+
+# Reference molecules from RDKit QED.py docstring (weights_mean)
+query I
+SELECT abs(qed('N=C(CCSCc1csc(N=C(N)N)n1)NS(N)(=O)=O') - 0.253) < 0.02;
+----
+true
+
+query I
+SELECT abs(qed('CCCCCNC(=N)NN=Cc1c[nH]c2ccc(CO)cc12') - 0.234) < 0.02;
+----
+true
+
+# QED is in [0,1]
+query I
+SELECT qed('CC(=O)Oc1ccccc1C(=O)O') BETWEEN 0 AND 1;
+----
+true
+
+# Invalid SMILES → NULL
+query I
+SELECT qed('not_a_molecule') IS NULL;
+----
+true

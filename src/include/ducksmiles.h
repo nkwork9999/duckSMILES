@@ -48,6 +48,9 @@ double ds_fraction_csp3(const uint8_t *ptr, size_t len);
 // Wildman-Crippen molar refractivity (MolMR). NaN on invalid SMILES.
 double ds_mol_mr(const uint8_t *ptr, size_t len);
 
+// QED drug-likeness (RDKit weights_mean). NaN on invalid SMILES.
+double ds_qed(const uint8_t *ptr, size_t len);
+
 // Ring-count descriptors (RDKit rdMolDescriptors). -1 on invalid SMILES.
 int32_t ds_num_aliphatic_rings(const uint8_t *ptr, size_t len);
 int32_t ds_num_saturated_rings(const uint8_t *ptr, size_t len);

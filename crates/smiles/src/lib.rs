@@ -4,6 +4,7 @@ mod mcs;
 mod molhash;
 mod morgan;
 mod parser;
+mod qed;
 mod scaffold;
 mod similarity;
 mod smarts;
@@ -375,6 +376,17 @@ pub extern "C" fn ds_mol_mr(ptr: *const u8, len: usize) -> f64 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
         Some(mol) => calc_mr(&mol),
+        None => f64::NAN,
+    }
+}
+
+/// Returns the QED drug-likeness score (RDKit weights_mean), or NaN on invalid
+/// SMILES. See `qed.rs` for fidelity notes vs RDKit.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_qed(ptr: *const u8, len: usize) -> f64 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => qed::qed(&mol),
         None => f64::NAN,
     }
 }
