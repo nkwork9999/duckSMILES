@@ -567,3 +567,58 @@ SELECT mol_block_json(mol) LIKE '%"name":"ethanol_v3000"%"has_3d":true%"properti
 FROM m;
 ----
 true
+
+# ============================================================================
+# MolMR + ring-count descriptors
+# ============================================================================
+
+# MolMR matches RDKit reference values
+query I
+SELECT abs(mol_mr('C') - 6.731) < 0.01;
+----
+true
+
+query I
+SELECT abs(mol_mr('c1ccccc1') - 26.442) < 0.05;
+----
+true
+
+query I
+SELECT mol_mr('not_a_molecule') IS NULL;
+----
+true
+
+# Ring descriptors: benzene = 1 aromatic carbocycle
+query IIII
+SELECT num_aromatic_carbocycles('c1ccccc1'),
+       num_aromatic_heterocycles('c1ccccc1'),
+       num_aliphatic_rings('c1ccccc1'),
+       num_saturated_rings('c1ccccc1');
+----
+1	0	0	0
+
+# Pyridine = 1 aromatic heterocycle
+query II
+SELECT num_aromatic_heterocycles('c1ccncc1'), num_aromatic_carbocycles('c1ccncc1');
+----
+1	0
+
+# Cyclohexane = saturated + aliphatic carbocycle
+query III
+SELECT num_saturated_carbocycles('C1CCCCC1'),
+       num_aliphatic_carbocycles('C1CCCCC1'),
+       num_saturated_rings('C1CCCCC1');
+----
+1	1	1
+
+# Piperidine = saturated heterocycle
+query II
+SELECT num_saturated_heterocycles('C1CCNCC1'), num_aliphatic_heterocycles('C1CCNCC1');
+----
+1	1
+
+# Acyclic molecule → all ring counts zero
+query II
+SELECT num_aliphatic_rings('CCO'), num_aromatic_carbocycles('CCO');
+----
+0	0

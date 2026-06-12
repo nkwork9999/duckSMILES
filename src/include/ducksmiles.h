@@ -44,6 +44,19 @@ int32_t ds_ring_count(const uint8_t *ptr, size_t len);
 int32_t ds_num_aromatic_rings(const uint8_t *ptr, size_t len);
 int32_t ds_num_heteroatoms(const uint8_t *ptr, size_t len);
 double ds_fraction_csp3(const uint8_t *ptr, size_t len);
+
+// Wildman-Crippen molar refractivity (MolMR). NaN on invalid SMILES.
+double ds_mol_mr(const uint8_t *ptr, size_t len);
+
+// Ring-count descriptors (RDKit rdMolDescriptors). -1 on invalid SMILES.
+int32_t ds_num_aliphatic_rings(const uint8_t *ptr, size_t len);
+int32_t ds_num_saturated_rings(const uint8_t *ptr, size_t len);
+int32_t ds_num_aromatic_heterocycles(const uint8_t *ptr, size_t len);
+int32_t ds_num_aromatic_carbocycles(const uint8_t *ptr, size_t len);
+int32_t ds_num_saturated_heterocycles(const uint8_t *ptr, size_t len);
+int32_t ds_num_saturated_carbocycles(const uint8_t *ptr, size_t len);
+int32_t ds_num_aliphatic_heterocycles(const uint8_t *ptr, size_t len);
+int32_t ds_num_aliphatic_carbocycles(const uint8_t *ptr, size_t len);
 int32_t ds_mol_has_substructure(const uint8_t *smiles_ptr, size_t smiles_len,
                                 const uint8_t *smarts_ptr, size_t smarts_len);
 int32_t ds_mol_substructure_count(const uint8_t *smiles_ptr, size_t smiles_len,

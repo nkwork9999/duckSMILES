@@ -13,7 +13,7 @@ pub(crate) mod test_fixtures;
 mod tpsa;
 mod weights;
 
-use logp_crippen::calc_logp;
+use logp_crippen::{calc_logp, calc_mr};
 use mcs::{mcs_json, mcs_smarts, scaffold_network_json};
 use molhash::{methods_json as mol_hash_methods_json, mol_hash};
 use morgan::morgan_bits;
@@ -105,6 +105,110 @@ fn num_aromatic_rings(mol: &Molecule) -> usize {
                     .unwrap_or(false)
             })
         })
+        .count()
+}
+
+/// Bond-order / heteroatom classification of a single SSSR ring, matching the
+/// definitions RDKit's ring-count descriptors use:
+/// - `aromatic`: every ring bond is aromatic (same test as `num_aromatic_rings`).
+/// - `saturated`: every ring bond is a single bond (no aromatic / double / triple).
+/// - `has_hetero`: at least one ring atom is not carbon (→ heterocycle; else
+///   carbocycle). H never appears in a ring, so "not C" means a heteroatom.
+///
+/// A ring that is not aromatic is "aliphatic" (RDKit: ≥1 non-aromatic bond).
+struct RingClass {
+    aromatic: bool,
+    saturated: bool,
+    has_hetero: bool,
+}
+
+fn ring_classes(mol: &Molecule) -> Vec<RingClass> {
+    let ring_info = mol.ring_info();
+    ring_info
+        .rings
+        .iter()
+        .map(|ring| {
+            let mut aromatic = true;
+            let mut saturated = true;
+            let mut atoms: Vec<usize> = Vec::with_capacity(ring.len());
+            for &bond_idx in ring {
+                if let Some(bond) = mol.bonds.get(bond_idx) {
+                    match bond.order {
+                        BondOrder::Aromatic => saturated = false,
+                        BondOrder::Single => aromatic = false,
+                        BondOrder::Double | BondOrder::Triple => {
+                            aromatic = false;
+                            saturated = false;
+                        }
+                    }
+                    atoms.push(bond.a);
+                    atoms.push(bond.b);
+                }
+            }
+            let has_hetero = atoms.iter().any(|&i| {
+                mol.atoms
+                    .get(i)
+                    .map(|a| a.symbol != "C" && a.symbol != "H")
+                    .unwrap_or(false)
+            });
+            RingClass {
+                aromatic,
+                saturated,
+                has_hetero,
+            }
+        })
+        .collect()
+}
+
+/// Rings with at least one non-aromatic bond (RDKit `NumAliphaticRings`).
+fn num_aliphatic_rings(mol: &Molecule) -> usize {
+    ring_classes(mol).iter().filter(|r| !r.aromatic).count()
+}
+
+/// Rings whose bonds are all single (RDKit `NumSaturatedRings`).
+fn num_saturated_rings(mol: &Molecule) -> usize {
+    ring_classes(mol).iter().filter(|r| r.saturated).count()
+}
+
+fn num_aromatic_heterocycles(mol: &Molecule) -> usize {
+    ring_classes(mol)
+        .iter()
+        .filter(|r| r.aromatic && r.has_hetero)
+        .count()
+}
+
+fn num_aromatic_carbocycles(mol: &Molecule) -> usize {
+    ring_classes(mol)
+        .iter()
+        .filter(|r| r.aromatic && !r.has_hetero)
+        .count()
+}
+
+fn num_saturated_heterocycles(mol: &Molecule) -> usize {
+    ring_classes(mol)
+        .iter()
+        .filter(|r| r.saturated && r.has_hetero)
+        .count()
+}
+
+fn num_saturated_carbocycles(mol: &Molecule) -> usize {
+    ring_classes(mol)
+        .iter()
+        .filter(|r| r.saturated && !r.has_hetero)
+        .count()
+}
+
+fn num_aliphatic_heterocycles(mol: &Molecule) -> usize {
+    ring_classes(mol)
+        .iter()
+        .filter(|r| !r.aromatic && r.has_hetero)
+        .count()
+}
+
+fn num_aliphatic_carbocycles(mol: &Molecule) -> usize {
+    ring_classes(mol)
+        .iter()
+        .filter(|r| !r.aromatic && !r.has_hetero)
         .count()
 }
 
@@ -260,6 +364,16 @@ pub extern "C" fn ds_logp_crippen(ptr: *const u8, len: usize) -> f64 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
         Some(mol) => calc_logp(&mol),
+        None => f64::NAN,
+    }
+}
+
+/// Returns Wildman-Crippen molar refractivity (MolMR), or NaN on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_mr(ptr: *const u8, len: usize) -> f64 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => calc_mr(&mol),
         None => f64::NAN,
     }
 }
@@ -558,6 +672,30 @@ pub extern "C" fn ds_num_aromatic_rings(ptr: *const u8, len: usize) -> i32 {
     }
 }
 
+/// Generates a `ds_<name>(smiles) -> i32` FFI that parses and applies a
+/// `usize`-returning ring-count descriptor, returning -1 on invalid SMILES.
+macro_rules! ring_count_ffi {
+    ($ffi:ident, $inner:path) => {
+        #[unsafe(no_mangle)]
+        pub extern "C" fn $ffi(ptr: *const u8, len: usize) -> i32 {
+            let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+            match parse(s) {
+                Some(mol) => $inner(&mol) as i32,
+                None => -1,
+            }
+        }
+    };
+}
+
+ring_count_ffi!(ds_num_aliphatic_rings, num_aliphatic_rings);
+ring_count_ffi!(ds_num_saturated_rings, num_saturated_rings);
+ring_count_ffi!(ds_num_aromatic_heterocycles, num_aromatic_heterocycles);
+ring_count_ffi!(ds_num_aromatic_carbocycles, num_aromatic_carbocycles);
+ring_count_ffi!(ds_num_saturated_heterocycles, num_saturated_heterocycles);
+ring_count_ffi!(ds_num_saturated_carbocycles, num_saturated_carbocycles);
+ring_count_ffi!(ds_num_aliphatic_heterocycles, num_aliphatic_heterocycles);
+ring_count_ffi!(ds_num_aliphatic_carbocycles, num_aliphatic_carbocycles);
+
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_num_heteroatoms(ptr: *const u8, len: usize) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
@@ -769,6 +907,75 @@ mod tests {
 
     fn logp_ffi(smiles: &str) -> f64 {
         ds_logp_crippen(smiles.as_ptr(), smiles.len())
+    }
+
+    // (aromatic_rings, aliphatic_rings, saturated_rings,
+    //  arom_hetero, arom_carbo, sat_hetero, sat_carbo, ali_hetero, ali_carbo)
+    fn ring_profile(smiles: &str) -> (usize, usize, usize, usize, usize, usize, usize, usize, usize) {
+        let m = parse(smiles).expect("parse");
+        (
+            num_aromatic_rings(&m),
+            num_aliphatic_rings(&m),
+            num_saturated_rings(&m),
+            num_aromatic_heterocycles(&m),
+            num_aromatic_carbocycles(&m),
+            num_saturated_heterocycles(&m),
+            num_saturated_carbocycles(&m),
+            num_aliphatic_heterocycles(&m),
+            num_aliphatic_carbocycles(&m),
+        )
+    }
+
+    #[test]
+    fn ring_descriptors_benzene_is_aromatic_carbocycle() {
+        // 1 aromatic carbocycle; nothing aliphatic/saturated/hetero
+        assert_eq!(ring_profile("c1ccccc1"), (1, 0, 0, 0, 1, 0, 0, 0, 0));
+    }
+
+    #[test]
+    fn ring_descriptors_pyridine_is_aromatic_heterocycle() {
+        assert_eq!(ring_profile("c1ccncc1"), (1, 0, 0, 1, 0, 0, 0, 0, 0));
+    }
+
+    #[test]
+    fn ring_descriptors_cyclohexane_is_saturated_carbocycle() {
+        // aliphatic (non-aromatic) AND saturated AND carbocyclic
+        assert_eq!(ring_profile("C1CCCCC1"), (0, 1, 1, 0, 0, 0, 1, 0, 1));
+    }
+
+    #[test]
+    fn ring_descriptors_piperidine_is_saturated_heterocycle() {
+        assert_eq!(ring_profile("C1CCNCC1"), (0, 1, 1, 0, 0, 1, 0, 1, 0));
+    }
+
+    #[test]
+    fn ring_descriptors_cyclohexene_is_aliphatic_unsaturated_carbocycle() {
+        // one C=C → not aromatic, not saturated; counts as aliphatic carbocycle only
+        assert_eq!(ring_profile("C1=CCCCC1"), (0, 1, 0, 0, 0, 0, 0, 0, 1));
+    }
+
+    #[test]
+    fn ring_descriptors_acyclic_is_all_zero() {
+        assert_eq!(ring_profile("CCO"), (0, 0, 0, 0, 0, 0, 0, 0, 0));
+    }
+
+    #[test]
+    fn ring_descriptors_indole_mixes_carbo_and_hetero() {
+        // fused: one aromatic carbocycle (benzene) + one aromatic heterocycle (pyrrole)
+        let p = ring_profile("c1ccc2[nH]ccc2c1");
+        assert_eq!(p.0, 2, "indole aromatic rings");
+        assert_eq!((p.3, p.4), (1, 1), "indole arom hetero/carbo split");
+    }
+
+    fn mol_mr_ffi(smiles: &str) -> f64 {
+        ds_mol_mr(smiles.as_ptr(), smiles.len())
+    }
+
+    #[test]
+    fn mol_mr_ffi_matches_rdkit_refs() {
+        assert_close("MolMR methane", mol_mr_ffi("C"), 6.731, 0.01);
+        assert_close("MolMR benzene", mol_mr_ffi("c1ccccc1"), 26.442, 0.05);
+        assert!(mol_mr_ffi("not_a_mol").is_nan(), "invalid → NaN");
     }
 
     fn tpsa_ffi(smiles: &str) -> f64 {
