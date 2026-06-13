@@ -876,6 +876,23 @@ impl Molecule {
             }
         }
     }
+
+    /// Classify atom `idx` by hybridization: SP / SP2 / SP3.
+    pub fn hybridization(&self, idx: usize) -> crate::conformer::params::Hybridization {
+        use crate::conformer::params::Hybridization;
+        let nbrs = self.neighbors(idx);
+        if nbrs.iter().any(|(_, o)| *o == BondOrder::Triple) {
+            return Hybridization::SP;
+        }
+        if self.atoms[idx].aromatic
+            || nbrs
+                .iter()
+                .any(|(_, o)| matches!(o, BondOrder::Double | BondOrder::Aromatic))
+        {
+            return Hybridization::SP2;
+        }
+        Hybridization::SP3
+    }
 }
 
 fn render_cycle_smiles(mol: &Molecule, atoms_order: &[usize], bond_orders: &[BondOrder]) -> String {
@@ -2855,5 +2872,51 @@ mod tests {
     fn test_multiple_stereocenters() {
         // 4 stereocenters + 2 terminal C
         check_parse("[C@@H](O)([C@H](O)[C@@H](O)[C@H](O)C)C", 10);
+    }
+
+    // ── hybridization tests ───────────────────────────────────────────────────
+
+    #[test]
+    fn hybridization_sp3_ethane() {
+        use crate::conformer::params::Hybridization;
+        let mol = parse("CC").unwrap();
+        assert_eq!(mol.hybridization(0), Hybridization::SP3);
+        assert_eq!(mol.hybridization(1), Hybridization::SP3);
+    }
+
+    #[test]
+    fn hybridization_sp2_ethylene() {
+        use crate::conformer::params::Hybridization;
+        let mol = parse("C=C").unwrap();
+        assert_eq!(mol.hybridization(0), Hybridization::SP2);
+        assert_eq!(mol.hybridization(1), Hybridization::SP2);
+    }
+
+    #[test]
+    fn hybridization_sp_acetylene() {
+        use crate::conformer::params::Hybridization;
+        let mol = parse("C#C").unwrap();
+        assert_eq!(mol.hybridization(0), Hybridization::SP);
+        assert_eq!(mol.hybridization(1), Hybridization::SP);
+    }
+
+    #[test]
+    fn hybridization_sp2_benzene() {
+        use crate::conformer::params::Hybridization;
+        let mol = parse("c1ccccc1").unwrap();
+        for i in 0..6 {
+            assert_eq!(mol.hybridization(i), Hybridization::SP2, "atom {i}");
+        }
+    }
+
+    #[test]
+    fn hybridization_mixed_aspirin() {
+        // CC(=O)Oc1ccccc1C(=O)O
+        use crate::conformer::params::Hybridization;
+        let mol = parse("CC(=O)Oc1ccccc1C(=O)O").unwrap();
+        // atom 0 = methyl C (SP3)
+        assert_eq!(mol.hybridization(0), Hybridization::SP3);
+        // atom 1 = carbonyl C (SP2, has C=O)
+        assert_eq!(mol.hybridization(1), Hybridization::SP2);
     }
 }

@@ -1,3 +1,4 @@
+mod conformer;
 mod logp_crippen;
 mod maccs;
 mod mcs;
@@ -955,6 +956,56 @@ pub extern "C" fn ds_maccs_keys(ptr: *const u8, len: usize, out: *mut u8, out_ca
                 std::ptr::copy_nonoverlapping(bits.as_ptr(), out, maccs::MACCS_N_BYTES);
             }
             maccs::MACCS_N_BYTES as i32
+        }
+        None => -1,
+    }
+}
+
+// ── ds_smiles_to_3d ───────────────────────────────────────────────────────────
+//
+// Generate a 3-D conformer for the given SMILES string.
+//
+// Parameters:
+//   ptr, len   — UTF-8 SMILES string (not null-terminated)
+//   seed       — random seed for distance sampling (use 0 for default)
+//   out        — output buffer for coordinates; must hold at least n_atoms×3
+//                f64 values (24 × n_atoms bytes), where n_atoms is obtained
+//                by calling ds_smiles_atom_count first.
+//   out_cap    — number of f64 values the output buffer can hold
+//
+// Returns:
+//   ≥ 0  — number of atoms embedded (coords.len() / 3)
+//   -1   — invalid SMILES or embedding failed
+//   -2   — output buffer too small
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_smiles_atom_count(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match conformer::atom_count(s) {
+        Some(n) => n as i32,
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_smiles_to_3d(
+    ptr: *const u8,
+    len: usize,
+    seed: u64,
+    out: *mut f64,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match conformer::generate_conformer(s, seed) {
+        Some(coords) => {
+            let n_floats = coords.len();
+            if out_cap < n_floats {
+                return -2;
+            }
+            unsafe {
+                std::ptr::copy_nonoverlapping(coords.as_ptr(), out, n_floats);
+            }
+            (n_floats / 3) as i32
         }
         None => -1,
     }
