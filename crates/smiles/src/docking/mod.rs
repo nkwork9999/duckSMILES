@@ -1,5 +1,6 @@
 pub(crate) mod affinity;
 pub(crate) mod atomtype;
+pub(crate) mod benchmark;
 pub(crate) mod pdb;
 pub(crate) mod pdbqt;
 pub(crate) mod protein_prep;

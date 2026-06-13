@@ -8,6 +8,7 @@
 #include "duckdb/function/scalar_function.hpp"
 #include "duckdb/common/vector_operations/unary_executor.hpp"
 #include "duckdb/common/vector_operations/binary_executor.hpp"
+#include "duckdb/common/vector/list_vector.hpp"
 
 #include <cmath>
 #include <vector>
@@ -251,6 +252,84 @@ static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 		if (n < 0) { out_valid.SetInvalid(i); continue; }
 		out[i] = StringVector::AddString(result, (const char *)buf.data(), (size_t)n);
 	}
+}
+
+// ── Virtual-screening benchmark metrics over LIST<DOUBLE>, LIST<BOOLEAN> ────
+// roc_auc(scores, labels), enrichment_factor(scores, labels, fraction),
+// bedroc(scores, labels, alpha). One DOUBLE per row; NaN on invalid input.
+// Reads each row's two lists into temp arrays and calls the Rust core.
+
+template <class Metric>
+static void BenchmarkMetric(DataChunk &args, Vector &result, Metric metric) {
+	idx_t count = args.size();
+	auto &scores_list = args.data[0];
+	auto &labels_list = args.data[1];
+
+	UnifiedVectorFormat s_fmt, l_fmt;
+	scores_list.ToUnifiedFormat(count, s_fmt);
+	labels_list.ToUnifiedFormat(count, l_fmt);
+	auto s_entries = UnifiedVectorFormat::GetData<list_entry_t>(s_fmt);
+	auto l_entries = UnifiedVectorFormat::GetData<list_entry_t>(l_fmt);
+
+	// Flatten child vectors so we can index them directly.
+	auto &s_child = ListVector::GetEntry(scores_list);
+	auto &l_child = ListVector::GetEntry(labels_list);
+	idx_t s_child_len = ListVector::GetListSize(scores_list);
+	idx_t l_child_len = ListVector::GetListSize(labels_list);
+	s_child.Flatten(s_child_len);
+	l_child.Flatten(l_child_len);
+	auto s_data = FlatVector::GetData<double>(s_child);
+	auto l_data = FlatVector::GetData<bool>(l_child);
+
+	auto out = FlatVector::GetData<double>(result);
+	auto &out_valid = FlatVector::Validity(result);
+
+	for (idx_t i = 0; i < count; i++) {
+		auto si = s_fmt.sel->get_index(i);
+		auto li = l_fmt.sel->get_index(i);
+		if (!s_fmt.validity.RowIsValid(si) || !l_fmt.validity.RowIsValid(li)) {
+			out_valid.SetInvalid(i);
+			continue;
+		}
+		auto se = s_entries[si];
+		auto le = l_entries[li];
+		idx_t n = se.length;
+		if (n == 0 || le.length != n) {
+			out_valid.SetInvalid(i);
+			continue;
+		}
+		std::vector<double> scores(n);
+		std::vector<uint8_t> labels(n);
+		for (idx_t k = 0; k < n; k++) {
+			scores[k] = s_data[se.offset + k];
+			labels[k] = l_data[le.offset + k] ? 1 : 0;
+		}
+		out[i] = metric(scores.data(), labels.data(), n, i);
+	}
+}
+
+static void RocAucFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	BenchmarkMetric(args, result, [](const double *s, const uint8_t *l, size_t n, idx_t) {
+		return ds_roc_auc(s, l, n);
+	});
+}
+
+static void EnrichmentFactorFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[2].Flatten(count);
+	auto frac = FlatVector::GetData<double>(args.data[2]);
+	BenchmarkMetric(args, result, [&](const double *s, const uint8_t *l, size_t n, idx_t i) {
+		return ds_enrichment_factor(s, l, n, frac[i]);
+	});
+}
+
+static void BedrocFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[2].Flatten(count);
+	auto alpha = FlatVector::GetData<double>(args.data[2]);
+	BenchmarkMetric(args, result, [&](const double *s, const uint8_t *l, size_t n, idx_t i) {
+		return ds_bedroc(s, l, n, alpha[i]);
+	});
 }
 
 // prepare_receptor(pdb, ph) → VARCHAR PDBQT (protonated + polar-H added).
@@ -770,6 +849,16 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 		LogicalType::VARCHAR, DockFunc));
 	loader.RegisterFunction(ScalarFunction("prepare_receptor",
 		{LogicalType::VARCHAR, LogicalType::DOUBLE}, LogicalType::VARCHAR, PrepareReceptorFunc));
+	// Virtual-screening benchmark metrics (LIST<DOUBLE> scores, LIST<BOOLEAN> labels)
+	loader.RegisterFunction(ScalarFunction("roc_auc",
+		{LogicalType::LIST(LogicalType::DOUBLE), LogicalType::LIST(LogicalType::BOOLEAN)},
+		LogicalType::DOUBLE, RocAucFunc));
+	loader.RegisterFunction(ScalarFunction("enrichment_factor",
+		{LogicalType::LIST(LogicalType::DOUBLE), LogicalType::LIST(LogicalType::BOOLEAN), LogicalType::DOUBLE},
+		LogicalType::DOUBLE, EnrichmentFactorFunc));
+	loader.RegisterFunction(ScalarFunction("bedroc",
+		{LogicalType::LIST(LogicalType::DOUBLE), LogicalType::LIST(LogicalType::BOOLEAN), LogicalType::DOUBLE},
+		LogicalType::DOUBLE, BedrocFunc));
 	loader.RegisterFunction(ScalarFunction("mol_has_substructure",
 		{LogicalType::VARCHAR, LogicalType::VARCHAR},
 		LogicalType::BOOLEAN, MolHasSubstructureFunc));

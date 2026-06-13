@@ -1162,6 +1162,56 @@ pub extern "C" fn ds_prepare_receptor(
 }
 
 // =============================================================================
+// Virtual-screening benchmark metrics (ROC-AUC / EF / BEDROC)
+// =============================================================================
+// Convention: lower score = better binder; label byte != 0 marks an active.
+// Each takes parallel arrays (scores: f64*, labels: u8*, n). NaN on bad input.
+
+unsafe fn labels_from_raw(labels: *const u8, n: usize) -> Vec<bool> {
+    std::slice::from_raw_parts(labels, n).iter().map(|&b| b != 0).collect()
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_roc_auc(scores: *const f64, labels: *const u8, n: usize) -> f64 {
+    if scores.is_null() || labels.is_null() || n == 0 {
+        return f64::NAN;
+    }
+    let s = unsafe { std::slice::from_raw_parts(scores, n) };
+    let l = unsafe { labels_from_raw(labels, n) };
+    docking::benchmark::roc_auc(s, &l).unwrap_or(f64::NAN)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_enrichment_factor(
+    scores: *const f64,
+    labels: *const u8,
+    n: usize,
+    fraction: f64,
+) -> f64 {
+    if scores.is_null() || labels.is_null() || n == 0 {
+        return f64::NAN;
+    }
+    let s = unsafe { std::slice::from_raw_parts(scores, n) };
+    let l = unsafe { labels_from_raw(labels, n) };
+    docking::benchmark::enrichment_factor(s, &l, fraction).unwrap_or(f64::NAN)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_bedroc(
+    scores: *const f64,
+    labels: *const u8,
+    n: usize,
+    alpha: f64,
+) -> f64 {
+    if scores.is_null() || labels.is_null() || n == 0 {
+        return f64::NAN;
+    }
+    let s = unsafe { std::slice::from_raw_parts(scores, n) };
+    let l = unsafe { labels_from_raw(labels, n) };
+    docking::benchmark::bedroc(s, &l, alpha).unwrap_or(f64::NAN)
+}
+
+// =============================================================================
 // ADMET / drug-likeness rule panels + toxicophore structural alerts
 // =============================================================================
 
@@ -1782,5 +1832,31 @@ mod tests {
         assert!(parse("").is_none());
         assert!(parse("not_a_molecule").is_none());
         assert!(parse("C(C").is_none());
+    }
+
+    #[test]
+    fn test_roc_auc_ffi_perfect() {
+        // actives (label 1) score lower → AUC = 1.
+        let scores = [-5.0_f64, -4.0, -1.0, 0.0];
+        let labels = [1u8, 1, 0, 0];
+        let auc = ds_roc_auc(scores.as_ptr(), labels.as_ptr(), 4);
+        assert!((auc - 1.0).abs() < 1e-9, "ffi auc={auc}");
+    }
+
+    #[test]
+    fn test_enrichment_ffi() {
+        let scores = [-10.0_f64, -9.0, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0];
+        let labels = [1u8, 1, 0, 0, 0, 0, 0, 0, 0, 0];
+        let ef = ds_enrichment_factor(scores.as_ptr(), labels.as_ptr(), 10, 0.2);
+        assert!((ef - 5.0).abs() < 1e-9, "ffi ef={ef}");
+    }
+
+    #[test]
+    fn test_bedroc_ffi_invalid_returns_nan() {
+        // single class → NaN
+        let scores = [-1.0_f64, -2.0];
+        let labels = [1u8, 1];
+        let b = ds_bedroc(scores.as_ptr(), labels.as_ptr(), 2, 20.0);
+        assert!(b.is_nan(), "bedroc single-class should be NaN: {b}");
     }
 }

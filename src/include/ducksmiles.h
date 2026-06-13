@@ -107,6 +107,14 @@ int32_t ds_dock(const uint8_t *smiles_ptr, size_t smiles_len,
 int32_t ds_prepare_receptor(const uint8_t *ptr, size_t len, double ph,
                             uint8_t *out, size_t out_cap);
 
+// Virtual-screening benchmark metrics over parallel arrays (lower score =
+// better binder; label byte != 0 = active). Return NaN on invalid input.
+double ds_roc_auc(const double *scores, const uint8_t *labels, size_t n);
+double ds_enrichment_factor(const double *scores, const uint8_t *labels,
+                            size_t n, double fraction);
+double ds_bedroc(const double *scores, const uint8_t *labels,
+                 size_t n, double alpha);
+
 // Morgan/ECFP fingerprint. Writes ceil(n_bits/8) bytes. Returns bytes written or -1.
 int32_t ds_morgan_fp_bits(const uint8_t *ptr, size_t len,
                           uint32_t radius, uint32_t n_bits,
