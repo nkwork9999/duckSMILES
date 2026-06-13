@@ -119,6 +119,30 @@ pub fn apply_pose(ref_coords: &[[f64; 3]], pose: &Pose) -> Vec<[f64; 3]> {
         .collect()
 }
 
+/// Apply a flexible pose: first bend the reference conformation by the pose's
+/// torsion angles (via the torsion tree), re-centre the result on the origin,
+/// then apply the rigid rotation + translation. Falls back to the rigid path
+/// when the tree has no rotatable bonds.
+pub fn apply_pose_flex(
+    ref_coords: &[[f64; 3]],
+    pose: &Pose,
+    tree: &crate::docking::torsion::TorsionTree,
+) -> Vec<[f64; 3]> {
+    if tree.n_tors() == 0 {
+        return apply_pose(ref_coords, pose);
+    }
+    let mut internal = crate::docking::torsion::apply_torsions(ref_coords, tree, &pose.torsions);
+    centre_coords(&mut internal);
+    let (tx, ty, tz) = (pose.translation[0], pose.translation[1], pose.translation[2]);
+    internal
+        .iter()
+        .map(|&[rx, ry, rz]| {
+            let (x, y, z) = pose.orientation.rotate(rx, ry, rz);
+            [x + tx, y + ty, z + tz]
+        })
+        .collect()
+}
+
 /// Centre a set of coordinates by subtracting the centroid.
 /// Returns the centroid.
 pub fn centre_coords(coords: &mut Vec<[f64; 3]>) -> [f64; 3] {

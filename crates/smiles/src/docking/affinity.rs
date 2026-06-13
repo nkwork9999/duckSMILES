@@ -138,7 +138,12 @@ impl AffinityMap {
     }
 
     /// Score all ligand atoms against the pre-computed maps.
-    /// Returns None if any ligand atom is outside the grid.
+    ///
+    /// Non-polar hydrogens (and any atom type without a probe map, e.g. plain
+    /// `H`) are skipped: like AutoDock Vina's united-atom treatment, their
+    /// contribution is folded into the parent heavy atom and they are not
+    /// scored individually. Returns `None` only if a *scored* (heavy / polar)
+    /// atom falls outside the grid.
     pub fn score_ligand(
         &self,
         lig_coords: &[[f64; 3]],
@@ -147,6 +152,9 @@ impl AffinityMap {
     ) -> Option<f64> {
         let mut e = 0.0;
         for (c, &t) in lig_coords.iter().zip(lig_types.iter()) {
+            if probe_index(t).is_none() {
+                continue; // non-polar H / unmapped type → not scored
+            }
             e += self.interpolate(t, *c)?;
         }
         Some(e / (1.0 + crate::docking::score::W_ROT * n_rot as f64))
