@@ -71,6 +71,23 @@ int32_t ds_mol_substructure_matches_json(const uint8_t *smiles_ptr, size_t smile
 // SMILES with explicit H atoms (verbose bracket form). Returns length written, or -1.
 int32_t ds_add_hydrogens(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 
+// ADMET / drug-likeness rule panels + toxicophore structural alerts.
+// admet_json: full report (descriptors + 6 rule panels + alert hits) as JSON.
+int32_t ds_admet_json(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+// structural_alerts_json: JSON array of matched toxicophore alert names.
+int32_t ds_structural_alerts_json(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+// structural_alert_count: number of matched toxicophore alerts. -1 on invalid.
+int32_t ds_structural_alert_count(const uint8_t *ptr, size_t len);
+// lipinski_violations: Rule-of-Five violation count (0..4). -1 on invalid.
+int32_t ds_lipinski_violations(const uint8_t *ptr, size_t len);
+// druglikeness_pass: 1 pass / 0 fail / -1 invalid SMILES / -2 unknown rule.
+// rule in {"lipinski","veber","ghose","egan","muegge","lead"}.
+int32_t ds_druglikeness_pass(const uint8_t *ptr, size_t len,
+                             const uint8_t *rule_ptr, size_t rule_len);
+
+// Protein PDB text → PDBQT (Vina atom typing). Returns length written, or -1.
+int32_t ds_pdb_to_pdbqt(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+
 // Morgan/ECFP fingerprint. Writes ceil(n_bits/8) bytes. Returns bytes written or -1.
 int32_t ds_morgan_fp_bits(const uint8_t *ptr, size_t len,
                           uint32_t radius, uint32_t n_bits,

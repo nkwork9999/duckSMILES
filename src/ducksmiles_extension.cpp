@@ -176,6 +176,26 @@ DEFINE_INT_FUNC(NumSaturatedCarbocyclesFunc, ds_num_saturated_carbocycles)
 DEFINE_INT_FUNC(NumAliphaticHeterocyclesFunc, ds_num_aliphatic_heterocycles)
 DEFINE_INT_FUNC(NumAliphaticCarbocyclesFunc, ds_num_aliphatic_carbocycles)
 
+// ── ADMET / drug-likeness rule panels + toxicophore structural alerts ───────
+DEFINE_DYNAMIC_STR_FUNC(AdmetJsonFunc, ds_admet_json)
+DEFINE_DYNAMIC_STR_FUNC(StructuralAlertsJsonFunc, ds_structural_alerts_json)
+DEFINE_INT_FUNC(StructuralAlertCountFunc, ds_structural_alert_count)
+DEFINE_INT_FUNC(LipinskiViolationsFunc, ds_lipinski_violations)
+// Protein PDB → PDBQT (Vina atom typing).
+DEFINE_DYNAMIC_STR_FUNC(PdbToPdbqtFunc, ds_pdb_to_pdbqt)
+
+// druglikeness_pass(smiles, rule) → INTEGER (1 pass / 0 fail / -1 invalid /
+// -2 unknown rule). Binary VARCHAR inputs, integer output.
+static void DruglikenessPassFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	BinaryExecutor::Execute<string_t, string_t, int32_t>(
+		args.data[0], args.data[1], result, args.size(),
+		[](string_t smi, string_t rule) -> int32_t {
+			return ds_druglikeness_pass(
+				(const uint8_t *)smi.GetData(), smi.GetSize(),
+				(const uint8_t *)rule.GetData(), rule.GetSize());
+		});
+}
+
 static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	idx_t count = args.size();
 	auto result_data = FlatVector::GetData<string_t>(result);
@@ -652,6 +672,13 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("num_saturated_carbocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumSaturatedCarbocyclesFunc));
 	loader.RegisterFunction(ScalarFunction("num_aliphatic_heterocycles", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticHeterocyclesFunc));
 	loader.RegisterFunction(ScalarFunction("num_aliphatic_carbocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticCarbocyclesFunc));
+	// ADMET / drug-likeness rule panels + toxicophore structural alerts
+	loader.RegisterFunction(ScalarFunction("admet_json",            {LogicalType::VARCHAR}, LogicalType::VARCHAR, AdmetJsonFunc));
+	loader.RegisterFunction(ScalarFunction("structural_alerts_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, StructuralAlertsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("structural_alert_count", {LogicalType::VARCHAR}, LogicalType::INTEGER, StructuralAlertCountFunc));
+	loader.RegisterFunction(ScalarFunction("lipinski_violations",   {LogicalType::VARCHAR}, LogicalType::INTEGER, LipinskiViolationsFunc));
+	loader.RegisterFunction(ScalarFunction("druglikeness_pass",     {LogicalType::VARCHAR, LogicalType::VARCHAR}, LogicalType::INTEGER, DruglikenessPassFunc));
+	loader.RegisterFunction(ScalarFunction("pdb_to_pdbqt",          {LogicalType::VARCHAR}, LogicalType::VARCHAR, PdbToPdbqtFunc));
 	loader.RegisterFunction(ScalarFunction("mol_has_substructure",
 		{LogicalType::VARCHAR, LogicalType::VARCHAR},
 		LogicalType::BOOLEAN, MolHasSubstructureFunc));

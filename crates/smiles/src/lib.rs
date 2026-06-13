@@ -1,3 +1,4 @@
+mod admet;
 mod conformer;
 mod docking;
 mod logp_crippen;
@@ -1058,12 +1059,7 @@ pub extern "C" fn ds_pdb_to_pdbqt(
 ) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     let pdbqt = docking::pdb_to_pdbqt(s);
-    let bytes = pdbqt.as_bytes();
-    if bytes.len() > out_cap {
-        return -2;
-    }
-    unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
-    bytes.len() as i32
+    write_required(pdbqt.as_bytes(), out, out_cap)
 }
 
 // ── Phase 3+4: Docking ────────────────────────────────────────────────────────
@@ -1148,6 +1144,95 @@ pub extern "C" fn ds_dock(
     if bytes.len() > out_cap { return -2; }
     unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
     bytes.len() as i32
+}
+
+// =============================================================================
+// ADMET / drug-likeness rule panels + toxicophore structural alerts
+// =============================================================================
+
+/// Full ADMET report (descriptors + rule panels + structural alerts) as a JSON
+/// object. Follows the sizing protocol: returns the required length (call once
+/// with a null/small buffer to size, then again to write); -1 on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_admet_json(ptr: *const u8, len: usize, out: *mut u8, out_cap: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let mol = match parse(s) {
+        Some(m) => m,
+        None => return -1,
+    };
+    let json = admet::admet_json(&mol);
+    write_required(json.as_bytes(), out, out_cap)
+}
+
+/// Names of matching structural-alert (toxicophore) patterns as a JSON array of
+/// strings. Returns required length (sizing protocol), or -1 on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_structural_alerts_json(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let mol = match parse(s) {
+        Some(m) => m,
+        None => return -1,
+    };
+    let hits = admet::structural_alerts(&mol);
+    let arr: Vec<String> = hits.iter().map(|h| format!("\"{h}\"")).collect();
+    let json = format!("[{}]", arr.join(","));
+    write_required(json.as_bytes(), out, out_cap)
+}
+
+/// Number of structural-alert (toxicophore) patterns matched. -1 on invalid.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_structural_alert_count(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => admet::structural_alerts(&mol).len() as i32,
+        None => -1,
+    }
+}
+
+/// Lipinski Rule-of-Five violation count (0..4). -1 on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_lipinski_violations(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => admet::lipinski(&admet::descriptors(&mol)).violations as i32,
+        None => -1,
+    }
+}
+
+/// 1 if the molecule passes a named drug-likeness rule, 0 if it fails, -1 on
+/// invalid SMILES, -2 if the rule name is unknown. Recognised names:
+/// "lipinski", "veber", "ghose", "egan", "muegge", "lead".
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_druglikeness_pass(
+    ptr: *const u8,
+    len: usize,
+    rule_ptr: *const u8,
+    rule_len: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let rule = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(rule_ptr, rule_len))
+    };
+    let mol = match parse(s) {
+        Some(m) => m,
+        None => return -1,
+    };
+    let d = admet::descriptors(&mol);
+    let r = match rule.to_ascii_lowercase().as_str() {
+        "lipinski" => admet::lipinski(&d),
+        "veber" => admet::veber(&d),
+        "ghose" => admet::ghose(&d),
+        "egan" => admet::egan(&d),
+        "muegge" => admet::muegge(&d),
+        "lead" | "lead-likeness" | "lead_likeness" => admet::lead_likeness(&d),
+        _ => return -2,
+    };
+    if r.pass { 1 } else { 0 }
 }
 
 // =============================================================================
