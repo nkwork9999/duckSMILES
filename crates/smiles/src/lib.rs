@@ -1090,6 +1090,7 @@ pub extern "C" fn ds_dock(
     sx: f64, sy: f64, sz: f64,
     n_runs: u32,
     seed: u64,
+    ph: f64,
     out: *mut u8, out_cap: usize,
 ) -> i32 {
     let smiles = unsafe {
@@ -1099,15 +1100,11 @@ pub extern "C" fn ds_dock(
         std::str::from_utf8_unchecked(std::slice::from_raw_parts(pdb_ptr, pdb_len))
     };
 
-    // Build protein representation
-    let prot_atoms = docking::pdb::parse_pdb(pdb_text);
-    let prot_coords: Vec<[f64; 3]> = prot_atoms.iter().map(|a| [a.x, a.y, a.z]).collect();
-    let prot_types: Vec<docking::atomtype::VinaType> = prot_atoms
-        .iter()
-        .map(|a| docking::atomtype::pdb_atom_type(
-            &a.element, &a.name, &a.res_name, a.is_hetatm,
-        ))
-        .collect();
+    // Prepare protein: pH-dependent protonation + polar-H (HD) addition so the
+    // receptor can donate H-bonds. ph <= 0 is treated as the default 7.4.
+    let ph = if ph > 0.0 { ph } else { 7.4 };
+    let prepared = docking::protein_prep::prepare_protein(pdb_text, ph);
+    let (prot_coords, prot_types) = docking::protein_prep::prepared_coords_types(&prepared);
 
     // Build affinity map
     let map = docking::AffinityMap::build(
@@ -1144,6 +1141,24 @@ pub extern "C" fn ds_dock(
     if bytes.len() > out_cap { return -2; }
     unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
     bytes.len() as i32
+}
+
+/// Prepare a protein receptor from PDB text at the given pH: pH-dependent
+/// protonation states + polar-H (HD) addition, returned as PDBQT. Uses the
+/// sizing protocol; ph <= 0 defaults to 7.4.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_prepare_receptor(
+    ptr: *const u8,
+    len: usize,
+    ph: f64,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let ph = if ph > 0.0 { ph } else { 7.4 };
+    let prepared = docking::protein_prep::prepare_protein(s, ph);
+    let pdbqt = docking::protein_prep::prepared_to_pdbqt(&prepared);
+    write_required(pdbqt.as_bytes(), out, out_cap)
 }
 
 // =============================================================================

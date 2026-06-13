@@ -2,6 +2,7 @@ pub(crate) mod affinity;
 pub(crate) mod atomtype;
 pub(crate) mod pdb;
 pub(crate) mod pdbqt;
+pub(crate) mod protein_prep;
 pub(crate) mod pose;
 pub(crate) mod score;
 pub(crate) mod search;

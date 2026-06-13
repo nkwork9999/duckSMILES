@@ -99,8 +99,13 @@ int32_t ds_dock(const uint8_t *smiles_ptr, size_t smiles_len,
                 const uint8_t *pdb_ptr, size_t pdb_len,
                 double cx, double cy, double cz,
                 double sx, double sy, double sz,
-                uint32_t n_runs, uint64_t seed,
+                uint32_t n_runs, uint64_t seed, double ph,
                 uint8_t *out, size_t out_cap);
+
+// Protein preparation: pH-dependent protonation + polar-H (HD) addition.
+// Returns prepared receptor as PDBQT text. -1 / -2 on error.
+int32_t ds_prepare_receptor(const uint8_t *ptr, size_t len, double ph,
+                            uint8_t *out, size_t out_cap);
 
 // Morgan/ECFP fingerprint. Writes ceil(n_bits/8) bytes. Returns bytes written or -1.
 int32_t ds_morgan_fp_bits(const uint8_t *ptr, size_t len,

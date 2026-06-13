@@ -218,10 +218,12 @@ static void SmilesToPdbqtFunc(DataChunk &args, ExpressionState &state, Vector &r
 	}
 }
 
-// dock(smiles, pdb, cx,cy,cz, sx,sy,sz, n_runs, seed) → VARCHAR (JSON poses).
+// dock(smiles, pdb, cx,cy,cz, sx,sy,sz, n_runs, seed [, ph]) → VARCHAR JSON.
+// Accepts 10 args (ph defaults to 7.4) or 11 args (explicit ph).
 static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	idx_t count = args.size();
-	for (idx_t c = 0; c < args.ColumnCount(); c++) args.data[c].Flatten(count);
+	idx_t ncol = args.ColumnCount();
+	for (idx_t c = 0; c < ncol; c++) args.data[c].Flatten(count);
 	auto smi = FlatVector::GetData<string_t>(args.data[0]);
 	auto pdb = FlatVector::GetData<string_t>(args.data[1]);
 	auto cx = FlatVector::GetData<double>(args.data[2]);
@@ -232,6 +234,7 @@ static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	auto sz = FlatVector::GetData<double>(args.data[7]);
 	auto nruns = FlatVector::GetData<int32_t>(args.data[8]);
 	auto seed = FlatVector::GetData<int64_t>(args.data[9]);
+	double *phcol = (ncol >= 11) ? FlatVector::GetData<double>(args.data[10]) : nullptr;
 	auto &smi_valid = FlatVector::Validity(args.data[0]);
 	auto &pdb_valid = FlatVector::Validity(args.data[1]);
 	auto out = FlatVector::GetData<string_t>(result);
@@ -239,13 +242,32 @@ static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	std::vector<uint8_t> buf(1u << 20); // 1 MiB
 	for (idx_t i = 0; i < count; i++) {
 		if (!smi_valid.RowIsValid(i) || !pdb_valid.RowIsValid(i)) { out_valid.SetInvalid(i); continue; }
+		double ph = phcol ? phcol[i] : 7.4;
 		int32_t n = ds_dock(
 			(const uint8_t *)smi[i].GetData(), smi[i].GetSize(),
 			(const uint8_t *)pdb[i].GetData(), pdb[i].GetSize(),
 			cx[i], cy[i], cz[i], sx[i], sy[i], sz[i],
-			(uint32_t)nruns[i], (uint64_t)seed[i], buf.data(), buf.size());
+			(uint32_t)nruns[i], (uint64_t)seed[i], ph, buf.data(), buf.size());
 		if (n < 0) { out_valid.SetInvalid(i); continue; }
 		out[i] = StringVector::AddString(result, (const char *)buf.data(), (size_t)n);
+	}
+}
+
+// prepare_receptor(pdb, ph) → VARCHAR PDBQT (protonated + polar-H added).
+static void PrepareReceptorFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	auto pdb = FlatVector::GetData<string_t>(args.data[0]);
+	auto ph = FlatVector::GetData<double>(args.data[1]);
+	auto &pdb_valid = FlatVector::Validity(args.data[0]);
+	auto out = FlatVector::GetData<string_t>(result);
+	auto &out_valid = FlatVector::Validity(result);
+	for (idx_t i = 0; i < count; i++) {
+		if (!pdb_valid.RowIsValid(i)) { out_valid.SetInvalid(i); continue; }
+		out[i] = DynamicStringResult(result, out_valid, i, [&](uint8_t *o, size_t cap) -> int32_t {
+			return ds_prepare_receptor((const uint8_t *)pdb[i].GetData(), pdb[i].GetSize(), ph[i], o, cap);
+		});
 	}
 }
 
@@ -740,6 +762,14 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
 		 LogicalType::INTEGER, LogicalType::BIGINT},
 		LogicalType::VARCHAR, DockFunc));
+	loader.RegisterFunction(ScalarFunction("dock",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::INTEGER, LogicalType::BIGINT, LogicalType::DOUBLE},
+		LogicalType::VARCHAR, DockFunc));
+	loader.RegisterFunction(ScalarFunction("prepare_receptor",
+		{LogicalType::VARCHAR, LogicalType::DOUBLE}, LogicalType::VARCHAR, PrepareReceptorFunc));
 	loader.RegisterFunction(ScalarFunction("mol_has_substructure",
 		{LogicalType::VARCHAR, LogicalType::VARCHAR},
 		LogicalType::BOOLEAN, MolHasSubstructureFunc));
