@@ -1,4 +1,5 @@
 mod conformer;
+mod docking;
 mod logp_crippen;
 mod maccs;
 mod mcs;
@@ -1009,6 +1010,60 @@ pub extern "C" fn ds_smiles_to_3d(
         }
         None => -1,
     }
+}
+
+// ── Phase 2: PDBQT preparation ────────────────────────────────────────────────
+//
+// ds_smiles_to_pdbqt — generate a ligand PDBQT string from SMILES
+//   ptr, len: UTF-8 SMILES
+//   seed:     random seed for 3D embedding
+//   out:      output buffer (UTF-8)
+//   out_cap:  capacity of out in bytes
+//   returns:  bytes written (≥0), -1 invalid SMILES/embed failed, -2 buf too small
+//
+// ds_pdb_to_pdbqt — convert protein PDB text to PDBQT
+//   ptr, len: UTF-8 PDB file contents
+//   out:      output buffer (UTF-8)
+//   out_cap:  capacity of out in bytes
+//   returns:  bytes written (≥0), -2 buf too small
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_smiles_to_pdbqt(
+    ptr: *const u8,
+    len: usize,
+    seed: u64,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match docking::smiles_to_pdbqt(s, seed) {
+        Some(pdbqt) => {
+            let bytes = pdbqt.as_bytes();
+            if bytes.len() > out_cap {
+                return -2;
+            }
+            unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
+            bytes.len() as i32
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_pdb_to_pdbqt(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let pdbqt = docking::pdb_to_pdbqt(s);
+    let bytes = pdbqt.as_bytes();
+    if bytes.len() > out_cap {
+        return -2;
+    }
+    unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
+    bytes.len() as i32
 }
 
 // =============================================================================
