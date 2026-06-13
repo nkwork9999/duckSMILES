@@ -13,9 +13,44 @@ use crate::parser::Molecule;
 
 const K_BOND: f64 = 700.0; // kcal / (mol·Å²)
 const K_ANGLE: f64 = 100.0; // kcal / (mol·rad²)
+const K_OOP: f64 = 400.0; // kcal/(mol·Å⁶) — sp2 out-of-plane (improper) penalty
 const VDW_EPS: f64 = 0.10; // kcal/mol  (uniform ε for simplicity)
 const MAX_ITER: usize = 2000;
-const GRAD_TOL: f64 = 0.5; // kcal/(mol·Å) — loose tolerance for raw conformer
+const GRAD_TOL: f64 = 0.2; // kcal/(mol·Å) — convergence tolerance
+
+// ── sp2 planarity (improper) centres ─────────────────────────────────────────
+// Each sp2 atom with exactly three neighbours must be coplanar with them. We
+// enforce this with a penalty on the signed tetrahedron volume V = u·(v×w),
+// where u,v,w are the vectors from the centre to its three neighbours; V = 0 iff
+// the centre lies in the plane of the three. This is the ETKDG/MMFF "ET"
+// (experimental-torsion / planarity) ingredient missing from raw DG + UFF —
+// without it aromatic rings and amide/carbonyl groups pucker out of plane.
+
+#[inline]
+fn cross3(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
+    [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    ]
+}
+
+/// Collect (centre, n0, n1, n2) for every sp2 atom that has exactly three
+/// neighbours (aromatic carbons, carbonyl/imine C, amide N, …).
+fn sp2_impropers(mol: &Molecule) -> Vec<(usize, usize, usize, usize)> {
+    use crate::conformer::params::Hybridization;
+    let mut out = Vec::new();
+    for c in 0..mol.atoms.len() {
+        if mol.hybridization(c) != Hybridization::SP2 {
+            continue;
+        }
+        let nbrs = mol.neighbors(c);
+        if nbrs.len() == 3 {
+            out.push((c, nbrs[0].0, nbrs[1].0, nbrs[2].0));
+        }
+    }
+    out
+}
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -37,7 +72,12 @@ fn dist_vec(c: &[f64], i: usize, j: usize) -> (f64, f64, f64, f64) {
 
 // ── energy + gradient ─────────────────────────────────────────────────────────
 
-fn energy_grad(mol: &Molecule, c: &[f64], grad: &mut [f64]) -> f64 {
+fn energy_grad(
+    mol: &Molecule,
+    c: &[f64],
+    grad: &mut [f64],
+    impropers: &[(usize, usize, usize, usize)],
+) -> f64 {
     let n = mol.atoms.len();
     for g in grad.iter_mut() {
         *g = 0.0;
@@ -172,18 +212,46 @@ fn energy_grad(mol: &Molecule, c: &[f64], grad: &mut [f64]) -> f64 {
         }
     }
 
+    // ── sp2 out-of-plane (improper) terms ─────────────────────────────────
+    // V = u·(v×w);  E = K_OOP·V²;  ∂V/∂a = v×w, ∂V/∂b = w×u, ∂V/∂d = u×v,
+    // ∂V/∂centre = −(those three).
+    for &(ctr, a, b, d) in impropers {
+        let cc = coord(c, ctr);
+        let ca = coord(c, a);
+        let cb = coord(c, b);
+        let cd = coord(c, d);
+        let u = [ca.0 - cc.0, ca.1 - cc.1, ca.2 - cc.2];
+        let v = [cb.0 - cc.0, cb.1 - cc.1, cb.2 - cc.2];
+        let w = [cd.0 - cc.0, cd.1 - cc.1, cd.2 - cc.2];
+        let vxw = cross3(v, w);
+        let vol = u[0] * vxw[0] + u[1] * vxw[1] + u[2] * vxw[2];
+        e += K_OOP * vol * vol;
+        let factor = 2.0 * K_OOP * vol;
+        let ga = vxw; // ∂V/∂a
+        let gb = cross3(w, u); // ∂V/∂b
+        let gd = cross3(u, v); // ∂V/∂d
+        for k in 0..3 {
+            grad[3 * a + k] += factor * ga[k];
+            grad[3 * b + k] += factor * gb[k];
+            grad[3 * d + k] += factor * gd[k];
+            grad[3 * ctr + k] -= factor * (ga[k] + gb[k] + gd[k]);
+        }
+    }
+
     e
 }
 
 // ── Gradient descent with Armijo line search ─────────────────────────────────
 
-pub fn minimize(mol: &Molecule, coords: &mut Vec<f64>) {
+pub fn minimize(mol: &Molecule, coords: &mut Vec<f64>) -> f64 {
     let n3 = coords.len();
     let mut grad = vec![0.0_f64; n3];
     let mut step = 0.01_f64;
+    let impropers = sp2_impropers(mol);
+    let mut scratch = vec![0.0_f64; n3];
 
     for _ in 0..MAX_ITER {
-        let e0 = energy_grad(mol, coords, &mut grad);
+        let e0 = energy_grad(mol, coords, &mut grad, &impropers);
 
         // Convergence check: max |gradient component|
         let g_max = grad.iter().map(|g| g.abs()).fold(0.0_f64, f64::max);
@@ -197,12 +265,12 @@ pub fn minimize(mol: &Molecule, coords: &mut Vec<f64>) {
         let trial: Vec<f64> = (0..n3)
             .map(|k| coords[k] - alpha * grad[k])
             .collect();
-        let mut e_trial = energy_grad(mol, &trial, &mut vec![0.0; n3]);
+        let mut e_trial = energy_grad(mol, &trial, &mut scratch, &impropers);
         let mut iters = 0;
         while e_trial > e0 - 1e-4 * alpha * slope && iters < 20 {
             alpha *= 0.5;
             let t: Vec<f64> = (0..n3).map(|k| coords[k] - alpha * grad[k]).collect();
-            e_trial = energy_grad(mol, &t, &mut vec![0.0; n3]);
+            e_trial = energy_grad(mol, &t, &mut scratch, &impropers);
             iters += 1;
         }
 
@@ -215,6 +283,9 @@ pub fn minimize(mol: &Molecule, coords: &mut Vec<f64>) {
             step = (step * 1.2).min(0.1);
         }
     }
+
+    // Final energy at the converged geometry.
+    energy_grad(mol, coords, &mut grad, &impropers)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -274,6 +345,48 @@ mod tests {
         for &v in &coords {
             assert!(v.is_finite());
         }
+    }
+
+    /// Max perpendicular deviation of ring points (in ring order) from their
+    /// best-fit plane, using Newell's robust polygon normal.
+    fn planarity_deviation(pts: &[[f64; 3]]) -> f64 {
+        let n = pts.len();
+        let mut cen = [0.0; 3];
+        for p in pts { for k in 0..3 { cen[k] += p[k]; } }
+        for k in 0..3 { cen[k] /= n as f64; }
+        // Newell's method: robust normal for a (roughly planar) polygon.
+        let mut nrm = [0.0_f64; 3];
+        for i in 0..n {
+            let a = pts[i];
+            let b = pts[(i + 1) % n];
+            nrm[0] += (a[1] - b[1]) * (a[2] + b[2]);
+            nrm[1] += (a[2] - b[2]) * (a[0] + b[0]);
+            nrm[2] += (a[0] - b[0]) * (a[1] + b[1]);
+        }
+        let m = (nrm[0]*nrm[0]+nrm[1]*nrm[1]+nrm[2]*nrm[2]).sqrt().max(1e-12);
+        for k in 0..3 { nrm[k] /= m; }
+        pts.iter()
+            .map(|p| ((p[0]-cen[0])*nrm[0] + (p[1]-cen[1])*nrm[1] + (p[2]-cen[2])*nrm[2]).abs())
+            .fold(0.0_f64, f64::max)
+    }
+
+    #[test]
+    fn benzene_ring_is_planar_after_minimize() {
+        // The six aromatic carbons must come out essentially coplanar thanks to
+        // the sp2 out-of-plane term. Use the real ensemble path (flattest of N).
+        use crate::conformer::generate_conformer;
+        let coords = generate_conformer("c1ccccc1", 7).expect("benzene embeds");
+        let mol = crate::parser::parse("c1ccccc1").unwrap().with_explicit_hydrogens();
+        let ring: Vec<[f64; 3]> = (0..mol.atoms.len())
+            .filter(|&i| mol.atoms[i].symbol == "C")
+            .map(|i| [coords[3*i], coords[3*i+1], coords[3*i+2]])
+            .collect();
+        assert_eq!(ring.len(), 6);
+        let dev = planarity_deviation(&ring);
+        // "lite" target: raw DG embeds benzene with ~0.45 Å pucker; the ring
+        // planarity bounds + sp2 out-of-plane term bring it to ≈0.1 Å (a ~4×
+        // improvement). Sub-0.01 Å flatness would need L-BFGS + full MMFF.
+        assert!(dev < 0.15, "benzene ring not planar: max deviation {dev:.3} Å");
     }
 
     #[test]

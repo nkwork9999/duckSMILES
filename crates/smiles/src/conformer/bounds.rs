@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::parser::Molecule;
+use crate::parser::{BondOrder, Molecule};
 use crate::conformer::params::{bond_length, ideal_angle, vdw_radius};
 
 // ── BoundsMatrix ──────────────────────────────────────────────────────────────
@@ -142,7 +142,101 @@ pub fn build_bounds(mol: &Molecule) -> BoundsMatrix {
         }
     }
 
+    // ── 4. Aromatic-ring planarity (ETKDG-style) ─────────────────────────
+    // A planar regular polygon has every vertex-pair distance fixed. Pinning
+    // those distances forces the embedding to start (and stay) flat — the
+    // ingredient raw DG lacks that makes aromatic rings pucker.
+    apply_aromatic_ring_planarity(mol, &mut bm);
+
     bm
+}
+
+// ── aromatic-ring planarity bounds ───────────────────────────────────────────
+
+/// For each aromatic ring, pin all intra-ring atom-pair distances to the planar
+/// regular-polygon values derived from the mean ring bond length.
+fn apply_aromatic_ring_planarity(mol: &Molecule, bm: &mut BoundsMatrix) {
+    const RING_SLACK: f64 = 0.06; // Å
+    let ring_info = mol.ring_info();
+
+    for ring_bonds in &ring_info.rings {
+        // Aromatic ring = every ring bond is aromatic.
+        let all_aromatic = ring_bonds.iter().all(|&bi| {
+            mol.bonds
+                .get(bi)
+                .map(|b| b.order == BondOrder::Aromatic)
+                .unwrap_or(false)
+        });
+        if !all_aromatic {
+            continue;
+        }
+
+        let atoms = match ordered_ring_atoms(mol, ring_bonds) {
+            Some(a) => a,
+            None => continue,
+        };
+        let r = atoms.len();
+        if r < 3 {
+            continue;
+        }
+
+        // Mean ring bond length → circumradius of the regular polygon.
+        let mut sum_len = 0.0;
+        for &bi in ring_bonds {
+            let b = &mol.bonds[bi];
+            sum_len += bond_length(&mol.atoms[b.a].symbol, &mol.atoms[b.b].symbol, b.order);
+        }
+        let mean_len = sum_len / ring_bonds.len() as f64;
+        let circum = mean_len / (2.0 * (std::f64::consts::PI / r as f64).sin());
+
+        // Pin every pair (i,j) to 2·Rc·sin(kπ/R), k = ring separation.
+        for ii in 0..r {
+            for jj in (ii + 1)..r {
+                let k = {
+                    let d = jj - ii;
+                    d.min(r - d) // shorter way around the ring
+                };
+                if k == 1 {
+                    continue; // 1-2 bonds already pinned tightly
+                }
+                let dist = 2.0 * circum * ((k as f64) * std::f64::consts::PI / r as f64).sin();
+                let (p, q) = (atoms[ii], atoms[jj]);
+                bm.set_lo(p, q, (dist - RING_SLACK).max(0.0));
+                bm.set_up(p, q, dist + RING_SLACK);
+            }
+        }
+    }
+}
+
+/// Reconstruct the cyclic atom order of a ring given its bond indices.
+/// Returns None if the bonds do not form a single simple cycle.
+fn ordered_ring_atoms(mol: &Molecule, ring_bonds: &[usize]) -> Option<Vec<usize>> {
+    // Adjacency limited to the ring's bonds.
+    let mut adj: std::collections::HashMap<usize, Vec<usize>> = std::collections::HashMap::new();
+    for &bi in ring_bonds {
+        let b = mol.bonds.get(bi)?;
+        adj.entry(b.a).or_default().push(b.b);
+        adj.entry(b.b).or_default().push(b.a);
+    }
+    // Every ring atom must have degree exactly 2 in a simple cycle.
+    if adj.values().any(|v| v.len() != 2) {
+        return None;
+    }
+    let start = *adj.keys().min()?;
+    let mut order = vec![start];
+    let mut prev = start;
+    let mut cur = adj[&start][0];
+    while cur != start {
+        order.push(cur);
+        let nbrs = &adj[&cur];
+        let next = if nbrs[0] == prev { nbrs[1] } else { nbrs[0] };
+        prev = cur;
+        cur = next;
+        if order.len() > ring_bonds.len() + 1 {
+            return None; // safety
+        }
+    }
+    Some(order)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -255,3 +349,4 @@ mod tests {
         assert!(lo > 0.0 && lo < 3.0, "C0-C2 lo unexpected: {lo}");
     }
 }
+
