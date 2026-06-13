@@ -1066,6 +1066,90 @@ pub extern "C" fn ds_pdb_to_pdbqt(
     bytes.len() as i32
 }
 
+// ── Phase 3+4: Docking ────────────────────────────────────────────────────────
+//
+// ds_dock — run rigid docking of a ligand SMILES against a protein PDB.
+//
+// Parameters:
+//   smiles_ptr/len : UTF-8 SMILES for the ligand
+//   pdb_ptr/len    : UTF-8 protein PDB file contents
+//   cx, cy, cz     : binding-site centre (Å)
+//   sx, sy, sz     : grid half-extents (Å), e.g. 10 Å each
+//   n_runs         : number of independent search runs (10–50 typical)
+//   seed           : random seed
+//   out            : output buffer for JSON result (UTF-8)
+//   out_cap        : capacity of out in bytes
+//
+// Returns: bytes written (≥0), -1 error, -2 buffer too small
+//
+// JSON format:
+//   {"n":3,"results":[{"score":-6.2,"x":[…],"y":[…],"z":[…]},…]}
+
+#[unsafe(no_mangle)]
+#[allow(clippy::too_many_arguments)]
+pub extern "C" fn ds_dock(
+    smiles_ptr: *const u8, smiles_len: usize,
+    pdb_ptr: *const u8, pdb_len: usize,
+    cx: f64, cy: f64, cz: f64,
+    sx: f64, sy: f64, sz: f64,
+    n_runs: u32,
+    seed: u64,
+    out: *mut u8, out_cap: usize,
+) -> i32 {
+    let smiles = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len))
+    };
+    let pdb_text = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(pdb_ptr, pdb_len))
+    };
+
+    // Build protein representation
+    let prot_atoms = docking::pdb::parse_pdb(pdb_text);
+    let prot_coords: Vec<[f64; 3]> = prot_atoms.iter().map(|a| [a.x, a.y, a.z]).collect();
+    let prot_types: Vec<docking::atomtype::VinaType> = prot_atoms
+        .iter()
+        .map(|a| docking::atomtype::pdb_atom_type(
+            &a.element, &a.name, &a.res_name, a.is_hetatm,
+        ))
+        .collect();
+
+    // Build affinity map
+    let map = docking::AffinityMap::build(
+        &prot_coords,
+        &prot_types,
+        [cx, cy, cz],
+        [sx, sy, sz],
+        0.375,
+    );
+
+    // Run docking
+    let results = match docking::dock_from_smiles(smiles, &map, n_runs as usize, seed) {
+        Some(r) => r,
+        None => return -1,
+    };
+
+    // Serialise to JSON (no serde dependency)
+    let top = results.iter().take(9); // at most top-9 poses
+    let mut json = format!("{{\"n\":{},\"results\":[", results.len().min(9));
+    for (i, r) in top.enumerate() {
+        if i > 0 { json.push(','); }
+        let xs: Vec<String> = r.coords.iter().map(|c| format!("{:.3}", c[0])).collect();
+        let ys: Vec<String> = r.coords.iter().map(|c| format!("{:.3}", c[1])).collect();
+        let zs: Vec<String> = r.coords.iter().map(|c| format!("{:.3}", c[2])).collect();
+        json.push_str(&format!(
+            "{{\"score\":{:.3},\"x\":[{}],\"y\":[{}],\"z\":[{}]}}",
+            r.score,
+            xs.join(","), ys.join(","), zs.join(","),
+        ));
+    }
+    json.push_str("]}");
+
+    let bytes = json.as_bytes();
+    if bytes.len() > out_cap { return -2; }
+    unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
+    bytes.len() as i32
+}
+
 // =============================================================================
 // Tests
 // =============================================================================
