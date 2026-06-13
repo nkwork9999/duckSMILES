@@ -196,6 +196,59 @@ static void DruglikenessPassFunc(DataChunk &args, ExpressionState &state, Vector
 		});
 }
 
+// ── Docking pipeline (conformer / PDBQT / dock) ─────────────────────────────
+
+// smiles_to_pdbqt(smiles, seed) → VARCHAR (ligand PDBQT). NULL on invalid.
+static void SmilesToPdbqtFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	auto smi = FlatVector::GetData<string_t>(args.data[0]);
+	auto seed = FlatVector::GetData<int64_t>(args.data[1]);
+	auto &smi_valid = FlatVector::Validity(args.data[0]);
+	auto out = FlatVector::GetData<string_t>(result);
+	auto &out_valid = FlatVector::Validity(result);
+	std::vector<uint8_t> buf(1u << 20); // 1 MiB
+	for (idx_t i = 0; i < count; i++) {
+		if (!smi_valid.RowIsValid(i)) { out_valid.SetInvalid(i); continue; }
+		int32_t n = ds_smiles_to_pdbqt((const uint8_t *)smi[i].GetData(), smi[i].GetSize(),
+		                               (uint64_t)seed[i], buf.data(), buf.size());
+		if (n < 0) { out_valid.SetInvalid(i); continue; }
+		out[i] = StringVector::AddString(result, (const char *)buf.data(), (size_t)n);
+	}
+}
+
+// dock(smiles, pdb, cx,cy,cz, sx,sy,sz, n_runs, seed) → VARCHAR (JSON poses).
+static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	for (idx_t c = 0; c < args.ColumnCount(); c++) args.data[c].Flatten(count);
+	auto smi = FlatVector::GetData<string_t>(args.data[0]);
+	auto pdb = FlatVector::GetData<string_t>(args.data[1]);
+	auto cx = FlatVector::GetData<double>(args.data[2]);
+	auto cy = FlatVector::GetData<double>(args.data[3]);
+	auto cz = FlatVector::GetData<double>(args.data[4]);
+	auto sx = FlatVector::GetData<double>(args.data[5]);
+	auto sy = FlatVector::GetData<double>(args.data[6]);
+	auto sz = FlatVector::GetData<double>(args.data[7]);
+	auto nruns = FlatVector::GetData<int32_t>(args.data[8]);
+	auto seed = FlatVector::GetData<int64_t>(args.data[9]);
+	auto &smi_valid = FlatVector::Validity(args.data[0]);
+	auto &pdb_valid = FlatVector::Validity(args.data[1]);
+	auto out = FlatVector::GetData<string_t>(result);
+	auto &out_valid = FlatVector::Validity(result);
+	std::vector<uint8_t> buf(1u << 20); // 1 MiB
+	for (idx_t i = 0; i < count; i++) {
+		if (!smi_valid.RowIsValid(i) || !pdb_valid.RowIsValid(i)) { out_valid.SetInvalid(i); continue; }
+		int32_t n = ds_dock(
+			(const uint8_t *)smi[i].GetData(), smi[i].GetSize(),
+			(const uint8_t *)pdb[i].GetData(), pdb[i].GetSize(),
+			cx[i], cy[i], cz[i], sx[i], sy[i], sz[i],
+			(uint32_t)nruns[i], (uint64_t)seed[i], buf.data(), buf.size());
+		if (n < 0) { out_valid.SetInvalid(i); continue; }
+		out[i] = StringVector::AddString(result, (const char *)buf.data(), (size_t)n);
+	}
+}
+
 static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	idx_t count = args.size();
 	auto result_data = FlatVector::GetData<string_t>(result);
@@ -679,6 +732,14 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("lipinski_violations",   {LogicalType::VARCHAR}, LogicalType::INTEGER, LipinskiViolationsFunc));
 	loader.RegisterFunction(ScalarFunction("druglikeness_pass",     {LogicalType::VARCHAR, LogicalType::VARCHAR}, LogicalType::INTEGER, DruglikenessPassFunc));
 	loader.RegisterFunction(ScalarFunction("pdb_to_pdbqt",          {LogicalType::VARCHAR}, LogicalType::VARCHAR, PdbToPdbqtFunc));
+	// Docking pipeline
+	loader.RegisterFunction(ScalarFunction("smiles_to_pdbqt",       {LogicalType::VARCHAR, LogicalType::BIGINT}, LogicalType::VARCHAR, SmilesToPdbqtFunc));
+	loader.RegisterFunction(ScalarFunction("dock",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::INTEGER, LogicalType::BIGINT},
+		LogicalType::VARCHAR, DockFunc));
 	loader.RegisterFunction(ScalarFunction("mol_has_substructure",
 		{LogicalType::VARCHAR, LogicalType::VARCHAR},
 		LogicalType::BOOLEAN, MolHasSubstructureFunc));
