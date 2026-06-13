@@ -210,7 +210,7 @@ fn apply_aromatic_ring_planarity(mol: &Molecule, bm: &mut BoundsMatrix) {
 
 /// Reconstruct the cyclic atom order of a ring given its bond indices.
 /// Returns None if the bonds do not form a single simple cycle.
-fn ordered_ring_atoms(mol: &Molecule, ring_bonds: &[usize]) -> Option<Vec<usize>> {
+pub(crate) fn ordered_ring_atoms(mol: &Molecule, ring_bonds: &[usize]) -> Option<Vec<usize>> {
     // Adjacency limited to the ring's bonds.
     let mut adj: std::collections::HashMap<usize, Vec<usize>> = std::collections::HashMap::new();
     for &bi in ring_bonds {

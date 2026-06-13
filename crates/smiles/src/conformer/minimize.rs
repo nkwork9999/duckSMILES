@@ -7,9 +7,10 @@ use crate::parser::Molecule;
 //   E_bond  = Σ_{1-2} k_b (r − r₀)²          k_b = 700 kcal/(mol·Å²)
 //   E_angle = Σ_{1-3} k_a (θ − θ₀)²          k_a = 100 kcal/(mol·rad²)
 //   E_vdw   = Σ_{i<j, 1-4+} ε [(r_min/r)¹² − 2(r_min/r)⁶]  (Lennard-Jones)
+//   E_oop   = Σ_{sp2} K_oop·V²  (out-of-plane / planarity, see below)
 //
-// Gradient descent with adaptive step-size (Armijo back-tracking line search).
-// Terminates when |∇E|_∞ < tol or max_iter reached.
+// Minimised with L-BFGS + Armijo line search (see `minimize`); terminates when
+// |∇E|_∞ < tol or max_iter reached.
 
 const K_BOND: f64 = 700.0; // kcal / (mol·Å²)
 const K_ANGLE: f64 = 100.0; // kcal / (mol·rad²)
@@ -35,11 +36,20 @@ fn cross3(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
     ]
 }
 
-/// Collect (centre, n0, n1, n2) for every sp2 atom that has exactly three
-/// neighbours (aromatic carbons, carbonyl/imine C, amide N, …).
+/// Collect coplanarity quadruples (p0,p1,p2,p3) whose tetrahedron volume must
+/// vanish. Two sources:
+///   1. Every sp2 atom with exactly three neighbours (aromatic/carbonyl/imine
+///      C, amide N) → (centre, n0, n1, n2).
+///   2. Every aromatic ring → consecutive 4-atom windows around the ring. This
+///      catches ring atoms that have only two neighbours (e.g. pyridine N,
+///      furan O), which source (1) misses, and keeps fused/heteroaromatic
+///      systems flat as a whole.
 fn sp2_impropers(mol: &Molecule) -> Vec<(usize, usize, usize, usize)> {
     use crate::conformer::params::Hybridization;
+    use crate::parser::BondOrder;
     let mut out = Vec::new();
+
+    // (1) three-neighbour sp2 centres
     for c in 0..mol.atoms.len() {
         if mol.hybridization(c) != Hybridization::SP2 {
             continue;
@@ -49,6 +59,31 @@ fn sp2_impropers(mol: &Molecule) -> Vec<(usize, usize, usize, usize)> {
             out.push((c, nbrs[0].0, nbrs[1].0, nbrs[2].0));
         }
     }
+
+    // (2) aromatic-ring consecutive quadruples
+    let ring_info = mol.ring_info();
+    for ring_bonds in &ring_info.rings {
+        let all_aromatic = ring_bonds.iter().all(|&bi| {
+            mol.bonds.get(bi).map(|b| b.order == BondOrder::Aromatic).unwrap_or(false)
+        });
+        if !all_aromatic {
+            continue;
+        }
+        if let Some(atoms) = crate::conformer::bounds::ordered_ring_atoms(mol, ring_bonds) {
+            let r = atoms.len();
+            if r >= 4 {
+                for i in 0..r {
+                    out.push((
+                        atoms[i],
+                        atoms[(i + 1) % r],
+                        atoms[(i + 2) % r],
+                        atoms[(i + 3) % r],
+                    ));
+                }
+            }
+        }
+    }
+
     out
 }
 
@@ -241,51 +276,139 @@ fn energy_grad(
     e
 }
 
-// ── Gradient descent with Armijo line search ─────────────────────────────────
+// ── L-BFGS minimisation ──────────────────────────────────────────────────────
+// Plain steepest descent is badly conditioned on this force field: bonds are
+// very stiff (K≈700) while planarity / vdw terms are soft, so a single step
+// size either explodes the bonds or crawls on the soft modes — leaving aromatic
+// rings puckered. L-BFGS builds an implicit inverse-Hessian from the last `M`
+// (s,y) pairs (two-loop recursion), which rescales each mode automatically and
+// converges to genuinely flat geometries.
+
+const LBFGS_M: usize = 8; // history length
+
+#[inline]
+fn dot(a: &[f64], b: &[f64]) -> f64 {
+    a.iter().zip(b).map(|(x, y)| x * y).sum()
+}
 
 pub fn minimize(mol: &Molecule, coords: &mut Vec<f64>) -> f64 {
     let n3 = coords.len();
-    let mut grad = vec![0.0_f64; n3];
-    let mut step = 0.01_f64;
+    if n3 == 0 {
+        return 0.0;
+    }
     let impropers = sp2_impropers(mol);
-    let mut scratch = vec![0.0_f64; n3];
+
+    let mut grad = vec![0.0_f64; n3];
+    let mut e = energy_grad(mol, coords, &mut grad, &impropers);
+
+    // Circular history of s_k = x_{k+1}-x_k, y_k = g_{k+1}-g_k, rho_k = 1/(y·s).
+    let mut s_hist: Vec<Vec<f64>> = Vec::with_capacity(LBFGS_M);
+    let mut y_hist: Vec<Vec<f64>> = Vec::with_capacity(LBFGS_M);
+    let mut rho_hist: Vec<f64> = Vec::with_capacity(LBFGS_M);
+
+    let mut q = vec![0.0_f64; n3];
+    let mut dir = vec![0.0_f64; n3];
+    let mut trial = vec![0.0_f64; n3];
+    let mut new_grad = vec![0.0_f64; n3];
+    let mut alphas = vec![0.0_f64; LBFGS_M];
 
     for _ in 0..MAX_ITER {
-        let e0 = energy_grad(mol, coords, &mut grad, &impropers);
-
-        // Convergence check: max |gradient component|
         let g_max = grad.iter().map(|g| g.abs()).fold(0.0_f64, f64::max);
         if g_max < GRAD_TOL {
             break;
         }
 
-        // Armijo back-tracking
-        let mut alpha = step;
-        let slope: f64 = grad.iter().map(|g| g * g).sum::<f64>();
-        let trial: Vec<f64> = (0..n3)
-            .map(|k| coords[k] - alpha * grad[k])
-            .collect();
-        let mut e_trial = energy_grad(mol, &trial, &mut scratch, &impropers);
-        let mut iters = 0;
-        while e_trial > e0 - 1e-4 * alpha * slope && iters < 20 {
-            alpha *= 0.5;
-            let t: Vec<f64> = (0..n3).map(|k| coords[k] - alpha * grad[k]).collect();
-            e_trial = energy_grad(mol, &t, &mut scratch, &impropers);
-            iters += 1;
+        // ── Two-loop recursion → search direction dir = -H·grad ──────────
+        q.copy_from_slice(&grad);
+        let m = s_hist.len();
+        // first loop (most-recent first)
+        for i in (0..m).rev() {
+            let a = rho_hist[i] * dot(&s_hist[i], &q);
+            alphas[i] = a;
+            for k in 0..n3 {
+                q[k] -= a * y_hist[i][k];
+            }
+        }
+        // initial Hessian scaling γ = (s·y)/(y·y)
+        let gamma = if m > 0 {
+            let last = m - 1;
+            let sy = dot(&s_hist[last], &y_hist[last]);
+            let yy = dot(&y_hist[last], &y_hist[last]);
+            if yy > 1e-12 { sy / yy } else { 1.0 }
+        } else {
+            // first step: small scaled steepest descent
+            1.0 / (1.0 + g_max)
+        };
+        for k in 0..n3 {
+            q[k] *= gamma;
+        }
+        // second loop (oldest first)
+        for i in 0..m {
+            let b = rho_hist[i] * dot(&y_hist[i], &q);
+            for k in 0..n3 {
+                q[k] += s_hist[i][k] * (alphas[i] - b);
+            }
+        }
+        // descent direction
+        for k in 0..n3 {
+            dir[k] = -q[k];
         }
 
-        // Accept step
+        // Ensure it's a descent direction; fall back to steepest descent if not.
+        let mut slope = dot(&grad, &dir);
+        if slope >= 0.0 {
+            for k in 0..n3 {
+                dir[k] = -grad[k];
+            }
+            slope = -dot(&grad, &grad);
+        }
+
+        // ── Armijo back-tracking line search along dir ───────────────────
+        let mut step = 1.0_f64;
+        let mut accepted = false;
+        let mut e_new = e;
+        for _ in 0..30 {
+            for k in 0..n3 {
+                trial[k] = coords[k] + step * dir[k];
+            }
+            e_new = energy_grad(mol, &trial, &mut new_grad, &impropers);
+            if e_new <= e + 1e-4 * step * slope {
+                accepted = true;
+                break;
+            }
+            step *= 0.5;
+        }
+        if !accepted {
+            break; // line search failed → converged / stuck
+        }
+
+        // ── Update history with s = step·dir, y = grad_new - grad ────────
+        let mut s = vec![0.0_f64; n3];
+        let mut y = vec![0.0_f64; n3];
         for k in 0..n3 {
-            coords[k] -= alpha * grad[k];
+            s[k] = trial[k] - coords[k];
+            y[k] = new_grad[k] - grad[k];
         }
-        // Grow step if we accepted on first try
-        if iters == 0 {
-            step = (step * 1.2).min(0.1);
+        let sy = dot(&s, &y);
+        // Only keep curvature-positive pairs (standard L-BFGS safeguard).
+        if sy > 1e-10 {
+            if s_hist.len() == LBFGS_M {
+                s_hist.remove(0);
+                y_hist.remove(0);
+                rho_hist.remove(0);
+            }
+            rho_hist.push(1.0 / sy);
+            s_hist.push(s);
+            y_hist.push(y);
         }
+
+        // Accept the step.
+        coords.copy_from_slice(&trial);
+        grad.copy_from_slice(&new_grad);
+        e = e_new;
     }
 
-    // Final energy at the converged geometry.
-    energy_grad(mol, coords, &mut grad, &impropers)
+    e
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -383,10 +506,25 @@ mod tests {
             .collect();
         assert_eq!(ring.len(), 6);
         let dev = planarity_deviation(&ring);
-        // "lite" target: raw DG embeds benzene with ~0.45 Å pucker; the ring
-        // planarity bounds + sp2 out-of-plane term bring it to ≈0.1 Å (a ~4×
-        // improvement). Sub-0.01 Å flatness would need L-BFGS + full MMFF.
-        assert!(dev < 0.15, "benzene ring not planar: max deviation {dev:.3} Å");
+        // Raw DG embeds benzene with ~0.45 Å pucker; ring-planarity bounds + the
+        // sp2 out-of-plane term + L-BFGS bring it to ≈0.02 Å — RDKit-ETKDG-class
+        // flatness from a zero-dependency lite force field.
+        assert!(dev < 0.05, "benzene ring not planar: max deviation {dev:.3} Å");
+    }
+
+    #[test]
+    fn pyridine_ring_is_planar_after_minimize() {
+        // Heteroaromatic ring must also come out flat.
+        use crate::conformer::generate_conformer;
+        let coords = generate_conformer("c1ccncc1", 11).expect("pyridine embeds");
+        let mol = crate::parser::parse("c1ccncc1").unwrap().with_explicit_hydrogens();
+        let ring: Vec<[f64; 3]> = (0..mol.atoms.len())
+            .filter(|&i| mol.atoms[i].symbol == "C" || mol.atoms[i].symbol == "N")
+            .map(|i| [coords[3*i], coords[3*i+1], coords[3*i+2]])
+            .collect();
+        assert_eq!(ring.len(), 6);
+        let dev = planarity_deviation(&ring);
+        assert!(dev < 0.05, "pyridine ring not planar: max deviation {dev:.3} Å");
     }
 
     #[test]
