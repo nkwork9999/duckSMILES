@@ -1,3 +1,6 @@
+mod admet;
+mod conformer;
+mod docking;
 mod logp_crippen;
 mod maccs;
 mod mcs;
@@ -960,6 +963,343 @@ pub extern "C" fn ds_maccs_keys(ptr: *const u8, len: usize, out: *mut u8, out_ca
     }
 }
 
+// ── ds_smiles_to_3d ───────────────────────────────────────────────────────────
+//
+// Generate a 3-D conformer for the given SMILES string.
+//
+// Parameters:
+//   ptr, len   — UTF-8 SMILES string (not null-terminated)
+//   seed       — random seed for distance sampling (use 0 for default)
+//   out        — output buffer for coordinates; must hold at least n_atoms×3
+//                f64 values (24 × n_atoms bytes), where n_atoms is obtained
+//                by calling ds_smiles_atom_count first.
+//   out_cap    — number of f64 values the output buffer can hold
+//
+// Returns:
+//   ≥ 0  — number of atoms embedded (coords.len() / 3)
+//   -1   — invalid SMILES or embedding failed
+//   -2   — output buffer too small
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_smiles_atom_count(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match conformer::atom_count(s) {
+        Some(n) => n as i32,
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_smiles_to_3d(
+    ptr: *const u8,
+    len: usize,
+    seed: u64,
+    out: *mut f64,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match conformer::generate_conformer(s, seed) {
+        Some(coords) => {
+            let n_floats = coords.len();
+            if out_cap < n_floats {
+                return -2;
+            }
+            unsafe {
+                std::ptr::copy_nonoverlapping(coords.as_ptr(), out, n_floats);
+            }
+            (n_floats / 3) as i32
+        }
+        None => -1,
+    }
+}
+
+// ── Phase 2: PDBQT preparation ────────────────────────────────────────────────
+//
+// ds_smiles_to_pdbqt — generate a ligand PDBQT string from SMILES
+//   ptr, len: UTF-8 SMILES
+//   seed:     random seed for 3D embedding
+//   out:      output buffer (UTF-8)
+//   out_cap:  capacity of out in bytes
+//   returns:  bytes written (≥0), -1 invalid SMILES/embed failed, -2 buf too small
+//
+// ds_pdb_to_pdbqt — convert protein PDB text to PDBQT
+//   ptr, len: UTF-8 PDB file contents
+//   out:      output buffer (UTF-8)
+//   out_cap:  capacity of out in bytes
+//   returns:  bytes written (≥0), -2 buf too small
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_smiles_to_pdbqt(
+    ptr: *const u8,
+    len: usize,
+    seed: u64,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match docking::smiles_to_pdbqt(s, seed) {
+        Some(pdbqt) => {
+            let bytes = pdbqt.as_bytes();
+            if bytes.len() > out_cap {
+                return -2;
+            }
+            unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
+            bytes.len() as i32
+        }
+        None => -1,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_pdb_to_pdbqt(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let pdbqt = docking::pdb_to_pdbqt(s);
+    write_required(pdbqt.as_bytes(), out, out_cap)
+}
+
+// ── Phase 3+4: Docking ────────────────────────────────────────────────────────
+//
+// ds_dock — run rigid docking of a ligand SMILES against a protein PDB.
+//
+// Parameters:
+//   smiles_ptr/len : UTF-8 SMILES for the ligand
+//   pdb_ptr/len    : UTF-8 protein PDB file contents
+//   cx, cy, cz     : binding-site centre (Å)
+//   sx, sy, sz     : grid half-extents (Å), e.g. 10 Å each
+//   n_runs         : number of independent search runs (10–50 typical)
+//   seed           : random seed
+//   out            : output buffer for JSON result (UTF-8)
+//   out_cap        : capacity of out in bytes
+//
+// Returns: bytes written (≥0), -1 error, -2 buffer too small
+//
+// JSON format:
+//   {"n":3,"results":[{"score":-6.2,"x":[…],"y":[…],"z":[…]},…]}
+
+#[unsafe(no_mangle)]
+#[allow(clippy::too_many_arguments)]
+pub extern "C" fn ds_dock(
+    smiles_ptr: *const u8, smiles_len: usize,
+    pdb_ptr: *const u8, pdb_len: usize,
+    cx: f64, cy: f64, cz: f64,
+    sx: f64, sy: f64, sz: f64,
+    n_runs: u32,
+    seed: u64,
+    ph: f64,
+    out: *mut u8, out_cap: usize,
+) -> i32 {
+    let smiles = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(smiles_ptr, smiles_len))
+    };
+    let pdb_text = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(pdb_ptr, pdb_len))
+    };
+
+    // Prepare protein: pH-dependent protonation + polar-H (HD) addition so the
+    // receptor can donate H-bonds. ph <= 0 is treated as the default 7.4.
+    let ph = if ph > 0.0 { ph } else { 7.4 };
+    let prepared = docking::protein_prep::prepare_protein(pdb_text, ph);
+    let (prot_coords, prot_types) = docking::protein_prep::prepared_coords_types(&prepared);
+
+    // Build affinity map
+    let map = docking::AffinityMap::build(
+        &prot_coords,
+        &prot_types,
+        [cx, cy, cz],
+        [sx, sy, sz],
+        0.375,
+    );
+
+    // Run docking
+    let results = match docking::dock_from_smiles(smiles, &map, n_runs as usize, seed) {
+        Some(r) => r,
+        None => return -1,
+    };
+
+    // Serialise to JSON (no serde dependency)
+    let top = results.iter().take(9); // at most top-9 poses
+    let mut json = format!("{{\"n\":{},\"results\":[", results.len().min(9));
+    for (i, r) in top.enumerate() {
+        if i > 0 { json.push(','); }
+        let xs: Vec<String> = r.coords.iter().map(|c| format!("{:.3}", c[0])).collect();
+        let ys: Vec<String> = r.coords.iter().map(|c| format!("{:.3}", c[1])).collect();
+        let zs: Vec<String> = r.coords.iter().map(|c| format!("{:.3}", c[2])).collect();
+        json.push_str(&format!(
+            "{{\"score\":{:.3},\"x\":[{}],\"y\":[{}],\"z\":[{}]}}",
+            r.score,
+            xs.join(","), ys.join(","), zs.join(","),
+        ));
+    }
+    json.push_str("]}");
+
+    let bytes = json.as_bytes();
+    if bytes.len() > out_cap { return -2; }
+    unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len()); }
+    bytes.len() as i32
+}
+
+/// Prepare a protein receptor from PDB text at the given pH: pH-dependent
+/// protonation states + polar-H (HD) addition, returned as PDBQT. Uses the
+/// sizing protocol; ph <= 0 defaults to 7.4.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_prepare_receptor(
+    ptr: *const u8,
+    len: usize,
+    ph: f64,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let ph = if ph > 0.0 { ph } else { 7.4 };
+    let prepared = docking::protein_prep::prepare_protein(s, ph);
+    let pdbqt = docking::protein_prep::prepared_to_pdbqt(&prepared);
+    write_required(pdbqt.as_bytes(), out, out_cap)
+}
+
+// =============================================================================
+// Virtual-screening benchmark metrics (ROC-AUC / EF / BEDROC)
+// =============================================================================
+// Convention: lower score = better binder; label byte != 0 marks an active.
+// Each takes parallel arrays (scores: f64*, labels: u8*, n). NaN on bad input.
+
+unsafe fn labels_from_raw(labels: *const u8, n: usize) -> Vec<bool> {
+    std::slice::from_raw_parts(labels, n).iter().map(|&b| b != 0).collect()
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_roc_auc(scores: *const f64, labels: *const u8, n: usize) -> f64 {
+    if scores.is_null() || labels.is_null() || n == 0 {
+        return f64::NAN;
+    }
+    let s = unsafe { std::slice::from_raw_parts(scores, n) };
+    let l = unsafe { labels_from_raw(labels, n) };
+    docking::benchmark::roc_auc(s, &l).unwrap_or(f64::NAN)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_enrichment_factor(
+    scores: *const f64,
+    labels: *const u8,
+    n: usize,
+    fraction: f64,
+) -> f64 {
+    if scores.is_null() || labels.is_null() || n == 0 {
+        return f64::NAN;
+    }
+    let s = unsafe { std::slice::from_raw_parts(scores, n) };
+    let l = unsafe { labels_from_raw(labels, n) };
+    docking::benchmark::enrichment_factor(s, &l, fraction).unwrap_or(f64::NAN)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_bedroc(
+    scores: *const f64,
+    labels: *const u8,
+    n: usize,
+    alpha: f64,
+) -> f64 {
+    if scores.is_null() || labels.is_null() || n == 0 {
+        return f64::NAN;
+    }
+    let s = unsafe { std::slice::from_raw_parts(scores, n) };
+    let l = unsafe { labels_from_raw(labels, n) };
+    docking::benchmark::bedroc(s, &l, alpha).unwrap_or(f64::NAN)
+}
+
+// =============================================================================
+// ADMET / drug-likeness rule panels + toxicophore structural alerts
+// =============================================================================
+
+/// Full ADMET report (descriptors + rule panels + structural alerts) as a JSON
+/// object. Follows the sizing protocol: returns the required length (call once
+/// with a null/small buffer to size, then again to write); -1 on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_admet_json(ptr: *const u8, len: usize, out: *mut u8, out_cap: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let mol = match parse(s) {
+        Some(m) => m,
+        None => return -1,
+    };
+    let json = admet::admet_json(&mol);
+    write_required(json.as_bytes(), out, out_cap)
+}
+
+/// Names of matching structural-alert (toxicophore) patterns as a JSON array of
+/// strings. Returns required length (sizing protocol), or -1 on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_structural_alerts_json(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let mol = match parse(s) {
+        Some(m) => m,
+        None => return -1,
+    };
+    let hits = admet::structural_alerts(&mol);
+    let arr: Vec<String> = hits.iter().map(|h| format!("\"{h}\"")).collect();
+    let json = format!("[{}]", arr.join(","));
+    write_required(json.as_bytes(), out, out_cap)
+}
+
+/// Number of structural-alert (toxicophore) patterns matched. -1 on invalid.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_structural_alert_count(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => admet::structural_alerts(&mol).len() as i32,
+        None => -1,
+    }
+}
+
+/// Lipinski Rule-of-Five violation count (0..4). -1 on invalid SMILES.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_lipinski_violations(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => admet::lipinski(&admet::descriptors(&mol)).violations as i32,
+        None => -1,
+    }
+}
+
+/// 1 if the molecule passes a named drug-likeness rule, 0 if it fails, -1 on
+/// invalid SMILES, -2 if the rule name is unknown. Recognised names:
+/// "lipinski", "veber", "ghose", "egan", "muegge", "lead".
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_druglikeness_pass(
+    ptr: *const u8,
+    len: usize,
+    rule_ptr: *const u8,
+    rule_len: usize,
+) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    let rule = unsafe {
+        std::str::from_utf8_unchecked(std::slice::from_raw_parts(rule_ptr, rule_len))
+    };
+    let mol = match parse(s) {
+        Some(m) => m,
+        None => return -1,
+    };
+    let d = admet::descriptors(&mol);
+    let r = match rule.to_ascii_lowercase().as_str() {
+        "lipinski" => admet::lipinski(&d),
+        "veber" => admet::veber(&d),
+        "ghose" => admet::ghose(&d),
+        "egan" => admet::egan(&d),
+        "muegge" => admet::muegge(&d),
+        "lead" | "lead-likeness" | "lead_likeness" => admet::lead_likeness(&d),
+        _ => return -2,
+    };
+    if r.pass { 1 } else { 0 }
+}
+
 // =============================================================================
 // Tests
 // =============================================================================
@@ -1492,5 +1832,31 @@ mod tests {
         assert!(parse("").is_none());
         assert!(parse("not_a_molecule").is_none());
         assert!(parse("C(C").is_none());
+    }
+
+    #[test]
+    fn test_roc_auc_ffi_perfect() {
+        // actives (label 1) score lower → AUC = 1.
+        let scores = [-5.0_f64, -4.0, -1.0, 0.0];
+        let labels = [1u8, 1, 0, 0];
+        let auc = ds_roc_auc(scores.as_ptr(), labels.as_ptr(), 4);
+        assert!((auc - 1.0).abs() < 1e-9, "ffi auc={auc}");
+    }
+
+    #[test]
+    fn test_enrichment_ffi() {
+        let scores = [-10.0_f64, -9.0, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0];
+        let labels = [1u8, 1, 0, 0, 0, 0, 0, 0, 0, 0];
+        let ef = ds_enrichment_factor(scores.as_ptr(), labels.as_ptr(), 10, 0.2);
+        assert!((ef - 5.0).abs() < 1e-9, "ffi ef={ef}");
+    }
+
+    #[test]
+    fn test_bedroc_ffi_invalid_returns_nan() {
+        // single class → NaN
+        let scores = [-1.0_f64, -2.0];
+        let labels = [1u8, 1];
+        let b = ds_bedroc(scores.as_ptr(), labels.as_ptr(), 2, 20.0);
+        assert!(b.is_nan(), "bedroc single-class should be NaN: {b}");
     }
 }

@@ -71,6 +71,50 @@ int32_t ds_mol_substructure_matches_json(const uint8_t *smiles_ptr, size_t smile
 // SMILES with explicit H atoms (verbose bracket form). Returns length written, or -1.
 int32_t ds_add_hydrogens(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 
+// ADMET / drug-likeness rule panels + toxicophore structural alerts.
+// admet_json: full report (descriptors + 6 rule panels + alert hits) as JSON.
+int32_t ds_admet_json(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+// structural_alerts_json: JSON array of matched toxicophore alert names.
+int32_t ds_structural_alerts_json(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+// structural_alert_count: number of matched toxicophore alerts. -1 on invalid.
+int32_t ds_structural_alert_count(const uint8_t *ptr, size_t len);
+// lipinski_violations: Rule-of-Five violation count (0..4). -1 on invalid.
+int32_t ds_lipinski_violations(const uint8_t *ptr, size_t len);
+// druglikeness_pass: 1 pass / 0 fail / -1 invalid SMILES / -2 unknown rule.
+// rule in {"lipinski","veber","ghose","egan","muegge","lead"}.
+int32_t ds_druglikeness_pass(const uint8_t *ptr, size_t len,
+                             const uint8_t *rule_ptr, size_t rule_len);
+
+// Protein PDB text → PDBQT (Vina atom typing). Returns length written, or -1.
+int32_t ds_pdb_to_pdbqt(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
+
+// SMILES → ligand PDBQT (3D embed + Vina typing). -1 invalid, -2 buffer small.
+int32_t ds_smiles_to_pdbqt(const uint8_t *ptr, size_t len, uint64_t seed,
+                           uint8_t *out, size_t out_cap);
+
+// Flexible docking: ligand SMILES vs protein PDB inside a grid box centred at
+// (cx,cy,cz) with half-widths (sx,sy,sz). Runs n_runs MC restarts. Writes a
+// JSON object {"n":k,"results":[{"score","x","y","z"},...]}. -1 / -2 on error.
+int32_t ds_dock(const uint8_t *smiles_ptr, size_t smiles_len,
+                const uint8_t *pdb_ptr, size_t pdb_len,
+                double cx, double cy, double cz,
+                double sx, double sy, double sz,
+                uint32_t n_runs, uint64_t seed, double ph,
+                uint8_t *out, size_t out_cap);
+
+// Protein preparation: pH-dependent protonation + polar-H (HD) addition.
+// Returns prepared receptor as PDBQT text. -1 / -2 on error.
+int32_t ds_prepare_receptor(const uint8_t *ptr, size_t len, double ph,
+                            uint8_t *out, size_t out_cap);
+
+// Virtual-screening benchmark metrics over parallel arrays (lower score =
+// better binder; label byte != 0 = active). Return NaN on invalid input.
+double ds_roc_auc(const double *scores, const uint8_t *labels, size_t n);
+double ds_enrichment_factor(const double *scores, const uint8_t *labels,
+                            size_t n, double fraction);
+double ds_bedroc(const double *scores, const uint8_t *labels,
+                 size_t n, double alpha);
+
 // Morgan/ECFP fingerprint. Writes ceil(n_bits/8) bytes. Returns bytes written or -1.
 int32_t ds_morgan_fp_bits(const uint8_t *ptr, size_t len,
                           uint32_t radius, uint32_t n_bits,

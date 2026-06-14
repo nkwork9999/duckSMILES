@@ -8,6 +8,7 @@
 #include "duckdb/function/scalar_function.hpp"
 #include "duckdb/common/vector_operations/unary_executor.hpp"
 #include "duckdb/common/vector_operations/binary_executor.hpp"
+#include "duckdb/common/vector/list_vector.hpp"
 
 #include <cmath>
 #include <vector>
@@ -175,6 +176,179 @@ DEFINE_INT_FUNC(NumSaturatedHeterocyclesFunc, ds_num_saturated_heterocycles)
 DEFINE_INT_FUNC(NumSaturatedCarbocyclesFunc, ds_num_saturated_carbocycles)
 DEFINE_INT_FUNC(NumAliphaticHeterocyclesFunc, ds_num_aliphatic_heterocycles)
 DEFINE_INT_FUNC(NumAliphaticCarbocyclesFunc, ds_num_aliphatic_carbocycles)
+
+// ── ADMET / drug-likeness rule panels + toxicophore structural alerts ───────
+DEFINE_DYNAMIC_STR_FUNC(AdmetJsonFunc, ds_admet_json)
+DEFINE_DYNAMIC_STR_FUNC(StructuralAlertsJsonFunc, ds_structural_alerts_json)
+DEFINE_INT_FUNC(StructuralAlertCountFunc, ds_structural_alert_count)
+DEFINE_INT_FUNC(LipinskiViolationsFunc, ds_lipinski_violations)
+// Protein PDB → PDBQT (Vina atom typing).
+DEFINE_DYNAMIC_STR_FUNC(PdbToPdbqtFunc, ds_pdb_to_pdbqt)
+
+// druglikeness_pass(smiles, rule) → INTEGER (1 pass / 0 fail / -1 invalid /
+// -2 unknown rule). Binary VARCHAR inputs, integer output.
+static void DruglikenessPassFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	BinaryExecutor::Execute<string_t, string_t, int32_t>(
+		args.data[0], args.data[1], result, args.size(),
+		[](string_t smi, string_t rule) -> int32_t {
+			return ds_druglikeness_pass(
+				(const uint8_t *)smi.GetData(), smi.GetSize(),
+				(const uint8_t *)rule.GetData(), rule.GetSize());
+		});
+}
+
+// ── Docking pipeline (conformer / PDBQT / dock) ─────────────────────────────
+
+// smiles_to_pdbqt(smiles, seed) → VARCHAR (ligand PDBQT). NULL on invalid.
+static void SmilesToPdbqtFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	auto smi = FlatVector::GetData<string_t>(args.data[0]);
+	auto seed = FlatVector::GetData<int64_t>(args.data[1]);
+	auto &smi_valid = FlatVector::Validity(args.data[0]);
+	auto out = FlatVector::GetData<string_t>(result);
+	auto &out_valid = FlatVector::Validity(result);
+	std::vector<uint8_t> buf(1u << 20); // 1 MiB
+	for (idx_t i = 0; i < count; i++) {
+		if (!smi_valid.RowIsValid(i)) { out_valid.SetInvalid(i); continue; }
+		int32_t n = ds_smiles_to_pdbqt((const uint8_t *)smi[i].GetData(), smi[i].GetSize(),
+		                               (uint64_t)seed[i], buf.data(), buf.size());
+		if (n < 0) { out_valid.SetInvalid(i); continue; }
+		out[i] = StringVector::AddString(result, (const char *)buf.data(), (size_t)n);
+	}
+}
+
+// dock(smiles, pdb, cx,cy,cz, sx,sy,sz, n_runs, seed [, ph]) → VARCHAR JSON.
+// Accepts 10 args (ph defaults to 7.4) or 11 args (explicit ph).
+static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	idx_t ncol = args.ColumnCount();
+	for (idx_t c = 0; c < ncol; c++) args.data[c].Flatten(count);
+	auto smi = FlatVector::GetData<string_t>(args.data[0]);
+	auto pdb = FlatVector::GetData<string_t>(args.data[1]);
+	auto cx = FlatVector::GetData<double>(args.data[2]);
+	auto cy = FlatVector::GetData<double>(args.data[3]);
+	auto cz = FlatVector::GetData<double>(args.data[4]);
+	auto sx = FlatVector::GetData<double>(args.data[5]);
+	auto sy = FlatVector::GetData<double>(args.data[6]);
+	auto sz = FlatVector::GetData<double>(args.data[7]);
+	auto nruns = FlatVector::GetData<int32_t>(args.data[8]);
+	auto seed = FlatVector::GetData<int64_t>(args.data[9]);
+	double *phcol = (ncol >= 11) ? FlatVector::GetData<double>(args.data[10]) : nullptr;
+	auto &smi_valid = FlatVector::Validity(args.data[0]);
+	auto &pdb_valid = FlatVector::Validity(args.data[1]);
+	auto out = FlatVector::GetData<string_t>(result);
+	auto &out_valid = FlatVector::Validity(result);
+	std::vector<uint8_t> buf(1u << 20); // 1 MiB
+	for (idx_t i = 0; i < count; i++) {
+		if (!smi_valid.RowIsValid(i) || !pdb_valid.RowIsValid(i)) { out_valid.SetInvalid(i); continue; }
+		double ph = phcol ? phcol[i] : 7.4;
+		int32_t n = ds_dock(
+			(const uint8_t *)smi[i].GetData(), smi[i].GetSize(),
+			(const uint8_t *)pdb[i].GetData(), pdb[i].GetSize(),
+			cx[i], cy[i], cz[i], sx[i], sy[i], sz[i],
+			(uint32_t)nruns[i], (uint64_t)seed[i], ph, buf.data(), buf.size());
+		if (n < 0) { out_valid.SetInvalid(i); continue; }
+		out[i] = StringVector::AddString(result, (const char *)buf.data(), (size_t)n);
+	}
+}
+
+// ── Virtual-screening benchmark metrics over LIST<DOUBLE>, LIST<BOOLEAN> ────
+// roc_auc(scores, labels), enrichment_factor(scores, labels, fraction),
+// bedroc(scores, labels, alpha). One DOUBLE per row; NaN on invalid input.
+// Reads each row's two lists into temp arrays and calls the Rust core.
+
+template <class Metric>
+static void BenchmarkMetric(DataChunk &args, Vector &result, Metric metric) {
+	idx_t count = args.size();
+	auto &scores_list = args.data[0];
+	auto &labels_list = args.data[1];
+
+	UnifiedVectorFormat s_fmt, l_fmt;
+	scores_list.ToUnifiedFormat(count, s_fmt);
+	labels_list.ToUnifiedFormat(count, l_fmt);
+	auto s_entries = UnifiedVectorFormat::GetData<list_entry_t>(s_fmt);
+	auto l_entries = UnifiedVectorFormat::GetData<list_entry_t>(l_fmt);
+
+	// Flatten child vectors so we can index them directly.
+	auto &s_child = ListVector::GetEntry(scores_list);
+	auto &l_child = ListVector::GetEntry(labels_list);
+	idx_t s_child_len = ListVector::GetListSize(scores_list);
+	idx_t l_child_len = ListVector::GetListSize(labels_list);
+	s_child.Flatten(s_child_len);
+	l_child.Flatten(l_child_len);
+	auto s_data = FlatVector::GetData<double>(s_child);
+	auto l_data = FlatVector::GetData<bool>(l_child);
+
+	auto out = FlatVector::GetData<double>(result);
+	auto &out_valid = FlatVector::Validity(result);
+
+	for (idx_t i = 0; i < count; i++) {
+		auto si = s_fmt.sel->get_index(i);
+		auto li = l_fmt.sel->get_index(i);
+		if (!s_fmt.validity.RowIsValid(si) || !l_fmt.validity.RowIsValid(li)) {
+			out_valid.SetInvalid(i);
+			continue;
+		}
+		auto se = s_entries[si];
+		auto le = l_entries[li];
+		idx_t n = se.length;
+		if (n == 0 || le.length != n) {
+			out_valid.SetInvalid(i);
+			continue;
+		}
+		std::vector<double> scores(n);
+		std::vector<uint8_t> labels(n);
+		for (idx_t k = 0; k < n; k++) {
+			scores[k] = s_data[se.offset + k];
+			labels[k] = l_data[le.offset + k] ? 1 : 0;
+		}
+		out[i] = metric(scores.data(), labels.data(), n, i);
+	}
+}
+
+static void RocAucFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	BenchmarkMetric(args, result, [](const double *s, const uint8_t *l, size_t n, idx_t) {
+		return ds_roc_auc(s, l, n);
+	});
+}
+
+static void EnrichmentFactorFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[2].Flatten(count);
+	auto frac = FlatVector::GetData<double>(args.data[2]);
+	BenchmarkMetric(args, result, [&](const double *s, const uint8_t *l, size_t n, idx_t i) {
+		return ds_enrichment_factor(s, l, n, frac[i]);
+	});
+}
+
+static void BedrocFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[2].Flatten(count);
+	auto alpha = FlatVector::GetData<double>(args.data[2]);
+	BenchmarkMetric(args, result, [&](const double *s, const uint8_t *l, size_t n, idx_t i) {
+		return ds_bedroc(s, l, n, alpha[i]);
+	});
+}
+
+// prepare_receptor(pdb, ph) → VARCHAR PDBQT (protonated + polar-H added).
+static void PrepareReceptorFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+	idx_t count = args.size();
+	args.data[0].Flatten(count);
+	args.data[1].Flatten(count);
+	auto pdb = FlatVector::GetData<string_t>(args.data[0]);
+	auto ph = FlatVector::GetData<double>(args.data[1]);
+	auto &pdb_valid = FlatVector::Validity(args.data[0]);
+	auto out = FlatVector::GetData<string_t>(result);
+	auto &out_valid = FlatVector::Validity(result);
+	for (idx_t i = 0; i < count; i++) {
+		if (!pdb_valid.RowIsValid(i)) { out_valid.SetInvalid(i); continue; }
+		out[i] = DynamicStringResult(result, out_valid, i, [&](uint8_t *o, size_t cap) -> int32_t {
+			return ds_prepare_receptor((const uint8_t *)pdb[i].GetData(), pdb[i].GetSize(), ph[i], o, cap);
+		});
+	}
+}
 
 static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state, Vector &result) {
 	idx_t count = args.size();
@@ -652,6 +826,39 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("num_saturated_carbocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumSaturatedCarbocyclesFunc));
 	loader.RegisterFunction(ScalarFunction("num_aliphatic_heterocycles", {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticHeterocyclesFunc));
 	loader.RegisterFunction(ScalarFunction("num_aliphatic_carbocycles",  {LogicalType::VARCHAR}, LogicalType::INTEGER, NumAliphaticCarbocyclesFunc));
+	// ADMET / drug-likeness rule panels + toxicophore structural alerts
+	loader.RegisterFunction(ScalarFunction("admet_json",            {LogicalType::VARCHAR}, LogicalType::VARCHAR, AdmetJsonFunc));
+	loader.RegisterFunction(ScalarFunction("structural_alerts_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, StructuralAlertsJsonFunc));
+	loader.RegisterFunction(ScalarFunction("structural_alert_count", {LogicalType::VARCHAR}, LogicalType::INTEGER, StructuralAlertCountFunc));
+	loader.RegisterFunction(ScalarFunction("lipinski_violations",   {LogicalType::VARCHAR}, LogicalType::INTEGER, LipinskiViolationsFunc));
+	loader.RegisterFunction(ScalarFunction("druglikeness_pass",     {LogicalType::VARCHAR, LogicalType::VARCHAR}, LogicalType::INTEGER, DruglikenessPassFunc));
+	loader.RegisterFunction(ScalarFunction("pdb_to_pdbqt",          {LogicalType::VARCHAR}, LogicalType::VARCHAR, PdbToPdbqtFunc));
+	// Docking pipeline
+	loader.RegisterFunction(ScalarFunction("smiles_to_pdbqt",       {LogicalType::VARCHAR, LogicalType::BIGINT}, LogicalType::VARCHAR, SmilesToPdbqtFunc));
+	loader.RegisterFunction(ScalarFunction("dock",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::INTEGER, LogicalType::BIGINT},
+		LogicalType::VARCHAR, DockFunc));
+	loader.RegisterFunction(ScalarFunction("dock",
+		{LogicalType::VARCHAR, LogicalType::VARCHAR,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+		 LogicalType::INTEGER, LogicalType::BIGINT, LogicalType::DOUBLE},
+		LogicalType::VARCHAR, DockFunc));
+	loader.RegisterFunction(ScalarFunction("prepare_receptor",
+		{LogicalType::VARCHAR, LogicalType::DOUBLE}, LogicalType::VARCHAR, PrepareReceptorFunc));
+	// Virtual-screening benchmark metrics (LIST<DOUBLE> scores, LIST<BOOLEAN> labels)
+	loader.RegisterFunction(ScalarFunction("roc_auc",
+		{LogicalType::LIST(LogicalType::DOUBLE), LogicalType::LIST(LogicalType::BOOLEAN)},
+		LogicalType::DOUBLE, RocAucFunc));
+	loader.RegisterFunction(ScalarFunction("enrichment_factor",
+		{LogicalType::LIST(LogicalType::DOUBLE), LogicalType::LIST(LogicalType::BOOLEAN), LogicalType::DOUBLE},
+		LogicalType::DOUBLE, EnrichmentFactorFunc));
+	loader.RegisterFunction(ScalarFunction("bedroc",
+		{LogicalType::LIST(LogicalType::DOUBLE), LogicalType::LIST(LogicalType::BOOLEAN), LogicalType::DOUBLE},
+		LogicalType::DOUBLE, BedrocFunc));
 	loader.RegisterFunction(ScalarFunction("mol_has_substructure",
 		{LogicalType::VARCHAR, LogicalType::VARCHAR},
 		LogicalType::BOOLEAN, MolHasSubstructureFunc));
