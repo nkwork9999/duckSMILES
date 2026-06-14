@@ -58,6 +58,7 @@ pub struct Ligand {
 impl Ligand {
     /// Build a rigid ligand (no torsions, no intra pairs) — used by the simple
     /// `dock()` entry point and its tests.
+    #[allow(dead_code)]
     fn rigid(ref_coords: Vec<[f64; 3]>, types: Vec<VinaType>, n_rot: u32) -> Self {
         Ligand {
             ref_coords,
@@ -264,6 +265,7 @@ fn dock_ligand(lig: &Ligand, map: &AffinityMap, n_runs: usize, seed: u64) -> Vec
 // ── dock (rigid, direct-coords entry) ───────────────────────────────────────
 // Backwards-compatible rigid docking: caller supplies coords + types directly.
 
+#[allow(dead_code)]
 pub fn dock(
     ref_coords: &[[f64; 3]],
     lig_types: &[VinaType],
