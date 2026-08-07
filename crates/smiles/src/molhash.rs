@@ -72,6 +72,7 @@ fn clean_atom(symbol: &str) -> Atom {
         isotope: None,
         atom_map: None,
         chirality: None,
+        nbr_order: Vec::new(),
     }
 }
 
@@ -112,15 +113,18 @@ where
                 } else {
                     BondOrder::Single
                 },
+                direction: 0,
             });
         }
     }
 
-    Molecule {
+    let mut out = Molecule {
         bond_count: bonds.len() as i32,
         atoms,
         bonds,
-    }
+    };
+    out.recompute_implicit_hydrogens();
+    out
 }
 
 fn element_graph(mol: &Molecule) -> Molecule {
@@ -143,6 +147,7 @@ fn bond_order_graph(mol: &Molecule) -> Molecule {
             isotope: None,
             atom_map: None,
             chirality: None,
+            nbr_order: Vec::new(),
         });
     }
 
@@ -155,15 +160,18 @@ fn bond_order_graph(mol: &Molecule) -> Molecule {
                 a,
                 b,
                 order: bond.order,
+                direction: 0,
             });
         }
     }
 
-    Molecule {
+    let mut out = Molecule {
         bond_count: bonds.len() as i32,
         atoms,
         bonds,
-    }
+    };
+    out.recompute_implicit_hydrogens();
+    out
 }
 
 fn anonymous_graph(mol: &Molecule) -> Molecule {

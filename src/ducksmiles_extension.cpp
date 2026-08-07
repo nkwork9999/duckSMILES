@@ -70,6 +70,14 @@ static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { 
 			int32_t len = RustFunc((const uint8_t *)input.GetData(), input.GetSize(), buf, sizeof(buf)); \
 			if (len < 0) { mask.SetInvalid(idx); return string_t(); } \
 			if (len == 0) { return StringVector::AddString(result, ""); } \
+			if ((size_t)len > sizeof(buf)) { \
+				/* The Rust side reports the length it needs when the buffer is \
+				   too small and writes nothing, so retry on the heap. */ \
+				vector<uint8_t> heap((size_t)len); \
+				int32_t written = RustFunc((const uint8_t *)input.GetData(), input.GetSize(), heap.data(), heap.size()); \
+				if (written < 0 || (size_t)written > heap.size()) { mask.SetInvalid(idx); return string_t(); } \
+				return StringVector::AddString(result, (const char *)heap.data(), written); \
+			} \
 			return StringVector::AddString(result, (const char *)buf, len); \
 		}); \
 }
@@ -434,6 +442,13 @@ static void AddHydrogensFunc(DataChunk &args, ExpressionState &state, Vector &re
 			int32_t len = ds_add_hydrogens((const uint8_t *)input.GetData(), input.GetSize(), buf, sizeof(buf));
 			if (len < 0) { mask.SetInvalid(idx); return string_t(); }
 			if (len == 0) { return StringVector::AddString(result, ""); }
+			if ((size_t)len > sizeof(buf)) {
+				// Buffer too small: the Rust side reported the size it needs.
+				vector<uint8_t> heap((size_t)len);
+				int32_t written = ds_add_hydrogens((const uint8_t *)input.GetData(), input.GetSize(), heap.data(), heap.size());
+				if (written < 0 || (size_t)written > heap.size()) { mask.SetInvalid(idx); return string_t(); }
+				return StringVector::AddString(result, (const char *)heap.data(), written);
+			}
 			return StringVector::AddString(result, (const char *)buf, len);
 		});
 }
