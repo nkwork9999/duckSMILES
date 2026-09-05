@@ -133,11 +133,34 @@ set(EXTENSION_SOURCES
 
 include_directories(src/include)
 
+# DuckDB links Wasm side modules in a separate emcc POST_BUILD command.
+# target_link_libraries alone does not forward archives to that command.
+if(EMSCRIPTEN)
+    foreach(RUST_LIB ${RUST_STATIC_LIBS})
+        string(APPEND DUCKDB_EXTENSION_DUCKSMILES_LINKED_LIBS " \"${RUST_LIB}\"")
+    endforeach()
+endif()
+
 build_static_extension(${TARGET_NAME} ${EXTENSION_SOURCES})
 build_loadable_extension(${TARGET_NAME} " " ${EXTENSION_SOURCES})
 
 add_dependencies(${EXTENSION_NAME} rust_lib)
 add_dependencies(${LOADABLE_EXTENSION_NAME} rust_lib)
+
+if(EMSCRIPTEN)
+    find_program(DUCKSMILES_NODE_EXECUTABLE NAMES node nodejs)
+    if(NOT DUCKSMILES_NODE_EXECUTABLE)
+        message(FATAL_ERROR "Node.js is required to validate the Wasm side module")
+    endif()
+    add_custom_command(
+        TARGET ${LOADABLE_EXTENSION_NAME}
+        POST_BUILD
+        COMMAND "${DUCKSMILES_NODE_EXECUTABLE}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_wasm_linkage.cjs"
+                "$<TARGET_FILE:${LOADABLE_EXTENSION_NAME}>.wasm"
+        VERBATIM
+    )
+endif()
 
 foreach(RUST_LIB ${RUST_STATIC_LIBS})
     target_link_libraries(${EXTENSION_NAME} ${RUST_LIB})
