@@ -7,6 +7,7 @@ mod mcs;
 mod molhash;
 mod morgan;
 mod parser;
+mod profile_weights;
 mod qed;
 mod scaffold;
 mod similarity;
@@ -43,46 +44,148 @@ fn is_hetero_atom(symbol: &str) -> bool {
     symbol != "C" && symbol != "H"
 }
 
-fn is_h_acceptor_atom(mol: &Molecule, idx: usize) -> bool {
-    let atom = &mol.atoms[idx];
-    if atom.charge > 0 {
-        return false;
+/// Total bond order at an atom plus its hydrogens — the "valence" the RDKit
+/// acceptor SMARTS refers to as `v2` / `v3`.
+fn atom_valence(mol: &Molecule, idx: usize) -> i32 {
+    let bonds: i32 = mol
+        .neighbors(idx)
+        .into_iter()
+        .map(|(_, order)| match order {
+            BondOrder::Single | BondOrder::Aromatic => 1,
+            BondOrder::Double => 2,
+            BondOrder::Triple => 3,
+        })
+        .sum();
+    bonds + mol.atoms[idx].hydrogen
+}
+
+/// True when the atom carries an acyclic double bond to O, N, P or S — the
+/// `*=!@[O,N,P,S]` fragment of the acceptor pattern.
+fn has_acyclic_double_to_onps(mol: &Molecule, idx: usize, ring_bond: &[bool]) -> bool {
+    for (bi, bond) in mol.bonds.iter().enumerate() {
+        let other = if bond.a == idx {
+            bond.b
+        } else if bond.b == idx {
+            bond.a
+        } else {
+            continue;
+        };
+        if bond.order == BondOrder::Double
+            && !ring_bond[bi]
+            && matches!(mol.atoms[other].symbol.as_str(), "O" | "N" | "P" | "S")
+        {
+            return true;
+        }
     }
+    false
+}
+
+/// H-bond acceptor, reproducing RDKit `CalcNumHBA`, whose pattern is
+///
+/// ```text
+/// [$([O,S;H1;v2]-[!$(*=[O,N,P,S])]),$([O,S;H0;v2]),$([O,S;-]),
+///  $([N;v3;!$(N-*=!@[O,N,P,S])]),$([nH0X2,o,s;+0])]
+/// ```
+///
+/// Note that upper-case `O`/`S`/`N` are aliphatic-only; aromatic ring atoms are
+/// covered solely by the last branch, which is why a pyrrole `[nH]` and an
+/// N-substituted aromatic nitrogen (three connections) are *not* acceptors.
+fn is_h_acceptor_atom(mol: &Molecule, idx: usize, ring_bond: &[bool]) -> bool {
+    let atom = &mol.atoms[idx];
+    let valence = atom_valence(mol, idx);
+
+    if atom.aromatic {
+        if atom.charge != 0 {
+            return false;
+        }
+        return match atom.symbol.as_str() {
+            "O" | "S" => true,
+            "N" => {
+                let connections = mol.neighbors(idx).len() as i32 + atom.hydrogen;
+                atom.hydrogen == 0 && connections == 2
+            }
+            _ => false,
+        };
+    }
+
     match atom.symbol.as_str() {
-        "O" | "S" => true,
-        "N" => {
-            if atom.aromatic && atom.hydrogen > 0 {
+        "O" | "S" => {
+            if atom.charge < 0 {
+                return true;
+            }
+            if atom.charge != 0 || valence != 2 {
                 return false;
             }
-            // Amide-like nitrogens are poor acceptors:
-            // N-C(=O), where the carbonyl carbon has a double-bonded oxygen.
-            for (nbr, order) in mol.neighbors(idx) {
-                if order != BondOrder::Single || mol.atoms[nbr].symbol != "C" {
-                    continue;
-                }
-                let has_carbonyl_o = mol.neighbors(nbr).into_iter().any(|(nbr2, order2)| {
-                    nbr2 != idx && order2 == BondOrder::Double && mol.atoms[nbr2].symbol == "O"
-                });
-                if has_carbonyl_o {
-                    return false;
-                }
+            if atom.hydrogen == 0 {
+                return true;
             }
-            true
+            if atom.hydrogen != 1 {
+                return false;
+            }
+            // `-[!$(*=[O,N,P,S])]`: the single neighbour must not be doubly
+            // bonded to O/N/P/S — this is what drops a carboxylic acid or
+            // sulfonic acid hydroxyl.
+            mol.neighbors(idx).into_iter().all(|(nbr, order)| {
+                order != BondOrder::Single
+                    || !mol.bonds.iter().any(|b| {
+                        b.order == BondOrder::Double
+                            && (b.a == nbr || b.b == nbr)
+                            && {
+                                let other = if b.a == nbr { b.b } else { b.a };
+                                other != idx
+                                    && matches!(
+                                        mol.atoms[other].symbol.as_str(),
+                                        "O" | "N" | "P" | "S"
+                                    )
+                            }
+                    })
+            })
+        }
+        "N" => {
+            if valence != 3 || atom.charge != 0 {
+                return false;
+            }
+            // `!$(N-*=!@[O,N,P,S])`: amide, sulfonamide and phosphoramide
+            // nitrogens are not acceptors.
+            !mol.neighbors(idx).into_iter().any(|(nbr, order)| {
+                order == BondOrder::Single && has_acyclic_double_to_onps(mol, nbr, ring_bond)
+            })
         }
         _ => false,
     }
 }
 
 fn num_h_acceptors(mol: &Molecule) -> usize {
+    let ring_bond = mol.ring_info().bond_in_ring;
     (0..mol.atoms.len())
-        .filter(|&idx| is_h_acceptor_atom(mol, idx))
+        .filter(|&idx| is_h_acceptor_atom(mol, idx, &ring_bond))
         .count()
 }
 
+/// H-bond donor, reproducing RDKit `CalcNumHBD`, whose pattern is
+///
+/// ```text
+/// [$([N;!H0;v3,v4&+1]),$([O,S;H1;+0]),n&H1&+0]
+/// ```
+///
+/// Oxygen and sulfur need exactly one hydrogen and no charge, so water and a
+/// hydroxide ion are not donors; nitrogen needs at least one hydrogen and
+/// either a neutral trivalent or a positively charged tetravalent shell.
 fn num_h_donors(mol: &Molecule) -> usize {
-    mol.atoms
-        .iter()
-        .filter(|atom| matches!(atom.symbol.as_str(), "N" | "O" | "S") && atom.hydrogen > 0)
+    (0..mol.atoms.len())
+        .filter(|&idx| {
+            let atom = &mol.atoms[idx];
+            if atom.hydrogen == 0 {
+                return false;
+            }
+            let valence = atom_valence(mol, idx);
+            match atom.symbol.as_str() {
+                "N" if atom.aromatic => atom.hydrogen == 1 && atom.charge == 0,
+                "N" => (valence == 3 && atom.charge == 0) || (valence == 4 && atom.charge == 1),
+                "O" | "S" => atom.hydrogen == 1 && atom.charge == 0,
+                _ => false,
+            }
+        })
         .count()
 }
 
@@ -217,38 +320,146 @@ fn num_aliphatic_carbocycles(mol: &Molecule) -> usize {
         .count()
 }
 
-fn is_terminal_heavy_atom(mol: &Molecule, idx: usize) -> bool {
+/// Heavy-atom connection count — SMARTS `D<n>`.
+fn heavy_degree(mol: &Molecule, idx: usize) -> usize {
     mol.neighbors(idx)
         .iter()
         .filter(|(nbr, _)| mol.atoms[*nbr].symbol != "H")
         .count()
-        <= 1
 }
 
-fn is_amide_like_bond(mol: &Molecule, a: usize, b: usize) -> bool {
-    let (n_idx, c_idx) = match (mol.atoms[a].symbol.as_str(), mol.atoms[b].symbol.as_str()) {
-        ("N", "C") => (a, b),
-        ("C", "N") => (b, a),
-        _ => return false,
+/// `!$(C(F)(F)F)` / `!$(C(Cl)(Cl)Cl)` / `!$(C(Br)(Br)Br)` / `!$(C([CH3])([CH3])[CH3])`:
+/// a carbon carrying three identical trivial substituents rotates into itself.
+fn is_trivial_rotor_hub(mol: &Molecule, idx: usize) -> bool {
+    if mol.atoms[idx].symbol != "C" {
+        return false;
+    }
+    for group in ["F", "Cl", "Br"] {
+        let n = mol
+            .neighbors(idx)
+            .iter()
+            .filter(|(nbr, _)| mol.atoms[*nbr].symbol == group)
+            .count();
+        if n >= 3 {
+            return true;
+        }
+    }
+    let methyls = mol
+        .neighbors(idx)
+        .iter()
+        .filter(|(nbr, order)| {
+            *order == BondOrder::Single
+                && mol.atoms[*nbr].symbol == "C"
+                && !mol.atoms[*nbr].aromatic
+                && heavy_degree(mol, *nbr) == 1
+                && mol.atoms[*nbr].hydrogen == 3
+        })
+        .count();
+    methyls >= 3
+}
+
+/// `!$([CD3](=[N,O,S])-!@[#7,O,S!D1])` and its mirror, plus the `[N+]` variants:
+/// the C–N of an amide, the C–O of an ester and their relatives do not rotate
+/// freely, and RDKit's default (`Strict`) definition excludes both ends.
+fn is_conjugated_linkage_atom(mol: &Molecule, idx: usize, ring_bond: &[bool]) -> bool {
+    let is_hetero_end = |i: usize| match mol.atoms[i].symbol.as_str() {
+        "N" => true,
+        "O" => true,
+        "S" => heavy_degree(mol, i) != 1,
+        _ => false,
     };
-    mol.neighbors(c_idx).into_iter().any(|(nbr, order)| {
-        nbr != n_idx && order == BondOrder::Double && mol.atoms[nbr].symbol == "O"
-    })
+
+    // Branch A: this atom is the sp2 carbon.
+    if mol.atoms[idx].symbol == "C" && heavy_degree(mol, idx) == 3 {
+        let double_partner = mol.neighbors(idx).into_iter().find(|(nbr, order)| {
+            *order == BondOrder::Double
+                && matches!(mol.atoms[*nbr].symbol.as_str(), "N" | "O" | "S")
+        });
+        if let Some((dbl, _)) = double_partner {
+            let charged_n = mol.atoms[dbl].symbol == "N" && mol.atoms[dbl].charge > 0;
+            for (bi, bond) in mol.bonds.iter().enumerate() {
+                let other = if bond.a == idx {
+                    bond.b
+                } else if bond.b == idx {
+                    bond.a
+                } else {
+                    continue;
+                };
+                if bond.order != BondOrder::Single || ring_bond[bi] {
+                    continue;
+                }
+                let ok = if charged_n {
+                    mol.atoms[other].symbol == "N" && heavy_degree(mol, other) != 1
+                } else {
+                    is_hetero_end(other)
+                };
+                if ok {
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Branch B: this atom is the heteroatom hanging off such a carbon.
+    if is_hetero_end(idx) {
+        for (bi, bond) in mol.bonds.iter().enumerate() {
+            let other = if bond.a == idx {
+                bond.b
+            } else if bond.b == idx {
+                bond.a
+            } else {
+                continue;
+            };
+            if bond.order != BondOrder::Single || ring_bond[bi] {
+                continue;
+            }
+            if mol.atoms[other].symbol != "C" || heavy_degree(mol, other) != 3 {
+                continue;
+            }
+            let has_double = mol.neighbors(other).into_iter().any(|(nbr, order)| {
+                order == BondOrder::Double
+                    && matches!(mol.atoms[nbr].symbol.as_str(), "N" | "O" | "S")
+            });
+            if has_double {
+                return true;
+            }
+        }
+    }
+    false
 }
 
+/// `!$(*#*)`: an atom involved in a triple bond is linear, so the neighbouring
+/// single bond is not a real degree of freedom.
+fn has_triple_bond(mol: &Molecule, idx: usize) -> bool {
+    mol.neighbors(idx)
+        .iter()
+        .any(|(_, order)| *order == BondOrder::Triple)
+}
+
+/// Reproduces RDKit `CalcNumRotatableBonds` with its default `Strict` pattern.
 fn num_rotatable_bonds(mol: &Molecule) -> usize {
-    let ring_info = mol.ring_info();
+    let ring_bond = mol.ring_info().bond_in_ring;
+    let end_ok = |idx: usize| {
+        mol.atoms[idx].symbol != "H"
+            && !has_triple_bond(mol, idx)
+            && heavy_degree(mol, idx) != 1
+            && !is_trivial_rotor_hub(mol, idx)
+    };
     mol.bonds
         .iter()
         .enumerate()
         .filter(|(idx, bond)| {
             bond.order == BondOrder::Single
-                && !ring_info.bond_in_ring.get(*idx).copied().unwrap_or(false)
-                && mol.atoms[bond.a].symbol != "H"
-                && mol.atoms[bond.b].symbol != "H"
-                && !is_terminal_heavy_atom(mol, bond.a)
-                && !is_terminal_heavy_atom(mol, bond.b)
-                && !is_amide_like_bond(mol, bond.a, bond.b)
+                && !ring_bond.get(*idx).copied().unwrap_or(false)
+                && end_ok(bond.a)
+                && end_ok(bond.b)
+                // The linkage exclusion sits on the *first* atom of the pattern
+                // only. Substructure matching tries both orientations, so the
+                // bond survives as long as one end is not a linkage atom — an
+                // amide is dropped because both its ends are, while the aryl
+                // ether of aspirin is kept because the aromatic carbon is not.
+                && !(is_conjugated_linkage_atom(mol, bond.a, &ring_bond)
+                    && is_conjugated_linkage_atom(mol, bond.b, &ring_bond))
         })
         .count()
 }
@@ -278,9 +489,158 @@ fn fraction_csp3(mol: &Molecule) -> f64 {
     sp3 as f64 / carbon_indices.len() as f64
 }
 
+// Lightweight composition and graph-profile descriptors. These deliberately
+// reuse the parsed molecule and ring cache inputs; no fingerprint or SMARTS
+// pass is needed, so they are suitable for wide SQL profiling queries.
+fn num_explicit_hydrogens(mol: &Molecule) -> usize {
+    mol.atoms
+        .iter()
+        .map(|atom| {
+            if atom.symbol == "H" {
+                1
+            } else if profile_h_is_explicit(atom) {
+                atom.hydrogen.max(0) as usize
+            } else {
+                0
+            }
+        })
+        .sum()
+}
+
+fn num_implicit_hydrogens(mol: &Molecule) -> usize {
+    mol.atoms
+        .iter()
+        .filter(|atom| atom.symbol != "H" && !profile_h_is_explicit(atom))
+        .map(|atom| atom.hydrogen.max(0) as usize)
+        .sum()
+}
+
+fn num_total_hydrogens(mol: &Molecule) -> usize {
+    num_explicit_hydrogens(mol) + num_implicit_hydrogens(mol)
+}
+
+// RDKit sanitization promotes pyrrolic N/P hydrogens to explicit H, even
+// when the input used unbracketed Kekule notation (e.g. C1=CNC=C1).
+fn profile_h_is_explicit(atom: &parser::Atom) -> bool {
+    atom.in_bracket || (atom.aromatic && matches!(atom.symbol.as_str(), "N" | "P"))
+}
+
+fn num_bonds_with_order(mol: &Molecule, order: BondOrder) -> usize {
+    mol.bonds.iter().filter(|bond| bond.order == order).count()
+}
+
+fn num_ring_atoms(mol: &Molecule) -> usize {
+    mol.ring_info()
+        .atom_in_ring
+        .iter()
+        .filter(|in_ring| **in_ring)
+        .count()
+}
+
+fn num_ring_bonds(mol: &Molecule) -> usize {
+    mol.ring_info()
+        .bond_in_ring
+        .iter()
+        .filter(|in_ring| **in_ring)
+        .count()
+}
+
+fn largest_ring_size(mol: &Molecule) -> usize {
+    mol.ring_info()
+        .rings
+        .iter()
+        .map(Vec::len)
+        .max()
+        .unwrap_or(0)
+}
+
+fn num_aromatic_atoms(mol: &Molecule) -> usize {
+    mol.atoms.iter().filter(|atom| atom.aromatic).count()
+}
+
+fn num_elements(mol: &Molecule, symbol: &str) -> usize {
+    mol.atoms
+        .iter()
+        .filter(|atom| atom.symbol == symbol)
+        .count()
+}
+
+fn num_halogens(mol: &Molecule) -> usize {
+    mol.atoms
+        .iter()
+        .filter(|atom| matches!(atom.symbol.as_str(), "F" | "Cl" | "Br" | "I"))
+        .count()
+}
+
+fn heteroatom_fraction(mol: &Molecule) -> f64 {
+    let heavy_atoms = mol.heavy_atom_count();
+    if heavy_atoms == 0 {
+        0.0
+    } else {
+        num_heteroatoms(mol) as f64 / heavy_atoms as f64
+    }
+}
+
+fn aromatic_fraction(mol: &Molecule) -> f64 {
+    let heavy_atoms = mol.heavy_atom_count();
+    if heavy_atoms == 0 {
+        0.0
+    } else {
+        num_aromatic_atoms(mol) as f64 / heavy_atoms as f64
+    }
+}
+
+fn heavy_atom_mass(mol: &Molecule) -> f64 {
+    mol.atoms
+        .iter()
+        .filter(|atom| atom.symbol != "H")
+        .map(|atom| profile_weights::atom_mass(&atom.symbol, atom.isotope).unwrap_or(f64::NAN))
+        .sum()
+}
+
+fn mean_heavy_atom_degree(mol: &Molecule) -> f64 {
+    let heavy_atoms = mol.heavy_atom_count();
+    if heavy_atoms == 0 {
+        return 0.0;
+    }
+    let heavy_bonds = mol
+        .bonds
+        .iter()
+        .filter(|bond| {
+            mol.atoms[bond.a].symbol != "H" && mol.atoms[bond.b].symbol != "H"
+        })
+        .count();
+    (2 * heavy_bonds) as f64 / heavy_atoms as f64
+}
+
 // =============================================================================
 // C FFI exports
 // =============================================================================
+
+fn parse_ffi_molecule(ptr: *const u8, len: usize) -> Option<Molecule> {
+    if ptr.is_null() {
+        return None;
+    }
+    // SAFETY: callers provide a readable byte range of `len` bytes. We still
+    // validate UTF-8 before handing text to the parser and reject null inputs.
+    let bytes = unsafe { std::slice::from_raw_parts(ptr, len) };
+    let smiles = std::str::from_utf8(bytes).ok()?;
+    parse(smiles)
+}
+
+fn int_profile_ffi(ptr: *const u8, len: usize, descriptor: fn(&Molecule) -> usize) -> i32 {
+    std::panic::catch_unwind(|| parse_ffi_molecule(ptr, len).map(|mol| descriptor(&mol) as i32))
+        .ok()
+        .flatten()
+        .unwrap_or(-1)
+}
+
+fn double_profile_ffi(ptr: *const u8, len: usize, descriptor: fn(&Molecule) -> f64) -> f64 {
+    std::panic::catch_unwind(|| parse_ffi_molecule(ptr, len).map(|mol| descriptor(&mol)))
+        .ok()
+        .flatten()
+        .unwrap_or(f64::NAN)
+}
 
 fn write_required(src: &[u8], out: *mut u8, out_cap: usize) -> i32 {
     if out.is_null() || out_cap < src.len() {
@@ -315,6 +675,16 @@ pub extern "C" fn ds_mol_num_atoms(ptr: *const u8, len: usize) -> i32 {
     }
 }
 
+/// Returns the number of disconnected molecular fragments, or -1 on invalid.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_num_fragments(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => mol.fragment_count() as i32,
+        None => -1,
+    }
+}
+
 /// Returns bond count, or -1 on invalid
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_num_bonds(ptr: *const u8, len: usize) -> i32 {
@@ -325,20 +695,79 @@ pub extern "C" fn ds_mol_num_bonds(ptr: *const u8, len: usize) -> i32 {
     }
 }
 
+/// Net formal charge. `i32::MIN` is reserved for invalid input because valid
+/// molecules may have a negative charge.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_formal_charge(ptr: *const u8, len: usize) -> i32 {
+    std::panic::catch_unwind(|| parse_ffi_molecule(ptr, len).map(|mol| mol.total_charge()))
+        .ok()
+        .flatten()
+        .unwrap_or(i32::MIN)
+}
+
+macro_rules! profile_count_ffi {
+    ($ffi:ident, $descriptor:expr) => {
+        #[unsafe(no_mangle)]
+        pub extern "C" fn $ffi(ptr: *const u8, len: usize) -> i32 {
+            int_profile_ffi(ptr, len, $descriptor)
+        }
+    };
+}
+
+profile_count_ffi!(ds_mol_num_explicit_h, num_explicit_hydrogens);
+profile_count_ffi!(ds_mol_num_implicit_h, num_implicit_hydrogens);
+profile_count_ffi!(ds_mol_num_total_h, num_total_hydrogens);
+profile_count_ffi!(ds_mol_num_single_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Single
+));
+profile_count_ffi!(ds_mol_num_double_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Double
+));
+profile_count_ffi!(ds_mol_num_triple_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Triple
+));
+profile_count_ffi!(ds_mol_num_aromatic_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Aromatic
+));
+profile_count_ffi!(ds_mol_num_ring_atoms, num_ring_atoms);
+profile_count_ffi!(ds_mol_num_ring_bonds, num_ring_bonds);
+profile_count_ffi!(ds_mol_largest_ring_size, largest_ring_size);
+profile_count_ffi!(ds_mol_num_aromatic_atoms, num_aromatic_atoms);
+profile_count_ffi!(ds_mol_num_carbons, |mol| num_elements(mol, "C"));
+profile_count_ffi!(ds_mol_num_nitrogens, |mol| num_elements(mol, "N"));
+profile_count_ffi!(ds_mol_num_oxygens, |mol| num_elements(mol, "O"));
+profile_count_ffi!(ds_mol_num_halogens, num_halogens);
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_heteroatom_fraction(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, heteroatom_fraction)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_aromatic_fraction(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, aromatic_fraction)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_heavy_atom_mass(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, heavy_atom_mass)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_mean_degree(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, mean_heavy_atom_degree)
+}
+
 /// Writes molecular formula to buffer. Returns length written, or -1 on invalid.
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_formula(ptr: *const u8, len: usize, out: *mut u8, out_cap: usize) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
-        Some(mol) => {
-            let formula = mol.formula();
-            let bytes = formula.as_bytes();
-            let n = bytes.len().min(out_cap);
-            unsafe {
-                std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n);
-            }
-            n as i32
-        }
+        Some(mol) => write_required(mol.formula().as_bytes(), out, out_cap),
         None => -1,
     }
 }
@@ -413,17 +842,7 @@ pub extern "C" fn ds_canonical_smiles(
 ) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
-        Some(mol) => {
-            let canonical = mol.canonical_smiles();
-            let bytes = canonical.as_bytes();
-            if bytes.len() > out_cap {
-                return -1;
-            }
-            unsafe {
-                std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, bytes.len());
-            }
-            bytes.len() as i32
-        }
+        Some(mol) => write_required(mol.canonical_smiles().as_bytes(), out, out_cap),
         None => -1,
     }
 }
@@ -809,15 +1228,11 @@ pub extern "C" fn ds_add_hydrogens(
 ) -> i32 {
     let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
     match parse(s) {
-        Some(mol) => {
-            let smi = mol.with_explicit_hydrogens().to_smiles_verbose();
-            let bytes = smi.as_bytes();
-            let n = bytes.len().min(out_cap);
-            unsafe {
-                std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n);
-            }
-            n as i32
-        }
+        Some(mol) => write_required(
+            mol.with_explicit_hydrogens().to_smiles_verbose().as_bytes(),
+            out,
+            out_cap,
+        ),
         None => -1,
     }
 }
@@ -1603,9 +2018,9 @@ mod tests {
         let salt = "CC(=O)[O-].[Na+]";
         assert_eq!(
             string_ffi(salt, ds_largest_fragment).unwrap(),
-            "C(C)(=O)[O-]"
+            "C(C)([O-])=O"
         );
-        assert_eq!(string_ffi(salt, ds_strip_salts).unwrap(), "C(C)(=O)[O-]");
+        assert_eq!(string_ffi(salt, ds_strip_salts).unwrap(), "C(C)([O-])=O");
         assert_eq!(
             string_ffi(salt, ds_neutralize_charges).unwrap(),
             "C(C)(=O)O.[Na+]"
@@ -1778,6 +2193,72 @@ mod tests {
     fn test_salt() {
         let mol = parse("[Na+].[Cl-]").unwrap();
         assert_eq!(mol.formula(), "ClNa");
+    }
+
+    #[test]
+    fn test_num_fragments_ffi() {
+        for (smiles, expected) in [
+            (b"CCO".as_slice(), 1),
+            (b"[Na+].[Cl-]".as_slice(), 2),
+            (b"C.C.O".as_slice(), 3),
+        ] {
+            assert_eq!(ds_mol_num_fragments(smiles.as_ptr(), smiles.len()), expected);
+        }
+        let invalid = b"not_a_molecule";
+        assert_eq!(ds_mol_num_fragments(invalid.as_ptr(), invalid.len()), -1);
+    }
+
+    #[test]
+    fn test_profile_descriptor_ffi() {
+        let ethanol = b"CCO";
+        assert_eq!(ds_mol_formal_charge(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_explicit_h(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_implicit_h(ethanol.as_ptr(), ethanol.len()), 6);
+        assert_eq!(ds_mol_num_total_h(ethanol.as_ptr(), ethanol.len()), 6);
+        assert_eq!(ds_mol_num_single_bonds(ethanol.as_ptr(), ethanol.len()), 2);
+        assert_eq!(ds_mol_num_double_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_triple_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_aromatic_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_ring_atoms(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_ring_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_largest_ring_size(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_aromatic_atoms(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_carbons(ethanol.as_ptr(), ethanol.len()), 2);
+        assert_eq!(ds_mol_num_nitrogens(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_oxygens(ethanol.as_ptr(), ethanol.len()), 1);
+        assert_eq!(ds_mol_num_halogens(ethanol.as_ptr(), ethanol.len()), 0);
+        assert!((ds_mol_heteroatom_fraction(ethanol.as_ptr(), ethanol.len()) - 1.0 / 3.0).abs() < 1e-12);
+        assert_eq!(ds_mol_aromatic_fraction(ethanol.as_ptr(), ethanol.len()), 0.0);
+        assert!((ds_mol_heavy_atom_mass(ethanol.as_ptr(), ethanol.len()) - 40.021).abs() < 1e-9);
+        assert!((ds_mol_mean_degree(ethanol.as_ptr(), ethanol.len()) - 4.0 / 3.0).abs() < 1e-12);
+
+        let benzene = b"c1ccccc1";
+        assert_eq!(ds_mol_num_aromatic_bonds(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_num_ring_atoms(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_num_ring_bonds(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_largest_ring_size(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_num_aromatic_atoms(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_aromatic_fraction(benzene.as_ptr(), benzene.len()), 1.0);
+        assert_eq!(ds_mol_mean_degree(benzene.as_ptr(), benzene.len()), 2.0);
+
+        let bracket_h = b"[NH4+].[Cl-]";
+        assert_eq!(ds_mol_num_explicit_h(bracket_h.as_ptr(), bracket_h.len()), 4);
+        assert_eq!(ds_mol_num_implicit_h(bracket_h.as_ptr(), bracket_h.len()), 0);
+        assert_eq!(ds_mol_num_total_h(bracket_h.as_ptr(), bracket_h.len()), 4);
+        assert_eq!(ds_mol_num_nitrogens(bracket_h.as_ptr(), bracket_h.len()), 1);
+        assert_eq!(ds_mol_num_halogens(bracket_h.as_ptr(), bracket_h.len()), 1);
+
+        let chloride = b"[Cl-]";
+        assert_eq!(ds_mol_formal_charge(chloride.as_ptr(), chloride.len()), -1);
+
+        let double = b"C=C";
+        assert_eq!(ds_mol_num_double_bonds(double.as_ptr(), double.len()), 1);
+        let triple = b"C#N";
+        assert_eq!(ds_mol_num_triple_bonds(triple.as_ptr(), triple.len()), 1);
+
+        assert_eq!(ds_mol_formal_charge(std::ptr::null(), 0), i32::MIN);
+        assert_eq!(ds_mol_num_carbons(std::ptr::null(), 0), -1);
+        assert!(ds_mol_heavy_atom_mass(std::ptr::null(), 0).is_nan());
     }
 
     #[test]

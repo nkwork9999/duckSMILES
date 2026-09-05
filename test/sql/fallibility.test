@@ -1,0 +1,104 @@
+# name: test/sql/fallibility.test
+# description: Declared runtime errors and TRY behavior for all BLOB similarity functions
+# group: [sql]
+
+require ducksmiles
+
+statement error
+SELECT tanimoto_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT dice_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT cosine_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT kulczynski_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT sokal_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT mcconnaughey_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT asymmetric_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT braun_blanquet_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT russel_bit('A'::BLOB, 'AB'::BLOB);
+----
+BLOB lengths differ
+
+statement error
+SELECT tversky_bit('A'::BLOB, 'AB'::BLOB, 0.5, 0.5);
+----
+BLOB lengths differ
+
+statement ok
+CREATE TABLE similarity_inputs(id INTEGER, a BLOB, b BLOB);
+
+statement ok
+INSERT INTO similarity_inputs VALUES (0, 'A', 'A'), (1, 'A', 'AB'), (2, NULL, 'A'), (3, 'A', 'A');
+
+# TRY must catch execution errors per row without poisoning later rows or queries.
+query IIIIIIIIIII
+SELECT id,
+       TRY(tanimoto_bit(a, b)) IS NULL,
+       TRY(dice_bit(a, b)) IS NULL,
+       TRY(cosine_bit(a, b)) IS NULL,
+       TRY(kulczynski_bit(a, b)) IS NULL,
+       TRY(sokal_bit(a, b)) IS NULL,
+       TRY(mcconnaughey_bit(a, b)) IS NULL,
+       TRY(asymmetric_bit(a, b)) IS NULL,
+       TRY(braun_blanquet_bit(a, b)) IS NULL,
+       TRY(russel_bit(a, b)) IS NULL,
+       TRY(tversky_bit(a, b, 0.5, 0.5)) IS NULL
+FROM similarity_inputs ORDER BY id;
+----
+0	false	false	false	false	false	false	false	false	false	false
+1	true	true	true	true	true	true	true	true	true	true
+2	true	true	true	true	true	true	true	true	true	true
+3	false	false	false	false	false	false	false	false	false	false
+
+# The connection remains usable after a handled error.
+query R
+SELECT dice_bit('A'::BLOB, 'A'::BLOB);
+----
+1.0
+
+statement error
+SELECT tversky_bit('A'::BLOB, 'A'::BLOB, 0.5, -0.1);
+----
+must both be in [0, 1]
+
+query II
+SELECT id, TRY(tversky_bit('A'::BLOB, 'A'::BLOB, alpha, 0.5)) IS NULL
+FROM (VALUES (0, 0.5), (1, 1.5), (2, 'NaN'::DOUBLE), (3, NULL)) t(id, alpha) ORDER BY id;
+----
+0	false
+1	true
+2	true
+3	true
+
+statement ok
+DROP TABLE similarity_inputs;

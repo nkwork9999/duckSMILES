@@ -47,6 +47,11 @@ endif()
 # Build Rust static library via cargo
 # ---------------------------------------------------------------------------
 set(RUST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+if(DEFINED ENV{CARGO_TARGET_DIR} AND NOT "$ENV{CARGO_TARGET_DIR}" STREQUAL "")
+    get_filename_component(CARGO_OUTPUT_ROOT "$ENV{CARGO_TARGET_DIR}" ABSOLUTE BASE_DIR "${RUST_DIR}")
+else()
+    set(CARGO_OUTPUT_ROOT "${RUST_DIR}/target")
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     set(CARGO_PROFILE release)
@@ -59,46 +64,30 @@ endif()
 # ---------------------------------------------------------------------------
 # Detect cross-compilation target for Rust
 # ---------------------------------------------------------------------------
-# Priority: CARGO_TARGET env > OSX_BUILD_ARCH > DUCKDB_EXPLICIT_PLATFORM > host default
-if(DEFINED ENV{CARGO_TARGET})
-    set(RUST_TARGET "$ENV{CARGO_TARGET}")
-elseif(DEFINED OSX_BUILD_ARCH AND NOT OSX_BUILD_ARCH STREQUAL "")
-    if(OSX_BUILD_ARCH STREQUAL "x86_64")
-        set(RUST_TARGET "x86_64-apple-darwin")
-    elseif(OSX_BUILD_ARCH STREQUAL "arm64")
-        set(RUST_TARGET "aarch64-apple-darwin")
-    endif()
-elseif(DEFINED DUCKDB_EXPLICIT_PLATFORM AND NOT DUCKDB_EXPLICIT_PLATFORM STREQUAL "")
-    if(DUCKDB_EXPLICIT_PLATFORM STREQUAL "osx_amd64")
-        set(RUST_TARGET "x86_64-apple-darwin")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "osx_arm64")
-        set(RUST_TARGET "aarch64-apple-darwin")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_amd64")
-        set(RUST_TARGET "x86_64-unknown-linux-gnu")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_arm64")
-        set(RUST_TARGET "aarch64-unknown-linux-gnu")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_amd64_gcc4")
-        set(RUST_TARGET "x86_64-unknown-linux-gnu")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "windows_amd64")
-        set(RUST_TARGET "x86_64-pc-windows-msvc")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "windows_amd64_mingw")
-        set(RUST_TARGET "x86_64-pc-windows-gnu")
-    endif()
-endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SelectRustTarget.cmake")
+ducksmiles_select_rust_target(RUST_TARGET)
 
-if(DEFINED RUST_TARGET)
+if(NOT RUST_TARGET STREQUAL "")
     # Ensure the target is installed
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" rustup target add ${RUST_TARGET}
-        WORKING_DIRECTORY ${RUST_DIR}
-    )
-    set(CARGO_TARGET_DIR "target/${RUST_TARGET}/${CARGO_PROFILE}")
+    if(NOT EMSCRIPTEN)
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" rustup target add ${RUST_TARGET}
+            WORKING_DIRECTORY ${RUST_DIR}
+        )
+    endif()
+    set(CARGO_TARGET_DIR "${CARGO_OUTPUT_ROOT}/${RUST_TARGET}/${CARGO_PROFILE}")
     set(CARGO_TARGET_FLAG "--target" "${RUST_TARGET}")
     message(STATUS "Rust cross-compile target: ${RUST_TARGET}")
 else()
-    set(CARGO_TARGET_DIR "target/${CARGO_PROFILE}")
+    set(CARGO_TARGET_DIR "${CARGO_OUTPUT_ROOT}/${CARGO_PROFILE}")
     set(CARGO_TARGET_FLAG "")
     message(STATUS "Rust target: host default")
+endif()
+
+set(CARGO_EXTRA_FLAGS "")
+set(CARGO_EXTRA_ENV "")
+if(EMSCRIPTEN)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ConfigureRustWasm.cmake")
 endif()
 
 # Library naming: MSVC uses .lib, others use lib*.a
@@ -113,18 +102,23 @@ endif()
 set(RUST_CRATE_NAMES smiles inchi mol pdb selfies)
 set(RUST_STATIC_LIBS "")
 foreach(CRATE ${RUST_CRATE_NAMES})
-    list(APPEND RUST_STATIC_LIBS "${RUST_DIR}/${CARGO_TARGET_DIR}/${RUST_LIB_PREFIX}ducksmiles_${CRATE}${RUST_LIB_SUFFIX}")
+    list(APPEND RUST_STATIC_LIBS "${CARGO_TARGET_DIR}/${RUST_LIB_PREFIX}ducksmiles_${CRATE}${RUST_LIB_SUFFIX}")
 endforeach()
 file(GLOB_RECURSE RUST_SOURCES CONFIGURE_DEPENDS
     "${RUST_DIR}/Cargo.toml"
     "${RUST_DIR}/crates/*/Cargo.toml"
     "${RUST_DIR}/crates/*/src/*.rs"
 )
+list(APPEND RUST_SOURCES
+    "${RUST_DIR}/Cargo.lock"
+    "${RUST_DIR}/CMakeLists.txt"
+    "${RUST_DIR}/cmake/ConfigureRustWasm.cmake"
+)
 
 if(WIN32)
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
-        COMMAND ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        COMMAND ${CMAKE_COMMAND} -E env "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXTRA_ENV} ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} ${CARGO_EXTRA_FLAGS} --workspace
         DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"
@@ -133,7 +127,7 @@ if(WIN32)
 else()
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
-        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXTRA_ENV} ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} ${CARGO_EXTRA_FLAGS} --workspace
         DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"
@@ -152,11 +146,34 @@ set(EXTENSION_SOURCES
 
 include_directories(src/include)
 
+# DuckDB links Wasm side modules in a separate emcc POST_BUILD command.
+# target_link_libraries alone does not forward archives to that command.
+if(EMSCRIPTEN)
+    foreach(RUST_LIB ${RUST_STATIC_LIBS})
+        string(APPEND DUCKDB_EXTENSION_DUCKSMILES_LINKED_LIBS " \"${RUST_LIB}\"")
+    endforeach()
+endif()
+
 build_static_extension(${TARGET_NAME} ${EXTENSION_SOURCES})
 build_loadable_extension(${TARGET_NAME} " " ${EXTENSION_SOURCES})
 
 add_dependencies(${EXTENSION_NAME} rust_lib)
 add_dependencies(${LOADABLE_EXTENSION_NAME} rust_lib)
+
+if(EMSCRIPTEN)
+    find_program(DUCKSMILES_NODE_EXECUTABLE NAMES node nodejs)
+    if(NOT DUCKSMILES_NODE_EXECUTABLE)
+        message(FATAL_ERROR "Node.js is required to validate the Wasm side module")
+    endif()
+    add_custom_command(
+        TARGET ${LOADABLE_EXTENSION_NAME}
+        POST_BUILD
+        COMMAND "${DUCKSMILES_NODE_EXECUTABLE}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_wasm_linkage.cjs"
+                "$<TARGET_FILE:${LOADABLE_EXTENSION_NAME}>.wasm"
+        VERBATIM
+    )
+endif()
 
 foreach(RUST_LIB ${RUST_STATIC_LIBS})
     target_link_libraries(${EXTENSION_NAME} ${RUST_LIB})

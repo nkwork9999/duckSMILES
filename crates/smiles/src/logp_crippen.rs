@@ -63,11 +63,16 @@ static CRIPPEN_DATA: &[(&str, &str, f64, f64)] = &[
     ("C27", "[CX4][A;!C;!N;!O;!P;!S;!F;!Cl;!Br;!I;!#1]", 0.2148, 2.693),
     ("CS",  "[#6]",                      0.08129, 3.243),
     ("H1",  "[#1][#6,#1]",               0.123,   1.057),
+    // H3 is tested ahead of H2 on purpose. Read in file order, H2's catch-all
+    // `[#1][!C;!N;!O]` would swallow the hydrogen of an aromatic `[nH]`, because
+    // an aromatic nitrogen is not the aliphatic `N` that pattern excludes. RDKit
+    // scores that hydrogen as H3 (+0.2142, pyrrole logP 1.0147), so nitrogen-
+    // bound hydrogens have to be claimed first.
+    ("H3",  "[#1][#7]",                  0.2142,  0.9627),
+    ("H3",  "[#1]O[#7]",                 0.2142,  0.9627),
     ("H2",  "[#1]O[CX4,c]",              -0.2677, 1.395),
     ("H2",  "[#1]O[!C;!N;!O;!S]",        -0.2677, 1.395),
     ("H2",  "[#1][!C;!N;!O]",            -0.2677, 1.395),
-    ("H3",  "[#1][#7]",                  0.2142,  0.9627),
-    ("H3",  "[#1]O[#7]",                 0.2142,  0.9627),
     ("H4",  "[#1]OC=[#6,#7,O,S]",        0.298,   1.805),
     ("H4",  "[#1]O[O,S]",                0.298,   1.805),
     ("HS",  "[#1]",                      0.1125,  1.112),
