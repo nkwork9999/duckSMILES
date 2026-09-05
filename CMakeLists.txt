@@ -47,6 +47,11 @@ endif()
 # Build Rust static library via cargo
 # ---------------------------------------------------------------------------
 set(RUST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+if(DEFINED ENV{CARGO_TARGET_DIR} AND NOT "$ENV{CARGO_TARGET_DIR}" STREQUAL "")
+    get_filename_component(CARGO_OUTPUT_ROOT "$ENV{CARGO_TARGET_DIR}" ABSOLUTE BASE_DIR "${RUST_DIR}")
+else()
+    set(CARGO_OUTPUT_ROOT "${RUST_DIR}/target")
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     set(CARGO_PROFILE release)
@@ -68,11 +73,11 @@ if(NOT RUST_TARGET STREQUAL "")
         COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" rustup target add ${RUST_TARGET}
         WORKING_DIRECTORY ${RUST_DIR}
     )
-    set(CARGO_TARGET_DIR "target/${RUST_TARGET}/${CARGO_PROFILE}")
+    set(CARGO_TARGET_DIR "${CARGO_OUTPUT_ROOT}/${RUST_TARGET}/${CARGO_PROFILE}")
     set(CARGO_TARGET_FLAG "--target" "${RUST_TARGET}")
     message(STATUS "Rust cross-compile target: ${RUST_TARGET}")
 else()
-    set(CARGO_TARGET_DIR "target/${CARGO_PROFILE}")
+    set(CARGO_TARGET_DIR "${CARGO_OUTPUT_ROOT}/${CARGO_PROFILE}")
     set(CARGO_TARGET_FLAG "")
     message(STATUS "Rust target: host default")
 endif()
@@ -89,7 +94,7 @@ endif()
 set(RUST_CRATE_NAMES smiles inchi mol pdb selfies)
 set(RUST_STATIC_LIBS "")
 foreach(CRATE ${RUST_CRATE_NAMES})
-    list(APPEND RUST_STATIC_LIBS "${RUST_DIR}/${CARGO_TARGET_DIR}/${RUST_LIB_PREFIX}ducksmiles_${CRATE}${RUST_LIB_SUFFIX}")
+    list(APPEND RUST_STATIC_LIBS "${CARGO_TARGET_DIR}/${RUST_LIB_PREFIX}ducksmiles_${CRATE}${RUST_LIB_SUFFIX}")
 endforeach()
 file(GLOB_RECURSE RUST_SOURCES CONFIGURE_DEPENDS
     "${RUST_DIR}/Cargo.toml"
@@ -100,7 +105,7 @@ file(GLOB_RECURSE RUST_SOURCES CONFIGURE_DEPENDS
 if(WIN32)
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
-        COMMAND ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        COMMAND ${CMAKE_COMMAND} -E env "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
         DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"
@@ -109,7 +114,7 @@ if(WIN32)
 else()
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
-        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
         DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"

@@ -2,6 +2,7 @@
 
 #include "ducksmiles_extension.hpp"
 #include "ducksmiles.h"
+#include "ducksmiles_compat.hpp"
 
 #include "duckdb.hpp"
 #include "duckdb/common/exception.hpp"
@@ -38,7 +39,7 @@ namespace duckdb {
 #define DEFINE_INT_FUNC(FuncName, RustFunc)                                    \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, int32_t>(                        \
+    ducksmiles_compat::ExecuteWithNulls<string_t, int32_t>(                    \
         args.data[0], result, args.size(),                                     \
         [](string_t input, ValidityMask &mask, idx_t idx) -> int32_t {         \
           int32_t val =                                                        \
@@ -56,7 +57,7 @@ namespace duckdb {
 #define DEFINE_SIGNED_INT_FUNC(FuncName, RustFunc)                             \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, int32_t>(                        \
+    ducksmiles_compat::ExecuteWithNulls<string_t, int32_t>(                    \
         args.data[0], result, args.size(),                                     \
         [](string_t input, ValidityMask &mask, idx_t idx) -> int32_t {         \
           int32_t val =                                                        \
@@ -73,7 +74,7 @@ namespace duckdb {
 #define DEFINE_DOUBLE_FUNC(FuncName, RustFunc)                                 \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, double>(                         \
+    ducksmiles_compat::ExecuteWithNulls<string_t, double>(                     \
         args.data[0], result, args.size(),                                     \
         [](string_t input, ValidityMask &mask, idx_t idx) -> double {          \
           double val =                                                         \
@@ -90,7 +91,7 @@ namespace duckdb {
 #define DEFINE_SENTINEL_BOOL_FUNC(FuncName, RustFunc)                          \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, bool>(                           \
+    ducksmiles_compat::ExecuteWithNulls<string_t, bool>(                       \
         args.data[0], result, args.size(),                                     \
         [](string_t input, ValidityMask &mask, idx_t idx) -> bool {            \
           int32_t val =                                                        \
@@ -107,7 +108,7 @@ namespace duckdb {
 #define DEFINE_STR_FUNC(FuncName, RustFunc)                                    \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, string_t>(                       \
+    ducksmiles_compat::ExecuteWithNulls<string_t, string_t>(                   \
         args.data[0], result, args.size(),                                     \
         [&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {       \
           uint8_t buf[1024];                                                   \
@@ -166,7 +167,7 @@ static string_t DynamicStringResult(Vector &result, ValidityMask &mask,
 #define DEFINE_DYNAMIC_STR_FUNC(FuncName, RustFunc)                            \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, string_t>(                       \
+    ducksmiles_compat::ExecuteWithNulls<string_t, string_t>(                   \
         args.data[0], result, args.size(),                                     \
         [&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {       \
           return DynamicStringResult(                                          \
@@ -185,8 +186,9 @@ static string_t DynamicStringResult(Vector &result, ValidityMask &mask,
     args.data[1].Flatten(count);                                               \
     auto left_data = FlatVector::GetData<string_t>(args.data[0]);              \
     auto right_data = FlatVector::GetData<string_t>(args.data[1]);             \
-    auto result_data = FlatVector::GetData<string_t>(result);                  \
-    auto &validity = FlatVector::Validity(result);                             \
+    auto result_data =                                                         \
+        ducksmiles_compat::ResultData<string_t>(result, args.size());          \
+    auto &validity = ducksmiles_compat::ResultValidity(result);                \
     auto &left_validity = FlatVector::Validity(args.data[0]);                  \
     auto &right_validity = FlatVector::Validity(args.data[1]);                 \
     for (idx_t i = 0; i < count; i++) {                                        \
@@ -301,8 +303,8 @@ static void SmilesToPdbqtFunc(DataChunk &args, ExpressionState &state,
   auto smi = FlatVector::GetData<string_t>(args.data[0]);
   auto seed = FlatVector::GetData<int64_t>(args.data[1]);
   auto &smi_valid = FlatVector::Validity(args.data[0]);
-  auto out = FlatVector::GetData<string_t>(result);
-  auto &out_valid = FlatVector::Validity(result);
+  auto out = ducksmiles_compat::ResultData<string_t>(result, args.size());
+  auto &out_valid = ducksmiles_compat::ResultValidity(result);
   std::vector<uint8_t> buf(1u << 20); // 1 MiB
   for (idx_t i = 0; i < count; i++) {
     if (!smi_valid.RowIsValid(i)) {
@@ -338,12 +340,12 @@ static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
   auto sz = FlatVector::GetData<double>(args.data[7]);
   auto nruns = FlatVector::GetData<int32_t>(args.data[8]);
   auto seed = FlatVector::GetData<int64_t>(args.data[9]);
-  double *phcol =
+  const double *phcol =
       (ncol >= 11) ? FlatVector::GetData<double>(args.data[10]) : nullptr;
   auto &smi_valid = FlatVector::Validity(args.data[0]);
   auto &pdb_valid = FlatVector::Validity(args.data[1]);
-  auto out = FlatVector::GetData<string_t>(result);
-  auto &out_valid = FlatVector::Validity(result);
+  auto out = ducksmiles_compat::ResultData<string_t>(result, args.size());
+  auto &out_valid = ducksmiles_compat::ResultValidity(result);
   std::vector<uint8_t> buf(1u << 20); // 1 MiB
   for (idx_t i = 0; i < count; i++) {
     if (!smi_valid.RowIsValid(i) || !pdb_valid.RowIsValid(i)) {
@@ -392,8 +394,8 @@ static void BenchmarkMetric(DataChunk &args, Vector &result, Metric metric) {
   auto s_data = FlatVector::GetData<double>(s_child);
   auto l_data = FlatVector::GetData<bool>(l_child);
 
-  auto out = FlatVector::GetData<double>(result);
-  auto &out_valid = FlatVector::Validity(result);
+  auto out = ducksmiles_compat::ResultData<double>(result, args.size());
+  auto &out_valid = ducksmiles_compat::ResultValidity(result);
 
   for (idx_t i = 0; i < count; i++) {
     auto si = s_fmt.sel->get_index(i);
@@ -458,8 +460,8 @@ static void PrepareReceptorFunc(DataChunk &args, ExpressionState &state,
   auto pdb = FlatVector::GetData<string_t>(args.data[0]);
   auto ph = FlatVector::GetData<double>(args.data[1]);
   auto &pdb_valid = FlatVector::Validity(args.data[0]);
-  auto out = FlatVector::GetData<string_t>(result);
-  auto &out_valid = FlatVector::Validity(result);
+  auto out = ducksmiles_compat::ResultData<string_t>(result, args.size());
+  auto &out_valid = ducksmiles_compat::ResultValidity(result);
   for (idx_t i = 0; i < count; i++) {
     if (!pdb_valid.RowIsValid(i)) {
       out_valid.SetInvalid(i);
@@ -476,8 +478,9 @@ static void PrepareReceptorFunc(DataChunk &args, ExpressionState &state,
 static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state,
                                    Vector &result) {
   idx_t count = args.size();
-  auto result_data = FlatVector::GetData<string_t>(result);
-  auto &validity = FlatVector::Validity(result);
+  auto result_data =
+      ducksmiles_compat::ResultData<string_t>(result, args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   for (idx_t i = 0; i < count; i++) {
     result_data[i] = DynamicStringResult(
         result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
@@ -489,11 +492,18 @@ static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state,
 static void MolHasSubstructureFunc(DataChunk &args, ExpressionState &state,
                                    Vector &result) {
   idx_t count = args.size();
+  args.data[0].Flatten(count);
+  args.data[1].Flatten(count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
-  auto result_data = FlatVector::GetData<bool>(result);
-  auto &validity = FlatVector::Validity(result);
+  auto result_data = ducksmiles_compat::ResultData<bool>(result, args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   for (idx_t i = 0; i < count; i++) {
+    if (!FlatVector::Validity(args.data[0]).RowIsValid(i) ||
+        !FlatVector::Validity(args.data[1]).RowIsValid(i)) {
+      validity.SetInvalid(i);
+      continue;
+    }
     int32_t val = ds_mol_has_substructure(
         (const uint8_t *)smi_data[i].GetData(), smi_data[i].GetSize(),
         (const uint8_t *)smarts_data[i].GetData(), smarts_data[i].GetSize());
@@ -509,11 +519,19 @@ static void MolHasSubstructureFunc(DataChunk &args, ExpressionState &state,
 static void MolSubstructureCountFunc(DataChunk &args, ExpressionState &state,
                                      Vector &result) {
   idx_t count = args.size();
+  args.data[0].Flatten(count);
+  args.data[1].Flatten(count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
-  auto result_data = FlatVector::GetData<int32_t>(result);
-  auto &validity = FlatVector::Validity(result);
+  auto result_data =
+      ducksmiles_compat::ResultData<int32_t>(result, args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   for (idx_t i = 0; i < count; i++) {
+    if (!FlatVector::Validity(args.data[0]).RowIsValid(i) ||
+        !FlatVector::Validity(args.data[1]).RowIsValid(i)) {
+      validity.SetInvalid(i);
+      continue;
+    }
     int32_t val = ds_mol_substructure_count(
         (const uint8_t *)smi_data[i].GetData(), smi_data[i].GetSize(),
         (const uint8_t *)smarts_data[i].GetData(), smarts_data[i].GetSize());
@@ -534,8 +552,9 @@ static void MolSubstructureMatchesJsonFunc(DataChunk &args,
   args.data[1].Flatten(count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
-  auto result_data = FlatVector::GetData<string_t>(result);
-  auto &validity = FlatVector::Validity(result);
+  auto result_data =
+      ducksmiles_compat::ResultData<string_t>(result, args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   auto &smi_validity = FlatVector::Validity(args.data[0]);
   auto &smarts_validity = FlatVector::Validity(args.data[1]);
   for (idx_t i = 0; i < count; i++) {
@@ -559,7 +578,7 @@ static void MolSubstructureMatchesJsonFunc(DataChunk &args,
 // length).
 static void AddHydrogensFunc(DataChunk &args, ExpressionState &state,
                              Vector &result) {
-  UnaryExecutor::ExecuteWithNulls<string_t, string_t>(
+  ducksmiles_compat::ExecuteWithNulls<string_t, string_t>(
       args.data[0], result, args.size(),
       [&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {
         uint8_t buf[16384];
@@ -597,11 +616,21 @@ static constexpr size_t MORGAN_BUF_BYTES = 16384;
 static void MorganFpBitsFunc3(DataChunk &args, ExpressionState &state,
                               Vector &result) {
   idx_t count = args.size();
+  args.data[0].Flatten(count);
+  args.data[1].Flatten(count);
+  args.data[2].Flatten(count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto radius_data = FlatVector::GetData<int32_t>(args.data[1]);
   auto nbits_data = FlatVector::GetData<int32_t>(args.data[2]);
-  auto &validity = FlatVector::Validity(result);
+  auto out = ducksmiles_compat::ResultData<string_t>(result, count);
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   for (idx_t i = 0; i < count; i++) {
+    if (!FlatVector::Validity(args.data[0]).RowIsValid(i) ||
+        !FlatVector::Validity(args.data[1]).RowIsValid(i) ||
+        !FlatVector::Validity(args.data[2]).RowIsValid(i)) {
+      validity.SetInvalid(i);
+      continue;
+    }
     int32_t r = radius_data[i];
     int32_t n = nbits_data[i];
     if (r < 0 || n <= 0) {
@@ -617,7 +646,7 @@ static void MorganFpBitsFunc3(DataChunk &args, ExpressionState &state,
       continue;
     }
     auto blob = StringVector::AddStringOrBlob(result, (const char *)buf, len);
-    FlatVector::GetData<string_t>(result)[i] = blob;
+    out[i] = blob;
   }
 }
 
@@ -625,7 +654,7 @@ static void MorganFpBitsFunc3(DataChunk &args, ExpressionState &state,
 // bytes).
 static void MorganFpBitsFunc1(DataChunk &args, ExpressionState &state,
                               Vector &result) {
-  UnaryExecutor::ExecuteWithNulls<string_t, string_t>(
+  ducksmiles_compat::ExecuteWithNulls<string_t, string_t>(
       args.data[0], result, args.size(),
       [&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {
         uint8_t buf[MORGAN_BUF_BYTES];
@@ -645,7 +674,7 @@ static constexpr size_t MACCS_BUF_BYTES = 21;
 
 static void MaccsKeysFunc(DataChunk &args, ExpressionState &state,
                           Vector &result) {
-  UnaryExecutor::ExecuteWithNulls<string_t, string_t>(
+  ducksmiles_compat::ExecuteWithNulls<string_t, string_t>(
       args.data[0], result, args.size(),
       [&](string_t input, ValidityMask &mask, idx_t idx) -> string_t {
         uint8_t buf[MACCS_BUF_BYTES];
@@ -730,8 +759,8 @@ static void TverskyBitFunc(DataChunk &args, ExpressionState &state,
   auto beta_vals = UnifiedVectorFormat::GetData<double>(beta_fmt);
 
   result.SetVectorType(VectorType::FLAT_VECTOR);
-  auto out = FlatVector::GetData<double>(result);
-  auto &out_validity = FlatVector::Validity(result);
+  auto out = ducksmiles_compat::ResultData<double>(result, args.size());
+  auto &out_validity = ducksmiles_compat::ResultValidity(result);
 
   for (idx_t i = 0; i < count; i++) {
     auto ai = a_fmt.sel->get_index(i);
@@ -798,11 +827,18 @@ DEFINE_STR_FUNC(InchikeyProtonationFunc, ds_inchikey_protonation)
 static void InchiSkeletonMatchFunc(DataChunk &args, ExpressionState &state,
                                    Vector &result) {
   idx_t count = args.size();
+  args.data[0].Flatten(count);
+  args.data[1].Flatten(count);
   auto a_data = FlatVector::GetData<string_t>(args.data[0]);
   auto b_data = FlatVector::GetData<string_t>(args.data[1]);
-  auto result_data = FlatVector::GetData<bool>(result);
-  auto &validity = FlatVector::Validity(result);
+  auto result_data = ducksmiles_compat::ResultData<bool>(result, args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   for (idx_t i = 0; i < count; i++) {
+    if (!FlatVector::Validity(args.data[0]).RowIsValid(i) ||
+        !FlatVector::Validity(args.data[1]).RowIsValid(i)) {
+      validity.SetInvalid(i);
+      continue;
+    }
     int32_t val = ds_inchi_skeleton_match(
         (const uint8_t *)a_data[i].GetData(), a_data[i].GetSize(),
         (const uint8_t *)b_data[i].GetData(), b_data[i].GetSize());
@@ -851,8 +887,9 @@ static void MolBlockPropertyFunc(DataChunk &args, ExpressionState &state,
   args.data[1].Flatten(count);
   auto mol_data = FlatVector::GetData<string_t>(args.data[0]);
   auto key_data = FlatVector::GetData<string_t>(args.data[1]);
-  auto result_data = FlatVector::GetData<string_t>(result);
-  auto &validity = FlatVector::Validity(result);
+  auto result_data =
+      ducksmiles_compat::ResultData<string_t>(result, args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   auto &mol_validity = FlatVector::Validity(args.data[0]);
   auto &key_validity = FlatVector::Validity(args.data[1]);
   for (idx_t i = 0; i < count; i++) {
@@ -880,8 +917,9 @@ static void SdfPropertyFunc(DataChunk &args, ExpressionState &state,
   auto sdf_data = FlatVector::GetData<string_t>(args.data[0]);
   auto index_data = FlatVector::GetData<int32_t>(args.data[1]);
   auto key_data = FlatVector::GetData<string_t>(args.data[2]);
-  auto result_data = FlatVector::GetData<string_t>(result);
-  auto &validity = FlatVector::Validity(result);
+  auto result_data =
+      ducksmiles_compat::ResultData<string_t>(result, args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
   auto &sdf_validity = FlatVector::Validity(args.data[0]);
   auto &index_validity = FlatVector::Validity(args.data[1]);
   auto &key_validity = FlatVector::Validity(args.data[2]);
@@ -909,7 +947,7 @@ static void SdfPropertyFunc(DataChunk &args, ExpressionState &state,
 #define DEFINE_STRUCTURE_INT_FUNC(FuncName, RustFunc)                          \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, int32_t>(                        \
+    ducksmiles_compat::ExecuteWithNulls<string_t, int32_t>(                    \
         args.data[0], result, args.size(),                                     \
         [](string_t input, ValidityMask &mask, idx_t idx) -> int32_t {         \
           int32_t val =                                                        \
@@ -930,7 +968,7 @@ DEFINE_STRUCTURE_INT_FUNC(StructureModelCountFunc, ds_structure_model_count)
 #define DEFINE_STRUCTURE_DOUBLE_FUNC(FuncName, RustFunc)                       \
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
-    UnaryExecutor::ExecuteWithNulls<string_t, double>(                         \
+    ducksmiles_compat::ExecuteWithNulls<string_t, double>(                     \
         args.data[0], result, args.size(),                                     \
         [](string_t input, ValidityMask &mask, idx_t idx) -> double {          \
           double val =                                                         \

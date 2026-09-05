@@ -459,7 +459,7 @@ SELECT mol_hash_methods();
 query I
 SELECT largest_fragment('CC(=O)[O-].[Na+]');
 ----
-C(C)(=O)[O-]
+C(C)([O-])=O
 
 query I
 SELECT strip_salts('CCO.CN.[Cl-]');
