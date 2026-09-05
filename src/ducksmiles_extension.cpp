@@ -8,7 +8,11 @@
 #include "duckdb/function/scalar_function.hpp"
 #include "duckdb/common/vector_operations/unary_executor.hpp"
 #include "duckdb/common/vector_operations/binary_executor.hpp"
+#if __has_include("duckdb/common/vector/list_vector.hpp")
 #include "duckdb/common/vector/list_vector.hpp"
+#else
+#include "duckdb/common/types/vector.hpp"
+#endif
 
 #include <cmath>
 #include <vector>

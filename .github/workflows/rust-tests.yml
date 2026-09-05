@@ -12,9 +12,9 @@ jobs:
   rust-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      CARGO_TARGET_DIR: ${{ runner.temp }}/ducksmiles-target
     steps:
       - uses: actions/checkout@v4
       - name: Test workspace, including pinned RDKit reference fixtures
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/ducksmiles-target
         run: cargo test --workspace --locked
