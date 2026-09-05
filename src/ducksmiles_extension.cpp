@@ -39,6 +39,18 @@ static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { 
 		}); \
 }
 
+// VARCHAR → signed INTEGER with NULL on INT32_MIN. Unlike the ordinary count
+// sentinel, this preserves legitimate negative formal charges.
+#define DEFINE_SIGNED_INT_FUNC(FuncName, RustFunc) \
+static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
+	UnaryExecutor::ExecuteWithNulls<string_t, int32_t>(args.data[0], result, args.size(), \
+		[](string_t input, ValidityMask &mask, idx_t idx) -> int32_t { \
+			int32_t val = RustFunc((const uint8_t *)input.GetData(), input.GetSize()); \
+			if (val == INT32_MIN) { mask.SetInvalid(idx); return 0; } \
+			return val; \
+		}); \
+}
+
 // VARCHAR → DOUBLE with NULL on NaN
 #define DEFINE_DOUBLE_FUNC(FuncName, RustFunc) \
 static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { \
@@ -148,7 +160,28 @@ static void FuncName(DataChunk &args, ExpressionState &state, Vector &result) { 
 
 DEFINE_BOOL_FUNC(MolIsValidFunc, ds_mol_is_valid)
 DEFINE_INT_FUNC(MolNumAtomsFunc, ds_mol_num_atoms)
+DEFINE_INT_FUNC(MolNumFragmentsFunc, ds_mol_num_fragments)
 DEFINE_INT_FUNC(MolNumBondsFunc, ds_mol_num_bonds)
+DEFINE_SIGNED_INT_FUNC(MolFormalChargeFunc, ds_mol_formal_charge)
+DEFINE_INT_FUNC(MolNumExplicitHFunc, ds_mol_num_explicit_h)
+DEFINE_INT_FUNC(MolNumImplicitHFunc, ds_mol_num_implicit_h)
+DEFINE_INT_FUNC(MolNumTotalHFunc, ds_mol_num_total_h)
+DEFINE_INT_FUNC(MolNumSingleBondsFunc, ds_mol_num_single_bonds)
+DEFINE_INT_FUNC(MolNumDoubleBondsFunc, ds_mol_num_double_bonds)
+DEFINE_INT_FUNC(MolNumTripleBondsFunc, ds_mol_num_triple_bonds)
+DEFINE_INT_FUNC(MolNumAromaticBondsFunc, ds_mol_num_aromatic_bonds)
+DEFINE_INT_FUNC(MolNumRingAtomsFunc, ds_mol_num_ring_atoms)
+DEFINE_INT_FUNC(MolNumRingBondsFunc, ds_mol_num_ring_bonds)
+DEFINE_INT_FUNC(MolLargestRingSizeFunc, ds_mol_largest_ring_size)
+DEFINE_INT_FUNC(MolNumAromaticAtomsFunc, ds_mol_num_aromatic_atoms)
+DEFINE_INT_FUNC(MolNumCarbonsFunc, ds_mol_num_carbons)
+DEFINE_INT_FUNC(MolNumNitrogensFunc, ds_mol_num_nitrogens)
+DEFINE_INT_FUNC(MolNumOxygensFunc, ds_mol_num_oxygens)
+DEFINE_INT_FUNC(MolNumHalogensFunc, ds_mol_num_halogens)
+DEFINE_DOUBLE_FUNC(MolHeteroatomFractionFunc, ds_mol_heteroatom_fraction)
+DEFINE_DOUBLE_FUNC(MolAromaticFractionFunc, ds_mol_aromatic_fraction)
+DEFINE_DOUBLE_FUNC(MolHeavyAtomMassFunc, ds_mol_heavy_atom_mass)
+DEFINE_DOUBLE_FUNC(MolMeanDegreeFunc, ds_mol_mean_degree)
 DEFINE_STR_FUNC(MolFormulaFunc, ds_mol_formula)
 DEFINE_DOUBLE_FUNC(MolWeightFunc, ds_mol_weight)
 DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
@@ -799,7 +832,28 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 	loader.RegisterFunction(ScalarFunction("mol_is_valid",    {LogicalType::VARCHAR}, LogicalType::BOOLEAN, MolIsValidFunc));
 	loader.RegisterFunction(ScalarFunction("mol_formula",     {LogicalType::VARCHAR}, LogicalType::VARCHAR, MolFormulaFunc));
 	loader.RegisterFunction(ScalarFunction("mol_num_atoms",   {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumAtomsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_fragments", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumFragmentsFunc));
 	loader.RegisterFunction(ScalarFunction("mol_num_bonds",   {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumBondsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_formal_charge", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolFormalChargeFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_explicit_h", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumExplicitHFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_implicit_h", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumImplicitHFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_total_h", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumTotalHFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_single_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumSingleBondsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_double_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumDoubleBondsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_triple_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumTripleBondsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_aromatic_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumAromaticBondsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_ring_atoms", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumRingAtomsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_ring_bonds", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumRingBondsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_largest_ring_size", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolLargestRingSizeFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_aromatic_atoms", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumAromaticAtomsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_carbons", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumCarbonsFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_nitrogens", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumNitrogensFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_oxygens", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumOxygensFunc));
+	loader.RegisterFunction(ScalarFunction("mol_num_halogens", {LogicalType::VARCHAR}, LogicalType::INTEGER, MolNumHalogensFunc));
+	loader.RegisterFunction(ScalarFunction("mol_heteroatom_fraction", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolHeteroatomFractionFunc));
+	loader.RegisterFunction(ScalarFunction("mol_aromatic_fraction", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolAromaticFractionFunc));
+	loader.RegisterFunction(ScalarFunction("mol_heavy_atom_mass", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolHeavyAtomMassFunc));
+	loader.RegisterFunction(ScalarFunction("mol_mean_degree", {LogicalType::VARCHAR}, LogicalType::DOUBLE, MolMeanDegreeFunc));
 	loader.RegisterFunction(ScalarFunction("mol_weight",      {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolWeightFunc));
 	loader.RegisterFunction(ScalarFunction("mol_exact_mass",  {LogicalType::VARCHAR}, LogicalType::DOUBLE,  MolExactMassFunc));
 	loader.RegisterFunction(ScalarFunction("logp_crippen",    {LogicalType::VARCHAR}, LogicalType::DOUBLE,  LogpCrippenFunc));

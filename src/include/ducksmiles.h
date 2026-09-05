@@ -11,7 +11,30 @@ extern "C" {
 
 int32_t ds_mol_is_valid(const uint8_t *ptr, size_t len);
 int32_t ds_mol_num_atoms(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_fragments(const uint8_t *ptr, size_t len);
 int32_t ds_mol_num_bonds(const uint8_t *ptr, size_t len);
+// Fast molecule-profile descriptors. Count functions use -1 for invalid input,
+// except formal charge, which reserves INT32_MIN because negative values are valid.
+int32_t ds_mol_formal_charge(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_explicit_h(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_implicit_h(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_total_h(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_single_bonds(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_double_bonds(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_triple_bonds(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_aromatic_bonds(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_ring_atoms(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_ring_bonds(const uint8_t *ptr, size_t len);
+int32_t ds_mol_largest_ring_size(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_aromatic_atoms(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_carbons(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_nitrogens(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_oxygens(const uint8_t *ptr, size_t len);
+int32_t ds_mol_num_halogens(const uint8_t *ptr, size_t len);
+double ds_mol_heteroatom_fraction(const uint8_t *ptr, size_t len);
+double ds_mol_aromatic_fraction(const uint8_t *ptr, size_t len);
+double ds_mol_heavy_atom_mass(const uint8_t *ptr, size_t len);
+double ds_mol_mean_degree(const uint8_t *ptr, size_t len);
 int32_t ds_mol_formula(const uint8_t *ptr, size_t len, uint8_t *out, size_t out_cap);
 double ds_mol_weight(const uint8_t *ptr, size_t len);
 double ds_mol_exact_mass(const uint8_t *ptr, size_t len);

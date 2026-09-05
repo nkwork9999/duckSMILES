@@ -83,6 +83,30 @@ SELECT mol_num_atoms('invalid');
 NULL
 
 # ============================================================================
+# SMILES: mol_num_fragments
+# ============================================================================
+
+query I
+SELECT mol_num_fragments('CCO');
+----
+1
+
+query I
+SELECT mol_num_fragments('[Na+].[Cl-]');
+----
+2
+
+query I
+SELECT mol_num_fragments('C.C.O');
+----
+3
+
+query I
+SELECT mol_num_fragments('invalid');
+----
+NULL
+
+# ============================================================================
 # SMILES: mol_num_bonds
 # ============================================================================
 
@@ -100,6 +124,58 @@ query I
 SELECT mol_num_bonds('invalid');
 ----
 NULL
+
+# ============================================================================
+# SMILES: fast molecule-profile descriptors (20)
+# ============================================================================
+
+query IIII
+SELECT mol_formal_charge('[Cl-]'),
+       mol_num_explicit_h('[NH4+]'),
+       mol_num_implicit_h('CCO'),
+       mol_num_total_h('CCO');
+----
+-1	4	6	6
+
+query IIII
+SELECT mol_num_single_bonds('CCO'),
+       mol_num_double_bonds('C=C'),
+       mol_num_triple_bonds('C#N'),
+       mol_num_aromatic_bonds('c1ccccc1');
+----
+2	1	1	6
+
+query IIII
+SELECT mol_num_ring_atoms('c1ccccc1'),
+       mol_num_ring_bonds('c1ccccc1'),
+       mol_largest_ring_size('c1ccccc1'),
+       mol_num_aromatic_atoms('c1ccccc1');
+----
+6	6	6	6
+
+query IIII
+SELECT mol_num_carbons('CC(=O)Cl'),
+       mol_num_nitrogens('CCN'),
+       mol_num_oxygens('CC(=O)O'),
+       mol_num_halogens('FC(Cl)(Br)I');
+----
+2	1	2	4
+
+query IIII
+SELECT round(mol_heteroatom_fraction('CCO'), 6),
+       mol_aromatic_fraction('c1ccccc1'),
+       round(mol_heavy_atom_mass('CCO'), 3),
+       round(mol_mean_degree('CCO'), 6);
+----
+0.333333	1.0	40.021	1.333333
+
+query IIII
+SELECT mol_formal_charge('invalid') IS NULL,
+       mol_num_ring_atoms('invalid') IS NULL,
+       mol_heavy_atom_mass('invalid') IS NULL,
+       mol_mean_degree('invalid') IS NULL;
+----
+true	true	true	true
 
 # ============================================================================
 # SMILES: mol_weight

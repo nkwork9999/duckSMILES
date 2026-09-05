@@ -103,6 +103,18 @@ SELECT mol_num_atoms('c1ccccc1');     -- 6  (6 carbons)
 SELECT mol_num_atoms('[Na+].[Cl-]');  -- 2  (Na, Cl)
 ```
 
+#### `mol_num_fragments(smiles) -> INTEGER`
+
+Returns the number of disconnected molecular fragments (connected components).
+This is useful for detecting salts and mixtures before standardization. Returns
+`NULL` for invalid SMILES.
+
+```sql
+SELECT mol_num_fragments('CCO');          -- 1
+SELECT mol_num_fragments('[Na+].[Cl-]');  -- 2
+SELECT mol_num_fragments('C.C.O');        -- 3
+```
+
 #### `mol_num_bonds(smiles) -> INTEGER`
 
 Returns the total number of bonds in the molecule. Double bonds count as 1 bond, triple bonds count as 1 bond (bond count, not bond order sum). Ring closures are included. Returns `NULL` for invalid SMILES.
@@ -112,6 +124,29 @@ SELECT mol_num_bonds('CCO');          -- 2  (C-C, C-O)
 SELECT mol_num_bonds('c1ccccc1');     -- 6  (benzene ring)
 SELECT mol_num_bonds('C=C');          -- 1  (one double bond)
 SELECT mol_num_bonds('C#C');          -- 1  (one triple bond)
+```
+
+#### Fast molecule-profile descriptors (20)
+
+These descriptors reuse the parsed molecular graph and are intended for wide,
+vectorized profiling queries. Count functions return `INTEGER`; ratios and mass
+return `DOUBLE`. Invalid SMILES become `NULL` at the DuckDB boundary.
+
+| Group | SQL functions | Meaning |
+|---|---|---|
+| charge / H | `mol_formal_charge`, `mol_num_explicit_h`, `mol_num_implicit_h`, `mol_num_total_h` | Net formal charge and hydrogen counts; bracket H is explicit |
+| bond profile | `mol_num_single_bonds`, `mol_num_double_bonds`, `mol_num_triple_bonds`, `mol_num_aromatic_bonds` | Number of bonds by perceived order |
+| ring / aromaticity | `mol_num_ring_atoms`, `mol_num_ring_bonds`, `mol_largest_ring_size`, `mol_num_aromatic_atoms` | Ring membership, largest SSSR ring, aromatic atoms |
+| element profile | `mol_num_carbons`, `mol_num_nitrogens`, `mol_num_oxygens`, `mol_num_halogens` | C/N/O and F+Cl+Br+I counts |
+| ratios / size | `mol_heteroatom_fraction`, `mol_aromatic_fraction`, `mol_heavy_atom_mass`, `mol_mean_degree` | Fractions over heavy atoms, heavy-atom-only average mass, mean heavy-atom graph degree |
+
+```sql
+SELECT
+  mol_formal_charge('[Cl-]') AS charge,        -- -1
+  mol_num_total_h('CCO') AS hydrogens,         -- 6
+  mol_num_aromatic_bonds('c1ccccc1') AS ar_bonds, -- 6
+  mol_largest_ring_size('c1ccccc1') AS max_ring,  -- 6
+  round(mol_heteroatom_fraction('CCO'), 3) AS hetero_fraction; -- 0.333
 ```
 
 #### `mol_weight(smiles) -> DOUBLE`

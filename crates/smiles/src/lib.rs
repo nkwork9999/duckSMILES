@@ -488,9 +488,152 @@ fn fraction_csp3(mol: &Molecule) -> f64 {
     sp3 as f64 / carbon_indices.len() as f64
 }
 
+// Lightweight composition and graph-profile descriptors. These deliberately
+// reuse the parsed molecule and ring cache inputs; no fingerprint or SMARTS
+// pass is needed, so they are suitable for wide SQL profiling queries.
+fn num_explicit_hydrogens(mol: &Molecule) -> usize {
+    mol.atoms
+        .iter()
+        .map(|atom| {
+            if atom.symbol == "H" {
+                1
+            } else if atom.in_bracket {
+                atom.hydrogen.max(0) as usize
+            } else {
+                0
+            }
+        })
+        .sum()
+}
+
+fn num_implicit_hydrogens(mol: &Molecule) -> usize {
+    mol.atoms
+        .iter()
+        .filter(|atom| atom.symbol != "H" && !atom.in_bracket)
+        .map(|atom| atom.hydrogen.max(0) as usize)
+        .sum()
+}
+
+fn num_total_hydrogens(mol: &Molecule) -> usize {
+    num_explicit_hydrogens(mol) + num_implicit_hydrogens(mol)
+}
+
+fn num_bonds_with_order(mol: &Molecule, order: BondOrder) -> usize {
+    mol.bonds.iter().filter(|bond| bond.order == order).count()
+}
+
+fn num_ring_atoms(mol: &Molecule) -> usize {
+    mol.ring_info()
+        .atom_in_ring
+        .iter()
+        .filter(|in_ring| **in_ring)
+        .count()
+}
+
+fn num_ring_bonds(mol: &Molecule) -> usize {
+    mol.ring_info()
+        .bond_in_ring
+        .iter()
+        .filter(|in_ring| **in_ring)
+        .count()
+}
+
+fn largest_ring_size(mol: &Molecule) -> usize {
+    mol.ring_info()
+        .rings
+        .iter()
+        .map(Vec::len)
+        .max()
+        .unwrap_or(0)
+}
+
+fn num_aromatic_atoms(mol: &Molecule) -> usize {
+    mol.atoms.iter().filter(|atom| atom.aromatic).count()
+}
+
+fn num_elements(mol: &Molecule, symbol: &str) -> usize {
+    mol.atoms
+        .iter()
+        .filter(|atom| atom.symbol == symbol)
+        .count()
+}
+
+fn num_halogens(mol: &Molecule) -> usize {
+    mol.atoms
+        .iter()
+        .filter(|atom| matches!(atom.symbol.as_str(), "F" | "Cl" | "Br" | "I"))
+        .count()
+}
+
+fn heteroatom_fraction(mol: &Molecule) -> f64 {
+    let heavy_atoms = mol.heavy_atom_count();
+    if heavy_atoms == 0 {
+        0.0
+    } else {
+        num_heteroatoms(mol) as f64 / heavy_atoms as f64
+    }
+}
+
+fn aromatic_fraction(mol: &Molecule) -> f64 {
+    let heavy_atoms = mol.heavy_atom_count();
+    if heavy_atoms == 0 {
+        0.0
+    } else {
+        num_aromatic_atoms(mol) as f64 / heavy_atoms as f64
+    }
+}
+
+fn heavy_atom_mass(mol: &Molecule) -> f64 {
+    mol.atoms
+        .iter()
+        .filter(|atom| atom.symbol != "H")
+        .filter_map(|atom| weights::atomic_weight(&atom.symbol))
+        .sum()
+}
+
+fn mean_heavy_atom_degree(mol: &Molecule) -> f64 {
+    let heavy_atoms = mol.heavy_atom_count();
+    if heavy_atoms == 0 {
+        return 0.0;
+    }
+    let heavy_bonds = mol
+        .bonds
+        .iter()
+        .filter(|bond| {
+            mol.atoms[bond.a].symbol != "H" && mol.atoms[bond.b].symbol != "H"
+        })
+        .count();
+    (2 * heavy_bonds) as f64 / heavy_atoms as f64
+}
+
 // =============================================================================
 // C FFI exports
 // =============================================================================
+
+fn parse_ffi_molecule(ptr: *const u8, len: usize) -> Option<Molecule> {
+    if ptr.is_null() {
+        return None;
+    }
+    // SAFETY: callers provide a readable byte range of `len` bytes. We still
+    // validate UTF-8 before handing text to the parser and reject null inputs.
+    let bytes = unsafe { std::slice::from_raw_parts(ptr, len) };
+    let smiles = std::str::from_utf8(bytes).ok()?;
+    parse(smiles)
+}
+
+fn int_profile_ffi(ptr: *const u8, len: usize, descriptor: fn(&Molecule) -> usize) -> i32 {
+    std::panic::catch_unwind(|| parse_ffi_molecule(ptr, len).map(|mol| descriptor(&mol) as i32))
+        .ok()
+        .flatten()
+        .unwrap_or(-1)
+}
+
+fn double_profile_ffi(ptr: *const u8, len: usize, descriptor: fn(&Molecule) -> f64) -> f64 {
+    std::panic::catch_unwind(|| parse_ffi_molecule(ptr, len).map(|mol| descriptor(&mol)))
+        .ok()
+        .flatten()
+        .unwrap_or(f64::NAN)
+}
 
 fn write_required(src: &[u8], out: *mut u8, out_cap: usize) -> i32 {
     if out.is_null() || out_cap < src.len() {
@@ -525,6 +668,16 @@ pub extern "C" fn ds_mol_num_atoms(ptr: *const u8, len: usize) -> i32 {
     }
 }
 
+/// Returns the number of disconnected molecular fragments, or -1 on invalid.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_num_fragments(ptr: *const u8, len: usize) -> i32 {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => mol.fragment_count() as i32,
+        None => -1,
+    }
+}
+
 /// Returns bond count, or -1 on invalid
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_num_bonds(ptr: *const u8, len: usize) -> i32 {
@@ -533,6 +686,73 @@ pub extern "C" fn ds_mol_num_bonds(ptr: *const u8, len: usize) -> i32 {
         Some(mol) => mol.bond_count as i32,
         None => -1,
     }
+}
+
+/// Net formal charge. `i32::MIN` is reserved for invalid input because valid
+/// molecules may have a negative charge.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_formal_charge(ptr: *const u8, len: usize) -> i32 {
+    std::panic::catch_unwind(|| parse_ffi_molecule(ptr, len).map(|mol| mol.total_charge()))
+        .ok()
+        .flatten()
+        .unwrap_or(i32::MIN)
+}
+
+macro_rules! profile_count_ffi {
+    ($ffi:ident, $descriptor:expr) => {
+        #[unsafe(no_mangle)]
+        pub extern "C" fn $ffi(ptr: *const u8, len: usize) -> i32 {
+            int_profile_ffi(ptr, len, $descriptor)
+        }
+    };
+}
+
+profile_count_ffi!(ds_mol_num_explicit_h, num_explicit_hydrogens);
+profile_count_ffi!(ds_mol_num_implicit_h, num_implicit_hydrogens);
+profile_count_ffi!(ds_mol_num_total_h, num_total_hydrogens);
+profile_count_ffi!(ds_mol_num_single_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Single
+));
+profile_count_ffi!(ds_mol_num_double_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Double
+));
+profile_count_ffi!(ds_mol_num_triple_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Triple
+));
+profile_count_ffi!(ds_mol_num_aromatic_bonds, |mol| num_bonds_with_order(
+    mol,
+    BondOrder::Aromatic
+));
+profile_count_ffi!(ds_mol_num_ring_atoms, num_ring_atoms);
+profile_count_ffi!(ds_mol_num_ring_bonds, num_ring_bonds);
+profile_count_ffi!(ds_mol_largest_ring_size, largest_ring_size);
+profile_count_ffi!(ds_mol_num_aromatic_atoms, num_aromatic_atoms);
+profile_count_ffi!(ds_mol_num_carbons, |mol| num_elements(mol, "C"));
+profile_count_ffi!(ds_mol_num_nitrogens, |mol| num_elements(mol, "N"));
+profile_count_ffi!(ds_mol_num_oxygens, |mol| num_elements(mol, "O"));
+profile_count_ffi!(ds_mol_num_halogens, num_halogens);
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_heteroatom_fraction(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, heteroatom_fraction)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_aromatic_fraction(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, aromatic_fraction)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_heavy_atom_mass(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, heavy_atom_mass)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mol_mean_degree(ptr: *const u8, len: usize) -> f64 {
+    double_profile_ffi(ptr, len, mean_heavy_atom_degree)
 }
 
 /// Writes molecular formula to buffer. Returns length written, or -1 on invalid.
@@ -1966,6 +2186,72 @@ mod tests {
     fn test_salt() {
         let mol = parse("[Na+].[Cl-]").unwrap();
         assert_eq!(mol.formula(), "ClNa");
+    }
+
+    #[test]
+    fn test_num_fragments_ffi() {
+        for (smiles, expected) in [
+            (b"CCO".as_slice(), 1),
+            (b"[Na+].[Cl-]".as_slice(), 2),
+            (b"C.C.O".as_slice(), 3),
+        ] {
+            assert_eq!(ds_mol_num_fragments(smiles.as_ptr(), smiles.len()), expected);
+        }
+        let invalid = b"not_a_molecule";
+        assert_eq!(ds_mol_num_fragments(invalid.as_ptr(), invalid.len()), -1);
+    }
+
+    #[test]
+    fn test_profile_descriptor_ffi() {
+        let ethanol = b"CCO";
+        assert_eq!(ds_mol_formal_charge(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_explicit_h(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_implicit_h(ethanol.as_ptr(), ethanol.len()), 6);
+        assert_eq!(ds_mol_num_total_h(ethanol.as_ptr(), ethanol.len()), 6);
+        assert_eq!(ds_mol_num_single_bonds(ethanol.as_ptr(), ethanol.len()), 2);
+        assert_eq!(ds_mol_num_double_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_triple_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_aromatic_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_ring_atoms(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_ring_bonds(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_largest_ring_size(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_aromatic_atoms(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_carbons(ethanol.as_ptr(), ethanol.len()), 2);
+        assert_eq!(ds_mol_num_nitrogens(ethanol.as_ptr(), ethanol.len()), 0);
+        assert_eq!(ds_mol_num_oxygens(ethanol.as_ptr(), ethanol.len()), 1);
+        assert_eq!(ds_mol_num_halogens(ethanol.as_ptr(), ethanol.len()), 0);
+        assert!((ds_mol_heteroatom_fraction(ethanol.as_ptr(), ethanol.len()) - 1.0 / 3.0).abs() < 1e-12);
+        assert_eq!(ds_mol_aromatic_fraction(ethanol.as_ptr(), ethanol.len()), 0.0);
+        assert!((ds_mol_heavy_atom_mass(ethanol.as_ptr(), ethanol.len()) - 40.021).abs() < 1e-9);
+        assert!((ds_mol_mean_degree(ethanol.as_ptr(), ethanol.len()) - 4.0 / 3.0).abs() < 1e-12);
+
+        let benzene = b"c1ccccc1";
+        assert_eq!(ds_mol_num_aromatic_bonds(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_num_ring_atoms(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_num_ring_bonds(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_largest_ring_size(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_num_aromatic_atoms(benzene.as_ptr(), benzene.len()), 6);
+        assert_eq!(ds_mol_aromatic_fraction(benzene.as_ptr(), benzene.len()), 1.0);
+        assert_eq!(ds_mol_mean_degree(benzene.as_ptr(), benzene.len()), 2.0);
+
+        let bracket_h = b"[NH4+].[Cl-]";
+        assert_eq!(ds_mol_num_explicit_h(bracket_h.as_ptr(), bracket_h.len()), 4);
+        assert_eq!(ds_mol_num_implicit_h(bracket_h.as_ptr(), bracket_h.len()), 0);
+        assert_eq!(ds_mol_num_total_h(bracket_h.as_ptr(), bracket_h.len()), 4);
+        assert_eq!(ds_mol_num_nitrogens(bracket_h.as_ptr(), bracket_h.len()), 1);
+        assert_eq!(ds_mol_num_halogens(bracket_h.as_ptr(), bracket_h.len()), 1);
+
+        let chloride = b"[Cl-]";
+        assert_eq!(ds_mol_formal_charge(chloride.as_ptr(), chloride.len()), -1);
+
+        let double = b"C=C";
+        assert_eq!(ds_mol_num_double_bonds(double.as_ptr(), double.len()), 1);
+        let triple = b"C#N";
+        assert_eq!(ds_mol_num_triple_bonds(triple.as_ptr(), triple.len()), 1);
+
+        assert_eq!(ds_mol_formal_charge(std::ptr::null(), 0), i32::MIN);
+        assert_eq!(ds_mol_num_carbons(std::ptr::null(), 0), -1);
+        assert!(ds_mol_heavy_atom_mass(std::ptr::null(), 0).is_nan());
     }
 
     #[test]
