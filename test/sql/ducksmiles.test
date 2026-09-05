@@ -1,6 +1,6 @@
 # name: test/sql/ducksmiles.test
 # description: Test ducksmiles extension (SMILES + InChI)
-# group: [ducksmiles]
+# group: [sql]
 
 require ducksmiles
 

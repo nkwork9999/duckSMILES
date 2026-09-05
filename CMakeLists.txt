@@ -59,34 +59,10 @@ endif()
 # ---------------------------------------------------------------------------
 # Detect cross-compilation target for Rust
 # ---------------------------------------------------------------------------
-# Priority: CARGO_TARGET env > OSX_BUILD_ARCH > DUCKDB_EXPLICIT_PLATFORM > host default
-if(DEFINED ENV{CARGO_TARGET})
-    set(RUST_TARGET "$ENV{CARGO_TARGET}")
-elseif(DEFINED OSX_BUILD_ARCH AND NOT OSX_BUILD_ARCH STREQUAL "")
-    if(OSX_BUILD_ARCH STREQUAL "x86_64")
-        set(RUST_TARGET "x86_64-apple-darwin")
-    elseif(OSX_BUILD_ARCH STREQUAL "arm64")
-        set(RUST_TARGET "aarch64-apple-darwin")
-    endif()
-elseif(DEFINED DUCKDB_EXPLICIT_PLATFORM AND NOT DUCKDB_EXPLICIT_PLATFORM STREQUAL "")
-    if(DUCKDB_EXPLICIT_PLATFORM STREQUAL "osx_amd64")
-        set(RUST_TARGET "x86_64-apple-darwin")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "osx_arm64")
-        set(RUST_TARGET "aarch64-apple-darwin")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_amd64")
-        set(RUST_TARGET "x86_64-unknown-linux-gnu")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_arm64")
-        set(RUST_TARGET "aarch64-unknown-linux-gnu")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "linux_amd64_gcc4")
-        set(RUST_TARGET "x86_64-unknown-linux-gnu")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "windows_amd64")
-        set(RUST_TARGET "x86_64-pc-windows-msvc")
-    elseif(DUCKDB_EXPLICIT_PLATFORM STREQUAL "windows_amd64_mingw")
-        set(RUST_TARGET "x86_64-pc-windows-gnu")
-    endif()
-endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SelectRustTarget.cmake")
+ducksmiles_select_rust_target(RUST_TARGET)
 
-if(DEFINED RUST_TARGET)
+if(NOT RUST_TARGET STREQUAL "")
     # Ensure the target is installed
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" rustup target add ${RUST_TARGET}

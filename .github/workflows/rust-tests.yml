@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Check cross-compilation target selection
+        run: cmake -P cmake/test_rust_target.cmake
       - name: Test workspace, including pinned RDKit reference fixtures
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/ducksmiles-target
