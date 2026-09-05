@@ -452,6 +452,8 @@ impl Molecule {
             return;
         }
         let orig: Vec<Bond> = self.bonds.clone();
+        let mut system_atoms = vec![false; self.atoms.len()];
+        let mut system_bonds = vec![false; self.bonds.len()];
 
         let ring_atoms: Vec<Vec<usize>> = ring_info
             .rings
@@ -468,7 +470,7 @@ impl Molecule {
                 .iter()
                 .map(|&idx| self.pi_contribution(idx, ring, &orig))
                 .collect();
-            let usable = atoms.len() == ring.len() && (3..=8).contains(&atoms.len());
+            let usable = atoms.len() == ring.len() && atoms.len() >= 3;
             let already_aromatic = ring
                 .iter()
                 .all(|&bi| matches!(orig[bi].order, BondOrder::Aromatic));
@@ -521,8 +523,21 @@ impl Molecule {
             }
             if let Some(total) = sum_pi(&contributions) {
                 if total >= 2 && total % 4 == 2 {
-                    for &ri in &system {
-                        aromatic[ri] = true;
+                    for &idx in &atoms {
+                        system_atoms[idx] = true;
+                    }
+                    // Aromatic atoms need not share an aromatic fusion bond.
+                    // Only the perimeter of a fused 4n+2 system is aromatic;
+                    // internal bonds are aromatic only via an individual ring.
+                    for &bi in &bonds {
+                        if system
+                            .iter()
+                            .filter(|&&ri| ring_info.rings[ri].contains(&bi))
+                            .count()
+                            == 1
+                        {
+                            system_bonds[bi] = true;
+                        }
                     }
                 }
             }
@@ -536,6 +551,14 @@ impl Molecule {
                 self.atoms[idx].aromatic = true;
             }
             for &bi in &ring_info.rings[ri] {
+                self.bonds[bi].order = BondOrder::Aromatic;
+            }
+        }
+        for (idx, aromatic) in system_atoms.into_iter().enumerate() {
+            self.atoms[idx].aromatic |= aromatic;
+        }
+        for (bi, aromatic) in system_bonds.into_iter().enumerate() {
+            if aromatic {
                 self.bonds[bi].order = BondOrder::Aromatic;
             }
         }
@@ -594,6 +617,19 @@ impl Molecule {
     /// counts as "exocyclic" relative to that particular ring or ring system.
     fn pi_contribution(&self, idx: usize, ring: &[usize], orig: &[Bond]) -> Option<u32> {
         let atom = self.atoms.get(idx)?;
+        // A neutral bracket nitrogen with an incomplete valence shell is a
+        // radical, not a pyrrolic lone-pair donor (C1=C[N]C=C1).
+        if atom.in_bracket && atom.symbol == "N" && atom.charge == 0 {
+            let valence = atom.hydrogen
+                + orig
+                    .iter()
+                    .filter(|b| b.a == idx || b.b == idx)
+                    .map(|b| bond_valence(b.order))
+                    .sum::<i32>();
+            if !atom.aromatic && valence < 3 {
+                return None;
+            }
+        }
         if !matches!(
             atom.symbol.as_str(),
             "B" | "C" | "N" | "O" | "P" | "S" | "Se" | "Te" | "As"
@@ -638,8 +674,21 @@ impl Molecule {
                 _ => Some(1),
             };
         }
-        if in_ring_double || in_ring_aromatic {
+        if in_ring_double {
             return Some(1);
+        }
+        if in_ring_aromatic {
+            return Some(match atom.symbol.as_str() {
+                "O" | "S" | "Se" | "Te" => 2,
+                "N" | "P" | "As"
+                    if atom.charge == 0
+                        && (atom.hydrogen > 0
+                            || orig.iter().filter(|b| b.a == idx || b.b == idx).count() == 3) =>
+                {
+                    2
+                }
+                _ => 1,
+            });
         }
 
         // No double bond at this atom: it can only take part through a lone
@@ -1346,7 +1395,14 @@ impl Molecule {
         // discovered only when the traversal comes back around.
         let mut seen = vec![false; self.atoms.len()];
         let mut back_edges = vec![false; self.bonds.len()];
-        self.collect_back_edges(start, usize::MAX, ranks, &in_component, &mut seen, &mut back_edges);
+        self.collect_back_edges(
+            start,
+            usize::MAX,
+            ranks,
+            &in_component,
+            &mut seen,
+            &mut back_edges,
+        );
 
         let mut visited = vec![false; self.atoms.len()];
         let mut ring_id_for_pair = std::collections::HashMap::new();

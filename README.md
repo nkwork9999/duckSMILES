@@ -134,11 +134,11 @@ return `DOUBLE`. Invalid SMILES become `NULL` at the DuckDB boundary.
 
 | Group | SQL functions | Meaning |
 |---|---|---|
-| charge / H | `mol_formal_charge`, `mol_num_explicit_h`, `mol_num_implicit_h`, `mol_num_total_h` | Net formal charge and hydrogen counts; bracket H is explicit |
+| charge / H | `mol_formal_charge`, `mol_num_explicit_h`, `mol_num_implicit_h`, `mol_num_total_h` | Net formal charge and hydrogen counts; bracket H and sanitized pyrrolic N/P H are explicit |
 | bond profile | `mol_num_single_bonds`, `mol_num_double_bonds`, `mol_num_triple_bonds`, `mol_num_aromatic_bonds` | Number of bonds by perceived order |
 | ring / aromaticity | `mol_num_ring_atoms`, `mol_num_ring_bonds`, `mol_largest_ring_size`, `mol_num_aromatic_atoms` | Ring membership, largest SSSR ring, aromatic atoms |
 | element profile | `mol_num_carbons`, `mol_num_nitrogens`, `mol_num_oxygens`, `mol_num_halogens` | C/N/O and F+Cl+Br+I counts |
-| ratios / size | `mol_heteroatom_fraction`, `mol_aromatic_fraction`, `mol_heavy_atom_mass`, `mol_mean_degree` | Fractions over heavy atoms, heavy-atom-only average mass, mean heavy-atom graph degree |
+| ratios / size | `mol_heteroatom_fraction`, `mol_aromatic_fraction`, `mol_heavy_atom_mass`, `mol_mean_degree` | Fractions over heavy atoms, isotope-aware heavy-atom mass, mean heavy-atom graph degree |
 
 ```sql
 SELECT
@@ -149,7 +149,20 @@ SELECT
   round(mol_heteroatom_fraction('CCO'), 3) AS hetero_fraction; -- 0.333
 ```
 
+The 21 structural-profile functions above have a dedicated
+[RDKit parity contract and reproducible test report](PROFILE_PARITY.md).
+The checked-in corpus covers 4,510 inputs (including alternative SMILES and
+element/isotope cases), with exact integer comparisons and absolute tolerance
+`1e-9` for the four floating-point descriptors. This is a bounded compatibility
+result, not a claim of full RDKit parser/sanitizer equivalence.
+
+`mol_heavy_atom_mass` matches RDKit `HeavyAtomMolWt`: unlabelled atoms use
+RDKit 2025.09.6 average atomic weights, isotope-labelled atoms use isotope
+masses, and all hydrogen isotopes are excluded. It is not monoisotopic mass.
+Legacy `mol_weight` and `mol_exact_mass` retain their existing tables.
+
 #### `mol_weight(smiles) -> DOUBLE`
+
 
 Returns the average molecular weight in Da (Daltons), using standard atomic weights (e.g., C=12.011, H=1.008, O=15.999). Includes the mass contribution of implicit hydrogens. Returns `NULL` (NaN internally) for invalid SMILES.
 

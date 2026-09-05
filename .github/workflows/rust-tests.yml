@@ -1,0 +1,20 @@
+name: Rust descriptor regression tests
+on:
+  push:
+    branches: [main, feature/rdkit-parity]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CARGO_TARGET_DIR: ${{ runner.temp }}/ducksmiles-target
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test workspace, including pinned RDKit reference fixtures
+        run: cargo test --workspace --locked

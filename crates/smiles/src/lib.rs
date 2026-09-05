@@ -7,6 +7,7 @@ mod mcs;
 mod molhash;
 mod morgan;
 mod parser;
+mod profile_weights;
 mod qed;
 mod scaffold;
 mod similarity;
@@ -497,7 +498,7 @@ fn num_explicit_hydrogens(mol: &Molecule) -> usize {
         .map(|atom| {
             if atom.symbol == "H" {
                 1
-            } else if atom.in_bracket {
+            } else if profile_h_is_explicit(atom) {
                 atom.hydrogen.max(0) as usize
             } else {
                 0
@@ -509,13 +510,19 @@ fn num_explicit_hydrogens(mol: &Molecule) -> usize {
 fn num_implicit_hydrogens(mol: &Molecule) -> usize {
     mol.atoms
         .iter()
-        .filter(|atom| atom.symbol != "H" && !atom.in_bracket)
+        .filter(|atom| atom.symbol != "H" && !profile_h_is_explicit(atom))
         .map(|atom| atom.hydrogen.max(0) as usize)
         .sum()
 }
 
 fn num_total_hydrogens(mol: &Molecule) -> usize {
     num_explicit_hydrogens(mol) + num_implicit_hydrogens(mol)
+}
+
+// RDKit sanitization promotes pyrrolic N/P hydrogens to explicit H, even
+// when the input used unbracketed Kekule notation (e.g. C1=CNC=C1).
+fn profile_h_is_explicit(atom: &parser::Atom) -> bool {
+    atom.in_bracket || (atom.aromatic && matches!(atom.symbol.as_str(), "N" | "P"))
 }
 
 fn num_bonds_with_order(mol: &Molecule, order: BondOrder) -> usize {
@@ -587,7 +594,7 @@ fn heavy_atom_mass(mol: &Molecule) -> f64 {
     mol.atoms
         .iter()
         .filter(|atom| atom.symbol != "H")
-        .filter_map(|atom| weights::atomic_weight(&atom.symbol))
+        .map(|atom| profile_weights::atom_mass(&atom.symbol, atom.isotope).unwrap_or(f64::NAN))
         .sum()
 }
 
