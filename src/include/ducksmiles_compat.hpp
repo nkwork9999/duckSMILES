@@ -1,9 +1,60 @@
 #pragma once
 
 #include "duckdb/common/vector_operations/unary_executor.hpp"
+#if __has_include("duckdb/common/vector/list_vector.hpp")
+#include "duckdb/common/vector/list_vector.hpp"
+#endif
 
 namespace duckdb {
 namespace ducksmiles_compat {
+
+// DuckDB 2 keeps vector sizes internally. Select its count-free APIs without
+// using deprecated overloads, while retaining the explicit count on DuckDB 1.
+template <class V>
+static auto FlattenImpl(V &input, idx_t, int)
+    -> decltype(input.Flatten(), void()) {
+  input.Flatten();
+}
+
+template <class V> static void FlattenImpl(V &input, idx_t count, long) {
+  input.Flatten(count);
+}
+
+template <class V> static void Flatten(V &input, idx_t count) {
+  FlattenImpl(input, count, 0);
+}
+
+template <class V>
+static auto ToUnifiedFormatImpl(V &input, idx_t, UnifiedVectorFormat &data, int)
+    -> decltype(input.ToUnifiedFormat(data), void()) {
+  input.ToUnifiedFormat(data);
+}
+
+template <class V>
+static void ToUnifiedFormatImpl(V &input, idx_t count,
+                                UnifiedVectorFormat &data, long) {
+  input.ToUnifiedFormat(count, data);
+}
+
+static void ToUnifiedFormat(Vector &input, idx_t count,
+                            UnifiedVectorFormat &data) {
+  ToUnifiedFormatImpl(input, count, data, 0);
+}
+
+template <class List = ListVector>
+static auto ListChildImpl(Vector &input, int)
+    -> decltype(List::GetChild(input)) {
+  return List::GetChild(input);
+}
+
+template <class List = ListVector>
+static Vector &ListChildImpl(Vector &input, long) {
+  return List::GetEntry(input);
+}
+
+static auto ListChild(Vector &input) -> decltype(ListChildImpl(input, 0)) {
+  return ListChildImpl(input, 0);
+}
 
 // GenericExecute is shared by stable DuckDB and the new scalar executor.
 // Keep the callback's validity mask so Rust error sentinels still become NULL.

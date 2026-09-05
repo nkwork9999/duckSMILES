@@ -182,8 +182,8 @@ static string_t DynamicStringResult(Vector &result, ValidityMask &mask,
   static void FuncName(DataChunk &args, ExpressionState &state,                \
                        Vector &result) {                                       \
     idx_t count = args.size();                                                 \
-    args.data[0].Flatten(count);                                               \
-    args.data[1].Flatten(count);                                               \
+    ducksmiles_compat::Flatten(args.data[0], count);                           \
+    ducksmiles_compat::Flatten(args.data[1], count);                           \
     auto left_data = FlatVector::GetData<string_t>(args.data[0]);              \
     auto right_data = FlatVector::GetData<string_t>(args.data[1]);             \
     auto result_data =                                                         \
@@ -298,8 +298,8 @@ static void DruglikenessPassFunc(DataChunk &args, ExpressionState &state,
 static void SmilesToPdbqtFunc(DataChunk &args, ExpressionState &state,
                               Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
   auto smi = FlatVector::GetData<string_t>(args.data[0]);
   auto seed = FlatVector::GetData<int64_t>(args.data[1]);
   auto &smi_valid = FlatVector::Validity(args.data[0]);
@@ -329,7 +329,7 @@ static void DockFunc(DataChunk &args, ExpressionState &state, Vector &result) {
   idx_t count = args.size();
   idx_t ncol = args.ColumnCount();
   for (idx_t c = 0; c < ncol; c++)
-    args.data[c].Flatten(count);
+    ducksmiles_compat::Flatten(args.data[c], count);
   auto smi = FlatVector::GetData<string_t>(args.data[0]);
   auto pdb = FlatVector::GetData<string_t>(args.data[1]);
   auto cx = FlatVector::GetData<double>(args.data[2]);
@@ -379,18 +379,18 @@ static void BenchmarkMetric(DataChunk &args, Vector &result, Metric metric) {
   auto &labels_list = args.data[1];
 
   UnifiedVectorFormat s_fmt, l_fmt;
-  scores_list.ToUnifiedFormat(count, s_fmt);
-  labels_list.ToUnifiedFormat(count, l_fmt);
+  ducksmiles_compat::ToUnifiedFormat(scores_list, count, s_fmt);
+  ducksmiles_compat::ToUnifiedFormat(labels_list, count, l_fmt);
   auto s_entries = UnifiedVectorFormat::GetData<list_entry_t>(s_fmt);
   auto l_entries = UnifiedVectorFormat::GetData<list_entry_t>(l_fmt);
 
   // Flatten child vectors so we can index them directly.
-  auto &s_child = ListVector::GetEntry(scores_list);
-  auto &l_child = ListVector::GetEntry(labels_list);
+  auto &s_child = ducksmiles_compat::ListChild(scores_list);
+  auto &l_child = ducksmiles_compat::ListChild(labels_list);
   idx_t s_child_len = ListVector::GetListSize(scores_list);
   idx_t l_child_len = ListVector::GetListSize(labels_list);
-  s_child.Flatten(s_child_len);
-  l_child.Flatten(l_child_len);
+  ducksmiles_compat::Flatten(s_child, s_child_len);
+  ducksmiles_compat::Flatten(l_child, l_child_len);
   auto s_data = FlatVector::GetData<double>(s_child);
   auto l_data = FlatVector::GetData<bool>(l_child);
 
@@ -432,7 +432,7 @@ static void RocAucFunc(DataChunk &args, ExpressionState &state,
 static void EnrichmentFactorFunc(DataChunk &args, ExpressionState &state,
                                  Vector &result) {
   idx_t count = args.size();
-  args.data[2].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[2], count);
   auto frac = FlatVector::GetData<double>(args.data[2]);
   BenchmarkMetric(args, result,
                   [&](const double *s, const uint8_t *l, size_t n, idx_t i) {
@@ -443,7 +443,7 @@ static void EnrichmentFactorFunc(DataChunk &args, ExpressionState &state,
 static void BedrocFunc(DataChunk &args, ExpressionState &state,
                        Vector &result) {
   idx_t count = args.size();
-  args.data[2].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[2], count);
   auto alpha = FlatVector::GetData<double>(args.data[2]);
   BenchmarkMetric(args, result,
                   [&](const double *s, const uint8_t *l, size_t n, idx_t i) {
@@ -455,8 +455,8 @@ static void BedrocFunc(DataChunk &args, ExpressionState &state,
 static void PrepareReceptorFunc(DataChunk &args, ExpressionState &state,
                                 Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
   auto pdb = FlatVector::GetData<string_t>(args.data[0]);
   auto ph = FlatVector::GetData<double>(args.data[1]);
   auto &pdb_valid = FlatVector::Validity(args.data[0]);
@@ -492,8 +492,8 @@ static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state,
 static void MolHasSubstructureFunc(DataChunk &args, ExpressionState &state,
                                    Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
   auto result_data = ducksmiles_compat::ResultData<bool>(result, args.size());
@@ -519,8 +519,8 @@ static void MolHasSubstructureFunc(DataChunk &args, ExpressionState &state,
 static void MolSubstructureCountFunc(DataChunk &args, ExpressionState &state,
                                      Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
   auto result_data =
@@ -548,8 +548,8 @@ static void MolSubstructureMatchesJsonFunc(DataChunk &args,
                                            ExpressionState &state,
                                            Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto smarts_data = FlatVector::GetData<string_t>(args.data[1]);
   auto result_data =
@@ -616,9 +616,9 @@ static constexpr size_t MORGAN_BUF_BYTES = 16384;
 static void MorganFpBitsFunc3(DataChunk &args, ExpressionState &state,
                               Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
-  args.data[2].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
+  ducksmiles_compat::Flatten(args.data[2], count);
   auto smi_data = FlatVector::GetData<string_t>(args.data[0]);
   auto radius_data = FlatVector::GetData<int32_t>(args.data[1]);
   auto nbits_data = FlatVector::GetData<int32_t>(args.data[2]);
@@ -748,10 +748,10 @@ static void TverskyBitFunc(DataChunk &args, ExpressionState &state,
                            Vector &result) {
   auto count = args.size();
   UnifiedVectorFormat a_fmt, b_fmt, alpha_fmt, beta_fmt;
-  args.data[0].ToUnifiedFormat(count, a_fmt);
-  args.data[1].ToUnifiedFormat(count, b_fmt);
-  args.data[2].ToUnifiedFormat(count, alpha_fmt);
-  args.data[3].ToUnifiedFormat(count, beta_fmt);
+  ducksmiles_compat::ToUnifiedFormat(args.data[0], count, a_fmt);
+  ducksmiles_compat::ToUnifiedFormat(args.data[1], count, b_fmt);
+  ducksmiles_compat::ToUnifiedFormat(args.data[2], count, alpha_fmt);
+  ducksmiles_compat::ToUnifiedFormat(args.data[3], count, beta_fmt);
 
   auto a_vals = UnifiedVectorFormat::GetData<string_t>(a_fmt);
   auto b_vals = UnifiedVectorFormat::GetData<string_t>(b_fmt);
@@ -827,8 +827,8 @@ DEFINE_STR_FUNC(InchikeyProtonationFunc, ds_inchikey_protonation)
 static void InchiSkeletonMatchFunc(DataChunk &args, ExpressionState &state,
                                    Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
   auto a_data = FlatVector::GetData<string_t>(args.data[0]);
   auto b_data = FlatVector::GetData<string_t>(args.data[1]);
   auto result_data = ducksmiles_compat::ResultData<bool>(result, args.size());
@@ -883,8 +883,8 @@ DEFINE_DOUBLE_FUNC(MolBlockMaxZFunc, ds_mol_block_max_z)
 static void MolBlockPropertyFunc(DataChunk &args, ExpressionState &state,
                                  Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
   auto mol_data = FlatVector::GetData<string_t>(args.data[0]);
   auto key_data = FlatVector::GetData<string_t>(args.data[1]);
   auto result_data =
@@ -911,9 +911,9 @@ static void MolBlockPropertyFunc(DataChunk &args, ExpressionState &state,
 static void SdfPropertyFunc(DataChunk &args, ExpressionState &state,
                             Vector &result) {
   idx_t count = args.size();
-  args.data[0].Flatten(count);
-  args.data[1].Flatten(count);
-  args.data[2].Flatten(count);
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
+  ducksmiles_compat::Flatten(args.data[2], count);
   auto sdf_data = FlatVector::GetData<string_t>(args.data[0]);
   auto index_data = FlatVector::GetData<int32_t>(args.data[1]);
   auto key_data = FlatVector::GetData<string_t>(args.data[2]);
@@ -1005,6 +1005,17 @@ DEFINE_BOOL_FUNC(SelfiesIsValidFunc, ds_selfies_is_valid)
 // Registration
 // ============================================================================
 
+// Both supported DuckDB APIs expose SetFallible(). DuckDB 2 enforces this
+// metadata for runtime errors, and TRY/filter pushdown rely on it in both.
+static ScalarFunction
+FallibleScalarFunction(const char *name, const vector<LogicalType> &arguments,
+                       const LogicalType &return_type,
+                       scalar_function_t callback) {
+  ScalarFunction function(name, arguments, return_type, callback);
+  function.SetFallible();
+  return function;
+}
+
 static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   // --- SMILES ---
   loader.RegisterFunction(ScalarFunction("mol_is_valid", {LogicalType::VARCHAR},
@@ -1093,42 +1104,43 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       ScalarFunction("canonical_smiles", {LogicalType::VARCHAR},
                      LogicalType::VARCHAR, CanonicalSmilesFunc));
   loader.RegisterFunction(
-      ScalarFunction("murcko_scaffold", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MurckoScaffoldFunc));
+      FallibleScalarFunction("murcko_scaffold", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MurckoScaffoldFunc));
   loader.RegisterFunction(
-      ScalarFunction("generic_scaffold", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, GenericScaffoldFunc));
+      FallibleScalarFunction("generic_scaffold", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, GenericScaffoldFunc));
   loader.RegisterFunction(
-      ScalarFunction("ring_systems_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, RingSystemsJsonFunc));
-  loader.RegisterFunction(
-      ScalarFunction("mol_hash", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolHashFunc));
-  loader.RegisterFunction(ScalarFunction(
+      FallibleScalarFunction("ring_systems_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, RingSystemsJsonFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "mol_hash", {LogicalType::VARCHAR, LogicalType::VARCHAR},
+      LogicalType::VARCHAR, MolHashFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
       "mol_hash_methods", {}, LogicalType::VARCHAR, MolHashMethodsJsonFunc));
   loader.RegisterFunction(
-      ScalarFunction("largest_fragment", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, LargestFragmentFunc));
-  loader.RegisterFunction(ScalarFunction("strip_salts", {LogicalType::VARCHAR},
-                                         LogicalType::VARCHAR, StripSaltsFunc));
+      FallibleScalarFunction("largest_fragment", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, LargestFragmentFunc));
   loader.RegisterFunction(
-      ScalarFunction("neutralize_charges", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, NeutralizeChargesFunc));
+      FallibleScalarFunction("strip_salts", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, StripSaltsFunc));
   loader.RegisterFunction(
-      ScalarFunction("normalize_smiles", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, NormalizeSmilesFunc));
+      FallibleScalarFunction("neutralize_charges", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, NeutralizeChargesFunc));
   loader.RegisterFunction(
-      ScalarFunction("fragment_parent", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, FragmentParentFunc));
+      FallibleScalarFunction("normalize_smiles", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, NormalizeSmilesFunc));
   loader.RegisterFunction(
-      ScalarFunction("mcs_smarts", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, McsSmartsFunc));
+      FallibleScalarFunction("fragment_parent", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, FragmentParentFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "mcs_smarts", {LogicalType::VARCHAR, LogicalType::VARCHAR},
+      LogicalType::VARCHAR, McsSmartsFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "mcs_json", {LogicalType::VARCHAR, LogicalType::VARCHAR},
+      LogicalType::VARCHAR, McsJsonFunc));
   loader.RegisterFunction(
-      ScalarFunction("mcs_json", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, McsJsonFunc));
-  loader.RegisterFunction(
-      ScalarFunction("scaffold_network_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, ScaffoldNetworkJsonFunc));
+      FallibleScalarFunction("scaffold_network_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, ScaffoldNetworkJsonFunc));
   loader.RegisterFunction(
       ScalarFunction("num_h_acceptors", {LogicalType::VARCHAR},
                      LogicalType::INTEGER, NumHAcceptorsFunc));
@@ -1177,11 +1189,12 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       ScalarFunction("num_aliphatic_carbocycles", {LogicalType::VARCHAR},
                      LogicalType::INTEGER, NumAliphaticCarbocyclesFunc));
   // ADMET / drug-likeness rule panels + toxicophore structural alerts
-  loader.RegisterFunction(ScalarFunction("admet_json", {LogicalType::VARCHAR},
-                                         LogicalType::VARCHAR, AdmetJsonFunc));
   loader.RegisterFunction(
-      ScalarFunction("structural_alerts_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, StructuralAlertsJsonFunc));
+      FallibleScalarFunction("admet_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, AdmetJsonFunc));
+  loader.RegisterFunction(
+      FallibleScalarFunction("structural_alerts_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, StructuralAlertsJsonFunc));
   loader.RegisterFunction(
       ScalarFunction("structural_alert_count", {LogicalType::VARCHAR},
                      LogicalType::INTEGER, StructuralAlertCountFunc));
@@ -1191,8 +1204,9 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   loader.RegisterFunction(ScalarFunction(
       "druglikeness_pass", {LogicalType::VARCHAR, LogicalType::VARCHAR},
       LogicalType::INTEGER, DruglikenessPassFunc));
-  loader.RegisterFunction(ScalarFunction("pdb_to_pdbqt", {LogicalType::VARCHAR},
-                                         LogicalType::VARCHAR, PdbToPdbqtFunc));
+  loader.RegisterFunction(
+      FallibleScalarFunction("pdb_to_pdbqt", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, PdbToPdbqtFunc));
   // Docking pipeline
   loader.RegisterFunction(ScalarFunction(
       "smiles_to_pdbqt", {LogicalType::VARCHAR, LogicalType::BIGINT},
@@ -1211,7 +1225,7 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
        LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::INTEGER,
        LogicalType::BIGINT, LogicalType::DOUBLE},
       LogicalType::VARCHAR, DockFunc));
-  loader.RegisterFunction(ScalarFunction(
+  loader.RegisterFunction(FallibleScalarFunction(
       "prepare_receptor", {LogicalType::VARCHAR, LogicalType::DOUBLE},
       LogicalType::VARCHAR, PrepareReceptorFunc));
   // Virtual-screening benchmark metrics (LIST<DOUBLE> scores, LIST<BOOLEAN>
@@ -1237,10 +1251,10 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   loader.RegisterFunction(ScalarFunction(
       "mol_substructure_count", {LogicalType::VARCHAR, LogicalType::VARCHAR},
       LogicalType::INTEGER, MolSubstructureCountFunc));
-  loader.RegisterFunction(
-      ScalarFunction("mol_substructure_matches_json",
-                     {LogicalType::VARCHAR, LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolSubstructureMatchesJsonFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "mol_substructure_matches_json",
+      {LogicalType::VARCHAR, LogicalType::VARCHAR}, LogicalType::VARCHAR,
+      MolSubstructureMatchesJsonFunc));
   loader.RegisterFunction(
       ScalarFunction("add_hydrogens", {LogicalType::VARCHAR},
                      LogicalType::VARCHAR, AddHydrogensFunc));
@@ -1253,38 +1267,38 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       LogicalType::BLOB, MorganFpBitsFunc3));
   loader.RegisterFunction(ScalarFunction("maccs_keys", {LogicalType::VARCHAR},
                                          LogicalType::BLOB, MaccsKeysFunc));
-  loader.RegisterFunction(ScalarFunction("tanimoto_bit",
-                                         {LogicalType::BLOB, LogicalType::BLOB},
-                                         LogicalType::DOUBLE, TanimotoBitFunc));
-  loader.RegisterFunction(ScalarFunction("dice_bit",
-                                         {LogicalType::BLOB, LogicalType::BLOB},
-                                         LogicalType::DOUBLE, DiceBitFunc));
-  loader.RegisterFunction(ScalarFunction("cosine_bit",
-                                         {LogicalType::BLOB, LogicalType::BLOB},
-                                         LogicalType::DOUBLE, CosineBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "tanimoto_bit", {LogicalType::BLOB, LogicalType::BLOB},
+      LogicalType::DOUBLE, TanimotoBitFunc));
   loader.RegisterFunction(
-      ScalarFunction("kulczynski_bit", {LogicalType::BLOB, LogicalType::BLOB},
-                     LogicalType::DOUBLE, KulczynskiBitFunc));
-  loader.RegisterFunction(ScalarFunction("sokal_bit",
-                                         {LogicalType::BLOB, LogicalType::BLOB},
-                                         LogicalType::DOUBLE, SokalBitFunc));
-  loader.RegisterFunction(
-      ScalarFunction("mcconnaughey_bit", {LogicalType::BLOB, LogicalType::BLOB},
-                     LogicalType::DOUBLE, McConnaugheyBitFunc));
-  loader.RegisterFunction(
-      ScalarFunction("asymmetric_bit", {LogicalType::BLOB, LogicalType::BLOB},
-                     LogicalType::DOUBLE, AsymmetricBitFunc));
-  loader.RegisterFunction(ScalarFunction(
+      FallibleScalarFunction("dice_bit", {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, DiceBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "cosine_bit", {LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE,
+      CosineBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "kulczynski_bit", {LogicalType::BLOB, LogicalType::BLOB},
+      LogicalType::DOUBLE, KulczynskiBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "sokal_bit", {LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE,
+      SokalBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "mcconnaughey_bit", {LogicalType::BLOB, LogicalType::BLOB},
+      LogicalType::DOUBLE, McConnaugheyBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "asymmetric_bit", {LogicalType::BLOB, LogicalType::BLOB},
+      LogicalType::DOUBLE, AsymmetricBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
       "braun_blanquet_bit", {LogicalType::BLOB, LogicalType::BLOB},
       LogicalType::DOUBLE, BraunBlanquetBitFunc));
-  loader.RegisterFunction(ScalarFunction("russel_bit",
-                                         {LogicalType::BLOB, LogicalType::BLOB},
-                                         LogicalType::DOUBLE, RusselBitFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "russel_bit", {LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE,
+      RusselBitFunc));
   loader.RegisterFunction(
-      ScalarFunction("tversky_bit",
-                     {LogicalType::BLOB, LogicalType::BLOB, LogicalType::DOUBLE,
-                      LogicalType::DOUBLE},
-                     LogicalType::DOUBLE, TverskyBitFunc));
+      FallibleScalarFunction("tversky_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB,
+                              LogicalType::DOUBLE, LogicalType::DOUBLE},
+                             LogicalType::DOUBLE, TverskyBitFunc));
 
   // --- InChI layer extraction ---
   loader.RegisterFunction(
@@ -1355,21 +1369,21 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   loader.RegisterFunction(
       ScalarFunction("mol_block_name", {LogicalType::VARCHAR},
                      LogicalType::VARCHAR, MolBlockNameFunc));
-  loader.RegisterFunction(ScalarFunction(
+  loader.RegisterFunction(FallibleScalarFunction(
       "mol_block_property", {LogicalType::VARCHAR, LogicalType::VARCHAR},
       LogicalType::VARCHAR, MolBlockPropertyFunc));
+  loader.RegisterFunction(FallibleScalarFunction(
+      "mol_block_properties_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR,
+      MolBlockPropertiesJsonFunc));
   loader.RegisterFunction(
-      ScalarFunction("mol_block_properties_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolBlockPropertiesJsonFunc));
+      FallibleScalarFunction("mol_block_atoms_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MolBlockAtomsJsonFunc));
   loader.RegisterFunction(
-      ScalarFunction("mol_block_atoms_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolBlockAtomsJsonFunc));
+      FallibleScalarFunction("mol_block_bonds_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MolBlockBondsJsonFunc));
   loader.RegisterFunction(
-      ScalarFunction("mol_block_bonds_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolBlockBondsJsonFunc));
-  loader.RegisterFunction(
-      ScalarFunction("mol_block_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolBlockJsonFunc));
+      FallibleScalarFunction("mol_block_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MolBlockJsonFunc));
   loader.RegisterFunction(
       ScalarFunction("mol_block_has_3d", {LogicalType::VARCHAR},
                      LogicalType::BOOLEAN, MolBlockHas3dFunc));
@@ -1405,13 +1419,13 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
                      LogicalType::DOUBLE, MolBlockMaxZFunc));
   loader.RegisterFunction(ScalarFunction("sdf_count", {LogicalType::VARCHAR},
                                          LogicalType::INTEGER, SdfCountFunc));
-  loader.RegisterFunction(ScalarFunction(
+  loader.RegisterFunction(FallibleScalarFunction(
       "sdf_property",
       {LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::VARCHAR},
       LogicalType::VARCHAR, SdfPropertyFunc));
   loader.RegisterFunction(
-      ScalarFunction("sdf_properties_json", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, SdfPropertiesJsonFunc));
+      FallibleScalarFunction("sdf_properties_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, SdfPropertiesJsonFunc));
 
   // --- PDB/CIF/XYZ structure ---
   loader.RegisterFunction(
