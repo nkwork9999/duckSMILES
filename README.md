@@ -887,6 +887,9 @@ Tested with real competition datasets containing complex aromatic systems, stere
 
 ## Architecture
 
+Wasm toolchain, standard-library rebuild, and artifact checks:
+[WebAssembly build contract](WASM_BUILD.md).
+
 - **Rust** (5 crates, ~3,200 lines): Core molecular parsing and computation
 - **C++** (~330 lines): DuckDB extension integration via FFI
 - No external chemistry library dependencies (no RDKit, no OpenBabel)

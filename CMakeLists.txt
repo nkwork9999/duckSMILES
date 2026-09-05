@@ -69,10 +69,12 @@ ducksmiles_select_rust_target(RUST_TARGET)
 
 if(NOT RUST_TARGET STREQUAL "")
     # Ensure the target is installed
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" rustup target add ${RUST_TARGET}
-        WORKING_DIRECTORY ${RUST_DIR}
-    )
+    if(NOT EMSCRIPTEN)
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" rustup target add ${RUST_TARGET}
+            WORKING_DIRECTORY ${RUST_DIR}
+        )
+    endif()
     set(CARGO_TARGET_DIR "${CARGO_OUTPUT_ROOT}/${RUST_TARGET}/${CARGO_PROFILE}")
     set(CARGO_TARGET_FLAG "--target" "${RUST_TARGET}")
     message(STATUS "Rust cross-compile target: ${RUST_TARGET}")
@@ -80,6 +82,12 @@ else()
     set(CARGO_TARGET_DIR "${CARGO_OUTPUT_ROOT}/${CARGO_PROFILE}")
     set(CARGO_TARGET_FLAG "")
     message(STATUS "Rust target: host default")
+endif()
+
+set(CARGO_EXTRA_FLAGS "")
+set(CARGO_EXTRA_ENV "")
+if(EMSCRIPTEN)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ConfigureRustWasm.cmake")
 endif()
 
 # Library naming: MSVC uses .lib, others use lib*.a
@@ -101,11 +109,16 @@ file(GLOB_RECURSE RUST_SOURCES CONFIGURE_DEPENDS
     "${RUST_DIR}/crates/*/Cargo.toml"
     "${RUST_DIR}/crates/*/src/*.rs"
 )
+list(APPEND RUST_SOURCES
+    "${RUST_DIR}/Cargo.lock"
+    "${RUST_DIR}/CMakeLists.txt"
+    "${RUST_DIR}/cmake/ConfigureRustWasm.cmake"
+)
 
 if(WIN32)
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
-        COMMAND ${CMAKE_COMMAND} -E env "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        COMMAND ${CMAKE_COMMAND} -E env "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXTRA_ENV} ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} ${CARGO_EXTRA_FLAGS} --workspace
         DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"
@@ -114,7 +127,7 @@ if(WIN32)
 else()
     add_custom_command(
         OUTPUT ${RUST_STATIC_LIBS}
-        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} --workspace
+        COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{HOME}/.cargo/bin:$ENV{PATH}" "CARGO_TARGET_DIR=${CARGO_OUTPUT_ROOT}" ${CARGO_EXTRA_ENV} ${CARGO_EXECUTABLE} build ${CARGO_FLAG} ${CARGO_TARGET_FLAG} ${CARGO_EXTRA_FLAGS} --workspace
         DEPENDS ${RUST_SOURCES}
         WORKING_DIRECTORY ${RUST_DIR}
         COMMENT "Building Rust workspace (duckSmiles crates)"
