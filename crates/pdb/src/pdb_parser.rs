@@ -6,9 +6,16 @@ pub fn parse_pdb(text: &str, include_hetatm: bool) -> Vec<Atom> {
     let mut model_num = 1i32;
 
     for line in text.lines() {
-        if line.starts_with("MODEL") {
-            model_num = line[6..].trim().parse().unwrap_or(model_num);
-        } else if line.starts_with("ATOM") || (include_hetatm && line.starts_with("HETATM")) {
+        if line.get(..6).map(str::trim) == Some("MODEL") || line == "MODEL" {
+            model_num = line
+                .get(6..)
+                .unwrap_or("")
+                .trim()
+                .parse()
+                .unwrap_or(model_num);
+        } else if line.get(..6).map(str::trim) == Some("ATOM")
+            || (include_hetatm && line.get(..6) == Some("HETATM"))
+        {
             if line.len() < 54 {
                 continue;
             }
@@ -17,17 +24,51 @@ pub fn parse_pdb(text: &str, include_hetatm: bool) -> Vec<Atom> {
             let altloc = line.as_bytes().get(16).map(|&b| b as char).unwrap_or(' ');
             let resname = line.get(17..20).unwrap_or("   ").trim().to_string();
             let chain = line.get(21..22).unwrap_or(" ").trim().to_string();
-            let resid = line.get(22..26).unwrap_or("    ").trim().parse().unwrap_or(0);
-            let x = line.get(30..38).unwrap_or("").trim().parse().unwrap_or(0.0);
-            let y = line.get(38..46).unwrap_or("").trim().parse().unwrap_or(0.0);
-            let z = line.get(46..54).unwrap_or("").trim().parse().unwrap_or(0.0);
+            let resid = line
+                .get(22..26)
+                .unwrap_or("    ")
+                .trim()
+                .parse()
+                .unwrap_or(0);
+            let Some(x) = line
+                .get(30..38)
+                .and_then(|v| v.trim().parse::<f32>().ok())
+                .filter(|v| v.is_finite())
+            else {
+                continue;
+            };
+            let Some(y) = line
+                .get(38..46)
+                .and_then(|v| v.trim().parse::<f32>().ok())
+                .filter(|v| v.is_finite())
+            else {
+                continue;
+            };
+            let Some(z) = line
+                .get(46..54)
+                .and_then(|v| v.trim().parse::<f32>().ok())
+                .filter(|v| v.is_finite())
+            else {
+                continue;
+            };
             let occupancy = line.get(54..60).unwrap_or("").trim().parse().unwrap_or(1.0);
             let b_factor = line.get(60..66).unwrap_or("").trim().parse().unwrap_or(0.0);
             let element = line.get(76..78).unwrap_or("").trim().to_string();
 
             atoms.push(Atom {
-                model_num, chain, resid, resname, atom_name, altloc,
-                x, y, z, occupancy, b_factor, element, is_hetatm,
+                model_num,
+                chain,
+                resid,
+                resname,
+                atom_name,
+                altloc,
+                x,
+                y,
+                z,
+                occupancy,
+                b_factor,
+                element,
+                is_hetatm,
             });
         }
     }
@@ -39,8 +80,28 @@ mod tests {
     use super::*;
 
     #[test]
+    fn short_model_records_do_not_panic() {
+        assert!(parse_pdb("MODEL\nMODEL \nMODELé\n", false).is_empty());
+    }
+
+    #[test]
+    fn invalid_coordinates_are_skipped() {
+        let valid =
+            "ATOM      1  CA  ALA A   1       1.000   2.000   3.000  1.00 20.00           C  ";
+        for start in [30, 38, 46] {
+            for bad in ["     NaN", "     inf", " invalid"] {
+                let mut line = valid.to_string();
+                line.replace_range(start..start + 8, bad);
+                assert!(parse_pdb(&line, false).is_empty());
+            }
+        }
+        assert!(parse_pdb(&valid.replacen("ATOM  ", "ATOMIC", 1), false).is_empty());
+    }
+
+    #[test]
     fn test_parse_atom_line() {
-        let pdb = "ATOM      1  CA  ALA A   1       1.000   2.000   3.000  1.00 20.00           C  \n";
+        let pdb =
+            "ATOM      1  CA  ALA A   1       1.000   2.000   3.000  1.00 20.00           C  \n";
         let atoms = parse_pdb(pdb, false);
         assert_eq!(atoms.len(), 1);
         assert_eq!(atoms[0].atom_name, "CA");
