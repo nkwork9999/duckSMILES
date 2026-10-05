@@ -23,10 +23,14 @@ pub fn parse_cif(text: &str, include_hetatm: bool) -> Vec<Atom> {
             // Map column names to indices
             let col_idx = |name: &str| columns.iter().position(|c| c == name);
             let i_group = col_idx("_atom_site.group_PDB");
-            let i_name = col_idx("_atom_site.label_atom_id").or_else(|| col_idx("_atom_site.auth_atom_id"));
-            let i_resname = col_idx("_atom_site.label_comp_id").or_else(|| col_idx("_atom_site.auth_comp_id"));
-            let i_chain = col_idx("_atom_site.label_asym_id").or_else(|| col_idx("_atom_site.auth_asym_id"));
-            let i_resid = col_idx("_atom_site.label_seq_id").or_else(|| col_idx("_atom_site.auth_seq_id"));
+            let i_name =
+                col_idx("_atom_site.label_atom_id").or_else(|| col_idx("_atom_site.auth_atom_id"));
+            let i_resname =
+                col_idx("_atom_site.label_comp_id").or_else(|| col_idx("_atom_site.auth_comp_id"));
+            let i_chain =
+                col_idx("_atom_site.label_asym_id").or_else(|| col_idx("_atom_site.auth_asym_id"));
+            let i_resid =
+                col_idx("_atom_site.label_seq_id").or_else(|| col_idx("_atom_site.auth_seq_id"));
             let i_x = col_idx("_atom_site.Cartn_x");
             let i_y = col_idx("_atom_site.Cartn_y");
             let i_z = col_idx("_atom_site.Cartn_z");
@@ -38,7 +42,16 @@ pub fn parse_cif(text: &str, include_hetatm: bool) -> Vec<Atom> {
             // Parse data rows
             while i < lines.len() {
                 let line = lines[i].trim();
-                if line.is_empty() || line.starts_with('#') || line.starts_with("loop_") || line.starts_with('_') {
+                if line.is_empty() || line.starts_with('#') {
+                    i += 1;
+                    continue;
+                }
+                if line == "loop_"
+                    || line == "stop_"
+                    || line.starts_with('_')
+                    || line.starts_with("data_")
+                    || line.starts_with("save_")
+                {
                     break;
                 }
                 let fields = split_cif_fields(line);
@@ -49,26 +62,38 @@ pub fn parse_cif(text: &str, include_hetatm: bool) -> Vec<Atom> {
 
                 let group = i_group.map(|idx| &fields[idx][..]).unwrap_or("ATOM");
                 let is_hetatm = group == "HETATM";
-                if !include_hetatm && is_hetatm {
+                if (group != "ATOM" && group != "HETATM") || (!include_hetatm && is_hetatm) {
                     i += 1;
                     continue;
                 }
 
                 let get = |idx: Option<usize>| idx.map(|j| fields[j].as_str()).unwrap_or("");
 
+                let coordinates: Option<Vec<f32>> = [i_x, i_y, i_z]
+                    .iter()
+                    .map(|idx| get(*idx).parse::<f32>().ok().filter(|v| v.is_finite()))
+                    .collect();
+                let Some(coordinates) = coordinates else {
+                    i += 1;
+                    continue;
+                };
+                let metadata = |idx: Option<usize>| match get(idx) {
+                    "." | "?" => "",
+                    value => value,
+                };
                 atoms.push(Atom {
                     model_num: get(i_model).parse().unwrap_or(1),
-                    chain: get(i_chain).to_string(),
+                    chain: metadata(i_chain).to_string(),
                     resid: get(i_resid).parse().unwrap_or(0),
-                    resname: get(i_resname).to_string(),
-                    atom_name: get(i_name).to_string(),
+                    resname: metadata(i_resname).to_string(),
+                    atom_name: metadata(i_name).to_string(),
                     altloc: ' ',
-                    x: get(i_x).parse().unwrap_or(0.0),
-                    y: get(i_y).parse().unwrap_or(0.0),
-                    z: get(i_z).parse().unwrap_or(0.0),
+                    x: coordinates[0],
+                    y: coordinates[1],
+                    z: coordinates[2],
                     occupancy: get(i_occ).parse().unwrap_or(1.0),
                     b_factor: get(i_bfac).parse().unwrap_or(0.0),
-                    element: get(i_elem).to_string(),
+                    element: metadata(i_elem).to_string(),
                     is_hetatm,
                 });
                 i += 1;
@@ -89,15 +114,25 @@ fn split_cif_fields(line: &str) -> Vec<String> {
         while i < chars.len() && chars[i].is_whitespace() {
             i += 1;
         }
-        if i >= chars.len() { break; }
-        if chars[i] == '\'' {
+        if i >= chars.len() {
+            break;
+        }
+        if chars[i] == '\'' || chars[i] == '"' {
+            let quote = chars[i];
             i += 1;
             let start = i;
-            while i < chars.len() && !(chars[i] == '\'' && (i + 1 >= chars.len() || chars[i + 1].is_whitespace())) {
+            while i < chars.len()
+                && !(chars[i] == quote && (i + 1 >= chars.len() || chars[i + 1].is_whitespace()))
+            {
                 i += 1;
             }
+            if i == chars.len() {
+                return Vec::new();
+            }
             fields.push(chars[start..i].iter().collect());
-            if i < chars.len() { i += 1; } // skip closing quote
+            if i < chars.len() {
+                i += 1;
+            } // skip closing quote
         } else {
             let start = i;
             while i < chars.len() && !chars[i].is_whitespace() {
@@ -112,6 +147,24 @@ fn split_cif_fields(line: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn quoted_cif_fields_and_comments() {
+        assert_eq!(
+            split_cif_fields("ATOM \"C A\" 'N B'"),
+            vec!["ATOM", "C A", "N B"]
+        );
+        assert!(split_cif_fields("ATOM \"unterminated").is_empty());
+        let cif = "loop_\n_atom_site.group_PDB\n_atom_site.Cartn_x\n_atom_site.Cartn_y\n_atom_site.Cartn_z\nATOM 1 2 3\n# comment\n\nATOM 4 5 6\n";
+        assert_eq!(parse_cif(cif, false).len(), 2);
+    }
+    #[test]
+    fn corrupt_cif_coordinates_are_not_zeroed() {
+        for coordinates in ["NaN 0 0", "0 inf 0", "0 0 invalid", ". 0 0"] {
+            let cif = format!("loop_\n_atom_site.Cartn_x\n_atom_site.Cartn_y\n_atom_site.Cartn_z\n{coordinates}\n");
+            assert!(parse_cif(&cif, false).is_empty());
+        }
+    }
 
     #[test]
     fn test_parse_cif() {
