@@ -1,11 +1,17 @@
 mod admet;
 mod conformer;
 mod docking;
+pub mod hr_features;
+pub mod ion_context;
 mod logp_crippen;
 mod maccs;
 mod mcs;
+pub mod minhash;
 mod molhash;
 mod morgan;
+pub mod morgan_experimental;
+pub mod ms_features;
+pub mod paper_features;
 mod parser;
 mod qed;
 mod scaffold;
@@ -36,6 +42,7 @@ use tpsa::calc_tpsa;
 /// Not part of the C ABI; kept minimal.
 pub mod verify {
     pub use crate::maccs::{maccs_bits, on_bits, MACCS_N_BYTES};
+    pub use crate::morgan::morgan_bits;
     pub use crate::parser::parse;
 }
 
