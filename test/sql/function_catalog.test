@@ -1,0 +1,42 @@
+# Function metadata remains available to SQL clients and agents, including overloads.
+require ducksmiles
+
+query IIII
+SELECT count(*), count(description), count(*) FILTER (WHERE len(examples) > 0),
+       count(*) FILTER (WHERE len(parameters) = len(parameter_types))
+FROM duckdb_functions()
+WHERE list_contains(categories, 'ducksmiles');
+----
+126	126	126	126
+
+query I
+SELECT count(*)
+FROM duckdb_functions(), unnest(parameters) p(parameter)
+WHERE list_contains(categories, 'ducksmiles')
+  AND (parameter = '' OR regexp_full_match(parameter, '(col|arg)[0-9]+'));
+----
+0
+
+query T rowsort
+SELECT coalesce(nullif(array_to_string(parameters, ','), ''), '<no parameters>')
+FROM duckdb_functions()
+WHERE function_name IN ('dock', 'morgan_fp_bits', 'mol_hash_methods')
+  AND list_contains(categories, 'ducksmiles');
+----
+<no parameters>
+smiles
+smiles,radius,n_bits
+smiles,pdb,center_x,center_y,center_z,half_extent_x,half_extent_y,half_extent_z,n_runs,seed
+smiles,pdb,center_x,center_y,center_z,half_extent_x,half_extent_y,half_extent_z,n_runs,seed,ph
+
+query T
+SELECT parameters[3]
+FROM duckdb_functions()
+WHERE function_name = 'sdf_property';
+----
+property_name
+
+query T
+SELECT mol_formula('CCO');
+----
+C2H6O

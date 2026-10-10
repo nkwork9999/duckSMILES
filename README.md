@@ -61,6 +61,28 @@ SELECT fragment_parent('CC(=O)[O-].[Na+]');
 
 ## Function Reference
 
+Function descriptions, meaningful argument names and runnable examples are also
+available from the SQL catalog after loading the extension:
+
+```sql
+SELECT function_name, parameters, parameter_types, description, examples
+FROM duckdb_functions()
+WHERE list_contains(categories, 'ducksmiles')
+ORDER BY function_name, len(parameters);
+```
+
+To verify catalog coverage and execute every documented example against a locally
+built extension, use a matching DuckDB CLI:
+
+```sh
+python3 scripts/check_function_catalog.py --duckdb /path/to/duckdb \
+  --extension /path/to/ducksmiles.duckdb_extension
+```
+
+For experimental native Rust fingerprints, fragmentation features and streaming
+command-line examples, see [CASMI_RESEARCH.md](CASMI_RESEARCH.md). These research
+APIs are separate from the SQL functions documented below.
+
 ### SMILES Functions
 
 SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.
