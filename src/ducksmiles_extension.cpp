@@ -6,9 +6,10 @@
 
 #include "duckdb.hpp"
 #include "duckdb/common/exception.hpp"
-#include "duckdb/function/scalar_function.hpp"
-#include "duckdb/common/vector_operations/unary_executor.hpp"
 #include "duckdb/common/vector_operations/binary_executor.hpp"
+#include "duckdb/common/vector_operations/unary_executor.hpp"
+#include "duckdb/function/scalar_function.hpp"
+#include "duckdb/parser/parsed_data/create_scalar_function_info.hpp"
 #if __has_include("duckdb/common/vector/list_vector.hpp")
 #include "duckdb/common/vector/list_vector.hpp"
 #else
@@ -1016,471 +1017,1267 @@ FallibleScalarFunction(const char *name, const vector<LogicalType> &arguments,
   return function;
 }
 
+// Keep overload resolution and conflict behavior identical to
+// RegisterFunction(ScalarFunction). Parameter types associate documentation
+// with its exact overload in duckdb_functions().
+static void RegisterDocumentedScalar(ExtensionLoader &loader,
+                                     ScalarFunction function,
+                                     vector<string> parameter_names,
+                                     const string &description,
+                                     const string &example,
+                                     const string &category) {
+  D_ASSERT(parameter_names.size() == function.arguments.size());
+  FunctionDescription documentation;
+  documentation.parameter_types = function.arguments;
+  documentation.parameter_names = std::move(parameter_names);
+  documentation.description = description;
+  documentation.examples = {example};
+  documentation.categories = {"ducksmiles", category};
+  CreateScalarFunctionInfo info(std::move(function));
+  info.on_conflict = OnCreateConflict::ALTER_ON_CONFLICT;
+  info.descriptions.push_back(std::move(documentation));
+  loader.RegisterFunction(std::move(info));
+}
+
 static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   // --- SMILES ---
-  loader.RegisterFunction(ScalarFunction("mol_is_valid", {LogicalType::VARCHAR},
-                                         LogicalType::BOOLEAN, MolIsValidFunc));
-  loader.RegisterFunction(ScalarFunction("mol_formula", {LogicalType::VARCHAR},
-                                         LogicalType::VARCHAR, MolFormulaFunc));
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("mol_is_valid", {LogicalType::VARCHAR},
+                     LogicalType::BOOLEAN, MolIsValidFunc),
+      {"smiles"},
+      "Test whether the SMILES is accepted by the supported parser.",
+      "mol_is_valid('CCO')", "molecular");
+  RegisterDocumentedScalar(loader,
+                           ScalarFunction("mol_formula", {LogicalType::VARCHAR},
+                                          LogicalType::VARCHAR, MolFormulaFunc),
+                           {"smiles"},
+                           "Return the molecular formula in Hill order, "
+                           "including implicit hydrogens.",
+                           "mol_formula('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_atoms", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumAtomsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumAtomsFunc),
+      {"smiles"}, "Count non-hydrogen atoms in a SMILES molecule.",
+      "mol_num_atoms('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_fragments", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumFragmentsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumFragmentsFunc),
+      {"smiles"}, "Count connected components in the molecular graph.",
+      "mol_num_fragments('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumBondsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumBondsFunc),
+      {"smiles"},
+      "Count bonds in a SMILES molecule, with each bond counted once "
+      "regardless of order.",
+      "mol_num_bonds('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_formal_charge", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolFormalChargeFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolFormalChargeFunc),
+      {"smiles"}, "Sum formal charges on all atoms in the molecular graph.",
+      "mol_formal_charge('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_explicit_h", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumExplicitHFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumExplicitHFunc),
+      {"smiles"},
+      "Count hydrogen vertices and explicit hydrogen annotations on "
+      "non-hydrogen atoms.",
+      "mol_num_explicit_h('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_implicit_h", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumImplicitHFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumImplicitHFunc),
+      {"smiles"},
+      "Count implicit hydrogens on non-hydrogen atoms after native aromaticity "
+      "perception.",
+      "mol_num_implicit_h('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_total_h", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumTotalHFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumTotalHFunc),
+      {"smiles"},
+      "Count explicit and implicit hydrogens in the molecular graph.",
+      "mol_num_total_h('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_single_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumSingleBondsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumSingleBondsFunc),
+      {"smiles"},
+      "Count single bonds, including bonds to explicit hydrogen atoms.",
+      "mol_num_single_bonds('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_double_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumDoubleBondsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumDoubleBondsFunc),
+      {"smiles"}, "Count double bonds in the molecular graph.",
+      "mol_num_double_bonds('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_triple_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumTripleBondsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumTripleBondsFunc),
+      {"smiles"}, "Count triple bonds in the molecular graph.",
+      "mol_num_triple_bonds('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_aromatic_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumAromaticBondsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumAromaticBondsFunc),
+      {"smiles"}, "Count bonds classified as aromatic by native perception.",
+      "mol_num_aromatic_bonds('c1ccccc1O')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_ring_atoms", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumRingAtomsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumRingAtomsFunc),
+      {"smiles"}, "Count atoms belonging to at least one perceived ring.",
+      "mol_num_ring_atoms('c1ccccc1O')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_ring_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumRingBondsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumRingBondsFunc),
+      {"smiles"}, "Count bonds belonging to at least one perceived ring.",
+      "mol_num_ring_bonds('c1ccccc1O')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_largest_ring_size", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolLargestRingSizeFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolLargestRingSizeFunc),
+      {"smiles"},
+      "Return the largest ring size in the perceived symmetrized SSSR, or zero "
+      "for acyclic molecules.",
+      "mol_largest_ring_size('c1ccccc1O')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_aromatic_atoms", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumAromaticAtomsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumAromaticAtomsFunc),
+      {"smiles"}, "Count atoms classified as aromatic by native perception.",
+      "mol_num_aromatic_atoms('c1ccccc1O')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_carbons", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumCarbonsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumCarbonsFunc),
+      {"smiles"}, "Count carbon atoms in the molecular graph.",
+      "mol_num_carbons('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_nitrogens", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumNitrogensFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumNitrogensFunc),
+      {"smiles"}, "Count nitrogen atoms in the molecular graph.",
+      "mol_num_nitrogens('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_oxygens", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumOxygensFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumOxygensFunc),
+      {"smiles"}, "Count oxygen atoms in the molecular graph.",
+      "mol_num_oxygens('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_num_halogens", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolNumHalogensFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolNumHalogensFunc),
+      {"smiles"}, "Count fluorine, chlorine, bromine and iodine atoms.",
+      "mol_num_halogens('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_heteroatom_fraction", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolHeteroatomFractionFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolHeteroatomFractionFunc),
+      {"smiles"},
+      "Return the fraction of heavy atoms that are neither carbon nor "
+      "hydrogen; zero when no heavy atoms exist.",
+      "mol_heteroatom_fraction('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_aromatic_fraction", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolAromaticFractionFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolAromaticFractionFunc),
+      {"smiles"},
+      "Return the fraction of heavy atoms classified as aromatic; zero when no "
+      "heavy atoms exist.",
+      "mol_aromatic_fraction('c1ccccc1O')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_heavy_atom_mass", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolHeavyAtomMassFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolHeavyAtomMassFunc),
+      {"smiles"},
+      "Sum isotope-aware heavy-atom masses, using average weights for "
+      "unlabelled atoms and excluding all hydrogen isotopes.",
+      "mol_heavy_atom_mass('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_mean_degree", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolMeanDegreeFunc));
-  loader.RegisterFunction(ScalarFunction("mol_weight", {LogicalType::VARCHAR},
-                                         LogicalType::DOUBLE, MolWeightFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolMeanDegreeFunc),
+      {"smiles"},
+      "Return twice the heavy-heavy bond count divided by the heavy-atom "
+      "count; zero when no heavy atoms exist.",
+      "mol_mean_degree('CCO')", "molecular");
+  RegisterDocumentedScalar(loader,
+                           ScalarFunction("mol_weight", {LogicalType::VARCHAR},
+                                          LogicalType::DOUBLE, MolWeightFunc),
+                           {"smiles"},
+                           "Calculate molecular weight from standard atomic "
+                           "weights, including implicit hydrogens.",
+                           "mol_weight('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_exact_mass", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolExactMassFunc));
-  loader.RegisterFunction(ScalarFunction("logp_crippen", {LogicalType::VARCHAR},
-                                         LogicalType::DOUBLE, LogpCrippenFunc));
-  loader.RegisterFunction(ScalarFunction("tpsa", {LogicalType::VARCHAR},
-                                         LogicalType::DOUBLE, TpsaFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolExactMassFunc),
+      {"smiles"}, "Calculate monoisotopic molecular mass from SMILES.",
+      "mol_exact_mass('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("logp_crippen", {LogicalType::VARCHAR},
+                     LogicalType::DOUBLE, LogpCrippenFunc),
+      {"smiles"},
+      "Estimate octanol/water logP using Wildman-Crippen atom contributions.",
+      "logp_crippen('CCO')", "molecular");
+  RegisterDocumentedScalar(loader,
+                           ScalarFunction("tpsa", {LogicalType::VARCHAR},
+                                          LogicalType::DOUBLE, TpsaFunc),
+                           {"smiles"},
+                           "Calculate topological polar surface area from "
+                           "nitrogen and oxygen atom contributions.",
+                           "tpsa('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("canonical_smiles", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, CanonicalSmilesFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, CanonicalSmilesFunc),
+      {"smiles"},
+      "Return a deterministic normalized SMILES for the supported molecular "
+      "graph subset.",
+      "canonical_smiles('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("murcko_scaffold", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, MurckoScaffoldFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, MurckoScaffoldFunc),
+      {"smiles"},
+      "Extract the Bemis-Murcko ring-and-linker scaffold as SMILES.",
+      "murcko_scaffold('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("generic_scaffold", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, GenericScaffoldFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, GenericScaffoldFunc),
+      {"smiles"},
+      "Extract a scaffold with carbon atoms and single bonds as SMILES.",
+      "generic_scaffold('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("ring_systems_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, RingSystemsJsonFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mol_hash", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::VARCHAR, MolHashFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mol_hash_methods", {}, LogicalType::VARCHAR, MolHashMethodsJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, RingSystemsJsonFunc),
+      {"smiles"},
+      "Return ring systems and their 1-based atom and bond indices as JSON.",
+      "ring_systems_json('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mol_hash",
+                             {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MolHashFunc),
+      {"smiles", "method"},
+      "Return a molecular grouping hash for a supported method; list methods "
+      "with mol_hash_methods().",
+      "mol_hash('CCO', 'element_graph')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mol_hash_methods", {}, LogicalType::VARCHAR,
+                             MolHashMethodsJsonFunc),
+      {}, "List supported molecular hash method names as JSON.",
+      "mol_hash_methods()", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("largest_fragment", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, LargestFragmentFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, LargestFragmentFunc),
+      {"smiles"}, "Keep the largest connected fragment and return its SMILES.",
+      "largest_fragment('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("strip_salts", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, StripSaltsFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, StripSaltsFunc),
+      {"smiles"},
+      "Remove recognized salt fragments and return the remaining SMILES.",
+      "strip_salts('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("neutralize_charges", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, NeutralizeChargesFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, NeutralizeChargesFunc),
+      {"smiles"},
+      "Neutralize supported charged atom patterns and return SMILES.",
+      "neutralize_charges('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("normalize_smiles", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, NormalizeSmilesFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, NormalizeSmilesFunc),
+      {"smiles"},
+      "Normalize supported functional-group patterns and return SMILES.",
+      "normalize_smiles('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("fragment_parent", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, FragmentParentFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mcs_smarts", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::VARCHAR, McsSmartsFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mcs_json", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::VARCHAR, McsJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, FragmentParentFunc),
+      {"smiles"},
+      "Normalize, remove salts, select the largest fragment and neutralize "
+      "supported charges.",
+      "fragment_parent('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mcs_smarts",
+                             {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, McsSmartsFunc),
+      {"smiles_a", "smiles_b"},
+      "Return a bounded maximum common substructure search result as SMARTS.",
+      "mcs_smarts('CCO', 'CCN')", "substructure");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mcs_json",
+                             {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, McsJsonFunc),
+      {"smiles_a", "smiles_b"},
+      "Return a bounded maximum common substructure result and atom mappings "
+      "as JSON.",
+      "mcs_json('CCO', 'CCN')", "substructure");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("scaffold_network_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, ScaffoldNetworkJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, ScaffoldNetworkJsonFunc),
+      {"smiles"}, "Return a bounded ring-removal scaffold network as JSON.",
+      "scaffold_network_json('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_h_acceptors", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumHAcceptorsFunc));
-  loader.RegisterFunction(ScalarFunction("num_h_donors", {LogicalType::VARCHAR},
-                                         LogicalType::INTEGER, NumHDonorsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumHAcceptorsFunc),
+      {"smiles"}, "Count hydrogen-bond acceptors using the native atom rules.",
+      "num_h_acceptors('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("num_h_donors", {LogicalType::VARCHAR},
+                     LogicalType::INTEGER, NumHDonorsFunc),
+      {"smiles"},
+      "Count hydrogen-bond donor atoms using the native atom rules.",
+      "num_h_donors('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_rotatable_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumRotatableBondsFunc));
-  loader.RegisterFunction(ScalarFunction("ring_count", {LogicalType::VARCHAR},
-                                         LogicalType::INTEGER, RingCountFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumRotatableBondsFunc),
+      {"smiles"}, "Count rotatable bonds using the native strict bond rules.",
+      "num_rotatable_bonds('CCO')", "molecular");
+  RegisterDocumentedScalar(loader,
+                           ScalarFunction("ring_count", {LogicalType::VARCHAR},
+                                          LogicalType::INTEGER, RingCountFunc),
+                           {"smiles"},
+                           "Count rings in the native perceived ring set.",
+                           "ring_count('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_aromatic_rings", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumAromaticRingsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumAromaticRingsFunc),
+      {"smiles"}, "Count fully aromatic rings in the perceived ring set.",
+      "num_aromatic_rings('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_heteroatoms", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumHeteroatomsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumHeteroatomsFunc),
+      {"smiles"}, "Count atoms other than carbon and hydrogen.",
+      "num_heteroatoms('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("fraction_csp3", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, FractionCsp3Func));
-  loader.RegisterFunction(ScalarFunction("mol_mr", {LogicalType::VARCHAR},
-                                         LogicalType::DOUBLE, MolMrFunc));
-  loader.RegisterFunction(ScalarFunction("qed", {LogicalType::VARCHAR},
-                                         LogicalType::DOUBLE, QedFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, FractionCsp3Func),
+      {"smiles"}, "Return the fraction of carbon atoms classified as sp3.",
+      "fraction_csp3('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("mol_mr", {LogicalType::VARCHAR}, LogicalType::DOUBLE,
+                     MolMrFunc),
+      {"smiles"},
+      "Estimate molar refractivity using Wildman-Crippen atom contributions.",
+      "mol_mr('CCO')", "molecular");
+  RegisterDocumentedScalar(loader,
+                           ScalarFunction("qed", {LogicalType::VARCHAR},
+                                          LogicalType::DOUBLE, QedFunc),
+                           {"smiles"},
+                           "Calculate the weighted QED drug-likeness score "
+                           "using native descriptors.",
+                           "qed('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_aliphatic_rings", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumAliphaticRingsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumAliphaticRingsFunc),
+      {"smiles"}, "Count rings that are not fully aromatic.",
+      "num_aliphatic_rings('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_saturated_rings", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumSaturatedRingsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumSaturatedRingsFunc),
+      {"smiles"}, "Count rings containing only single bonds.",
+      "num_saturated_rings('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_aromatic_heterocycles", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumAromaticHeterocyclesFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumAromaticHeterocyclesFunc),
+      {"smiles"}, "Count aromatic rings containing a non-carbon atom.",
+      "num_aromatic_heterocycles('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_aromatic_carbocycles", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumAromaticCarbocyclesFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumAromaticCarbocyclesFunc),
+      {"smiles"}, "Count aromatic rings containing only carbon atoms.",
+      "num_aromatic_carbocycles('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_saturated_heterocycles", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumSaturatedHeterocyclesFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumSaturatedHeterocyclesFunc),
+      {"smiles"}, "Count single-bond rings containing a non-carbon atom.",
+      "num_saturated_heterocycles('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_saturated_carbocycles", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumSaturatedCarbocyclesFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumSaturatedCarbocyclesFunc),
+      {"smiles"}, "Count single-bond rings containing only carbon atoms.",
+      "num_saturated_carbocycles('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_aliphatic_heterocycles", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumAliphaticHeterocyclesFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, NumAliphaticHeterocyclesFunc),
+      {"smiles"}, "Count non-aromatic rings containing a non-carbon atom.",
+      "num_aliphatic_heterocycles('Cc1ccccc1')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("num_aliphatic_carbocycles", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, NumAliphaticCarbocyclesFunc));
+                     LogicalType::INTEGER, NumAliphaticCarbocyclesFunc),
+      {"smiles"}, "Count non-aromatic rings containing only carbon atoms.",
+      "num_aliphatic_carbocycles('Cc1ccccc1')", "molecular");
   // ADMET / drug-likeness rule panels + toxicophore structural alerts
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("admet_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, AdmetJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, AdmetJsonFunc),
+      {"smiles"},
+      "Return native physicochemical descriptors, drug-likeness rule panels "
+      "and structural alerts as JSON.",
+      "admet_json('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("structural_alerts_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, StructuralAlertsJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, StructuralAlertsJsonFunc),
+      {"smiles"}, "Return matched toxicophore structural alerts as JSON.",
+      "structural_alerts_json('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structural_alert_count", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, StructuralAlertCountFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, StructuralAlertCountFunc),
+      {"smiles"}, "Count matched toxicophore structural alerts.",
+      "structural_alert_count('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("lipinski_violations", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, LipinskiViolationsFunc));
-  loader.RegisterFunction(ScalarFunction(
-      "druglikeness_pass", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::INTEGER, DruglikenessPassFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, LipinskiViolationsFunc),
+      {"smiles"}, "Count violations of the Lipinski rule-of-five thresholds.",
+      "lipinski_violations('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("druglikeness_pass",
+                     {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                     LogicalType::INTEGER, DruglikenessPassFunc),
+      {"smiles", "rule"},
+      "Return 1 or 0 for a named drug-likeness rule panel, or NULL for an "
+      "unsupported rule or input.",
+      "druglikeness_pass('CCO', 'lipinski')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("pdb_to_pdbqt", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, PdbToPdbqtFunc));
+                             LogicalType::VARCHAR, PdbToPdbqtFunc),
+      {"pdb"}, "Convert protein PDB text to PDBQT with native atom typing.",
+      "pdb_to_pdbqt('ATOM      1  CA  ALA A   1       0.000   0.000   0.000  "
+      "1.00 20.00           C')",
+      "docking");
   // Docking pipeline
-  loader.RegisterFunction(ScalarFunction(
-      "smiles_to_pdbqt", {LogicalType::VARCHAR, LogicalType::BIGINT},
-      LogicalType::VARCHAR, SmilesToPdbqtFunc));
-  loader.RegisterFunction(ScalarFunction(
-      "dock",
-      {LogicalType::VARCHAR, LogicalType::VARCHAR, LogicalType::DOUBLE,
-       LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
-       LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::INTEGER,
-       LogicalType::BIGINT},
-      LogicalType::VARCHAR, DockFunc));
-  loader.RegisterFunction(ScalarFunction(
-      "dock",
-      {LogicalType::VARCHAR, LogicalType::VARCHAR, LogicalType::DOUBLE,
-       LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
-       LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::INTEGER,
-       LogicalType::BIGINT, LogicalType::DOUBLE},
-      LogicalType::VARCHAR, DockFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "prepare_receptor", {LogicalType::VARCHAR, LogicalType::DOUBLE},
-      LogicalType::VARCHAR, PrepareReceptorFunc));
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("smiles_to_pdbqt",
+                     {LogicalType::VARCHAR, LogicalType::BIGINT},
+                     LogicalType::VARCHAR, SmilesToPdbqtFunc),
+      {"smiles", "seed"},
+      "Generate a seeded 3D ligand conformer from SMILES and return PDBQT.",
+      "smiles_to_pdbqt('CCO', 42)", "docking");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("dock",
+                     {LogicalType::VARCHAR, LogicalType::VARCHAR,
+                      LogicalType::DOUBLE, LogicalType::DOUBLE,
+                      LogicalType::DOUBLE, LogicalType::DOUBLE,
+                      LogicalType::DOUBLE, LogicalType::DOUBLE,
+                      LogicalType::INTEGER, LogicalType::BIGINT},
+                     LogicalType::VARCHAR, DockFunc),
+      {"smiles", "pdb", "center_x", "center_y", "center_z", "half_extent_x",
+       "half_extent_y", "half_extent_z", "n_runs", "seed"},
+      "Dock a flexible ligand against a PDB receptor at pH 7.4; return scored "
+      "poses as JSON using box half-extents "
+      "in angstroms.",
+      "dock('CCO', 'ATOM      1  CA  ALA A   1       0.000   0.000   0.000  "
+      "1.00 20.00           C', 0.0, 0.0, 0.0, "
+      "3.0, 3.0, 3.0, 1, 42)",
+      "docking");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction(
+          "dock",
+          {LogicalType::VARCHAR, LogicalType::VARCHAR, LogicalType::DOUBLE,
+           LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::DOUBLE,
+           LogicalType::DOUBLE, LogicalType::DOUBLE, LogicalType::INTEGER,
+           LogicalType::BIGINT, LogicalType::DOUBLE},
+          LogicalType::VARCHAR, DockFunc),
+      {"smiles", "pdb", "center_x", "center_y", "center_z", "half_extent_x",
+       "half_extent_y", "half_extent_z", "n_runs", "seed", "ph"},
+      "Dock a flexible ligand against a PDB receptor at the requested pH; "
+      "return scored poses as JSON using box "
+      "half-extents in angstroms.",
+      "dock('CCO', 'ATOM      1  CA  ALA A   1       0.000   0.000   0.000  "
+      "1.00 20.00           C', 0.0, 0.0, 0.0, "
+      "3.0, 3.0, 3.0, 1, 42, 7.4)",
+      "docking");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("prepare_receptor",
+                             {LogicalType::VARCHAR, LogicalType::DOUBLE},
+                             LogicalType::VARCHAR, PrepareReceptorFunc),
+      {"pdb", "ph"},
+      "Prepare a PDB receptor with native pH-dependent protonation and polar "
+      "hydrogens, returning PDBQT.",
+      "prepare_receptor('ATOM      1  CA  ALA A   1       0.000   0.000   "
+      "0.000  1.00 20.00           C', 7.4)",
+      "docking");
   // Virtual-screening benchmark metrics (LIST<DOUBLE> scores, LIST<BOOLEAN>
   // labels)
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("roc_auc",
                      {LogicalType::LIST(LogicalType::DOUBLE),
                       LogicalType::LIST(LogicalType::BOOLEAN)},
-                     LogicalType::DOUBLE, RocAucFunc));
-  loader.RegisterFunction(ScalarFunction(
-      "enrichment_factor",
-      {LogicalType::LIST(LogicalType::DOUBLE),
-       LogicalType::LIST(LogicalType::BOOLEAN), LogicalType::DOUBLE},
-      LogicalType::DOUBLE, EnrichmentFactorFunc));
-  loader.RegisterFunction(ScalarFunction(
-      "bedroc",
-      {LogicalType::LIST(LogicalType::DOUBLE),
-       LogicalType::LIST(LogicalType::BOOLEAN), LogicalType::DOUBLE},
-      LogicalType::DOUBLE, BedrocFunc));
-  loader.RegisterFunction(ScalarFunction(
-      "mol_has_substructure", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::BOOLEAN, MolHasSubstructureFunc));
-  loader.RegisterFunction(ScalarFunction(
-      "mol_substructure_count", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::INTEGER, MolSubstructureCountFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mol_substructure_matches_json",
-      {LogicalType::VARCHAR, LogicalType::VARCHAR}, LogicalType::VARCHAR,
-      MolSubstructureMatchesJsonFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, RocAucFunc),
+      {"scores", "labels"},
+      "Calculate ROC AUC for screening scores where lower is better and true "
+      "labels mark actives.",
+      "roc_auc([-3.0, -2.0, -1.0, 0.0], [true, false, true, false])",
+      "benchmark");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("enrichment_factor",
+                     {LogicalType::LIST(LogicalType::DOUBLE),
+                      LogicalType::LIST(LogicalType::BOOLEAN),
+                      LogicalType::DOUBLE},
+                     LogicalType::DOUBLE, EnrichmentFactorFunc),
+      {"scores", "labels", "fraction"},
+      "Calculate active enrichment in the top fraction of a screen ranked by "
+      "ascending score.",
+      "enrichment_factor([-3.0, -2.0, -1.0, 0.0], [true, false, true, false], "
+      "0.5)",
+      "benchmark");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("bedroc",
+                     {LogicalType::LIST(LogicalType::DOUBLE),
+                      LogicalType::LIST(LogicalType::BOOLEAN),
+                      LogicalType::DOUBLE},
+                     LogicalType::DOUBLE, BedrocFunc),
+      {"scores", "labels", "alpha"},
+      "Calculate BEDROC early-recognition performance for ascending screening "
+      "scores and true active labels.",
+      "bedroc([-3.0, -2.0, -1.0, 0.0], [true, false, true, false], 20.0)",
+      "benchmark");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("mol_has_substructure",
+                     {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                     LogicalType::BOOLEAN, MolHasSubstructureFunc),
+      {"smiles", "smarts"},
+      "Test whether a molecule matches a supported SMARTS pattern.",
+      "mol_has_substructure('CCO', 'CO')", "substructure");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("mol_substructure_count",
+                     {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                     LogicalType::INTEGER, MolSubstructureCountFunc),
+      {"smiles", "smarts"},
+      "Count unique atom-set matches for a supported SMARTS pattern.",
+      "mol_substructure_count('CCO', 'CO')", "substructure");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mol_substructure_matches_json",
+                             {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                             LogicalType::VARCHAR,
+                             MolSubstructureMatchesJsonFunc),
+      {"smiles", "smarts"},
+      "Return unique SMARTS atom-set matches as 1-based atom indices in JSON.",
+      "mol_substructure_matches_json('CCO', 'CO')", "substructure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("add_hydrogens", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, AddHydrogensFunc));
-  loader.RegisterFunction(ScalarFunction("morgan_fp_bits",
-                                         {LogicalType::VARCHAR},
-                                         LogicalType::BLOB, MorganFpBitsFunc1));
-  loader.RegisterFunction(ScalarFunction(
-      "morgan_fp_bits",
-      {LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::INTEGER},
-      LogicalType::BLOB, MorganFpBitsFunc3));
-  loader.RegisterFunction(ScalarFunction("maccs_keys", {LogicalType::VARCHAR},
-                                         LogicalType::BLOB, MaccsKeysFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "tanimoto_bit", {LogicalType::BLOB, LogicalType::BLOB},
-      LogicalType::DOUBLE, TanimotoBitFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, AddHydrogensFunc),
+      {"smiles"},
+      "Return SMILES with implicit hydrogens expanded to explicit atoms.",
+      "add_hydrogens('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("morgan_fp_bits", {LogicalType::VARCHAR},
+                     LogicalType::BLOB, MorganFpBitsFunc1),
+      {"smiles"},
+      "Return a native Morgan bit fingerprint with radius 2 and 2048 bits.",
+      "morgan_fp_bits('CCO')", "fingerprint");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction(
+          "morgan_fp_bits",
+          {LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::INTEGER},
+          LogicalType::BLOB, MorganFpBitsFunc3),
+      {"smiles", "radius", "n_bits"},
+      "Return a native Morgan bit fingerprint with the requested radius and "
+      "bit count.",
+      "morgan_fp_bits('CCO', 2, 2048)", "fingerprint");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("maccs_keys", {LogicalType::VARCHAR}, LogicalType::BLOB,
+                     MaccsKeysFunc),
+      {"smiles"},
+      "Return the 166 MACCS structural keys in a 21-byte bit fingerprint.",
+      "maccs_keys('CCO')", "fingerprint");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("tanimoto_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, TanimotoBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate Tanimoto similarity between equal-length BLOB bit "
+      "fingerprints.",
+      "tanimoto_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))",
+      "similarity");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("dice_bit", {LogicalType::BLOB, LogicalType::BLOB},
-                             LogicalType::DOUBLE, DiceBitFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "cosine_bit", {LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE,
-      CosineBitFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "kulczynski_bit", {LogicalType::BLOB, LogicalType::BLOB},
-      LogicalType::DOUBLE, KulczynskiBitFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "sokal_bit", {LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE,
-      SokalBitFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mcconnaughey_bit", {LogicalType::BLOB, LogicalType::BLOB},
-      LogicalType::DOUBLE, McConnaugheyBitFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "asymmetric_bit", {LogicalType::BLOB, LogicalType::BLOB},
-      LogicalType::DOUBLE, AsymmetricBitFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "braun_blanquet_bit", {LogicalType::BLOB, LogicalType::BLOB},
-      LogicalType::DOUBLE, BraunBlanquetBitFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "russel_bit", {LogicalType::BLOB, LogicalType::BLOB}, LogicalType::DOUBLE,
-      RusselBitFunc));
-  loader.RegisterFunction(
+                             LogicalType::DOUBLE, DiceBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate Dice similarity between equal-length BLOB bit fingerprints.",
+      "dice_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))", "similarity");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("cosine_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, CosineBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate cosine similarity between equal-length BLOB bit fingerprints.",
+      "cosine_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))", "similarity");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("kulczynski_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, KulczynskiBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate Kulczynski similarity between equal-length BLOB bit "
+      "fingerprints.",
+      "kulczynski_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))",
+      "similarity");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("sokal_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, SokalBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate Sokal similarity between equal-length BLOB bit fingerprints.",
+      "sokal_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))", "similarity");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mcconnaughey_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, McConnaugheyBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate McConnaughey similarity between equal-length BLOB bit "
+      "fingerprints.",
+      "mcconnaughey_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))",
+      "similarity");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("asymmetric_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, AsymmetricBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate asymmetric (intersection divided by the smaller on-bit count) "
+      "similarity "
+      "between equal-length BLOB bit fingerprints.",
+      "asymmetric_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))",
+      "similarity");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("braun_blanquet_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, BraunBlanquetBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate Braun-Blanquet similarity between equal-length BLOB bit "
+      "fingerprints.",
+      "braun_blanquet_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))",
+      "similarity");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("russel_bit",
+                             {LogicalType::BLOB, LogicalType::BLOB},
+                             LogicalType::DOUBLE, RusselBitFunc),
+      {"fingerprint_a", "fingerprint_b"},
+      "Calculate Russel similarity between equal-length BLOB bit fingerprints.",
+      "russel_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'))", "similarity");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("tversky_bit",
                              {LogicalType::BLOB, LogicalType::BLOB,
                               LogicalType::DOUBLE, LogicalType::DOUBLE},
-                             LogicalType::DOUBLE, TverskyBitFunc));
+                             LogicalType::DOUBLE, TverskyBitFunc),
+      {"fingerprint_a", "fingerprint_b", "alpha", "beta"},
+      "Calculate Tversky similarity between equal-length BLOB bit fingerprints "
+      "with alpha and beta weights.",
+      "tversky_bit(morgan_fp_bits('CCO'), morgan_fp_bits('CCN'), 0.5, 0.5)",
+      "similarity");
 
   // --- InChI layer extraction ---
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_is_valid", {LogicalType::VARCHAR},
-                     LogicalType::BOOLEAN, InchiIsValidFunc));
-  loader.RegisterFunction(
+                     LogicalType::BOOLEAN, InchiIsValidFunc),
+      {"inchi"}, "Test whether text has a supported InChI syntax.",
+      "inchi_is_valid('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_is_standard", {LogicalType::VARCHAR},
-                     LogicalType::BOOLEAN, InchiIsStandardFunc));
-  loader.RegisterFunction(
+                     LogicalType::BOOLEAN, InchiIsStandardFunc),
+      {"inchi"}, "Test whether an InChI has the standard 1S version marker.",
+      "inchi_is_standard('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_version", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchiVersionFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchiVersionFunc),
+      {"inchi"},
+      "Extract the InChI version marker, including S for standard InChI.",
+      "inchi_version('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_formula", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchiFormulaFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchiFormulaFunc),
+      {"inchi"}, "Extract the molecular formula layer from an InChI.",
+      "inchi_formula('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_connections", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchiConnectionsFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchiConnectionsFunc),
+      {"inchi"},
+      "Extract the InChI connectivity layer (c), or an empty string when "
+      "absent.",
+      "inchi_connections('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_hydrogens", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchiHydrogensFunc));
-  loader.RegisterFunction(ScalarFunction("inchi_charge", {LogicalType::VARCHAR},
-                                         LogicalType::VARCHAR,
-                                         InchiChargeFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchiHydrogensFunc),
+      {"inchi"},
+      "Extract the InChI hydrogen layer (h), or an empty string when absent.",
+      "inchi_hydrogens('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("inchi_charge", {LogicalType::VARCHAR},
+                     LogicalType::VARCHAR, InchiChargeFunc),
+      {"inchi"},
+      "Extract the InChI charge layer (q), or an empty string when absent.",
+      "inchi_charge('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_stereo_bond", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchiStereoBondFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchiStereoBondFunc),
+      {"inchi"},
+      "Extract the InChI double-bond stereo layer (b), or an empty string when "
+      "absent.",
+      "inchi_stereo_bond('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_stereo_tetrahedral", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchiStereoTetrahedralFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchiStereoTetrahedralFunc),
+      {"inchi"},
+      "Extract the InChI tetrahedral stereo layer (t), or an empty string when "
+      "absent.",
+      "inchi_stereo_tetrahedral('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')",
+      "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_has_stereo", {LogicalType::VARCHAR},
-                     LogicalType::BOOLEAN, InchiHasStereoFunc));
-  loader.RegisterFunction(
+                     LogicalType::BOOLEAN, InchiHasStereoFunc),
+      {"inchi"},
+      "Test whether an InChI contains bond or tetrahedral stereo layers.",
+      "inchi_has_stereo('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchi_num_stereo_centers", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, InchiNumStereoCentersFunc));
+                     LogicalType::INTEGER, InchiNumStereoCentersFunc),
+      {"inchi"}, "Count entries in the InChI tetrahedral stereo layer.",
+      "inchi_num_stereo_centers('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')",
+      "inchi");
   // --- InChIKey ---
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchikey_is_valid", {LogicalType::VARCHAR},
-                     LogicalType::BOOLEAN, InchikeyIsValidFunc));
-  loader.RegisterFunction(
+                     LogicalType::BOOLEAN, InchikeyIsValidFunc),
+      {"inchikey"},
+      "Test the uppercase 14-10-1 character format of an InChIKey.",
+      "inchikey_is_valid('QTBSBXVTEAMEQO-UHFFFAOYSA-N')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchikey_connectivity", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchikeyConnectivityFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchikeyConnectivityFunc),
+      {"inchikey"},
+      "Extract the first 14-character connectivity block of an InChIKey.",
+      "inchikey_connectivity('QTBSBXVTEAMEQO-UHFFFAOYSA-N')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchikey_stereo", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchikeyStereofunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, InchikeyStereofunc),
+      {"inchikey"}, "Extract the second 10-character block of an InChIKey.",
+      "inchikey_stereo('QTBSBXVTEAMEQO-UHFFFAOYSA-N')", "inchi");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("inchikey_protonation", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, InchikeyProtonationFunc));
+                     LogicalType::VARCHAR, InchikeyProtonationFunc),
+      {"inchikey"}, "Extract the final protonation character of an InChIKey.",
+      "inchikey_protonation('QTBSBXVTEAMEQO-UHFFFAOYSA-N')", "inchi");
 
   // --- Comparison ---
-  loader.RegisterFunction(ScalarFunction(
-      "inchi_skeleton_match", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::BOOLEAN, InchiSkeletonMatchFunc));
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("inchi_skeleton_match",
+                     {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                     LogicalType::BOOLEAN, InchiSkeletonMatchFunc),
+      {"inchi_a", "inchi_b"},
+      "Compare InChI formula, connectivity and hydrogen layers while ignoring "
+      "stereo layers.",
+      "inchi_skeleton_match('InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)', "
+      "'InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)')",
+      "inchi");
 
   // --- MOL/SDF ---
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_formula", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolBlockFormulaFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, MolBlockFormulaFunc),
+      {"mol_block"},
+      "Return the formula from the atoms recorded in the first MOL block.",
+      "mol_block_formula('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_weight", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockWeightFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockWeightFunc),
+      {"mol_block"},
+      "Calculate molecular weight from the atoms recorded in the first MOL "
+      "block.",
+      "mol_block_weight('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_num_atoms", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolBlockNumAtomsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolBlockNumAtomsFunc),
+      {"mol_block"}, "Count atoms recorded in the first MOL block.",
+      "mol_block_num_atoms('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0 "
+      " 0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_num_bonds", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, MolBlockNumBondsFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, MolBlockNumBondsFunc),
+      {"mol_block"}, "Count bonds recorded in the first MOL block.",
+      "mol_block_num_bonds('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0 "
+      " 0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_name", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, MolBlockNameFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mol_block_property", {LogicalType::VARCHAR, LogicalType::VARCHAR},
-      LogicalType::VARCHAR, MolBlockPropertyFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "mol_block_properties_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR,
-      MolBlockPropertiesJsonFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, MolBlockNameFunc),
+      {"mol_block"}, "Extract the name of the first MOL block.",
+      "mol_block_name('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mol_block_property",
+                             {LogicalType::VARCHAR, LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MolBlockPropertyFunc),
+      {"mol_block", "property_name"},
+      "Extract a named property from the first MOL/SDF record, or NULL when "
+      "absent.",
+      "mol_block_property('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n', 'ID')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mol_block_properties_json",
+                             {LogicalType::VARCHAR}, LogicalType::VARCHAR,
+                             MolBlockPropertiesJsonFunc),
+      {"mol_block"}, "Return the first MOL/SDF record properties as JSON.",
+      "mol_block_properties_json('water\n  ducksmiles\n\n  1  0  0  0  0  0  0 "
+      " 0  0  0999 V2000\n    0.0000    "
+      "0.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("mol_block_atoms_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, MolBlockAtomsJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, MolBlockAtomsJsonFunc),
+      {"mol_block"},
+      "Return atoms and coordinates from the first MOL block as JSON.",
+      "mol_block_atoms_json('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  "
+      "0  0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("mol_block_bonds_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, MolBlockBondsJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, MolBlockBondsJsonFunc),
+      {"mol_block"},
+      "Return bonds and 1-based atom indices from the first MOL block as JSON.",
+      "mol_block_bonds_json('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  "
+      "0  0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("mol_block_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, MolBlockJsonFunc));
-  loader.RegisterFunction(
+                             LogicalType::VARCHAR, MolBlockJsonFunc),
+      {"mol_block"},
+      "Return the first MOL record, geometry and properties as JSON.",
+      "mol_block_json('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_has_3d", {LogicalType::VARCHAR},
-                     LogicalType::BOOLEAN, MolBlockHas3dFunc));
-  loader.RegisterFunction(
+                     LogicalType::BOOLEAN, MolBlockHas3dFunc),
+      {"mol_block"},
+      "Test whether any atom in the first MOL block has an absolute z "
+      "coordinate above 0.0001.",
+      "mol_block_has_3d('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_centroid_x", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockCentroidXFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockCentroidXFunc),
+      {"mol_block"},
+      "Return the mean x coordinate of atoms in the first MOL block.",
+      "mol_block_centroid_x('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  "
+      "0  0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_centroid_y", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockCentroidYFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockCentroidYFunc),
+      {"mol_block"},
+      "Return the mean y coordinate of atoms in the first MOL block.",
+      "mol_block_centroid_y('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  "
+      "0  0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_centroid_z", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockCentroidZFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockCentroidZFunc),
+      {"mol_block"},
+      "Return the mean z coordinate of atoms in the first MOL block.",
+      "mol_block_centroid_z('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  "
+      "0  0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_radius_of_gyration", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockRadiusOfGyrationFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockRadiusOfGyrationFunc),
+      {"mol_block"},
+      "Calculate the unweighted radius of gyration of coordinates in the first "
+      "MOL block.",
+      "mol_block_radius_of_gyration('water\n  ducksmiles\n\n  1  0  0  0  0  0 "
+      " 0  0  0  0999 V2000\n    0.0000    "
+      "0.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_min_x", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockMinXFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockMinXFunc),
+      {"mol_block"},
+      "Return the minimum x coordinate of atoms in the first MOL block.",
+      "mol_block_min_x('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_max_x", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockMaxXFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockMaxXFunc),
+      {"mol_block"},
+      "Return the maximum x coordinate of atoms in the first MOL block.",
+      "mol_block_max_x('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_min_y", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockMinYFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockMinYFunc),
+      {"mol_block"},
+      "Return the minimum y coordinate of atoms in the first MOL block.",
+      "mol_block_min_y('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_max_y", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockMaxYFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockMaxYFunc),
+      {"mol_block"},
+      "Return the maximum y coordinate of atoms in the first MOL block.",
+      "mol_block_max_y('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_min_z", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockMinZFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockMinZFunc),
+      {"mol_block"},
+      "Return the minimum z coordinate of atoms in the first MOL block.",
+      "mol_block_min_z('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_block_max_z", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, MolBlockMaxZFunc));
-  loader.RegisterFunction(ScalarFunction("sdf_count", {LogicalType::VARCHAR},
-                                         LogicalType::INTEGER, SdfCountFunc));
-  loader.RegisterFunction(FallibleScalarFunction(
-      "sdf_property",
-      {LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::VARCHAR},
-      LogicalType::VARCHAR, SdfPropertyFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, MolBlockMaxZFunc),
+      {"mol_block"},
+      "Return the maximum z coordinate of atoms in the first MOL block.",
+      "mol_block_max_z('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  "
+      "0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("sdf_count", {LogicalType::VARCHAR}, LogicalType::INTEGER,
+                     SdfCountFunc),
+      {"sdf"}, "Count parsed molecule records in SDF text.",
+      "sdf_count('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  0999 "
+      "V2000\n    0.0000    0.0000    0.0000 O   "
+      "0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> <ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction(
+          "sdf_property",
+          {LogicalType::VARCHAR, LogicalType::INTEGER, LogicalType::VARCHAR},
+          LogicalType::VARCHAR, SdfPropertyFunc),
+      {"sdf", "record_index", "property_name"},
+      "Extract a named SDF property using a 1-based record index, or NULL when "
+      "absent.",
+      "sdf_property('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0  0999 "
+      "V2000\n    0.0000    0.0000    0.0000 "
+      "O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n', 1, 'ID')",
+      "mol_sdf");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("sdf_properties_json", {LogicalType::VARCHAR},
-                             LogicalType::VARCHAR, SdfPropertiesJsonFunc));
+                             LogicalType::VARCHAR, SdfPropertiesJsonFunc),
+      {"sdf"}, "Return each parsed SDF record name and properties as JSON.",
+      "sdf_properties_json('water\n  ducksmiles\n\n  1  0  0  0  0  0  0  0  0 "
+      " 0999 V2000\n    0.0000    0.0000    "
+      "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
+      "<ID>\nwater\n\n$$$$\n')",
+      "mol_sdf");
 
   // --- PDB/CIF/XYZ structure ---
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_atom_count", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, StructureAtomCountFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, StructureAtomCountFunc),
+      {"structure"}, "Count atoms in auto-detected PDB, mmCIF or XYZ text.",
+      "structure_atom_count('ATOM      1  CA  ALA A   1       0.000   0.000   "
+      "0.000  1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_chain_count", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, StructureChainCountFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, StructureChainCountFunc),
+      {"structure"},
+      "Count distinct chains in auto-detected PDB, mmCIF or XYZ text.",
+      "structure_chain_count('ATOM      1  CA  ALA A   1       0.000   0.000   "
+      "0.000  1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_residue_count", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, StructureResidueCountFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, StructureResidueCountFunc),
+      {"structure"},
+      "Count distinct residues in auto-detected PDB, mmCIF or XYZ text.",
+      "structure_residue_count('ATOM      1  CA  ALA A   1       0.000   0.000 "
+      "  0.000  1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_model_count", {LogicalType::VARCHAR},
-                     LogicalType::INTEGER, StructureModelCountFunc));
-  loader.RegisterFunction(
+                     LogicalType::INTEGER, StructureModelCountFunc),
+      {"structure"}, "Count models in auto-detected PDB, mmCIF or XYZ text.",
+      "structure_model_count('ATOM      1  CA  ALA A   1       0.000   0.000   "
+      "0.000  1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_centroid_x", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureCentroidXFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureCentroidXFunc),
+      {"structure"},
+      "Return the mean x coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_centroid_x('ATOM      1  CA  ALA A   1       0.000   0.000   "
+      "0.000  1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_centroid_y", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureCentroidYFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureCentroidYFunc),
+      {"structure"},
+      "Return the mean y coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_centroid_y('ATOM      1  CA  ALA A   1       0.000   0.000   "
+      "0.000  1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_centroid_z", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureCentroidZFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureCentroidZFunc),
+      {"structure"},
+      "Return the mean z coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_centroid_z('ATOM      1  CA  ALA A   1       0.000   0.000   "
+      "0.000  1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_radius_of_gyration", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureRadiusOfGyrationFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureRadiusOfGyrationFunc),
+      {"structure"},
+      "Calculate the unweighted radius of gyration of a PDB, mmCIF or XYZ "
+      "structure.",
+      "structure_radius_of_gyration('ATOM      1  CA  ALA A   1       0.000   "
+      "0.000   0.000  "
+      "1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_min_x", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureMinXFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureMinXFunc),
+      {"structure"},
+      "Return the minimum x coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_min_x('ATOM      1  CA  ALA A   1       0.000   0.000   0.000 "
+      " 1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_max_x", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureMaxXFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureMaxXFunc),
+      {"structure"},
+      "Return the maximum x coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_max_x('ATOM      1  CA  ALA A   1       0.000   0.000   0.000 "
+      " 1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_min_y", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureMinYFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureMinYFunc),
+      {"structure"},
+      "Return the minimum y coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_min_y('ATOM      1  CA  ALA A   1       0.000   0.000   0.000 "
+      " 1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_max_y", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureMaxYFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureMaxYFunc),
+      {"structure"},
+      "Return the maximum y coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_max_y('ATOM      1  CA  ALA A   1       0.000   0.000   0.000 "
+      " 1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_min_z", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureMinZFunc));
-  loader.RegisterFunction(
+                     LogicalType::DOUBLE, StructureMinZFunc),
+      {"structure"},
+      "Return the minimum z coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_min_z('ATOM      1  CA  ALA A   1       0.000   0.000   0.000 "
+      " 1.00 20.00           C')",
+      "structure");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("structure_max_z", {LogicalType::VARCHAR},
-                     LogicalType::DOUBLE, StructureMaxZFunc));
+                     LogicalType::DOUBLE, StructureMaxZFunc),
+      {"structure"},
+      "Return the maximum z coordinate of atoms in auto-detected PDB, mmCIF or "
+      "XYZ text.",
+      "structure_max_z('ATOM      1  CA  ALA A   1       0.000   0.000   0.000 "
+      " 1.00 20.00           C')",
+      "structure");
 
   // --- SELFIES ---
-  loader.RegisterFunction(
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("smiles_to_selfies", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, SmilesToSelfiesFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, SmilesToSelfiesFunc),
+      {"smiles"}, "Encode supported SMILES as SELFIES.",
+      "smiles_to_selfies('CCO')", "selfies");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("selfies_to_smiles", {LogicalType::VARCHAR},
-                     LogicalType::VARCHAR, SelfiesToSmilesFunc));
-  loader.RegisterFunction(
+                     LogicalType::VARCHAR, SelfiesToSmilesFunc),
+      {"selfies"}, "Decode supported SELFIES tokens to SMILES.",
+      "selfies_to_smiles('[C][C][O]')", "selfies");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("selfies_is_valid", {LogicalType::VARCHAR},
-                     LogicalType::BOOLEAN, SelfiesIsValidFunc));
+                     LogicalType::BOOLEAN, SelfiesIsValidFunc),
+      {"selfies"},
+      "Test whether a SELFIES string can be decoded by the supported decoder.",
+      "selfies_is_valid('[C][C][O]')", "selfies");
 }
 
 // ============================================================================
