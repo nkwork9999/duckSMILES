@@ -51,6 +51,25 @@ pub fn murcko_scaffold_mol(mol: &Molecule) -> Option<Molecule> {
         }
     }
 
+    // A Murcko scaffold keeps atoms that hang off the framework by a double or
+    // triple bond, so a cyclohexanone stays a ketone and a sulfonamide linker
+    // keeps its oxygens. These are added back only after pruning has settled —
+    // adding them earlier would keep whole ester and acetyl side chains alive.
+    let framework = keep.clone();
+    for bond in &mol.bonds {
+        if !matches!(bond.order, BondOrder::Double | BondOrder::Triple) {
+            continue;
+        }
+        for (kept, other) in [(bond.a, bond.b), (bond.b, bond.a)] {
+            if framework.get(kept).copied().unwrap_or(false)
+                && mol.atoms[other].symbol != "H"
+                && !framework[other]
+            {
+                keep[other] = true;
+            }
+        }
+    }
+
     subgraph(mol, &keep)
 }
 
@@ -77,6 +96,9 @@ pub fn generic_scaffold_smiles(mol: &Molecule) -> String {
     for bond in &mut scaffold.bonds {
         bond.order = BondOrder::Single;
     }
+    // Every atom just became a plain carbon, so its hydrogen count has to be
+    // re-derived or the writer would have to bracket all of them.
+    scaffold.recompute_implicit_hydrogens();
     scaffold.canonical_smiles()
 }
 
@@ -131,15 +153,59 @@ pub fn ring_systems_json(mol: &Molecule) -> String {
 
 fn subgraph(mol: &Molecule, keep: &[bool]) -> Option<Molecule> {
     let mut index_map = vec![usize::MAX; mol.atoms.len()];
-    let mut atoms = Vec::new();
-    for (idx, atom) in mol.atoms.iter().enumerate() {
+    let mut next = 0;
+    for idx in 0..mol.atoms.len() {
         if keep.get(idx).copied().unwrap_or(false) {
-            index_map[idx] = atoms.len();
-            atoms.push(atom.clone());
+            index_map[idx] = next;
+            next += 1;
         }
     }
-    if atoms.is_empty() {
+    if next == 0 {
         return None;
+    }
+
+    let mut atoms = Vec::with_capacity(next);
+    for (idx, source) in mol.atoms.iter().enumerate() {
+        if index_map[idx] == usize::MAX {
+            continue;
+        }
+        let mut atom = source.clone();
+        // Every bond that was cut away is replaced by hydrogens, which is what
+        // turns a stripped N-methyl nitrogen back into `[nH]` and a stripped
+        // sugar carbon back into a plain `C`.
+        let lost: i32 = mol
+            .bonds
+            .iter()
+            .filter(|bond| {
+                (bond.a == idx && index_map[bond.b] == usize::MAX)
+                    || (bond.b == idx && index_map[bond.a] == usize::MAX)
+            })
+            .map(|bond| match bond.order {
+                BondOrder::Single | BondOrder::Aromatic => 1,
+                BondOrder::Double => 2,
+                BondOrder::Triple => 3,
+            })
+            .sum();
+        if lost > 0 {
+            atom.hydrogen += lost;
+            // The neighbour set changed, so the recorded tetrahedral order no
+            // longer describes this atom and the stereo tag has to go.
+            atom.chirality = None;
+            atom.nbr_order.clear();
+        } else {
+            atom.nbr_order = atom
+                .nbr_order
+                .iter()
+                .map(|&slot| {
+                    if slot < 0 {
+                        slot
+                    } else {
+                        index_map[slot as usize] as i32
+                    }
+                })
+                .collect();
+        }
+        atoms.push(atom);
     }
 
     let mut bonds = Vec::new();
@@ -151,6 +217,7 @@ fn subgraph(mol: &Molecule, keep: &[bool]) -> Option<Molecule> {
                 a,
                 b,
                 order: bond.order,
+                direction: 0,
             });
         }
     }

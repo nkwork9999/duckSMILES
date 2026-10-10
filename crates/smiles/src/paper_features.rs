@@ -118,6 +118,7 @@ pub fn calculate(smiles: &str, width: usize) -> Result<Vec<Vec<(usize, u32)>>, S
     let mol = parse(smiles).ok_or("parse failed")?;
     let a = adjacency(&mol);
     let n = a.len();
+    let ring_bond = mol.ring_info().bond_in_ring;
     let g = groups(&mol, &a);
     let ds: Vec<_> = (0..n).map(|i| distances(&a, i, &[])).collect();
     let mut c = vec![Counts::new(); 50];
@@ -373,7 +374,7 @@ pub fn calculate(smiles: &str, width: usize) -> Result<Vec<Vec<(usize, u32)>>, S
                         matches!(mol.atoms[i].symbol.as_str(), "N" | "O" | "S")
                             && mol.atoms[i].hydrogen > 0
                     }
-                    _ => crate::is_h_acceptor_atom(&mol, i),
+                    _ => crate::is_h_acceptor_atom(&mol, i, &ring_bond),
                 };
                 if valid {
                     if let Some(d) = boundary.iter().map(|&(_, u, _)| ds[i][u]).min() {

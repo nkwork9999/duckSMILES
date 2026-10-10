@@ -286,10 +286,12 @@ fn genericize(mol: &Molecule) -> String {
         atom.isotope = None;
         atom.atom_map = None;
         atom.chirality = None;
+        atom.nbr_order.clear();
     }
     for bond in &mut generic.bonds {
         bond.order = BondOrder::Single;
     }
+    generic.recompute_implicit_hydrogens();
     generic.canonical_smiles()
 }
 

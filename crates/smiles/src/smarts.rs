@@ -41,7 +41,8 @@ pub enum Primitive {
     Valence(u8),              // v<n> bond valence + implicit H
     PositiveCharge(u8),       // + or +<n>
     NegativeCharge(u8),       // - or -<n>
-    InRing(bool),             // R (true) or R0 (false)
+    InRing(bool),             // bare `R` (true) or `R0` (false)
+    RingCount(u8),            // R<n>, n>0: member of exactly n smallest rings
     RingSize(u8),             // r or r<n>
     RingConnections(u8),      // x<n>
     AtomMap(u32),             // :<n>
@@ -549,16 +550,22 @@ fn parse_primitive(chars: &[char], pos: &mut usize) -> Option<(Primitive, bool)>
         }
         'R' => {
             *pos += 1;
-            // R0 means "not in ring"; R or R<n>0... we only need R / R0.
-            if *pos < chars.len() && chars[*pos] == '0' {
+            // `R` alone is "in any ring"; `R<n>` is "in exactly n rings", with
+            // `R0` meaning "in none". Collapsing R1 to plain R would let a
+            // bridgehead atom satisfy a pattern meant for isolated rings.
+            let start = *pos;
+            while *pos < chars.len() && chars[*pos].is_ascii_digit() {
                 *pos += 1;
-                Some((Primitive::InRing(false), true))
-            } else {
-                // optional ring-count digits (treat any R<n>, n>0, as "in ring")
-                while *pos < chars.len() && chars[*pos].is_ascii_digit() {
-                    *pos += 1;
-                }
+            }
+            if start == *pos {
                 Some((Primitive::InRing(true), true))
+            } else {
+                let n: u32 = chars[start..*pos].iter().collect::<String>().parse().ok()?;
+                if n == 0 {
+                    Some((Primitive::InRing(false), true))
+                } else {
+                    Some((Primitive::RingCount(n.min(255) as u8), true))
+                }
             }
         }
         'r' => {
@@ -896,6 +903,7 @@ fn prim_matches(prim: &Primitive, ctx: &MatchCtx, idx: usize) -> bool {
                 .unwrap_or(false);
             in_ring == *want
         }
+        Primitive::RingCount(n) => ring_membership_count(ctx, idx) == *n as usize,
         Primitive::RingSize(size) => ring_size_matches(ctx, idx, *size),
         Primitive::RingConnections(n) => ring_connections(ctx, idx) == *n as usize,
         Primitive::AtomMap(atom_map) => atom.atom_map == Some(*atom_map),
@@ -959,6 +967,27 @@ fn ring_connections(ctx: &MatchCtx, idx: usize) -> usize {
         .unwrap_or(0)
 }
 
+/// Number of smallest rings the atom belongs to — SMARTS `R<n>`. A bridgehead
+/// sits in two or more, which is how `[CR1]` tells an isolated ring apart from
+/// a fused or bridged system.
+fn ring_membership_count(ctx: &MatchCtx, idx: usize) -> usize {
+    let Some(ring) = ctx.ring.as_ref() else {
+        return 0;
+    };
+    ring.rings
+        .iter()
+        .filter(|ring_bonds| {
+            ring_bonds.iter().any(|&bond_idx| {
+                ctx.mol
+                    .bonds
+                    .get(bond_idx)
+                    .map(|bond| bond.a == idx || bond.b == idx)
+                    .unwrap_or(false)
+            })
+        })
+        .count()
+}
+
 fn ring_size_matches(ctx: &MatchCtx, idx: usize, size: u8) -> bool {
     let Some(ring) = ctx.ring.as_ref() else {
         return false;
@@ -989,6 +1018,102 @@ fn ring_size_matches(ctx: &MatchCtx, idx: usize, size: u8) -> bool {
 pub fn matches_mol(pat: &Pattern, mol: &Molecule) -> bool {
     let ctx = MatchCtx::new(mol, pat.needs_ring_info);
     (0..mol.atoms.len()).any(|i| match_at_ctx(pat, &ctx, i))
+}
+
+/// A SMARTS made of several dot-separated components, which must match
+/// pairwise-disjoint sets of atoms but need not be connected to each other.
+pub struct MultiPattern {
+    pub components: Vec<Pattern>,
+}
+
+/// Split a SMARTS on its top-level `.` separators, ignoring dots nested inside
+/// brackets, branches or recursive `$(...)` environments.
+fn split_top_level_dots(s: &str) -> Vec<String> {
+    let mut parts = Vec::new();
+    let mut current = String::new();
+    let mut bracket = 0usize;
+    let mut paren = 0usize;
+    for ch in s.chars() {
+        match ch {
+            '[' => {
+                bracket += 1;
+                current.push(ch);
+            }
+            ']' => {
+                bracket = bracket.saturating_sub(1);
+                current.push(ch);
+            }
+            '(' => {
+                paren += 1;
+                current.push(ch);
+            }
+            ')' => {
+                paren = paren.saturating_sub(1);
+                current.push(ch);
+            }
+            '.' if bracket == 0 && paren == 0 => {
+                parts.push(std::mem::take(&mut current));
+            }
+            _ => current.push(ch),
+        }
+    }
+    parts.push(current);
+    parts
+}
+
+pub fn parse_smarts_multi(s: &str) -> Option<MultiPattern> {
+    let mut components = Vec::new();
+    for part in split_top_level_dots(s) {
+        if part.is_empty() {
+            return None;
+        }
+        components.push(parse_smarts(&part)?);
+    }
+    if components.is_empty() {
+        None
+    } else {
+        Some(MultiPattern { components })
+    }
+}
+
+/// True when every component matches somewhere, with no atom shared between
+/// components. `F.F.F.F` therefore asks for four distinct fluorines.
+pub fn multi_matches_mol(pattern: &MultiPattern, mol: &Molecule) -> bool {
+    if pattern.components.len() == 1 {
+        return matches_mol(&pattern.components[0], mol);
+    }
+    let per_component: Vec<Vec<Vec<usize>>> = pattern
+        .components
+        .iter()
+        .map(|p| unique_matches(p, mol))
+        .collect();
+    if per_component.iter().any(|m| m.is_empty()) {
+        return false;
+    }
+
+    fn assign(all: &[Vec<Vec<usize>>], used: &mut Vec<bool>, depth: usize) -> bool {
+        if depth == all.len() {
+            return true;
+        }
+        for mapping in &all[depth] {
+            if mapping.iter().any(|&idx| used[idx]) {
+                continue;
+            }
+            for &idx in mapping {
+                used[idx] = true;
+            }
+            if assign(all, used, depth + 1) {
+                return true;
+            }
+            for &idx in mapping {
+                used[idx] = false;
+            }
+        }
+        false
+    }
+
+    let mut used = vec![false; mol.atoms.len()];
+    assign(&per_component, &mut used, 0)
 }
 
 /// Count of unique matches, mirroring RDKit `SubstructMatch(..., uniquify=true)`.

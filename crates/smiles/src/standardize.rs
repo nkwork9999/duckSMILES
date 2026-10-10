@@ -201,8 +201,8 @@ mod tests {
     #[test]
     fn largest_fragment_prefers_organic_heavy_component() {
         let mol = parse("CC(=O)[O-].[Na+]").unwrap();
-        assert_eq!(largest_fragment_smiles(&mol), "C(C)(=O)[O-]");
-        assert_eq!(strip_salts_smiles(&mol), "C(C)(=O)[O-]");
+        assert_eq!(largest_fragment_smiles(&mol), "C(C)([O-])=O");
+        assert_eq!(strip_salts_smiles(&mol), "C(C)([O-])=O");
     }
 
     #[test]
