@@ -28,9 +28,9 @@ WHERE function_name IN ('dock', 'morgan_fp_bits', 'mol_hash_methods')
 ----
 <no parameters>
 smiles
-smiles,radius,n_bits
 smiles,pdb,center_x,center_y,center_z,half_extent_x,half_extent_y,half_extent_z,n_runs,seed
 smiles,pdb,center_x,center_y,center_z,half_extent_x,half_extent_y,half_extent_z,n_runs,seed,ph
+smiles,radius,n_bits
 
 query T
 SELECT parameters[3]
