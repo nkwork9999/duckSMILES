@@ -40,6 +40,11 @@ int32_t ds_mol_formula(const uint8_t *ptr, size_t len, uint8_t *out,
                        size_t out_cap);
 double ds_mol_weight(const uint8_t *ptr, size_t len);
 double ds_mol_exact_mass(const uint8_t *ptr, size_t len);
+// Strict formula/adduct arithmetic. NaN means invalid or unsupported input.
+// Non-null pointers must address at least len readable bytes; bytes are UTF-8.
+double ds_formula_exact_mass(const uint8_t *ptr, size_t len);
+double ds_adduct_neutral_mass(double mz, const uint8_t *ptr, size_t len);
+double ds_adduct_precursor_mz(double mass, const uint8_t *ptr, size_t len);
 double ds_logp_crippen(const uint8_t *ptr, size_t len);
 double ds_tpsa(const uint8_t *ptr, size_t len);
 int32_t ds_canonical_smiles(const uint8_t *ptr, size_t len, uint8_t *out,

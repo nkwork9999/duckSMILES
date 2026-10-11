@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "duckdb_version": "1.5.6",
+  "platform": "osx_arm64",
+  "sql_regression_queries": 15,
+  "formula_decimal_comparisons": 1022,
+  "maximum_formula_absolute_error": 1.8189894035458565e-12,
+  "adduct_labels": 29,
+  "adduct_decimal_cases_each_direction": 87,
+  "catalog_overloads": 150,
+  "catalog_examples_executed": 150,
+  "extension_size": 3412094,
+  "extension_sha256": "3ab374538fe07b5738e450c16ad80c93c32448df25afe68201eacfd292cac077",
+  "rust": {
+    "passed": 716,
+    "failed": 0,
+    "ignored": 1,
+    "toolchain": "rustc 1.94.0 (4a4ef493e 2026-03-02)"
+  },
+  "base_commit": "6fa1b25d258e3684554b63af16d7b78b41509048",
+  "build": {
+    "headers_commit": "069cc9f9b5be802405797faecc284961b07c70ef",
+    "header_source_local": "/Users/nk/Desktop/miniplot-issues-20261010/duckdb",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+    "profile": "release",
+    "metadata_abi": "CPP",
+    "metadata_version": "v1.5.6",
+    "platform": "osx_arm64",
+    "cargo_command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-afix-target cargo build --workspace --release --offline",
+    "cpp_command": "clang++ -std=c++17 -O2 -fPIC -shared -undefined dynamic_lookup -I <DuckDB-v1.5.6>/src/include -I src/include src/ducksmiles_extension.cpp <target>/release/libducksmiles_{smiles,inchi,mol,pdb,selfies}.a -o <target>/ducksmiles.duckdb_extension",
+    "metadata": "DuckDB append_metadata.cmake format: magic 4, osx_arm64, v1.5.6, afix-v1, CPP; unsigned",
+    "dependencies_changed": false
+  },
+  "source_sha256": {
+    "crates/smiles/src/mass_context.rs": "b92613f05be096cbbee6dc27ea4b97a81f9099170895707f5c7b1c980cc5ac59",
+    "crates/smiles/src/lib.rs": "60359df5fba12aabfc53b7be1209865fcad2be67210fd7d0a639b5d181982a02",
+    "src/ducksmiles_extension.cpp": "d46ef0bc0301b0b42251a2960c4c3c2255f23108476af79b105b69d239fec066",
+    "src/include/ducksmiles.h": "851b92f0a9efcaa03dd1c7c59bb74f905c03769465b769c639afd970a6d49c48",
+    "scripts/check_mass_context.py": "39325dfa1bbf080facc177c3c406037f7500facf322b0656f0e0a8ef998ff0c3",
+    "test/sql/mass_context.test": "6f00cb1c782d6467a072f93fc29ddba868eec09d8853a184d7c25fb41898928d"
+  },
+  "public_notebook_sha256": "2dee2aacf9bf9d9d2db3a1995a56437d1ae05da5ef7d0829e19108927f9859fa",
+  "lint": {
+    "clippy_status": "blocked by pre-existing diagnostics",
+    "clippy_errors": 95,
+    "clippy_warnings": 18,
+    "new_module_diagnostics": 0,
+    "cargo_fmt_check": "existing differences outside new module",
+    "new_module_rustfmt": "passed"
+  },
+  "limits": [
+    "No model training or score measurement",
+    "Not installed globally; use version-matched local extension",
+    "Windows Linux Wasm builds not run",
+    "Strict parser and corrected adduct charge arithmetic intentionally differ from invalid public notebook cases"
+  ]
+}

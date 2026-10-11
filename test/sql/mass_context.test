@@ -1,0 +1,79 @@
+# name: test/sql/mass_context.test
+# group: [sql]
+
+require ducksmiles
+
+query III
+SELECT abs(formula_exact_mass('C8H10N4O2') - 194.0803755791) < 1e-10,
+       abs(formula_exact_mass('C5H5N') - 79.04219916515) < 1e-10,
+       abs(formula_exact_mass('D2O') - 20.0231181752) < 1e-10;
+----
+true	true	true
+
+query I
+SELECT count(*) FROM (VALUES (''), ('C0'), ('C01'), ('(CH3)2'), ('NH4+'),
+ ('[13C]H4'), ('C H'), ('Xx'), ('C1000001'), (NULL)) f(formula)
+WHERE formula_exact_mass(formula) IS NULL;
+----
+10
+
+query III
+SELECT abs(adduct_precursor_mz(194.0803755791, '[M+H]+') - 195.08765203127) < 1e-10,
+       abs(adduct_precursor_mz(194.0803755791, '[M-2H]2-') - 96.03291133738) < 1e-10,
+       abs(adduct_precursor_mz(100.0, '[2M+Na-2H]-') - 220.97466779666) < 1e-10;
+----
+true	true	true
+
+query IIII
+SELECT adduct_neutral_mass(NULL, '[M+H]+') IS NULL,
+       adduct_precursor_mz(100.0, NULL) IS NULL,
+       adduct_neutral_mass(100.0, '[M-2H]-') IS NULL,
+       adduct_precursor_mz(100.0, ' [M+H]+') IS NULL;
+----
+true	true	true	true
+
+query I
+SELECT count(*) FROM (VALUES ('NaN'::DOUBLE), ('Infinity'::DOUBLE),
+ ('-Infinity'::DOUBLE), (0.0), (-1.0)) m(mass)
+WHERE adduct_precursor_mz(mass, '[M+H]+') IS NULL
+  AND adduct_neutral_mass(mass, '[M+H]+') IS NULL;
+----
+5
+
+query IIII
+SELECT adduct_precursor_mz(1.0, '[M-H]-') IS NULL,
+       adduct_neutral_mass(1.0, '[M+Na]+') IS NULL,
+       adduct_precursor_mz(1.7976931348623157e308, '[2M+H]+') IS NULL,
+       adduct_neutral_mass(1.7976931348623157e308, '[M+2H]2+') IS NULL;
+----
+true	true	true	true
+
+# A valid formula takes precedence; malformed formula falls back explicitly.
+query III
+SELECT abs(coalesce(formula_exact_mass('C5H5N'), adduct_neutral_mass(999.0, '[M+H]+')) - 79.04219916515) < 1e-10,
+       abs(coalesce(formula_exact_mass('(invalid)'), adduct_neutral_mass(101.00727645217, '[M+H]+')) - 100.0) < 1e-10,
+       coalesce(formula_exact_mass('Xx'), adduct_neutral_mass(100.0, 'unknown')) IS NULL;
+----
+true	true	true
+
+# Constant adduct, 4097-row vectors, expression/filter dictionaries, mixed NULLs.
+query II
+SELECT count(*), count(*) FILTER (WHERE abs(adduct_neutral_mass(adduct_precursor_mz(i + 50.0, '[M+2H]2+'), '[M+2H]2+') - (i + 50.0)) < 1e-9)
+FROM range(4097) t(i);
+----
+4097	4097
+
+query III
+WITH rows AS (SELECT i, CASE WHEN i % 3 = 0 THEN NULL WHEN i % 3 = 1 THEN 'C5H5N' ELSE 'bad' END f,
+ CASE WHEN i % 3 = 0 THEN NULL WHEN i % 3 = 1 THEN '[M+H]+' ELSE 'bad' END a FROM range(4097) t(i))
+SELECT count(*), count(formula_exact_mass(f)), count(adduct_precursor_mz(i + 50.0, a))
+FROM rows WHERE i % 2 = 0;
+----
+2049	683	683
+
+query I
+SELECT count(*) FROM duckdb_functions()
+WHERE function_name IN ('formula_exact_mass', 'adduct_neutral_mass', 'adduct_precursor_mz')
+  AND len(description) > 0 AND len(examples) > 0 AND list_contains(categories, 'ducksmiles');
+----
+3
