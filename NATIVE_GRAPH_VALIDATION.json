@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "scope": "synthetic_native_graph_sql_only",
+  "duckdb_version": "1.5.6",
+  "platform": "osx_arm64",
+  "sql_regression_queries": 13,
+  "invalid_cases": 20,
+  "catalog_overloads": 151,
+  "catalog_examples_executed": 151,
+  "extension_size": 3416814,
+  "extension_sha256": "8f579b5c3466167d9f6445cf7f31b73959ff2fce777dbe668c2914a5aa3f6265",
+  "model_accuracy_measured": false,
+  "pretrained_tensor_parity_verified": false,
+  "base_commit": "4745c824030b0838111c770975cee5fad17569b5",
+  "rust": {
+    "workspace_passed": 721,
+    "workspace_failed": 0,
+    "workspace_ignored": 1,
+    "final_ffi_focused_passed": 5,
+    "toolchain": "rustc 1.94.0 (4a4ef493e 2026-03-02)"
+  },
+  "build": {
+    "headers_commit": "069cc9f9b5be802405797faecc284961b07c70ef",
+    "headers_source": "/Users/nk/Desktop/miniplot-issues-20261010/duckdb",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+    "profile": "release",
+    "target_dir": "/private/tmp/rusta-ducksmiles-mspred-target",
+    "metadata_extension_version": "native-graph-v1",
+    "metadata_version": "v1.5.6",
+    "metadata_abi": "CPP",
+    "metadata_script": "duckdb/scripts/append_metadata.cmake",
+    "dependencies_changed": false,
+    "cargo_command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-mspred-target cargo build --workspace --release --offline",
+    "cpp_command": "clang++ -std=c++17 -O2 -fPIC -shared -undefined dynamic_lookup -I <DuckDB-v1.5.6>/src/include -I src/include src/ducksmiles_extension.cpp <target>/release/libducksmiles_{smiles,inchi,mol,pdb,selfies}.a -o <target>/ducksmiles.duckdb_extension"
+  },
+  "existing_mass_context_regression": {
+    "status": "passed",
+    "sql_queries": 15,
+    "formula_decimal_comparisons": 1022,
+    "adduct_labels": 29,
+    "adduct_decimal_cases_each_direction": 87
+  },
+  "lint": {
+    "clippy_status": "existing diagnostics block global pass",
+    "unique_errors": 74,
+    "unique_warnings": 37,
+    "new_native_graph_and_ffi_diagnostics": 0,
+    "cargo_fmt_status": "existing formatting differences outside new code",
+    "new_module_rustfmt": "passed",
+    "git_diff_check": "passed"
+  },
+  "storage": {
+    "single_target_retained_for_immediate_parent_integration": true,
+    "allocated_mib_at_verification": 198
+  },
+  "source_sha256": {
+    "crates/smiles/src/native_graph.rs": "14ffd66fb7a97cd9325831f7e7024b7bb9210ce9b77b694c47fb5368508d353d",
+    "crates/smiles/src/lib.rs": "85029db06eace93337f9aef88eb951f45c69572c00e2b2434f0dda29ab2435af",
+    "src/ducksmiles_extension.cpp": "6b6b143352b357dc7744a965146058c71193bc0bf65a4d06300ae30e71c0bc33",
+    "src/include/ducksmiles.h": "3d77663ccbe361921cf1178e6687c3bb66207f6752f03ab9b965ebc9c26ea91e",
+    "test/sql/native_graph.test": "19924db6bf496b78e34a9bc514a557c5ca9e5528fc5a552122bac8486bca2082",
+    "test/sql/function_catalog.test": "c3f283fff5760f29a771a26f414aa454a3fe32e07090cfa2f0582b3b4b1e9ec4",
+    "scripts/check_native_graph.py": "6c9f01594131e810548f6cf39f5b2025bb18e3d276399e34238f1fad3f21ce9c",
+    "NATIVE_GRAPH.md": "8447528b75d964972c1b61a34a5ff7c8088d64e2791cf75b2acdfca36251dba7"
+  },
+  "limitations": [
+    "No pretrained tensor parity or model accuracy measurement",
+    "No full RDKit chemical sanitization or CIP/EZ assignment",
+    "Native aromaticity and H inference may differ from RDKit; comparison failures must be retained",
+    "Windows/Linux/Wasm targets not rebuilt",
+    "Exact source and extension SHA required beyond crate backend version"
+  ]
+}

@@ -12,6 +12,7 @@ mod molhash;
 mod morgan;
 pub mod morgan_experimental;
 pub mod ms_features;
+pub mod native_graph;
 pub mod paper_features;
 mod parser;
 mod profile_weights;
@@ -660,6 +661,39 @@ fn write_required(src: &[u8], out: *mut u8, out_cap: usize) -> i32 {
         }
     }
     src.len() as i32
+}
+
+/// Native graph JSON sidecar. Return required byte length (without NUL), or -1
+/// on invalid/unsupported input. Null/short output buffers are size queries;
+/// they are not written. See native_graph::SCHEMA for the versioned contract.
+///
+/// # Safety
+/// A non-null input must address len readable bytes. A non-null output must
+/// address out_cap writable bytes. Input and output ranges must not overlap.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ds_mol_graph_json(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_cap: usize,
+) -> i32 {
+    std::panic::catch_unwind(|| {
+        if ptr.is_null() || len == 0 || len > native_graph::MAX_INPUT_BYTES {
+            return -1;
+        }
+        // SAFETY: non-null ptr must point to len readable bytes, as required
+        // by the C ABI. Length is bounded before constructing the slice. When
+        // supplied, out must point to out_cap writable, non-overlapping bytes.
+        let bytes = unsafe { std::slice::from_raw_parts(ptr, len) };
+        let Ok(smiles) = std::str::from_utf8(bytes) else {
+            return -1;
+        };
+        match native_graph::calculate(smiles) {
+            Some(json) => write_required(json.as_bytes(), out, out_cap),
+            None => -1,
+        }
+    })
+    .unwrap_or(-1)
 }
 
 /// Returns 1 if valid SMILES, 0 otherwise

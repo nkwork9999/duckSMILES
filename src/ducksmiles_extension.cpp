@@ -216,6 +216,7 @@ DEFINE_BOOL_FUNC(MolIsValidFunc, ds_mol_is_valid)
 DEFINE_INT_FUNC(MolNumAtomsFunc, ds_mol_num_atoms)
 DEFINE_INT_FUNC(MolNumFragmentsFunc, ds_mol_num_fragments)
 DEFINE_INT_FUNC(MolNumBondsFunc, ds_mol_num_bonds)
+DEFINE_DYNAMIC_STR_FUNC(MolGraphJsonFunc, ds_mol_graph_json)
 DEFINE_SIGNED_INT_FUNC(MolFormalChargeFunc, ds_mol_formal_charge)
 DEFINE_INT_FUNC(MolNumExplicitHFunc, ds_mol_num_explicit_h)
 DEFINE_INT_FUNC(MolNumImplicitHFunc, ds_mol_num_implicit_h)
@@ -1073,6 +1074,16 @@ static void RegisterDocumentedScalar(ExtensionLoader &loader,
 
 static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   // --- SMILES ---
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mol_graph_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MolGraphJsonFunc),
+      {"smiles"},
+      "Export a versioned native atom/bond graph sidecar in input parse order, "
+      "preserving explicit H vertices, isotope, charge and raw stereo tokens. "
+      "Not pretrained ms-pred tensors or RDKit sanitization. NULL for invalid, "
+      "unsupported or resource-limited input.",
+      "mol_graph_json('N[C@@H](C)C(=O)O')", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,
       ScalarFunction("mol_is_valid", {LogicalType::VARCHAR},

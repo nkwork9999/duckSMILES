@@ -13,6 +13,11 @@ int32_t ds_mol_is_valid(const uint8_t *ptr, size_t len);
 int32_t ds_mol_num_atoms(const uint8_t *ptr, size_t len);
 int32_t ds_mol_num_fragments(const uint8_t *ptr, size_t len);
 int32_t ds_mol_num_bonds(const uint8_t *ptr, size_t len);
+// ducksmiles-native-graph-v1 sidecar, not pretrained tensors. -1 => invalid.
+// Returns required bytes without NUL; null/short output buffers are not written.
+// Non-null input/output ranges must be valid and must not overlap.
+int32_t ds_mol_graph_json(const uint8_t *ptr, size_t len, uint8_t *out,
+                          size_t out_cap);
 // Fast molecule-profile descriptors. Count functions use -1 for invalid input,
 // except formal charge, which reserves INT32_MIN because negative values are
 // valid.
