@@ -1,0 +1,86 @@
+# name: test/sql/vector_compat.test
+# description: Nullable scalar and mutable result compatibility across DuckDB versions
+# group: [sql]
+
+require ducksmiles
+
+statement ok
+CREATE TABLE vector_inputs(id INTEGER, smi VARCHAR);
+
+statement ok
+INSERT INTO vector_inputs VALUES (0, 'CCO'), (1, 'not_a_molecule'), (2, NULL), (3, '[Cl-]'), (4, 'c1ccccc1');
+
+# Mixed flat vectors: valid values, Rust error sentinels and SQL NULLs.
+query IIIT
+SELECT id, mol_num_atoms(smi), mol_formal_charge(smi), mol_formula(smi) FROM vector_inputs ORDER BY id;
+----
+0	3	0	C2H6O
+1	NULL	NULL	NULL
+2	NULL	NULL	NULL
+3	1	-1	Cl-
+4	6	0	C6H6
+
+query IR
+SELECT id, round(mol_heavy_atom_mass(smi), 1) FROM vector_inputs ORDER BY id;
+----
+0	40.0
+1	NULL
+2	NULL
+3	35.5
+4	72.1
+
+# Binary callbacks write strings and validity without mutating input buffers.
+query ITT
+SELECT id, mol_hash(smi, 'formula'), smi FROM vector_inputs ORDER BY id;
+----
+0	C2H6O	CCO
+1	NULL	not_a_molecule
+2	NULL	NULL
+3	Cl-	[Cl-]
+4	C6H6	c1ccccc1
+
+# The configurable fingerprint path writes its own result vector.
+query II
+SELECT id, octet_length(morgan_fp_bits(smi, 2, 128)) FROM vector_inputs ORDER BY id;
+----
+0	16
+1	NULL
+2	NULL
+3	16
+4	16
+
+# Filtering exercises selected input vectors rather than only constants.
+query III
+SELECT id, mol_has_substructure(smi, '[#6]'), mol_substructure_count(smi, '[#6]') FROM vector_inputs ORDER BY id;
+----
+0	true	2
+1	NULL	NULL
+2	NULL	NULL
+3	false	0
+4	true	6
+
+query II
+SELECT id, inchi_skeleton_match(CASE WHEN id = 2 THEN NULL ELSE 'InChI=1S/CH4/h1H4' END, 'InChI=1S/CH4/h1H4') FROM vector_inputs ORDER BY id;
+----
+0	true
+1	true
+2	NULL
+3	true
+4	true
+
+query IIIT
+SELECT id, mol_num_atoms(smi), mol_formal_charge(smi), mol_formula(smi) FROM vector_inputs WHERE id IN (0, 2, 4) ORDER BY id;
+----
+0	3	0	C2H6O
+2	NULL	NULL	NULL
+4	6	0	C6H6
+
+# Cross multiple vector-sized batches and check NULL masks are not leaked.
+query III
+SELECT count(*), sum(mol_num_atoms(smi)), count(*) FILTER (WHERE mol_formula(smi) IS NULL)
+FROM (SELECT CASE i % 4 WHEN 0 THEN 'CCO' WHEN 1 THEN 'not_a_molecule' WHEN 2 THEN NULL ELSE '[Cl-]' END AS smi FROM range(4097) t(i));
+----
+4097	4099	2048
+
+statement ok
+DROP TABLE vector_inputs;

@@ -1,3 +1,6 @@
+# name: test/sql/function_catalog.test
+# group: [sql]
+
 # Function metadata remains available to SQL clients and agents, including overloads.
 require ducksmiles
 
@@ -7,7 +10,7 @@ SELECT count(*), count(description), count(*) FILTER (WHERE len(examples) > 0),
 FROM duckdb_functions()
 WHERE list_contains(categories, 'ducksmiles');
 ----
-126	126	126	126
+147	147	147	147
 
 query I
 SELECT count(*)
@@ -25,9 +28,9 @@ WHERE function_name IN ('dock', 'morgan_fp_bits', 'mol_hash_methods')
 ----
 <no parameters>
 smiles
-smiles,radius,n_bits
 smiles,pdb,center_x,center_y,center_z,half_extent_x,half_extent_y,half_extent_z,n_runs,seed
 smiles,pdb,center_x,center_y,center_z,half_extent_x,half_extent_y,half_extent_z,n_runs,seed,ph
+smiles,radius,n_bits
 
 query T
 SELECT parameters[3]

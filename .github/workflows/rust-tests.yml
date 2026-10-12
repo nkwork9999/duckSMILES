@@ -1,0 +1,24 @@
+name: Rust descriptor regression tests
+on:
+  push:
+    branches: [main, feature/rdkit-parity]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check cross-compilation target selection
+        run: cmake -P cmake/test_rust_target.cmake
+      - name: Test Wasm linkage validator
+        run: node --test scripts/check_wasm_linkage.test.cjs
+      - name: Test workspace, including pinned RDKit reference fixtures
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/ducksmiles-target
+        run: cargo test --workspace --locked

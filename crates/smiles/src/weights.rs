@@ -66,6 +66,9 @@ pub fn atomic_weight(symbol: &str) -> Option<f64> {
 pub fn monoisotopic_mass(symbol: &str) -> Option<f64> {
     match symbol {
         "H" => Some(1.00782503),
+        "He" => Some(4.00260325),
+        "Li" => Some(7.01600344),
+        "Be" => Some(9.01218307),
         "B" => Some(11.00930536),
         "C" => Some(12.0),
         "N" => Some(14.00307401),

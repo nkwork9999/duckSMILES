@@ -31,6 +31,20 @@ fn hash_combine(seed: u32, v: u32) -> u32 {
         .wrapping_add(seed >> 2))
 }
 
+/// Murmur3 finalizer. The boost-style combine leaves most of its entropy in
+/// the high bits, and folding an invariant with `% n_bits` keeps only the low
+/// ones; without this avalanche step, unrelated environments collide often
+/// enough to visibly distort Tanimoto similarity.
+#[inline]
+fn fmix32(mut h: u32) -> u32 {
+    h ^= h >> 16;
+    h = h.wrapping_mul(0x85eb_ca6b);
+    h ^= h >> 13;
+    h = h.wrapping_mul(0xc2b2_ae35);
+    h ^= h >> 16;
+    h
+}
+
 /// Periodic table lookup. Covers the elements our SMILES parser emits.
 fn atomic_num(sym: &str) -> u32 {
     match sym {
@@ -48,51 +62,11 @@ fn atomic_num(sym: &str) -> u32 {
     }
 }
 
-/// For each atom, true if it belongs to at least one cycle.
-/// Plain DFS — every non-tree edge marks every atom on the back-edge path.
+/// For each atom, true if it belongs to at least one ring. Uses the shared
+/// ring perception rather than a bespoke DFS, so the flag matches every other
+/// descriptor and does not depend on how the molecule was written.
 fn compute_in_ring(mol: &Molecule) -> Vec<bool> {
-    let n = mol.atoms.len();
-    let mut in_ring = vec![false; n];
-    let mut parent: Vec<isize> = vec![-1; n];
-    let mut depth = vec![0i32; n];
-    let mut visited = vec![false; n];
-
-    // Build adjacency list once
-    let mut adj: Vec<Vec<usize>> = vec![Vec::new(); n];
-    for b in &mol.bonds {
-        adj[b.a].push(b.b);
-        adj[b.b].push(b.a);
-    }
-
-    for start in 0..n {
-        if visited[start] { continue; }
-        let mut stack: Vec<(usize, usize)> = vec![(start, 0)]; // (node, next_neighbor_idx)
-        visited[start] = true;
-        while let Some(&(u, ni)) = stack.last() {
-            if ni < adj[u].len() {
-                let v = adj[u][ni];
-                stack.last_mut().unwrap().1 += 1;
-                if !visited[v] {
-                    visited[v] = true;
-                    parent[v] = u as isize;
-                    depth[v] = depth[u] + 1;
-                    stack.push((v, 0));
-                } else if parent[u] != v as isize {
-                    // back-edge u→v: every node on the path from u up to v is in a ring
-                    let mut cur = u;
-                    while cur != v {
-                        in_ring[cur] = true;
-                        if parent[cur] < 0 { break; }
-                        cur = parent[cur] as usize;
-                    }
-                    in_ring[v] = true;
-                }
-            } else {
-                stack.pop();
-            }
-        }
-    }
-    in_ring
+    mol.ring_info().atom_in_ring
 }
 
 /// Heavy-atom degree of an atom (excludes hydrogens that the parser already split out).
@@ -139,6 +113,7 @@ pub fn morgan_invariants(mol: &Molecule, radius: u32) -> Vec<u32> {
     }
 
     let in_ring = compute_in_ring(mol);
+    let ranks = mol.canonical_ranks();
     let mut current: Vec<u32> = (0..n)
         .map(|i| connectivity_invariant(mol, &in_ring, i))
         .collect();
@@ -197,8 +172,9 @@ pub fn morgan_invariants(mol: &Molecule, radius: u32) -> Vec<u32> {
             this_round.push((round_nbhd, invar, atom_idx));
         }
 
-        // Sort for deterministic dedup order, then emit those with unseen environments.
-        this_round.sort_by(|a, b| a.1.cmp(&b.1).then(a.2.cmp(&b.2)));
+        // Dedup order must not depend on the input spelling, so ties on the
+        // invariant are broken by canonical rank rather than by atom index.
+        this_round.sort_by(|a, b| a.1.cmp(&b.1).then(ranks[a.2].cmp(&ranks[b.2])));
         for (nbhd, invar, atom_idx) in &this_round {
             if seen_nbhds.insert(nbhd.clone()) {
                 result.push(*invar);
@@ -226,7 +202,7 @@ pub fn morgan_bits(mol: &Molecule, radius: u32, n_bits: u32) -> Vec<u8> {
         return bits;
     }
     for inv in morgan_invariants(mol, radius) {
-        let bit = (inv % n_bits) as usize;
+        let bit = (fmix32(inv) % n_bits) as usize;
         bits[bit / 8] |= 1 << (bit % 8);
     }
     bits

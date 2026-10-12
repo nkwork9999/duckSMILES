@@ -4,6 +4,11 @@ Experimental Rust APIs and streaming command-line examples, added against real
 CASMI26 train/test. These are not replacements for the stable `morgan_fp_bits`
 SQL function. No SQL/FFI registration, release, or model migration is implied.
 
+The community integration uses the RDKit-parity parser and ring-aware acceptor
+rules from the existing extension branch. Research outputs can therefore differ
+from the earlier local pilot revision. Record the exact source commit and
+revalidate saved fingerprints and feature models when changing revisions.
+
 ## Native graph fingerprints
 
 `morgan_experimental::fingerprints(smiles, width)` returns six sparse count

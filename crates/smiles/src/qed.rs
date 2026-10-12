@@ -24,15 +24,18 @@
 //!   apply the bond-level constraint (acyclic single bond) in Rust — equivalent
 //!   for the single/aromatic·!ring case, since aromatic bonds are always ring
 //!   bonds and thus excluded by `!@` anyway.
-//! - **ALERTS** evaluates 114 of RDKit's 116 structural alerts. The two skipped
-//!   are multi-component SMARTS (`F.F.F.F` and a triple-ester), which the engine
-//!   doesn't parse. They only affect molecules that are salt mixtures / triesters.
+//! - **ALERTS** evaluates all 116 of RDKit's structural alerts, including the
+//!   two dot-separated ones (`F.F.F.F` and a triple ester), which are matched as
+//!   multi-component SMARTS over pairwise-disjoint atoms.
 //!
 //! `qed` returns `NaN` for an empty molecule (no atoms), mirroring `calc_logp`.
 
 use crate::logp_crippen::calc_logp;
 use crate::parser::{Bond, BondOrder, Molecule};
-use crate::smarts::{count_unique, match_at, matches_mol, parse_smarts, unique_matches, Pattern};
+use crate::smarts::{
+    count_unique, match_at, multi_matches_mol, parse_smarts, parse_smarts_multi,
+    unique_matches, MultiPattern, Pattern,
+};
 use crate::tpsa::calc_tpsa;
 use std::sync::OnceLock;
 
@@ -86,8 +89,7 @@ static ALIPHATIC_RING_SMARTS: &str = "[$([A;R][!a])]";
 static ROTB_ENV_COMMON: &str = "[!$(*#*)&!D1&!$(C(F)(F)F)&!$(C(Cl)(Cl)Cl)&!$(C(Br)(Br)Br)&!$(C([CH3])([CH3])[CH3])&!$([CH3])]";
 static ROTB_ENV_AMIDE: &str = "[!$(*#*)&!D1&!$(C(F)(F)F)&!$(C(Cl)(Cl)Cl)&!$(C(Br)(Br)Br)&!$(C([CH3])([CH3])[CH3])&!$([CH3])&!$([CD3](=[N,O,S])-!@[#7,O,S!D1])&!$([#7,O,S!D1]-!@[CD3]=[N,O,S])&!$([CD3](=[N+])-!@[#7!D1])&!$([#7!D1]-!@[CD3]=[N+])]";
 
-// RDKit StructuralAlertSmarts (116 entries; two multi-component ones don't
-// parse in our engine and are silently dropped by `filter_map` below).
+// RDKit StructuralAlertSmarts (116 entries, two of them dot-separated).
 static ALERT_SMARTS: &[&str] = &[
     "*1[O,S,N]*1",
     "[S,C](=[O,S])[F,Br,Cl,I]",
@@ -211,14 +213,20 @@ fn compile_all(smarts: &[&str]) -> Vec<Pattern> {
     smarts.iter().filter_map(|s| parse_smarts(s)).collect()
 }
 
+/// Alerts include two dot-separated patterns (`F.F.F.F` and a triple ester),
+/// so they are compiled as multi-component SMARTS rather than dropped.
+fn compile_all_multi(smarts: &[&str]) -> Vec<MultiPattern> {
+    smarts.iter().filter_map(|s| parse_smarts_multi(s)).collect()
+}
+
 fn acceptors() -> &'static [Pattern] {
     static CACHE: OnceLock<Vec<Pattern>> = OnceLock::new();
     CACHE.get_or_init(|| compile_all(ACCEPTOR_SMARTS))
 }
 
-fn alerts() -> &'static [Pattern] {
-    static CACHE: OnceLock<Vec<Pattern>> = OnceLock::new();
-    CACHE.get_or_init(|| compile_all(ALERT_SMARTS))
+fn alerts() -> &'static [MultiPattern] {
+    static CACHE: OnceLock<Vec<MultiPattern>> = OnceLock::new();
+    CACHE.get_or_init(|| compile_all_multi(ALERT_SMARTS))
 }
 
 fn single_pattern(smarts: &str) -> &'static Pattern {
@@ -318,6 +326,7 @@ fn arom(mol: &Molecule) -> usize {
                 a: remap[bond.a],
                 b: remap[bond.b],
                 order: bond.order,
+                direction: 0,
             });
         }
     }
@@ -332,7 +341,7 @@ fn arom(mol: &Molecule) -> usize {
 
 /// ALERTS = number of structural-alert patterns with at least one match.
 fn alerts_count(mol: &Molecule) -> usize {
-    alerts().iter().filter(|p| matches_mol(p, mol)).count()
+    alerts().iter().filter(|p| multi_matches_mol(p, mol)).count()
 }
 
 /// The eight QED properties in weight order.
@@ -387,9 +396,9 @@ mod tests {
 
     #[test]
     fn all_constant_smarts_compile() {
-        // The 11 acceptors all parse; 114/116 alerts parse (2 multi-component).
+        // The 11 acceptors and all 116 alerts must compile.
         assert_eq!(acceptors().len(), 11);
-        assert_eq!(alerts().len(), 114, "expected 114 parseable alerts");
+        assert_eq!(alerts().len(), 116, "every alert must compile");
         // The bespoke-helper SMARTS must all parse (single_pattern unwraps them).
         let _ = single_pattern(HBD_SMARTS);
         let _ = single_pattern(ALIPHATIC_RING_SMARTS);
