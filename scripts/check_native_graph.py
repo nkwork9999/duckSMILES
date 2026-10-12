@@ -26,7 +26,9 @@ def main():
     args = parser.parse_args()
     path = args.extension.resolve()
     ctypes.CDLL(_duckdb.__file__, mode=ctypes.RTLD_GLOBAL)
-    con = duckdb.connect(config={"allow_unsigned_extensions": True})
+    con = duckdb.connect(config={"allow_unsigned_extensions": True,
+                                 "autoinstall_known_extensions": False,
+                                 "autoload_known_extensions": False})
     con.execute("LOAD '" + str(path).replace("'", "''") + "'")
     root = Path(__file__).resolve().parents[1]
     checks = 0
