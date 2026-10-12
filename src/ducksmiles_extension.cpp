@@ -262,9 +262,9 @@ static void AdductMassFunc(DataChunk &args, ExpressionState &state,
       continue;
     }
     const auto label = adduct[i];
-    const double converted = Convert(
-        mass[i], reinterpret_cast<const uint8_t *>(label.GetData()),
-        label.GetSize());
+    const double converted =
+        Convert(mass[i], reinterpret_cast<const uint8_t *>(label.GetData()),
+                label.GetSize());
     if (!std::isfinite(converted)) {
       valid.SetInvalid(i);
     } else {
@@ -1273,24 +1273,24 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
                              LogicalType::DOUBLE, FormulaExactMassFunc),
       {"formula"},
       "Sum neutral monoisotopic atomic masses for a strict flat formula using "
-      "the versioned AFIX 18-symbol table. NULL for unsupported or malformed input.",
+      "the versioned AFIX 18-symbol table. NULL for unsupported or malformed "
+      "input.",
       "formula_exact_mass('C8H10N4O2')", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,
-      FallibleScalarFunction("adduct_neutral_mass",
-                             {LogicalType::DOUBLE, LogicalType::VARCHAR},
-                             LogicalType::DOUBLE,
-                             AdductMassFunc<ds_adduct_neutral_mass>),
+      FallibleScalarFunction(
+          "adduct_neutral_mass", {LogicalType::DOUBLE, LogicalType::VARCHAR},
+          LogicalType::DOUBLE, AdductMassFunc<ds_adduct_neutral_mass>),
       {"precursor_mz", "adduct"},
-      "Recover neutral M from precursor m/z for an explicitly supported adduct. "
+      "Recover neutral M from precursor m/z for an explicitly supported "
+      "adduct. "
       "NULL for unknown labels or nonpositive/nonfinite input or output.",
       "adduct_neutral_mass(195.087652, '[M+H]+')", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,
-      FallibleScalarFunction("adduct_precursor_mz",
-                             {LogicalType::DOUBLE, LogicalType::VARCHAR},
-                             LogicalType::DOUBLE,
-                             AdductMassFunc<ds_adduct_precursor_mz>),
+      FallibleScalarFunction(
+          "adduct_precursor_mz", {LogicalType::DOUBLE, LogicalType::VARCHAR},
+          LogicalType::DOUBLE, AdductMassFunc<ds_adduct_precursor_mz>),
       {"neutral_mass", "adduct"},
       "Calculate precursor m/z from neutral M for an explicitly supported "
       "adduct, including signed-charge electron correction and molecule count. "
