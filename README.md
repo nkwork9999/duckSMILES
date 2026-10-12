@@ -2,6 +2,14 @@
 
 **SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
+Formula-first reference indexing and explicit adduct mass conversions are
+available through [`formula_exact_mass`, `adduct_neutral_mass`, and
+`adduct_precursor_mz`](MASS_CONTEXT.md).
+
+[`mol_graph_json`](NATIVE_GRAPH.md) exports a versioned native atom/bond graph
+sidecar with input atom order, H, charge, isotope and raw stereo metadata. It is
+not a pretrained GLACIER/ICEBERG tensor replacement.
+
 Analyze SMILES, SMARTS, InChI, MOL/SDF, PDB, and SELFIES molecular structures directly from SQL — no Python, no RDKit, no setup.
 
 **A lightweight, zero-dependency alternative to RDKit for common cheminformatics SQL queries.**

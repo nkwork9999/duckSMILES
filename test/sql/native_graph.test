@@ -1,0 +1,50 @@
+# name: test/sql/native_graph.test
+# group: [sql]
+require ducksmiles
+
+query T
+SELECT json_extract_string(mol_graph_json('CN'), '$.schema');
+----
+ducksmiles-native-graph-v1
+
+query III
+SELECT json_extract(mol_graph_json('CN'), '$.atom_count')::INTEGER,
+       json_extract(mol_graph_json('[H]N([H])[H]'), '$.atom_count')::INTEGER,
+       json_extract(mol_graph_json('[NH4+]'), '$.atoms[0].bracket_h_count')::INTEGER;
+----
+2	4	4
+
+query II
+SELECT json_extract(mol_graph_json('[NH4+].[Cl-]'), '$.atoms[0].formal_charge')::INTEGER,
+       json_extract(mol_graph_json('[NH4+].[Cl-]'), '$.atoms[1].formal_charge')::INTEGER;
+----
+1	-1
+
+query IT
+SELECT json_extract(mol_graph_json('[13C@@H:7](N)(C)O'), '$.atoms[0].isotope')::INTEGER,
+       json_extract_string(mol_graph_json('[13C@@H:7](N)(C)O'), '$.atoms[0].chirality_token');
+----
+13	@@
+
+query T
+SELECT json_extract_string(mol_graph_json('c1ncccc1'), '$.bonds[0].bond_type');
+----
+aromatic
+
+query IIII
+SELECT mol_graph_json(NULL) IS NULL, mol_graph_json('C=') IS NULL,
+       mol_graph_json('[*]') IS NULL, mol_graph_json(repeat('C', 257)) IS NULL;
+----
+true	true	true	true
+
+query I
+SELECT count(*) FILTER (WHERE mol_graph_json(s) IS NULL)
+FROM (VALUES ('CN'), (NULL), ('invalid'), ('[NH4+]')) t(s);
+----
+2
+
+query II
+SELECT json_extract(mol_graph_json('CN'), '$.pretrained_tensor_compatible')::BOOLEAN,
+       json_extract(mol_graph_json('CN'), '$.computed.gasteiger')::BOOLEAN;
+----
+false	false

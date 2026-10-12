@@ -216,6 +216,7 @@ DEFINE_BOOL_FUNC(MolIsValidFunc, ds_mol_is_valid)
 DEFINE_INT_FUNC(MolNumAtomsFunc, ds_mol_num_atoms)
 DEFINE_INT_FUNC(MolNumFragmentsFunc, ds_mol_num_fragments)
 DEFINE_INT_FUNC(MolNumBondsFunc, ds_mol_num_bonds)
+DEFINE_DYNAMIC_STR_FUNC(MolGraphJsonFunc, ds_mol_graph_json)
 DEFINE_SIGNED_INT_FUNC(MolFormalChargeFunc, ds_mol_formal_charge)
 DEFINE_INT_FUNC(MolNumExplicitHFunc, ds_mol_num_explicit_h)
 DEFINE_INT_FUNC(MolNumImplicitHFunc, ds_mol_num_implicit_h)
@@ -239,6 +240,38 @@ DEFINE_DOUBLE_FUNC(MolMeanDegreeFunc, ds_mol_mean_degree)
 DEFINE_STR_FUNC(MolFormulaFunc, ds_mol_formula)
 DEFINE_DOUBLE_FUNC(MolWeightFunc, ds_mol_weight)
 DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
+DEFINE_DOUBLE_FUNC(FormulaExactMassFunc, ds_formula_exact_mass)
+
+// Mass + adduct uses a nullable flat-vector path for constants, dictionaries,
+// and ordinary vectors. Rust errors are represented by NaN, never SQL NaN.
+template <double (*Convert)(double, const uint8_t *, size_t)>
+static void AdductMassFunc(DataChunk &args, ExpressionState &state,
+                           Vector &result) {
+  const idx_t count = args.size();
+  ducksmiles_compat::Flatten(args.data[0], count);
+  ducksmiles_compat::Flatten(args.data[1], count);
+  auto mass = FlatVector::GetData<double>(args.data[0]);
+  auto adduct = FlatVector::GetData<string_t>(args.data[1]);
+  auto &mass_valid = FlatVector::Validity(args.data[0]);
+  auto &adduct_valid = FlatVector::Validity(args.data[1]);
+  auto out = ducksmiles_compat::ResultData<double>(result, count);
+  auto &valid = ducksmiles_compat::ResultValidity(result);
+  for (idx_t i = 0; i < count; i++) {
+    if (!mass_valid.RowIsValid(i) || !adduct_valid.RowIsValid(i)) {
+      valid.SetInvalid(i);
+      continue;
+    }
+    const auto label = adduct[i];
+    const double converted =
+        Convert(mass[i], reinterpret_cast<const uint8_t *>(label.GetData()),
+                label.GetSize());
+    if (!std::isfinite(converted)) {
+      valid.SetInvalid(i);
+    } else {
+      out[i] = converted;
+    }
+  }
+}
 DEFINE_DOUBLE_FUNC(LogpCrippenFunc, ds_logp_crippen)
 DEFINE_DOUBLE_FUNC(TpsaFunc, ds_tpsa)
 DEFINE_STR_FUNC(CanonicalSmilesFunc, ds_canonical_smiles)
@@ -1043,6 +1076,16 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   // --- SMILES ---
   RegisterDocumentedScalar(
       loader,
+      FallibleScalarFunction("mol_graph_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, MolGraphJsonFunc),
+      {"smiles"},
+      "Export a versioned native atom/bond graph sidecar in input parse order, "
+      "preserving explicit H vertices, isotope, charge and raw stereo tokens. "
+      "Not pretrained ms-pred tensors or RDKit sanitization. NULL for invalid, "
+      "unsupported or resource-limited input.",
+      "mol_graph_json('N[C@@H](C)C(=O)O')", "mass_spectrometry");
+  RegisterDocumentedScalar(
+      loader,
       ScalarFunction("mol_is_valid", {LogicalType::VARCHAR},
                      LogicalType::BOOLEAN, MolIsValidFunc),
       {"smiles"},
@@ -1224,6 +1267,35 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
                      LogicalType::DOUBLE, MolExactMassFunc),
       {"smiles"}, "Calculate monoisotopic molecular mass from SMILES.",
       "mol_exact_mass('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("formula_exact_mass", {LogicalType::VARCHAR},
+                             LogicalType::DOUBLE, FormulaExactMassFunc),
+      {"formula"},
+      "Sum neutral monoisotopic atomic masses for a strict flat formula using "
+      "the versioned AFIX 18-symbol table. NULL for unsupported or malformed "
+      "input.",
+      "formula_exact_mass('C8H10N4O2')", "mass_spectrometry");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction(
+          "adduct_neutral_mass", {LogicalType::DOUBLE, LogicalType::VARCHAR},
+          LogicalType::DOUBLE, AdductMassFunc<ds_adduct_neutral_mass>),
+      {"precursor_mz", "adduct"},
+      "Recover neutral M from precursor m/z for an explicitly supported "
+      "adduct. "
+      "NULL for unknown labels or nonpositive/nonfinite input or output.",
+      "adduct_neutral_mass(195.087652, '[M+H]+')", "mass_spectrometry");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction(
+          "adduct_precursor_mz", {LogicalType::DOUBLE, LogicalType::VARCHAR},
+          LogicalType::DOUBLE, AdductMassFunc<ds_adduct_precursor_mz>),
+      {"neutral_mass", "adduct"},
+      "Calculate precursor m/z from neutral M for an explicitly supported "
+      "adduct, including signed-charge electron correction and molecule count. "
+      "NULL for invalid input; no adduct inference is performed.",
+      "adduct_precursor_mz(194.080376, '[M+H]+')", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,
       ScalarFunction("logp_crippen", {LogicalType::VARCHAR},
