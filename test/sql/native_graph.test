@@ -1,5 +1,6 @@
 # name: test/sql/native_graph.test
 # group: [sql]
+
 require ducksmiles
 
 query T
