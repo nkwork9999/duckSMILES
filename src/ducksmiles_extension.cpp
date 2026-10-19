@@ -1061,6 +1061,7 @@ static void RegisterDocumentedScalar(ExtensionLoader &loader,
                                      const string &category) {
   auto argument_types = ducksmiles_compat::ArgumentTypes(function);
   D_ASSERT(parameter_names.size() == argument_types.size());
+  ducksmiles_compat::SetArgumentNames(function, parameter_names);
   FunctionDescription documentation;
   documentation.parameter_types = std::move(argument_types);
   documentation.parameter_names = std::move(parameter_names);
