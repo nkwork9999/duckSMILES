@@ -8,6 +8,28 @@
 namespace duckdb {
 namespace ducksmiles_compat {
 
+// DuckDB 2 stores scalar argument types in its function signature. Preserve
+// declaration order when associating catalog documentation with an overload.
+template <class F>
+static auto ArgumentTypesImpl(const F &function, int)
+    -> decltype(function.GetSignature(), vector<LogicalType>()) {
+  vector<LogicalType> types;
+  for (const auto &parameter : function.GetSignature().GetParameters()) {
+    types.push_back(parameter.GetType());
+  }
+  return types;
+}
+
+template <class F>
+static auto ArgumentTypesImpl(const F &function, long)
+    -> decltype(function.arguments) {
+  return function.arguments;
+}
+
+template <class F> static vector<LogicalType> ArgumentTypes(const F &function) {
+  return ArgumentTypesImpl(function, 0);
+}
+
 // DuckDB 2 keeps vector sizes internally. Select its count-free APIs without
 // using deprecated overloads, while retaining the explicit count on DuckDB 1.
 template <class V>
