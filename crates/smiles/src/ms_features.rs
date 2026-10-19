@@ -71,6 +71,7 @@ pub(crate) fn order(o: BondOrder) -> u64 {
         BondOrder::Double => 2,
         BondOrder::Triple => 3,
         BondOrder::Aromatic => 4,
+        BondOrder::Dative => 17,
     }
 }
 pub(crate) fn adjacency(m: &Molecule) -> Adj {

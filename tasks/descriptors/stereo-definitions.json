@@ -1,0 +1,31 @@
+{
+  "descriptors": [
+    {
+      "id": "NumAtomStereoCenters",
+      "title": "Atom stereocenters",
+      "group": "Stereo",
+      "unit": "",
+      "digits": 0,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation",
+      "definition": "Pinned default legacy _ChiralityPossible atom property",
+      "reference_version": "1.0.1"
+    },
+    {
+      "id": "NumUnspecifiedAtomStereoCenters",
+      "title": "Unspecified stereocenters",
+      "group": "Stereo",
+      "unit": "",
+      "digits": 0,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation",
+      "definition": "Pinned default legacy _ChiralityPossible atom property with cleaned CHI_UNSPECIFIED tag",
+      "reference_version": "1.0.1"
+    }
+  ],
+  "source": "RDKit2026.03.6 Lipinski.cpp/Chirality.cpp, default legacy perception; fresh sanitize=True removeHs=False input",
+  "references": [
+    "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/Descriptors/Lipinski.cpp",
+    "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/Chirality.cpp"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "rdkit": "2026.03.6",
+  "descriptors": [
+    {
+      "id": "NumAmideBonds",
+      "title": "Amide bonds",
+      "group": "Functional groups",
+      "unit": "",
+      "digits": 0,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "NumSpiroAtoms",
+      "title": "Spiro atoms",
+      "group": "Rings",
+      "unit": "",
+      "digits": 0,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "NumBridgeheadAtoms",
+      "title": "Bridgehead atoms",
+      "group": "Rings",
+      "unit": "",
+      "digits": 0,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    }
+  ],
+  "molecules": 251,
+  "scalar_values": 753,
+  "positive_controls": {
+    "NumAmideBonds": 23,
+    "NumSpiroAtoms": 8,
+    "NumBridgeheadAtoms": 8
+  }
+}

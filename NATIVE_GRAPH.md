@@ -82,11 +82,11 @@ validated valence, isotope mass or pretrained-model vocabulary for it.
 
 The API-specific guard rejects dangling/repeated bonds, empty branches,
 leading/trailing/repeated dots, dots inside branches, self/duplicate edges,
-overflowing isotope/map annotations, and explicit bond/direction annotations
-immediately before ring labels. The latter are a conservative supported-subset
-restriction: this parser does not retain all opening-ring bond annotations.
-Ordinary ring labels (including `%10`) and bond annotations between atoms are
-supported. Other SQL functions keep their existing parser behavior unchanged.
+and overflowing isotope/map annotations. Opening and closing ring-bond
+annotations are supported, including explicit orders and directions. The parser
+retains the opening annotation for the ring edge without spilling it onto the
+following bond. Ordinary ring labels (including `%10`) are supported. The
+API-specific input bounds do not change other SQL functions' input limits.
 
 This is not full RDKit sanitization or valence/radical/stereochemistry checking.
 Native parser acceptance and aromaticity can differ from RDKit; record parity
@@ -120,3 +120,27 @@ with an existing matching DuckDB Python. It loads the actual extension and
 checks JSON, H/charge/isotope/stereo/input order, malformed inputs, vectorized
 SQL, registered catalog examples, and all graph SQL regression queries. It
 does not measure model accuracy or claim RDKit/pretrained parity.
+
+## Chemob prepared drawing graph
+
+`ds_workbench_drawing_graph(input, length, output, capacity)` is a separate,
+bounded C ABI for Chemob 2D rendering. It does not change `ds_mol_graph_json`.
+Its JSON schema is `ducksmiles-workbench-drawing-v1` and includes the original
+`input_smiles`, preparation revision, input-order atoms and bonds, attached-H
+counts, charge, isotope, supported stereo annotations, and directed dative bonds
+(donor `begin` → acceptor `end`). It uses the descriptor preparation pipeline,
+so chemical cleanup and coordination agree with calculation inputs.
+
+The drawing budget is 4,096 input bytes, 256 atoms and 512 bonds. Invalid,
+unsupported or over-budget input returns -1. A positive result is the required
+UTF-8 byte length without NUL. A zero-capacity null output queries that length;
+short buffers are unchanged. Null output with nonzero capacity is invalid.
+The caller must supply disjoint valid readable/writable ranges. Panics are
+caught at the boundary.
+
+`unrepresented_stereo` discloses supported inputs whose non-tetrahedral or CX
+configuration is not retained by this drawing projection. The rendering layer
+must also report any tetrahedral/E/Z configuration its geometry cannot express.
+No structure canonicalization, salt stripping or source-string replacement is
+performed by this API. Descriptor cache identity and numerical revision remain
+independent from drawing schema/layout revisions.

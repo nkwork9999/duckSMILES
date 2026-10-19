@@ -1,0 +1,11 @@
+name,smiles
+hydrogen-0,[H]
+hydrogen-1,[HH]
+hydrogen-2,[H][H]
+hydrogen-3,[2HH]
+hydrogen-4,[2H][H]
+hydrogen-5,[HH+].[Cl-]
+hydrogen-6,C[H]
+hydrogen-7,[NH4+]
+hydrogen-8,[nH]1cccc1
+hydrogen-9,N[C@@H](CO)C1=N/C(=C\C2:C:C:C(O):C:C:2)C(=O)N1CC=O.[HH]

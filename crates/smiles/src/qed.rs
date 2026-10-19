@@ -12,31 +12,17 @@
 //! Defaults use the `WEIGHT_MEAN` set, matching RDKit's `QED.default` /
 //! `QED.weights_mean`.
 //!
-//! ## Fidelity notes
-//!
-//! QED.py itself documents that its values differ slightly from the original
-//! paper because of the underlying property calculators (esp. LogP). This port
-//! inherits the same caveat plus two duckSmiles-specific ones:
-//!
-//! - **ROTB** uses RDKit's *Strict* rotatable-bond definition. RDKit expresses
-//!   it as a single bond-SMARTS, but our SMARTS engine doesn't support bond-OR
-//!   (`-,:`). We instead reuse the (parseable) per-atom environment queries and
-//!   apply the bond-level constraint (acyclic single bond) in Rust — equivalent
-//!   for the single/aromatic·!ring case, since aromatic bonds are always ring
-//!   bonds and thus excluded by `!@` anyway.
-//! - **ALERTS** evaluates all 116 of RDKit's structural alerts, including the
-//!   two dot-separated ones (`F.F.F.F` and a triple ester), which are matched as
-//!   multi-component SMARTS over pairwise-disjoint atoms.
-//!
-//! `qed` returns `NaN` for an empty molecule (no atoms), mirroring `calc_logp`.
+//! The pinned registered definition removes ordinary explicit hydrogen vertices
+//! with the default RemoveHs rules before computing the eight properties.
+//! QED's acceptor queries differ from the standard NumHAcceptors descriptor.
+//! Structural alerts are pattern-presence counts, not occurrence counts.
+//! Empty inputs retain the existing native NaN contract.
 
 use crate::logp_crippen::calc_logp;
-use crate::parser::{Bond, BondOrder, Molecule};
+use crate::parser::{BondOrder, Molecule, RingInfo};
 use crate::smarts::{
-    count_unique, match_at, multi_matches_mol, parse_smarts, parse_smarts_multi,
-    unique_matches, MultiPattern, Pattern,
+    multi_matches_mol, parse_smarts, parse_smarts_multi, MultiPattern, Pattern, PreparedMatcher,
 };
-use crate::tpsa::calc_tpsa;
 use std::sync::OnceLock;
 
 // --- WEIGHT_MEAN (RDKit QED default), property order MW,ALOGP,HBA,HBD,PSA,ROTB,AROM,ALERTS ---
@@ -45,21 +31,85 @@ const WEIGHT_MEAN: [f64; 8] = [0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95];
 // --- ADS parameters (A, B, C, D, E, F, DMAX) per property, RDKit adsParameters ---
 const ADS_PARAMS: [[f64; 7]; 8] = [
     // MW
-    [2.817065973, 392.5754953, 290.7489764, 2.419764353, 49.22325677, 65.37051707, 104.9805561],
+    [
+        2.817065973,
+        392.5754953,
+        290.7489764,
+        2.419764353,
+        49.22325677,
+        65.37051707,
+        104.9805561,
+    ],
     // ALOGP
-    [3.172690585, 137.8624751, 2.534937431, 4.581497897, 0.822739154, 0.576295591, 131.3186604],
+    [
+        3.172690585,
+        137.8624751,
+        2.534937431,
+        4.581497897,
+        0.822739154,
+        0.576295591,
+        131.3186604,
+    ],
     // HBA
-    [2.948620388, 160.4605972, 3.615294657, 4.435986202, 0.290141953, 1.300669958, 148.7763046],
+    [
+        2.948620388,
+        160.4605972,
+        3.615294657,
+        4.435986202,
+        0.290141953,
+        1.300669958,
+        148.7763046,
+    ],
     // HBD
-    [1.618662227, 1010.051101, 0.985094388, 0.000000001, 0.713820843, 0.920922555, 258.1632616],
+    [
+        1.618662227,
+        1010.051101,
+        0.985094388,
+        0.000000001,
+        0.713820843,
+        0.920922555,
+        258.1632616,
+    ],
     // PSA
-    [1.876861559, 125.2232657, 62.90773554, 87.83366614, 12.01999824, 28.51324732, 104.5686167],
+    [
+        1.876861559,
+        125.2232657,
+        62.90773554,
+        87.83366614,
+        12.01999824,
+        28.51324732,
+        104.5686167,
+    ],
     // ROTB
-    [0.010000000, 272.4121427, 2.558379970, 1.565547684, 1.271567166, 2.758063707, 105.4420403],
+    [
+        0.010000000,
+        272.4121427,
+        2.558379970,
+        1.565547684,
+        1.271567166,
+        2.758063707,
+        105.4420403,
+    ],
     // AROM
-    [3.217788970, 957.7374108, 2.274627939, 0.000000001, 1.317690384, 0.375760881, 312.3372610],
+    [
+        3.217788970,
+        957.7374108,
+        2.274627939,
+        0.000000001,
+        1.317690384,
+        0.375760881,
+        312.3372610,
+    ],
     // ALERTS
-    [0.010000000, 1199.094025, -0.09002883, 0.000000001, 0.185904477, 0.875193782, 417.7253140],
+    [
+        0.010000000,
+        1199.094025,
+        -0.09002883,
+        0.000000001,
+        0.185904477,
+        0.875193782,
+        417.7253140,
+    ],
 ];
 
 // QED hydrogen-bond acceptor SMARTS (summed match counts). RDKit AcceptorSmarts.
@@ -77,17 +127,8 @@ static ACCEPTOR_SMARTS: &[&str] = &[
     "[$([N;+0;X3;v3]);!$(N[C,S]=O)]",
 ];
 
-// RDKit CalcNumHBD pattern (counted as matching atoms).
-static HBD_SMARTS: &str = "[N&!H0&v3,N&!H0&+1&v4,O&H1&+0,S&H1&+0,n&H1&+0]";
-
-// QED AliphaticRings query: an aliphatic ring atom bonded to a non-aromatic
-// atom. AROM = SSSR count after deleting all atoms matching this.
+// AROM is the ordinary SSSR dimension after deleting this query's atoms.
 static ALIPHATIC_RING_SMARTS: &str = "[$([A;R][!a])]";
-
-// Strict rotatable-bond atom environments (the bond-OR is handled in Rust).
-// First atom carries the amide exclusions; the second is the common environment.
-static ROTB_ENV_COMMON: &str = "[!$(*#*)&!D1&!$(C(F)(F)F)&!$(C(Cl)(Cl)Cl)&!$(C(Br)(Br)Br)&!$(C([CH3])([CH3])[CH3])&!$([CH3])]";
-static ROTB_ENV_AMIDE: &str = "[!$(*#*)&!D1&!$(C(F)(F)F)&!$(C(Cl)(Cl)Cl)&!$(C(Br)(Br)Br)&!$(C([CH3])([CH3])[CH3])&!$([CH3])&!$([CD3](=[N,O,S])-!@[#7,O,S!D1])&!$([#7,O,S!D1]-!@[CD3]=[N,O,S])&!$([CD3](=[N+])-!@[#7!D1])&!$([#7!D1]-!@[CD3]=[N+])]";
 
 // RDKit StructuralAlertSmarts (116 entries, two of them dot-separated).
 static ALERT_SMARTS: &[&str] = &[
@@ -216,7 +257,10 @@ fn compile_all(smarts: &[&str]) -> Vec<Pattern> {
 /// Alerts include two dot-separated patterns (`F.F.F.F` and a triple ester),
 /// so they are compiled as multi-component SMARTS rather than dropped.
 fn compile_all_multi(smarts: &[&str]) -> Vec<MultiPattern> {
-    smarts.iter().filter_map(|s| parse_smarts_multi(s)).collect()
+    smarts
+        .iter()
+        .filter_map(|s| parse_smarts_multi(s))
+        .collect()
 }
 
 fn acceptors() -> &'static [Pattern] {
@@ -229,133 +273,162 @@ fn alerts() -> &'static [MultiPattern] {
     CACHE.get_or_init(|| compile_all_multi(ALERT_SMARTS))
 }
 
-fn single_pattern(smarts: &str) -> &'static Pattern {
-    // Leak a single compiled pattern once; SMARTS here are constants that
-    // always parse, so unwrap is safe (covered by the patterns_compile test).
-    fn cache(slot: &'static OnceLock<Pattern>, s: &str) -> &'static Pattern {
-        slot.get_or_init(|| parse_smarts(s).expect("QED constant SMARTS must parse"))
-    }
-    match smarts {
-        s if s == HBD_SMARTS => {
-            static C: OnceLock<Pattern> = OnceLock::new();
-            cache(&C, HBD_SMARTS)
-        }
-        s if s == ALIPHATIC_RING_SMARTS => {
-            static C: OnceLock<Pattern> = OnceLock::new();
-            cache(&C, ALIPHATIC_RING_SMARTS)
-        }
-        s if s == ROTB_ENV_COMMON => {
-            static C: OnceLock<Pattern> = OnceLock::new();
-            cache(&C, ROTB_ENV_COMMON)
-        }
-        s if s == ROTB_ENV_AMIDE => {
-            static C: OnceLock<Pattern> = OnceLock::new();
-            cache(&C, ROTB_ENV_AMIDE)
-        }
-        _ => unreachable!("unknown QED constant SMARTS"),
-    }
+fn aliphatic_pattern() -> &'static Pattern {
+    static CACHE: OnceLock<Pattern> = OnceLock::new();
+    CACHE.get_or_init(|| parse_smarts(ALIPHATIC_RING_SMARTS).expect("constant QED query"))
 }
 
-/// HBA = Σ over the 11 acceptor patterns of their match counts.
-fn hba(mol: &Molecule) -> usize {
-    acceptors().iter().map(|p| count_unique(p, mol)).sum()
-}
-
-/// HBD = number of atoms matching RDKit's CalcNumHBD pattern.
-fn hbd(mol: &Molecule) -> usize {
-    count_unique(single_pattern(HBD_SMARTS), mol)
-}
-
-/// Strict rotatable bonds: acyclic single bonds whose endpoints both satisfy the
-/// common environment and at least one satisfies the amide-aware environment.
-fn rotb_strict(mol: &Molecule) -> usize {
-    let env_common = single_pattern(ROTB_ENV_COMMON);
-    let env_amide = single_pattern(ROTB_ENV_AMIDE);
-    let ring = mol.ring_info();
-    mol.bonds
+/// Default RemoveHs for the supported concrete SMILES graph. Isotopic,
+/// isolated, bridging, hydride, H-only-neighbor and defining-stereo Hs remain.
+/// The original graph is untouched. Attached-H totals transfer to the neighbor.
+fn hydrogen_suppressed(mol: &Molecule) -> Option<Molecule> {
+    let adj = mol.adjacency();
+    let removed: Vec<_> = mol
+        .atoms
         .iter()
         .enumerate()
-        .filter(|(idx, bond)| {
-            // (single OR aromatic) AND !ring == single AND !ring, since aromatic
-            // bonds are always ring bonds.
-            bond.order == BondOrder::Single
-                && !ring.bond_in_ring.get(*idx).copied().unwrap_or(false)
-        })
-        .filter(|(_, bond)| {
-            let a_common = match_at(env_common, mol, bond.a);
-            let b_common = match_at(env_common, mol, bond.b);
-            if !(a_common && b_common) {
+        .map(|(i, atom)| {
+            if atom.symbol != "H"
+                || atom.isotope.is_some_and(|v| v != 0)
+                || atom.charge == -1
+                || adj[i].len() != 1
+            {
                 return false;
             }
-            // At least one endpoint must also clear the amide-aware environment.
-            match_at(env_amide, mol, bond.a) || match_at(env_amide, mol, bond.b)
-        })
-        .count()
-}
-
-/// AROM = SSSR ring count after deleting atoms matching the AliphaticRings
-/// query (RDKit: `GetSSSR(DeleteSubstructs(mol, AliphaticRings))`).
-fn arom(mol: &Molecule) -> usize {
-    let pat = single_pattern(ALIPHATIC_RING_SMARTS);
-    let mut delete = vec![false; mol.atoms.len()];
-    for m in unique_matches(pat, mol) {
-        for idx in m {
-            if idx < delete.len() {
-                delete[idx] = true;
+            let (neighbor, bond) = adj[i][0];
+            if mol.atoms[neighbor].symbol == "H" {
+                return false;
             }
-        }
+            // A directed single H bond at a terminal double-bond endpoint defines
+            // its stereochemistry and is retained by default RemoveHs.
+            !(adj[neighbor].len() == 2
+                && mol.bonds[bond].direction != 0
+                && adj[neighbor]
+                    .iter()
+                    .any(|&(_, b)| mol.bonds[b].order == BondOrder::Double))
+        })
+        .collect();
+    if !removed.iter().any(|&r| r) {
+        return None;
     }
-    if delete.iter().all(|&d| !d) {
-        // Nothing deleted — SSSR of the whole molecule.
-        return mol.ring_info().rings.len();
-    }
-
-    // Build the residual molecule with surviving atoms reindexed.
     let mut remap = vec![usize::MAX; mol.atoms.len()];
     let mut atoms = Vec::new();
     for (i, atom) in mol.atoms.iter().enumerate() {
-        if !delete[i] {
-            remap[i] = atoms.len();
-            atoms.push(atom.clone());
+        if removed[i] {
+            continue;
         }
+        remap[i] = atoms.len();
+        let mut atom = atom.clone();
+        let transferred = adj[i].iter().filter(|&&(j, _)| removed[j]).count() as i32;
+        atom.hydrogen += transferred;
+        atom.nbr_order.clear();
+        atoms.push(atom);
     }
-    let mut bonds = Vec::new();
-    for bond in &mol.bonds {
-        if !delete[bond.a] && !delete[bond.b] {
-            bonds.push(Bond {
-                a: remap[bond.a],
-                b: remap[bond.b],
-                order: bond.order,
-                direction: 0,
-            });
-        }
-    }
-    let bond_count = bonds.len() as i32;
-    let sub = Molecule {
+    let bonds: Vec<_> = mol
+        .bonds
+        .iter()
+        .filter(|b| !removed[b.a] && !removed[b.b])
+        .map(|b| {
+            let mut b = *b;
+            b.a = remap[b.a];
+            b.b = remap[b.b];
+            b
+        })
+        .collect();
+    Some(Molecule {
         atoms,
+        bond_count: bonds.len() as i32,
         bonds,
-        bond_count,
-    };
-    sub.ring_info().rings.len()
+    })
 }
 
-/// ALERTS = number of structural-alert patterns with at least one match.
-fn alerts_count(mol: &Molecule) -> usize {
-    alerts().iter().filter(|p| multi_matches_mol(p, mol)).count()
+fn acceptor_counts(mol: &Molecule, matcher: &PreparedMatcher<'_>) -> Vec<usize> {
+    // All eleven acceptor patterns have one top-level query atom. Recursive
+    // environments constrain that atom; they do not add mapped atoms.
+    acceptors()
+        .iter()
+        .map(|p| {
+            (0..mol.atoms.len())
+                .filter(|&i| matcher.matches(p, i))
+                .take(1000)
+                .count()
+        })
+        .collect()
 }
 
-/// The eight QED properties in weight order.
-fn properties(mol: &Molecule) -> [f64; 8] {
+fn alert_flags(mol: &Molecule, matcher: &PreparedMatcher<'_>) -> Vec<bool> {
+    alerts()
+        .iter()
+        .map(|p| {
+            if p.components.len() == 1 {
+                (0..mol.atoms.len()).any(|i| matcher.matches(&p.components[0], i))
+            } else {
+                // Only two queries need disjoint multi-component embeddings.
+                multi_matches_mol(p, mol)
+            }
+        })
+        .collect()
+}
+
+fn arom_with_context(mol: &Molecule, matcher: &PreparedMatcher<'_>) -> usize {
+    let deleted: Vec<_> = (0..mol.atoms.len())
+        .map(|i| matcher.matches(aliphatic_pattern(), i))
+        .collect();
+    let mut parent: Vec<_> = (0..mol.atoms.len()).collect();
+    fn root(parent: &mut [usize], mut i: usize) -> usize {
+        while parent[i] != i {
+            parent[i] = parent[parent[i]];
+            i = parent[i];
+        }
+        i
+    }
+    let mut cycles = 0;
+    for b in &mol.bonds {
+        if deleted[b.a] || deleted[b.b] || b.order == BondOrder::Dative {
+            continue;
+        }
+        let a = root(&mut parent, b.a);
+        let c = root(&mut parent, b.b);
+        if a == c {
+            cycles += 1;
+        } else {
+            parent[a] = c;
+        }
+    }
+    // E - V + components is the ordinary SSSR dimension. Symmetric SSSR can
+    // contain extra rings and is deliberately not used for this property.
+    cycles
+}
+
+fn properties_on_graph(
+    mol: &Molecule,
+    ring: &RingInfo,
+    base: Option<&crate::workbench::BasicDescriptors>,
+) -> [f64; 8] {
+    let matcher = PreparedMatcher::with_ring_info(mol, ring);
     [
-        mol.molecular_weight(),
-        calc_logp(mol),
-        hba(mol) as f64,
-        hbd(mol) as f64,
-        calc_tpsa(mol),
-        rotb_strict(mol) as f64,
-        arom(mol) as f64,
-        alerts_count(mol) as f64,
+        base.map_or_else(|| mol.molecular_weight(), |b| b.mw),
+        base.map_or_else(|| calc_logp(mol), |b| b.logp),
+        acceptor_counts(mol, &matcher).iter().sum::<usize>() as f64,
+        base.map_or_else(|| crate::num_h_donors(mol) as f64, |b| b.hbd as f64),
+        base.map_or_else(
+            || crate::tpsa::calc_tpsa_with_ring_info(mol, ring),
+            |b| b.tpsa,
+        ),
+        base.map_or_else(
+            || crate::num_rotatable_bonds_with_ring_bonds(mol, &ring.bond_in_ring) as f64,
+            |b| b.rotatable_bonds as f64,
+        ),
+        arom_with_context(mol, &matcher) as f64,
+        alert_flags(mol, &matcher).iter().filter(|&&v| v).count() as f64,
     ]
+}
+
+/// QED has its own default-H-removal graph; the input graph stays intact.
+fn properties(mol: &Molecule) -> [f64; 8] {
+    let suppressed = hydrogen_suppressed(mol);
+    let graph = suppressed.as_ref().unwrap_or(mol);
+    properties_on_graph(graph, &graph.ring_info(), None)
 }
 
 /// ADS desirability function for property value `x` with parameter row
@@ -374,7 +447,10 @@ pub fn qed(mol: &Molecule) -> f64 {
     if mol.atoms.is_empty() {
         return f64::NAN;
     }
-    let props = properties(mol);
+    score(properties(mol))
+}
+
+fn score(props: [f64; 8]) -> f64 {
     let mut num = 0.0;
     let mut wsum = 0.0;
     for i in 0..8 {
@@ -385,10 +461,190 @@ pub fn qed(mol: &Molecule) -> f64 {
     (num / wsum).exp()
 }
 
+/// Registered workbench path reuses existing properties and ring topology
+/// unless QED's default explicit-H removal needs a separate graph.
+pub(crate) fn calculate(
+    mol: &Molecule,
+    ring: &RingInfo,
+    base: &crate::workbench::BasicDescriptors,
+) -> f64 {
+    match hydrogen_suppressed(mol) {
+        Some(graph) => score(properties_on_graph(&graph, &graph.ring_info(), None)),
+        None => score(properties_on_graph(mol, ring, Some(base))),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::parser::parse;
+
+    fn prepared(source: &str) -> Molecule {
+        crate::workbench::prepare(source).unwrap().0
+    }
+
+    #[test]
+    fn element_queries_match_independent_token_truth_table() {
+        let mut errors = Vec::new();
+        let mut checked = 0;
+        for line in include_str!("../tests/fixtures/smarts_element_tokens.tsv")
+            .lines()
+            .filter(|l| !l.starts_with('#'))
+        {
+            let fields: Vec<_> = line.split('\t').collect();
+            let query = parse_smarts(fields[0]).unwrap();
+            let mol = prepared(fields[1]);
+            let rings = mol.ring_info();
+            let matcher = PreparedMatcher::with_ring_info(&mol, &rings);
+            let actual = (0..mol.atoms.len())
+                .filter(|&i| matcher.matches(&query, i))
+                .map(|i| i.to_string())
+                .collect::<Vec<_>>()
+                .join(",");
+            if actual != fields[2] {
+                errors.push(format!(
+                    "{} on {}: {actual:?} vs {:?}",
+                    fields[0], fields[1], fields[2]
+                ));
+            }
+            checked += 1;
+        }
+        assert_eq!(checked, 638);
+        assert!(
+            errors.is_empty(),
+            "{} token mismatches:\n{}",
+            errors.len(),
+            errors.join("\n")
+        );
+    }
+
+    #[test]
+    fn default_hydrogen_removal_matches_independent_retained_graphs() {
+        let mut checked = 0;
+        for line in include_str!("../tests/fixtures/qed_hydrogen_contexts.tsv")
+            .lines()
+            .filter(|l| !l.starts_with('#'))
+        {
+            let fields: Vec<_> = line.split('\t').collect();
+            let mol = prepared(fields[0]);
+            let suppressed = hydrogen_suppressed(&mol);
+            let graph = suppressed.as_ref().unwrap_or(&mol);
+            let atoms = graph
+                .atoms
+                .iter()
+                .map(|a| {
+                    format!(
+                        "{},{},{},{},{}",
+                        a.symbol,
+                        a.isotope.unwrap_or(0),
+                        a.hydrogen,
+                        a.charge,
+                        u8::from(a.aromatic)
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(";");
+            assert_eq!(atoms, fields[1], "{} retained atoms", fields[0]);
+            let bonds = graph
+                .bonds
+                .iter()
+                .map(|b| {
+                    let order = match b.order {
+                        BondOrder::Single => 1,
+                        BondOrder::Double => 2,
+                        BondOrder::Triple => 3,
+                        BondOrder::Aromatic => 12,
+                        BondOrder::Dative => 17,
+                    };
+                    (b.a, b.b, order)
+                })
+                .collect::<Vec<_>>();
+            let reference = fields[2]
+                .split(';')
+                .filter(|b| !b.is_empty())
+                .map(|b| {
+                    let f: Vec<usize> = b.split(',').map(|v| v.parse().unwrap()).collect();
+                    (f[0], f[1], f[2])
+                })
+                .collect::<Vec<_>>();
+            let canonical = |mut edges: Vec<(usize, usize, usize)>| {
+                for (a, b, order) in &mut edges {
+                    // Ordinary edges are undirected; dative endpoints retain
+                    // donor/acceptor direction. Bond array order is immaterial.
+                    if *order != 17 && *a > *b {
+                        std::mem::swap(a, b);
+                    }
+                }
+                edges.sort_unstable();
+                edges
+            };
+            assert_eq!(
+                canonical(bonds),
+                canonical(reference),
+                "{} retained bonds",
+                fields[0]
+            );
+            checked += 1;
+        }
+        assert_eq!(checked, 51);
+    }
+
+    #[test]
+    fn registered_reference_properties_and_scores() {
+        let mut differences = Vec::new();
+        let mut checked = 0;
+        for line in include_str!("../tests/fixtures/descriptor_qed.tsv").lines() {
+            if line.starts_with('#') {
+                continue;
+            }
+            let columns: Vec<_> = line.split('\t').collect();
+            let source = columns[0];
+            let mol = prepared(source);
+            let suppressed = hydrogen_suppressed(&mol);
+            let graph = suppressed.as_ref().unwrap_or(&mol);
+            let ring = graph.ring_info();
+            let matcher = PreparedMatcher::with_ring_info(graph, &ring);
+            let expected_acceptors: Vec<usize> =
+                columns[3].split(',').map(|v| v.parse().unwrap()).collect();
+            let expected_alerts: Vec<bool> = columns[4].split(',').map(|v| v == "1").collect();
+            if acceptor_counts(graph, &matcher) != expected_acceptors {
+                differences.push(format!("{source}: QED acceptor query vector differs"));
+            }
+            if alert_flags(graph, &matcher) != expected_alerts {
+                differences.push(format!("{source}: QED structural-alert vector differs"));
+            }
+            let expected: Vec<f64> = columns[2].split(',').map(|v| v.parse().unwrap()).collect();
+            let actual = properties(&mol);
+            for (index, (&a, &b)) in actual.iter().zip(&expected).enumerate() {
+                let tolerance = if index == 0 { 1e-8 } else { 1e-9 };
+                if !a.is_finite() || (a - b).abs() > tolerance {
+                    differences.push(format!(
+                        "{source}: property {index}: native={a}, reference={b}"
+                    ));
+                }
+            }
+            let reference: f64 = columns[1].parse().unwrap();
+            let score = qed(&mol);
+            if !score.is_finite() || (score - reference).abs() > 1e-9 {
+                differences.push(format!(
+                    "{source}: QED: native={score}, reference={reference}"
+                ));
+            }
+            checked += 1;
+        }
+        assert_eq!(checked, 413);
+        assert!(
+            differences.is_empty(),
+            "{} differences; first40:\n{}",
+            differences.len(),
+            differences
+                .iter()
+                .take(40)
+                .cloned()
+                .collect::<Vec<_>>()
+                .join("\n")
+        );
+    }
 
     fn qed_of(s: &str) -> f64 {
         qed(&parse(s).expect("parse"))
@@ -399,11 +655,8 @@ mod tests {
         // The 11 acceptors and all 116 alerts must compile.
         assert_eq!(acceptors().len(), 11);
         assert_eq!(alerts().len(), 116, "every alert must compile");
-        // The bespoke-helper SMARTS must all parse (single_pattern unwraps them).
-        let _ = single_pattern(HBD_SMARTS);
-        let _ = single_pattern(ALIPHATIC_RING_SMARTS);
-        let _ = single_pattern(ROTB_ENV_COMMON);
-        let _ = single_pattern(ROTB_ENV_AMIDE);
+        let _ = aliphatic_pattern();
+        assert!(acceptors().iter().all(|p| p.atoms.len() == 1));
     }
 
     #[test]
@@ -416,30 +669,35 @@ mod tests {
 
     #[test]
     fn rotb_butane_is_one() {
-        assert_eq!(rotb_strict(&parse("CCCC").unwrap()), 1);
+        assert_eq!(properties(&parse("CCCC").unwrap())[5], 1.);
     }
 
     #[test]
     fn rotb_excludes_tert_butyl_and_cf3() {
         // neopentane: all bonds touch a CH3 or the quaternary C → 0 rotatable
-        assert_eq!(rotb_strict(&parse("CC(C)(C)C").unwrap()), 0);
+        assert_eq!(properties(&parse("CC(C)(C)C").unwrap())[5], 0.);
     }
 
     #[test]
     fn arom_benzene_is_one_naphthalene_two() {
-        assert_eq!(arom(&parse("c1ccccc1").unwrap()), 1);
-        assert_eq!(arom(&parse("c1ccc2ccccc2c1").unwrap()), 2);
+        assert_eq!(properties(&parse("c1ccccc1").unwrap())[6], 1.);
+        assert_eq!(properties(&parse("c1ccc2ccccc2c1").unwrap())[6], 2.);
     }
 
     #[test]
     fn arom_cyclohexane_is_zero() {
         // purely aliphatic ring → AROM 0 after deletion
-        assert_eq!(arom(&parse("C1CCCCC1").unwrap()), 0);
+        assert_eq!(properties(&parse("C1CCCCC1").unwrap())[6], 0.);
     }
 
     #[test]
     fn qed_in_unit_interval() {
-        for s in ["CCO", "c1ccccc1", "CC(=O)Oc1ccccc1C(=O)O", "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"] {
+        for s in [
+            "CCO",
+            "c1ccccc1",
+            "CC(=O)Oc1ccccc1C(=O)O",
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        ] {
             let q = qed_of(s);
             assert!((0.0..=1.0).contains(&q), "QED({s}) = {q} out of [0,1]");
         }
@@ -451,8 +709,8 @@ mod tests {
         //   N=C(CCSCc1csc(N=C(N)N)n1)NS(N)(=O)=O   -> 0.253
         //   CNC(=NCCSCc1nc[nH]c1C)NC#N              -> 0.234
         //   CCCCCNC(=N)NN=Cc1c[nH]c2ccc(CO)cc12     -> 0.234
-        // Exact parity is impossible (QED.py documents LogP-driven divergence);
-        // we assert each lands in a reasonable neighborhood of the reference.
+        // These rounded original-paper values are only a historical smoke test;
+        // the independent pinned fixture above supplies the precise checks.
         let cases = [
             ("N=C(CCSCc1csc(N=C(N)N)n1)NS(N)(=O)=O", 0.253),
             ("CNC(=NCCSCc1nc[nH]c1C)NC#N", 0.234),
@@ -467,4 +725,3 @@ mod tests {
         }
     }
 }
-

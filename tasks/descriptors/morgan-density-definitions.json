@@ -1,0 +1,33 @@
+{
+  "rdkit": "2026.03.6",
+  "descriptors": [
+    {
+      "id": "FpDensityMorgan1",
+      "title": "Morgan density (radius 1)",
+      "group": "Fingerprints",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "FpDensityMorgan2",
+      "title": "Morgan density (radius 2)",
+      "group": "Fingerprints",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "FpDensityMorgan3",
+      "title": "Morgan density (radius 3)",
+      "group": "Fingerprints",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    }
+  ],
+  "definition": "unique unfolded sparse-count keys / heavy atoms; zero for heavy-atom count0; default chirality disabled"
+}

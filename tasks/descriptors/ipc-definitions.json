@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "definition": "Shannon information of absolute adjacency characteristic-polynomial coefficients, base2",
+  "graph_policy": "All vertices including explicit H; unweighted undirected bonds including dative connectivity; no3D",
+  "numerical_method": "Exact signed integer coefficients with exact trace division; f64 entropy only",
+  "compatibility": "Same mathematical definition; numerically differs from pinned RDKit2026.03.6/NumPy2.5.4 on ill-conditioned graphs. Legacy model features require compatibility validation.",
+  "descriptors": [
+    {
+      "id": "Ipc",
+      "title": "Graph information (stable)",
+      "group": "Graph",
+      "unit": "bit",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "exact-integer-coefficients; independent Decimal85 reference; pinned numerical differences reported separately",
+      "tolerance": 1e-10,
+      "relative_tolerance": 1e-12
+    },
+    {
+      "id": "AvgIpc",
+      "title": "Average graph information (stable)",
+      "group": "Graph",
+      "unit": "bit",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "exact-integer-coefficients; independent Decimal85 reference; pinned numerical differences reported separately",
+      "tolerance": 1e-12,
+      "relative_tolerance": 1e-12
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "rdkit": "2026.03.6",
+  "rows": 14603,
+  "accepted": 12290,
+  "rejected": 2313,
+  "native_filter": false,
+  "removeHs": false,
+  "fixture_sha256": "db493c63b98e8771ad5ff0dd136ed9052547a117e815da4ef6bebe040867aab7",
+  "scope": "charged isolated atoms plus attached explicit H across118 elements; finite main-group/metal ligand stars; aromatic/coordination regressions; strict property-cache acceptance, not Atom.hasValenceViolation"
+}

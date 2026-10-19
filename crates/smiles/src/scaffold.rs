@@ -182,6 +182,7 @@ fn subgraph(mol: &Molecule, keep: &[bool]) -> Option<Molecule> {
             })
             .map(|bond| match bond.order {
                 BondOrder::Single | BondOrder::Aromatic => 1,
+                BondOrder::Dative => bond.valence_contribution(idx) as i32,
                 BondOrder::Double => 2,
                 BondOrder::Triple => 3,
             })
@@ -218,6 +219,7 @@ fn subgraph(mol: &Molecule, keep: &[bool]) -> Option<Molecule> {
                 b,
                 order: bond.order,
                 direction: 0,
+                smiles_ring: bond.smiles_ring,
             });
         }
     }

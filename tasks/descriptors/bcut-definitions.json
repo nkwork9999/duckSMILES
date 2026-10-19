@@ -1,0 +1,80 @@
+{
+  "rdkit": "2026.03.6",
+  "descriptors": [
+    {
+      "id": "BCUT2D_MWHI",
+      "title": "BCUT2D_MWHI",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BCUT2D_MWLOW",
+      "title": "BCUT2D_MWLOW",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BCUT2D_CHGHI",
+      "title": "BCUT2D_CHGHI",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BCUT2D_CHGLO",
+      "title": "BCUT2D_CHGLO",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BCUT2D_LOGPHI",
+      "title": "BCUT2D_LOGPHI",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BCUT2D_LOGPLOW",
+      "title": "BCUT2D_LOGPLOW",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BCUT2D_MRHI",
+      "title": "BCUT2D_MRHI",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BCUT2D_MRLOW",
+      "title": "BCUT2D_MRLOW",
+      "group": "BCUT",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    }
+  ],
+  "molecules": 216,
+  "scalar_values": 1728,
+  "hydrogen_policy": "RemoveAllHs including isotope/isolated H; recompute charges/Crippen on that graph"
+}

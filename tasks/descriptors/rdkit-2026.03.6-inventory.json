@@ -1,0 +1,1309 @@
+{
+  "rdkit_version": "2026.03.6",
+  "selection": "Descriptors._descList, default registered 2D scalar descriptors; excludes separately registered 3D descriptors",
+  "count": 217,
+  "descriptors": [
+    {
+      "id": "MaxAbsEStateIndex",
+      "module": "rdkit.Chem.EState.EState",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "MaxEStateIndex",
+      "module": "rdkit.Chem.EState.EState",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "MinAbsEStateIndex",
+      "module": "rdkit.Chem.EState.EState",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "MinEStateIndex",
+      "module": "rdkit.Chem.EState.EState",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "qed",
+      "module": "rdkit.Chem.QED",
+      "version": "1.1.0",
+      "description": "Calculate the weighted sum of ADS mapped properties"
+    },
+    {
+      "id": "SPS",
+      "module": "rdkit.Chem.SpacialScore",
+      "version": "1.0.0",
+      "description": "Calculates the SpacialScore descriptor. By default, the score is normalized by the number of heavy atoms (nSPS) resulting in a float value,"
+    },
+    {
+      "id": "MolWt",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": "The average molecular weight of the molecule"
+    },
+    {
+      "id": "HeavyAtomMolWt",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": "The average molecular weight of the molecule ignoring hydrogens"
+    },
+    {
+      "id": "ExactMolWt",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": "The exact molecular weight of the molecule"
+    },
+    {
+      "id": "NumValenceElectrons",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.1.0",
+      "description": "The number of valence electrons the molecule has"
+    },
+    {
+      "id": "NumRadicalElectrons",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.1.0",
+      "description": "The number of radical electrons the molecule has"
+    },
+    {
+      "id": "MaxPartialCharge",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "MinPartialCharge",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "MaxAbsPartialCharge",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "MinAbsPartialCharge",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "FpDensityMorgan1",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "FpDensityMorgan2",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "FpDensityMorgan3",
+      "module": "rdkit.Chem.Descriptors",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_MWHI",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_MWLOW",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_CHGHI",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_CHGLO",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_LOGPHI",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_LOGPLOW",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_MRHI",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "BCUT2D_MRLOW",
+      "module": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "AvgIpc",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.0.0",
+      "description": "This returns the average information content of the coefficients of the characteristic"
+    },
+    {
+      "id": "BalabanJ",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.0.0",
+      "description": "Calculate Balaban's J value for a molecule"
+    },
+    {
+      "id": "BertzCT",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "2.0.0",
+      "description": "A topological index meant to quantify \"complexity\" of molecules."
+    },
+    {
+      "id": "Chi0",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.0.0",
+      "description": "From equations (1),(9) and (10) of Rev. Comp. Chem. vol 2, 367-422, (1991)"
+    },
+    {
+      "id": "Chi0n",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi0v",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi1",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.0.0",
+      "description": "From equations (1),(11) and (12) of Rev. Comp. Chem. vol 2, 367-422, (1991)"
+    },
+    {
+      "id": "Chi1n",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi1v",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi2n",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi2v",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi3n",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi3v",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi4n",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Chi4v",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "HallKierAlpha",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.2.0",
+      "description": ""
+    },
+    {
+      "id": "Ipc",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.0.0",
+      "description": "This returns the information content of the coefficients of the characteristic"
+    },
+    {
+      "id": "Kappa1",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.1.0",
+      "description": ""
+    },
+    {
+      "id": "Kappa2",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.1.0",
+      "description": ""
+    },
+    {
+      "id": "Kappa3",
+      "module": "rdkit.Chem.GraphDescriptors",
+      "version": "1.1.0",
+      "description": ""
+    },
+    {
+      "id": "LabuteASA",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.2",
+      "description": ""
+    },
+    {
+      "id": "PEOE_VSA1",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 1 (-inf < x < -0.30)"
+    },
+    {
+      "id": "PEOE_VSA10",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 10 ( 0.10 <= x <  0.15)"
+    },
+    {
+      "id": "PEOE_VSA11",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 11 ( 0.15 <= x <  0.20)"
+    },
+    {
+      "id": "PEOE_VSA12",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 12 ( 0.20 <= x <  0.25)"
+    },
+    {
+      "id": "PEOE_VSA13",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 13 ( 0.25 <= x <  0.30)"
+    },
+    {
+      "id": "PEOE_VSA14",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 14 ( 0.30 <= x < inf)"
+    },
+    {
+      "id": "PEOE_VSA2",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 2 (-0.30 <= x < -0.25)"
+    },
+    {
+      "id": "PEOE_VSA3",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 3 (-0.25 <= x < -0.20)"
+    },
+    {
+      "id": "PEOE_VSA4",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 4 (-0.20 <= x < -0.15)"
+    },
+    {
+      "id": "PEOE_VSA5",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 5 (-0.15 <= x < -0.10)"
+    },
+    {
+      "id": "PEOE_VSA6",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 6 (-0.10 <= x < -0.05)"
+    },
+    {
+      "id": "PEOE_VSA7",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 7 (-0.05 <= x <  0.00)"
+    },
+    {
+      "id": "PEOE_VSA8",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 8 ( 0.00 <= x <  0.05)"
+    },
+    {
+      "id": "PEOE_VSA9",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE Charge VSA Descriptor 9 ( 0.05 <= x <  0.10)"
+    },
+    {
+      "id": "SMR_VSA1",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 1 (-inf < x <  1.29)"
+    },
+    {
+      "id": "SMR_VSA10",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 10 ( 4.00 <= x < inf)"
+    },
+    {
+      "id": "SMR_VSA2",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 2 ( 1.29 <= x <  1.82)"
+    },
+    {
+      "id": "SMR_VSA3",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 3 ( 1.82 <= x <  2.24)"
+    },
+    {
+      "id": "SMR_VSA4",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 4 ( 2.24 <= x <  2.45)"
+    },
+    {
+      "id": "SMR_VSA5",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 5 ( 2.45 <= x <  2.75)"
+    },
+    {
+      "id": "SMR_VSA6",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 6 ( 2.75 <= x <  3.05)"
+    },
+    {
+      "id": "SMR_VSA7",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 7 ( 3.05 <= x <  3.63)"
+    },
+    {
+      "id": "SMR_VSA8",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 8 ( 3.63 <= x <  3.80)"
+    },
+    {
+      "id": "SMR_VSA9",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE MR VSA Descriptor 9 ( 3.80 <= x <  4.00)"
+    },
+    {
+      "id": "SlogP_VSA1",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 1 (-inf < x < -0.40)"
+    },
+    {
+      "id": "SlogP_VSA10",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 10 ( 0.40 <= x <  0.50)"
+    },
+    {
+      "id": "SlogP_VSA11",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 11 ( 0.50 <= x <  0.60)"
+    },
+    {
+      "id": "SlogP_VSA12",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 12 ( 0.60 <= x < inf)"
+    },
+    {
+      "id": "SlogP_VSA2",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 2 (-0.40 <= x < -0.20)"
+    },
+    {
+      "id": "SlogP_VSA3",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 3 (-0.20 <= x <  0.00)"
+    },
+    {
+      "id": "SlogP_VSA4",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 4 ( 0.00 <= x <  0.10)"
+    },
+    {
+      "id": "SlogP_VSA5",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 5 ( 0.10 <= x <  0.15)"
+    },
+    {
+      "id": "SlogP_VSA6",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 6 ( 0.15 <= x <  0.20)"
+    },
+    {
+      "id": "SlogP_VSA7",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 7 ( 0.20 <= x <  0.25)"
+    },
+    {
+      "id": "SlogP_VSA8",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 8 ( 0.25 <= x <  0.30)"
+    },
+    {
+      "id": "SlogP_VSA9",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "1.0.1",
+      "description": "MOE logP VSA Descriptor 9 ( 0.30 <= x <  0.40)"
+    },
+    {
+      "id": "TPSA",
+      "module": "rdkit.Chem.MolSurf",
+      "version": "2.0.0",
+      "description": ""
+    },
+    {
+      "id": "EState_VSA1",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 1 (-inf < x <  -0.39)"
+    },
+    {
+      "id": "EState_VSA10",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 10 ( 9.17 <= x <  15.00)"
+    },
+    {
+      "id": "EState_VSA11",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 11 ( 15.00 <= x < inf)"
+    },
+    {
+      "id": "EState_VSA2",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 2 ( -0.39 <= x <  0.29)"
+    },
+    {
+      "id": "EState_VSA3",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 3 ( 0.29 <= x <  0.72)"
+    },
+    {
+      "id": "EState_VSA4",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 4 ( 0.72 <= x <  1.17)"
+    },
+    {
+      "id": "EState_VSA5",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 5 ( 1.17 <= x <  1.54)"
+    },
+    {
+      "id": "EState_VSA6",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 6 ( 1.54 <= x <  1.81)"
+    },
+    {
+      "id": "EState_VSA7",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 7 ( 1.81 <= x <  2.05)"
+    },
+    {
+      "id": "EState_VSA8",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 8 ( 2.05 <= x <  4.69)"
+    },
+    {
+      "id": "EState_VSA9",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.1",
+      "description": "EState VSA Descriptor 9 ( 4.69 <= x <  9.17)"
+    },
+    {
+      "id": "VSA_EState1",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 1 (-inf < x <  4.78)"
+    },
+    {
+      "id": "VSA_EState10",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 10 ( 11.00 <= x < inf)"
+    },
+    {
+      "id": "VSA_EState2",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 2 ( 4.78 <= x <  5.00)"
+    },
+    {
+      "id": "VSA_EState3",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 3 ( 5.00 <= x <  5.41)"
+    },
+    {
+      "id": "VSA_EState4",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 4 ( 5.41 <= x <  5.74)"
+    },
+    {
+      "id": "VSA_EState5",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 5 ( 5.74 <= x <  6.00)"
+    },
+    {
+      "id": "VSA_EState6",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 6 ( 6.00 <= x <  6.07)"
+    },
+    {
+      "id": "VSA_EState7",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 7 ( 6.07 <= x <  6.45)"
+    },
+    {
+      "id": "VSA_EState8",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 8 ( 6.45 <= x <  7.00)"
+    },
+    {
+      "id": "VSA_EState9",
+      "module": "rdkit.Chem.EState.EState_VSA",
+      "version": "1.0.0",
+      "description": "VSA EState Descriptor 9 ( 7.00 <= x <  11.00)"
+    },
+    {
+      "id": "FractionCSP3",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcFractionCSP3( (Mol)mol) -> float :"
+    },
+    {
+      "id": "HeavyAtomCount",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.1",
+      "description": "Number of heavy atoms a molecule."
+    },
+    {
+      "id": "NHOHCount",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "2.0.0",
+      "description": "Number of NHs or OHs"
+    },
+    {
+      "id": "NOCount",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "Number of Nitrogens and Oxygens"
+    },
+    {
+      "id": "NumAliphaticCarbocycles",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumAliphaticCarbocycles( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumAliphaticHeterocycles",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumAliphaticHeterocycles( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumAliphaticRings",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumAliphaticRings( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumAmideBonds",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumAmideBonds( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumAromaticCarbocycles",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumAromaticCarbocycles( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumAromaticHeterocycles",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumAromaticHeterocycles( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumAromaticRings",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumAromaticRings( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumAtomStereoCenters",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.1",
+      "description": "CalcNumAtomStereoCenters( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumBridgeheadAtoms",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "2.0.0",
+      "description": "CalcNumBridgeheadAtoms( (Mol)mol [, (AtomPairsParameters)atoms=None]) -> int :"
+    },
+    {
+      "id": "NumHAcceptors",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "2.0.0",
+      "description": "Number of Hydrogen Bond Acceptors"
+    },
+    {
+      "id": "NumHDonors",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "Number of Hydrogen Bond Donors"
+    },
+    {
+      "id": "NumHeteroatoms",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "Number of Heteroatoms"
+    },
+    {
+      "id": "NumHeterocycles",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumHeterocycles( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumRotatableBonds",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "Number of Rotatable Bonds"
+    },
+    {
+      "id": "NumSaturatedCarbocycles",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumSaturatedCarbocycles( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumSaturatedHeterocycles",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumSaturatedHeterocycles( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumSaturatedRings",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumSaturatedRings( (Mol)mol) -> int :"
+    },
+    {
+      "id": "NumSpiroAtoms",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcNumSpiroAtoms( (Mol)mol [, (AtomPairsParameters)atoms=None]) -> int :"
+    },
+    {
+      "id": "NumUnspecifiedAtomStereoCenters",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.1",
+      "description": "CalcNumUnspecifiedAtomStereoCenters( (Mol)mol) -> int :"
+    },
+    {
+      "id": "Phi",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": "CalcPhi( (Mol)mol) -> float :"
+    },
+    {
+      "id": "RingCount",
+      "module": "rdkit.Chem.Lipinski",
+      "version": "1.0.0",
+      "description": ""
+    },
+    {
+      "id": "MolLogP",
+      "module": "rdkit.Chem.Crippen",
+      "version": "1.2.0",
+      "description": "Wildman-Crippen LogP value"
+    },
+    {
+      "id": "MolMR",
+      "module": "rdkit.Chem.Crippen",
+      "version": "1.2.0",
+      "description": "Wildman-Crippen MR value"
+    },
+    {
+      "id": "fr_Al_COO",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aliphatic carboxylic acids"
+    },
+    {
+      "id": "fr_Al_OH",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aliphatic hydroxyl groups"
+    },
+    {
+      "id": "fr_Al_OH_noTert",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aliphatic hydroxyl groups excluding tert-OH"
+    },
+    {
+      "id": "fr_ArN",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of N functional groups attached to aromatics"
+    },
+    {
+      "id": "fr_Ar_COO",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of Aromatic carboxylic acide"
+    },
+    {
+      "id": "fr_Ar_N",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aromatic nitrogens"
+    },
+    {
+      "id": "fr_Ar_NH",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aromatic amines"
+    },
+    {
+      "id": "fr_Ar_OH",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aromatic hydroxyl groups"
+    },
+    {
+      "id": "fr_COO",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of carboxylic acids"
+    },
+    {
+      "id": "fr_COO2",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of carboxylic acids"
+    },
+    {
+      "id": "fr_C_O",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of carbonyl O"
+    },
+    {
+      "id": "fr_C_O_noCOO",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of carbonyl O, excluding COOH"
+    },
+    {
+      "id": "fr_C_S",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of thiocarbonyl"
+    },
+    {
+      "id": "fr_HOCCN",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of C(OH)CCN-Ctert-alkyl or  C(OH)CCNcyclic"
+    },
+    {
+      "id": "fr_Imine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of Imines"
+    },
+    {
+      "id": "fr_NH0",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of Tertiary amines"
+    },
+    {
+      "id": "fr_NH1",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of Secondary amines"
+    },
+    {
+      "id": "fr_NH2",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of Primary amines"
+    },
+    {
+      "id": "fr_N_O",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of hydroxylamine groups"
+    },
+    {
+      "id": "fr_Ndealkylation1",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of XCCNR groups"
+    },
+    {
+      "id": "fr_Ndealkylation2",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of tert-alicyclic amines (no heteroatoms, not quinine-like bridged N)"
+    },
+    {
+      "id": "fr_Nhpyrrole",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of H-pyrrole nitrogens"
+    },
+    {
+      "id": "fr_SH",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of thiol groups"
+    },
+    {
+      "id": "fr_aldehyde",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aldehydes"
+    },
+    {
+      "id": "fr_alkyl_carbamate",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of alkyl carbamates (subject to hydrolysis)"
+    },
+    {
+      "id": "fr_alkyl_halide",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of alkyl halides"
+    },
+    {
+      "id": "fr_allylic_oxid",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of allylic oxidation sites excluding steroid dienone"
+    },
+    {
+      "id": "fr_amide",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of amides"
+    },
+    {
+      "id": "fr_amidine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of amidine groups"
+    },
+    {
+      "id": "fr_aniline",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of anilines"
+    },
+    {
+      "id": "fr_aryl_methyl",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of aryl methyl sites for hydroxylation"
+    },
+    {
+      "id": "fr_azide",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of azide groups"
+    },
+    {
+      "id": "fr_azo",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of azo groups"
+    },
+    {
+      "id": "fr_barbitur",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of barbiturate groups"
+    },
+    {
+      "id": "fr_benzene",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of benzene rings"
+    },
+    {
+      "id": "fr_benzodiazepine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of benzodiazepines with no additional fused rings"
+    },
+    {
+      "id": "fr_bicyclic",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Bicyclic"
+    },
+    {
+      "id": "fr_diazo",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of diazo groups"
+    },
+    {
+      "id": "fr_dihydropyridine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of dihydropyridines"
+    },
+    {
+      "id": "fr_epoxide",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of epoxide rings"
+    },
+    {
+      "id": "fr_ester",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of esters"
+    },
+    {
+      "id": "fr_ether",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of ether oxygens (including phenoxy)"
+    },
+    {
+      "id": "fr_furan",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of furan rings"
+    },
+    {
+      "id": "fr_guanido",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of guanidine groups"
+    },
+    {
+      "id": "fr_halogen",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of halogens"
+    },
+    {
+      "id": "fr_hdrzine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of hydrazine groups"
+    },
+    {
+      "id": "fr_hdrzone",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of hydrazone groups"
+    },
+    {
+      "id": "fr_imidazole",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of imidazole rings"
+    },
+    {
+      "id": "fr_imide",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of imide groups"
+    },
+    {
+      "id": "fr_isocyan",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of isocyanates"
+    },
+    {
+      "id": "fr_isothiocyan",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of isothiocyanates"
+    },
+    {
+      "id": "fr_ketone",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of ketones"
+    },
+    {
+      "id": "fr_ketone_Topliss",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of ketones excluding diaryl, a,b-unsat. dienones, heteroatom on Calpha"
+    },
+    {
+      "id": "fr_lactam",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of beta lactams"
+    },
+    {
+      "id": "fr_lactone",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of cyclic esters (lactones)"
+    },
+    {
+      "id": "fr_methoxy",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of methoxy groups -OCH3"
+    },
+    {
+      "id": "fr_morpholine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of morpholine rings"
+    },
+    {
+      "id": "fr_nitrile",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of nitriles"
+    },
+    {
+      "id": "fr_nitro",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of nitro groups"
+    },
+    {
+      "id": "fr_nitro_arom",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of nitro benzene ring substituents"
+    },
+    {
+      "id": "fr_nitro_arom_nonortho",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of non-ortho nitro benzene ring substituents"
+    },
+    {
+      "id": "fr_nitroso",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of nitroso groups, excluding NO2"
+    },
+    {
+      "id": "fr_oxazole",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of oxazole rings"
+    },
+    {
+      "id": "fr_oxime",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of oxime groups"
+    },
+    {
+      "id": "fr_para_hydroxylation",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of para-hydroxylation sites"
+    },
+    {
+      "id": "fr_phenol",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of phenols"
+    },
+    {
+      "id": "fr_phenol_noOrthoHbond",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of phenolic OH excluding ortho intramolecular Hbond substituents"
+    },
+    {
+      "id": "fr_phos_acid",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of phosphoric acid groups"
+    },
+    {
+      "id": "fr_phos_ester",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of phosphoric ester groups"
+    },
+    {
+      "id": "fr_piperdine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of piperdine rings"
+    },
+    {
+      "id": "fr_piperzine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of piperzine rings"
+    },
+    {
+      "id": "fr_priamide",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of primary amides"
+    },
+    {
+      "id": "fr_prisulfonamd",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of primary sulfonamides"
+    },
+    {
+      "id": "fr_pyridine",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of pyridine rings"
+    },
+    {
+      "id": "fr_quatN",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of quaternary nitrogens"
+    },
+    {
+      "id": "fr_sulfide",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of thioether"
+    },
+    {
+      "id": "fr_sulfonamd",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of sulfonamides"
+    },
+    {
+      "id": "fr_sulfone",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of sulfone groups"
+    },
+    {
+      "id": "fr_term_acetylene",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of terminal acetylenes"
+    },
+    {
+      "id": "fr_tetrazole",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of tetrazole rings"
+    },
+    {
+      "id": "fr_thiazole",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of thiazole rings"
+    },
+    {
+      "id": "fr_thiocyan",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of thiocyanates"
+    },
+    {
+      "id": "fr_thiophene",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of thiophene rings"
+    },
+    {
+      "id": "fr_unbrch_alkane",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of unbranched alkanes  of at least 4 members (excludes halogenated alkanes)"
+    },
+    {
+      "id": "fr_urea",
+      "module": "rdkit.Chem.Fragments",
+      "version": null,
+      "description": "Number of urea groups"
+    }
+  ]
+}

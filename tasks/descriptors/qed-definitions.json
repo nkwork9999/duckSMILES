@@ -1,0 +1,22 @@
+{
+  "rdkit": "2026.03.6",
+  "descriptors": [
+    {
+      "id": "qed",
+      "title": "QED drug-likeness",
+      "group": "Screening",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    }
+  ],
+  "definition": "Default WEIGHT_MEAN weighted geometric mean of eight asymmetric-double-sigmoidal desirabilities; QED.py version1.1.0",
+  "properties": ["MW", "ALOGP", "QED-specific HBA", "HBD", "PSA", "Strict ROTB", "ordinary SSSR after AliphaticRings deletion", "number of structural-alert patterns present"],
+  "weights": [0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95],
+  "hydrogens": "Chem.RemoveHs default within QED.properties; isotopes, isolated/bridging/hydride/H-only-neighbor/defining-bond-stereo Hs remain",
+  "acceptors": "sum of 11 query-specific unique match counts, max1000 per query; differs from NumHAcceptors",
+  "alerts": "116 distinct patterns; count presence once per pattern, including two disjoint multi-component queries",
+  "source": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/rdkit/Chem/QED.py",
+  "scope": "Empirical drug-likeness score from molecular properties and structural alerts; definition agreement is separate from experimental validation"
+}

@@ -1,0 +1,11 @@
+# RDKit 2026.03.6; original inputs; removeHs=False; no native filter
+[H]	H	1	0	1
+[HH]	H2	2	0	2
+[H][H]	H2	2	0	2
+[2HH]	H2	2	0	2
+[2H][H]	H2	2	0	2
+[HH+].[Cl-]	H2Cl	2	0	2
+C[H]	CH4	1	3	4
+[NH4+]	H4N+	4	0	4
+[nH]1cccc1	C4H5N	1	4	5
+N[C@@H](CO)C1=N/C(=C\C2:C:C:C(O):C:C:2)C(=O)N1CC=O.[HH]	C14H17N3O4	3	14	17

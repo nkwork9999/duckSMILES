@@ -1,0 +1,52 @@
+{
+  "Code/GraphMol/Descriptors/Lipinski.cpp": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/Descriptors/Lipinski.cpp",
+    "sha256": "427002f10cecccc044d8c0b4ab313ac467fccdae80e2d97488c6bda224fe51fd",
+    "lines": 553
+  },
+  "rdkit/Chem/SpacialScore.py": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/rdkit/Chem/SpacialScore.py",
+    "sha256": "88fcbfd438849cd52ebe2833226e9012a60bd25ff0e5f14a3a3d192e9e429261",
+    "lines": 165
+  },
+  "Code/GraphMol/Chirality.cpp": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/Chirality.cpp",
+    "sha256": "41613358c9866dea481685a0e0b43f5999c74700adf2fd0190b2d4f1ae514610",
+    "lines": 3959
+  },
+  "Code/GraphMol/FindStereo.cpp": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/FindStereo.cpp",
+    "sha256": "a08815d17dad417897a6e7c4abac8b1f2c99e7f1d32da90e9b3edc4e4450ba0a",
+    "lines": 1280
+  },
+  "Code/GraphMol/new_canon.cpp": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/new_canon.cpp",
+    "sha256": "3078583ad97fc51e80d3b6781c3e19e77ab2c1d74198753ccef28a5fde914cc9",
+    "lines": 914
+  },
+  "Code/GraphMol/new_canon.h": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/new_canon.h",
+    "sha256": "2293396ae8e5cd8c6de837608f5f9cfd25059448a537f94cc430bb551787dc72",
+    "lines": 924
+  },
+  "Code/GraphMol/Aromaticity.cpp": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/Aromaticity.cpp",
+    "sha256": "45bb00f7d472de1d91b39989112c5c18b0e3bd80fec8103ef59deac441fe76f3",
+    "lines": 1152
+  },
+  "Code/GraphMol/MolOps.cpp": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/MolOps.cpp",
+    "sha256": "f4d973b72e38d9310acf1344ba462fa0474c49d842ded7e3847750bae822e196",
+    "lines": 1378
+  },
+  "Code/GraphMol/PeriodicTable.h": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/PeriodicTable.h",
+    "sha256": "30680907de3bc9db889f2ff6e9926fc5f5f5cfc94e7eb5d1550d2afaa1f76f13",
+    "lines": 349
+  },
+  "Code/GraphMol/FindRings.cpp": {
+    "url": "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/FindRings.cpp",
+    "sha256": "ca6981309aaf842487b7adabc91a3c68ad40916143746ba724b4d4673755459e",
+    "lines": 1226
+  }
+}

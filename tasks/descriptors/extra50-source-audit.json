@@ -1,0 +1,8 @@
+{
+  "source": "https://codeload.github.com/rdkit/rdkit/tar.gz/refs/tags/Release_2026_03_6",
+  "archive_sha256": "d4d20b3b140237084694518aab34fdba6929d44bd7f720bce69329516abef663",
+  "files_scanned": 2006,
+  "patterns": "(?i)MolecularDistanceEdge|\\bMDE[CN O]?[-_]?\\d|TopologicalCharge|\\bGGI\\d|MolecularWalkCount|SelfReturningWalk|\\bMWC\\d|\\bSRW\\d|Harary|Wiener|EccentricConnectivity|DegreeDistance|Gutman|Schultz",
+  "hits": [],
+  "claim_scope": "Bounded term audit of pinned Code/rdkit/Contrib text files; inspect hits and public module inventory, not proof against every unnamed implementation."
+}

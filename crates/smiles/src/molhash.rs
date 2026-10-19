@@ -69,6 +69,7 @@ fn clean_atom(symbol: &str) -> Atom {
         charge: 0,
         aromatic: false,
         in_bracket: false,
+        prepared_h_is_implicit: false,
         isotope: None,
         atom_map: None,
         chirality: None,
@@ -114,6 +115,7 @@ where
                     BondOrder::Single
                 },
                 direction: 0,
+                smiles_ring: bond.smiles_ring,
             });
         }
     }
@@ -144,6 +146,7 @@ fn bond_order_graph(mol: &Molecule) -> Molecule {
             charge: 0,
             aromatic: atom.aromatic,
             in_bracket: false,
+            prepared_h_is_implicit: false,
             isotope: None,
             atom_map: None,
             chirality: None,
@@ -161,6 +164,7 @@ fn bond_order_graph(mol: &Molecule) -> Molecule {
                 b,
                 order: bond.order,
                 direction: 0,
+                smiles_ring: bond.smiles_ring,
             });
         }
     }

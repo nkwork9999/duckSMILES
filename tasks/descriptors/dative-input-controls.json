@@ -1,0 +1,19 @@
+{
+  "rdkit": "2026.03.6",
+  "sources": [
+    "N->[Cu+2]",
+    "[Cu+2]<-N",
+    "N(->[Cu+2])C",
+    "[NH3]->[Cu+2]<-[NH3]",
+    "[13NH3]->[Cu+2]",
+    "[Cu+2](<-N)(<-O)<-S",
+    "N->B",
+    "B<-N",
+    "[Cu+2]1<-NCCN->1",
+    "N->1CCN[Cu+2]1",
+    "[Cu+2]<-1NCCN1",
+    "[Cu+2]1NCCN->1",
+    "N1CCN[Cu+2]<-1"
+  ],
+  "native_filter": false
+}

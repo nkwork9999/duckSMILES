@@ -5,7 +5,7 @@
 //! contribution, then sum the contributions. The public DuckDB function uses
 //! RDKit's default scope: nitrogen and oxygen atoms only.
 
-use crate::parser::{BondOrder, Molecule};
+use crate::parser::{BondOrder, Molecule, RingInfo};
 
 #[derive(Clone, Copy, Debug, Default)]
 struct AtomEnv {
@@ -24,11 +24,20 @@ pub fn calc_tpsa(mol: &Molecule) -> f64 {
 }
 
 fn calc_tpsa_with_options(mol: &Molecule, include_s_and_p: bool) -> f64 {
+    let rings = mol.ring_info();
+    calc_tpsa_with_flags(mol, include_s_and_p, &mol.aromatic_bond_flags(&rings))
+}
+
+pub(crate) fn calc_tpsa_with_ring_info(mol: &Molecule, rings: &RingInfo) -> f64 {
+    calc_tpsa_with_flags(mol, false, &mol.aromatic_bond_flags(rings))
+}
+
+fn calc_tpsa_with_flags(mol: &Molecule, include_s_and_p: bool, aromatic: &[bool]) -> f64 {
     if mol.atoms.is_empty() {
         return f64::NAN;
     }
 
-    let envs = atom_environments(mol);
+    let envs = atom_environments(mol, aromatic);
     mol.atoms
         .iter()
         .enumerate()
@@ -38,10 +47,10 @@ fn calc_tpsa_with_options(mol: &Molecule, include_s_and_p: bool) -> f64 {
         .sum()
 }
 
-fn atom_environments(mol: &Molecule) -> Vec<AtomEnv> {
+fn atom_environments(mol: &Molecule, aromatic: &[bool]) -> Vec<AtomEnv> {
     let mut envs = vec![AtomEnv::default(); mol.atoms.len()];
 
-    for bond in &mol.bonds {
+    for (index, bond) in mol.bonds.iter().enumerate() {
         let a_sym = mol.atoms[bond.a].symbol.as_str();
         let b_sym = mol.atoms[bond.b].symbol.as_str();
 
@@ -56,7 +65,13 @@ fn atom_environments(mol: &Molecule) -> Vec<AtomEnv> {
 
         envs[bond.a].n_nbrs += 1;
         envs[bond.b].n_nbrs += 1;
+        if aromatic[index] {
+            envs[bond.a].n_arom += 1;
+            envs[bond.b].n_arom += 1;
+            continue;
+        }
         match bond.order {
+            BondOrder::Dative => {}
             BondOrder::Single => {
                 envs[bond.a].n_sing += 1;
                 envs[bond.b].n_sing += 1;
@@ -69,10 +84,7 @@ fn atom_environments(mol: &Molecule) -> Vec<AtomEnv> {
                 envs[bond.a].n_trip += 1;
                 envs[bond.b].n_trip += 1;
             }
-            BondOrder::Aromatic => {
-                envs[bond.a].n_arom += 1;
-                envs[bond.b].n_arom += 1;
-            }
+            BondOrder::Aromatic => {}
         }
     }
 
@@ -89,7 +101,13 @@ fn is_atom_in_three_membered_ring(mol: &Molecule, atom_idx: usize) -> bool {
         .neighbors(atom_idx)
         .into_iter()
         .map(|(idx, _)| idx)
-        .filter(|idx| mol.atoms[*idx].symbol != "H")
+        .filter(|idx| {
+            mol.atoms[*idx].symbol != "H"
+                && mol.bonds.iter().any(|b| {
+                    ((b.a == atom_idx && b.b == *idx) || (b.b == atom_idx && b.a == *idx))
+                        && b.order != BondOrder::Dative
+                })
+        })
         .collect::<Vec<_>>();
 
     for i in 0..neighbors.len() {
@@ -103,9 +121,10 @@ fn is_atom_in_three_membered_ring(mol: &Molecule, atom_idx: usize) -> bool {
 }
 
 fn are_bonded(mol: &Molecule, a: usize, b: usize) -> bool {
-    mol.bonds
-        .iter()
-        .any(|bond| (bond.a == a && bond.b == b) || (bond.a == b && bond.b == a))
+    mol.bonds.iter().any(|bond| {
+        bond.order != BondOrder::Dative
+            && ((bond.a == a && bond.b == b) || (bond.a == b && bond.b == a))
+    })
 }
 
 fn atom_contribution(symbol: &str, charge: i32, env: &AtomEnv, include_s_and_p: bool) -> f64 {
