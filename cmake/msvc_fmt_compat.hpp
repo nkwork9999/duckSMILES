@@ -1,6 +1,7 @@
 #pragma once
 
-#ifdef _MSC_VER
+// DuckDB 2 also force-includes this shim in generated C entry points.
+#if defined(_MSC_VER) && defined(__cplusplus)
 #include <iterator>
 #include <string>
 
