@@ -1,0 +1,7 @@
+{
+  "scope": "Actual frozen37 C ABI unsupported row, for new-revision cache invalidation regression",
+  "library_revision": "ducksmiles-workbench-v37-valence291-rdkit2026036",
+  "library_sha256": "3e2fa996604baba34d8a8b0b38f5c77a64434fed18a2b4da7457cf16224cb882",
+  "fixture_sha256": "7df2b8f8d26c8c59652f818c694d78bbc0d65a45a25d57a48e69484545c1b540",
+  "smiles": "CC(O)F |wU:1.0|"
+}

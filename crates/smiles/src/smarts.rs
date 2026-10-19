@@ -68,15 +68,10 @@ pub struct AtomPattern {
 /// each possibly negated.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BondSpec {
-    Default,     // single OR aromatic (no explicit symbol)
-    Single,      // -
-    Double,      // =
-    Triple,      // #
-    Aromatic,    // :
-    NotAromatic, // !:
-    Any,         // ~
-    InRing,      // @
-    NotInRing,   // !@
+    Default, // single OR aromatic (no explicit symbol)
+    // Truth table for five bond orders × (acyclic, cyclic). This preserves
+    // arbitrary AND/OR/NOT without expanding recursive SMARTS alternatives.
+    Query(u16),
 }
 
 /// A bond constraint is one or more `BondSpec`s that must ALL hold. This models
@@ -114,6 +109,56 @@ pub struct Pattern {
 // Parser
 // =============================================================================
 
+fn bond_query_start(c: char) -> bool {
+    matches!(c, '!' | '-' | '=' | '#' | ':' | '~' | '@' | '/' | '\\')
+}
+
+/// SMARTS precedence: !, high AND (& or adjacency), OR (,), low AND (;).
+fn parse_bond_query(chars: &[char], pos: &mut usize) -> Option<u16> {
+    fn unary(chars: &[char], pos: &mut usize) -> Option<u16> {
+        let c = *chars.get(*pos)?;
+        *pos += 1;
+        Some(match c {
+            '!' => !unary(chars, pos)?,
+            '-' | '/' | '\\' => 0b00000011,
+            '=' => 0b00001100,
+            '#' => 0b00110000,
+            ':' => 0b11000000,
+            '~' => 0b1111111111,
+            '@' => 0b1010101010,
+            _ => return None,
+        })
+    }
+    fn high_and(chars: &[char], pos: &mut usize) -> Option<u16> {
+        let mut mask = unary(chars, pos)?;
+        loop {
+            if chars.get(*pos) == Some(&'&') {
+                *pos += 1;
+                mask &= unary(chars, pos)?;
+            } else if chars.get(*pos).copied().is_some_and(bond_query_start) {
+                mask &= unary(chars, pos)?;
+            } else {
+                break;
+            }
+        }
+        Some(mask)
+    }
+    fn or(chars: &[char], pos: &mut usize) -> Option<u16> {
+        let mut mask = high_and(chars, pos)?;
+        while chars.get(*pos) == Some(&',') {
+            *pos += 1;
+            mask |= high_and(chars, pos)?;
+        }
+        Some(mask)
+    }
+    let mut mask = or(chars, pos)?;
+    while chars.get(*pos) == Some(&';') {
+        *pos += 1;
+        mask &= or(chars, pos)?;
+    }
+    Some(mask)
+}
+
 pub fn parse_smarts(s: &str) -> Option<Pattern> {
     if s.is_empty() {
         return None;
@@ -148,34 +193,13 @@ pub fn parse_smarts(s: &str) -> Option<Pattern> {
             continue;
         }
 
-        // Bond symbols (including `!@` / `!:`). A leading `!` before a bond
-        // symbol is a negated bond constraint. Consecutive bond symbols
-        // accumulate as an AND (e.g. `=@` = double AND in-ring).
-        if c == '!' && pos + 1 < chars.len() && matches!(chars[pos + 1], '@' | ':') {
-            pending_bond.push(match chars[pos + 1] {
-                '@' => BondSpec::NotInRing,
-                ':' => BondSpec::NotAromatic,
-                _ => unreachable!(),
-            });
-            needs_ring_info = true;
-            pos += 2;
-            continue;
-        }
-        if matches!(c, '-' | '=' | '#' | ':' | '~' | '/' | '\\' | '@') {
-            let spec = match c {
-                '-' => BondSpec::Single,
-                '=' => BondSpec::Double,
-                '#' => BondSpec::Triple,
-                ':' => BondSpec::Aromatic,
-                '~' => BondSpec::Any,
-                '@' => BondSpec::InRing,
-                _ => BondSpec::Single, // / \ — directional, treat as single
-            };
-            if spec == BondSpec::InRing {
-                needs_ring_info = true;
+        if bond_query_start(c) {
+            if prev_atom < 0 {
+                return None;
             }
-            pending_bond.push(spec);
-            pos += 1;
+            let mask = parse_bond_query(&chars, &mut pos)?;
+            needs_ring_info |= ((mask & 0x155) << 1) != (mask & 0x2aa);
+            pending_bond.push(BondSpec::Query(mask));
             continue;
         }
 
@@ -201,12 +225,6 @@ pub fn parse_smarts(s: &str) -> Option<Pattern> {
                     // Closing the ring: use whichever side carried an explicit
                     // bond spec (SMILES allows the spec on either side).
                     let final_specs = if !specs.is_empty() { specs } else { open_specs };
-                    if final_specs
-                        .iter()
-                        .any(|s| matches!(s, BondSpec::InRing | BondSpec::NotInRing))
-                    {
-                        needs_ring_info = true;
-                    }
                     bonds.push(BondEdge::new(other, prev_atom as usize, final_specs));
                 }
                 None => {
@@ -297,7 +315,11 @@ pub fn parse_smarts(s: &str) -> Option<Pattern> {
         return None; // unknown character
     }
 
-    if !branch_stack.is_empty() || !ring_open.is_empty() || atoms.is_empty() {
+    if !branch_stack.is_empty()
+        || !ring_open.is_empty()
+        || atoms.is_empty()
+        || !pending_bond.is_empty()
+    {
         return None;
     }
 
@@ -325,66 +347,7 @@ fn add_atom(
 }
 
 fn is_known_element(s: &str) -> bool {
-    // Two-letter organic-subset-like elements used in Crippen.txt
-    matches!(
-        s,
-        "He" | "Li"
-            | "Be"
-            | "Ne"
-            | "Na"
-            | "Mg"
-            | "Al"
-            | "Si"
-            | "Ar"
-            | "Ca"
-            | "Sc"
-            | "Ti"
-            | "Cr"
-            | "Mn"
-            | "Fe"
-            | "Co"
-            | "Ni"
-            | "Cu"
-            | "Zn"
-            | "Ga"
-            | "Ge"
-            | "As"
-            | "Se"
-            | "Br"
-            | "Kr"
-            | "Rb"
-            | "Sr"
-            | "Zr"
-            | "Nb"
-            | "Mo"
-            | "Tc"
-            | "Ru"
-            | "Rh"
-            | "Pd"
-            | "Ag"
-            | "Cd"
-            | "In"
-            | "Sn"
-            | "Sb"
-            | "Te"
-            | "Xe"
-            | "Cs"
-            | "Ba"
-            | "Hf"
-            | "Ta"
-            | "Re"
-            | "Os"
-            | "Ir"
-            | "Pt"
-            | "Au"
-            | "Hg"
-            | "Tl"
-            | "Pb"
-            | "Bi"
-            | "Po"
-            | "At"
-            | "Cl"
-    )
+    crate::periodic_data::ELEMENTS.iter().any(|e| e.0 == s)
 }
 
 // Bracket content grammar (precedence low → high):
@@ -486,11 +449,48 @@ fn parse_unary(chars: &[char], pos: &mut usize) -> Option<(Predicate, bool)> {
     }
 }
 
+fn uppercase_element(symbol: String) -> Primitive {
+    // SMARTS organic-subset tokens carry an aliphatic constraint. Other
+    // uppercase element tokens such as [Se]/[Te] constrain atomic number only.
+    if !matches!(
+        symbol.as_str(),
+        "B" | "C" | "N" | "O" | "P" | "S" | "F" | "Cl" | "Br" | "I"
+    ) {
+        if let Some(z) = crate::periodic_data::ELEMENTS
+            .iter()
+            .position(|e| e.0 == symbol)
+        {
+            return Primitive::AtomicNum((z + 1) as u8);
+        }
+    }
+    Primitive::AliphaticElement(symbol)
+}
+
 fn parse_primitive(chars: &[char], pos: &mut usize) -> Option<(Primitive, bool)> {
     if *pos >= chars.len() {
         return None;
     }
     let c = chars[*pos];
+
+    // Element tokens win over one-letter predicates: Hg/Hf/Ho are not H
+    // counts, and Ru/Rh/Re/Rn/Ra/Rb are not ring predicates. Lowercase as/se/te
+    // are aromatic elements; e.g. [se] is not the conjunction s & e.
+    if c.is_ascii_alphabetic() && chars.get(*pos + 1).is_some_and(|c| c.is_ascii_lowercase()) {
+        let symbol = format!("{}{}", c.to_ascii_uppercase(), chars[*pos + 1]);
+        if is_known_element(&symbol)
+            && (c.is_ascii_uppercase() || matches!(symbol.as_str(), "As" | "Se" | "Te"))
+        {
+            *pos += 2;
+            return Some((
+                if c.is_ascii_uppercase() {
+                    uppercase_element(symbol)
+                } else {
+                    Primitive::AromaticElement(symbol)
+                },
+                false,
+            ));
+        }
+    }
 
     if c.is_ascii_digit() {
         let isotope = read_number(chars, pos)?;
@@ -663,7 +663,7 @@ fn parse_primitive(chars: &[char], pos: &mut usize) -> Option<(Primitive, bool)>
                     *pos += 1;
                 }
             }
-            Some((Primitive::AliphaticElement(sym), false))
+            Some((uppercase_element(sym), false))
         }
         c if c.is_ascii_lowercase() => {
             *pos += 1;
@@ -717,6 +717,55 @@ impl<'a> MatchCtx<'a> {
     /// Bond index between two adjacent atoms (None if not bonded).
     fn bond_between(&self, a: usize, b: usize) -> Option<usize> {
         self.adj[a].iter().find(|(n, _)| *n == b).map(|(_, bi)| *bi)
+    }
+}
+
+/// Reuses immutable molecule adjacency across anchored pattern checks.
+pub(crate) struct PreparedMatcher<'a> {
+    ctx: MatchCtx<'a>,
+}
+
+impl<'a> PreparedMatcher<'a> {
+    pub(crate) fn with_ring_info(mol: &'a Molecule, ring: &RingInfo) -> Self {
+        Self {
+            ctx: MatchCtx {
+                mol,
+                ring: Some(ring.clone()),
+                adj: mol.adjacency(),
+            },
+        }
+    }
+
+    pub(crate) fn count_unique_capped(&self, pat: &Pattern, limit: usize) -> usize {
+        if limit == 0 {
+            return 0;
+        }
+        let mut seen = std::collections::HashSet::new();
+        for start in 0..self.ctx.mol.atoms.len() {
+            for_each_match_at(pat, &self.ctx, start, &mut |mapping| {
+                let mut key = mapping.to_vec();
+                key.sort_unstable();
+                seen.insert(key);
+                seen.len() < limit
+            });
+            if seen.len() >= limit {
+                break;
+            }
+        }
+        seen.len()
+    }
+
+    pub(crate) fn new(mol: &'a Molecule, needs_ring: bool) -> Self {
+        Self {
+            ctx: MatchCtx::new(mol, needs_ring),
+        }
+    }
+
+    pub(crate) fn matches(&self, pat: &Pattern, start: usize) -> bool {
+        if pat.needs_ring_info && self.ctx.ring.is_none() {
+            return match_at(pat, self.ctx.mol, start);
+        }
+        match_at_ctx(pat, &self.ctx, start)
     }
 }
 
@@ -857,15 +906,17 @@ fn bond_matches(spec: BondSpec, order: BondOrder, ctx: &MatchCtx, bond_idx: usiz
         .map(|r| r.bond_in_ring[bond_idx])
         .unwrap_or(false);
     match spec {
-        BondSpec::Single => order == BondOrder::Single,
-        BondSpec::Double => order == BondOrder::Double,
-        BondSpec::Triple => order == BondOrder::Triple,
-        BondSpec::Aromatic => order == BondOrder::Aromatic,
-        BondSpec::NotAromatic => order != BondOrder::Aromatic,
         BondSpec::Default => matches!(order, BondOrder::Single | BondOrder::Aromatic),
-        BondSpec::Any => true,
-        BondSpec::InRing => in_ring,
-        BondSpec::NotInRing => !in_ring,
+        BondSpec::Query(mask) => {
+            let kind = match order {
+                BondOrder::Single => 0,
+                BondOrder::Double => 1,
+                BondOrder::Triple => 2,
+                BondOrder::Aromatic => 3,
+                BondOrder::Dative => 4,
+            };
+            mask & (1 << (2 * kind + usize::from(in_ring))) != 0
+        }
     }
 }
 
@@ -934,22 +985,13 @@ fn total_connections(mol: &Molecule, idx: usize) -> usize {
 }
 
 fn explicit_degree(mol: &Molecule, idx: usize) -> usize {
-    mol.neighbors(idx)
-        .iter()
-        .filter(|(nbr, _)| mol.atoms[*nbr].symbol != "H")
-        .count()
+    // SMARTS D counts graph neighbours, including retained explicit H nodes.
+    // It is not the non-hydrogen degree (RDKit's distinct 'd' extension).
+    mol.neighbors(idx).len()
 }
 
 fn total_valence(mol: &Molecule, idx: usize) -> i32 {
-    mol.neighbors(idx)
-        .iter()
-        .map(|(_, order)| match order {
-            BondOrder::Single | BondOrder::Aromatic => 1,
-            BondOrder::Double => 2,
-            BondOrder::Triple => 3,
-        })
-        .sum::<i32>()
-        + mol.atoms[idx].hydrogen.max(0)
+    crate::electronic::total_valence(mol, idx)
 }
 
 fn ring_connections(ctx: &MatchCtx, idx: usize) -> usize {
@@ -1278,7 +1320,12 @@ fn atomic_num(sym: &str) -> u8 {
         "Bi" => 83,
         "Po" => 84,
         "At" => 85,
-        _ => 0,
+        // Preserve the common-element fast path while covering lanthanides,
+        // actinides and the other elements absent from the original table.
+        _ => crate::periodic_data::ELEMENTS
+            .iter()
+            .position(|e| e.0 == sym)
+            .map_or(0, |z| (z + 1) as u8),
     }
 }
 
@@ -1324,22 +1371,22 @@ mod tests {
 
     #[test]
     fn parse_explicit_bonds() {
-        assert_eq!(
-            parse_smarts("C=O").unwrap().bonds[0].specs,
-            vec![BondSpec::Double]
-        );
-        assert_eq!(
-            parse_smarts("C#N").unwrap().bonds[0].specs,
-            vec![BondSpec::Triple]
-        );
-        assert_eq!(
-            parse_smarts("c:c").unwrap().bonds[0].specs,
-            vec![BondSpec::Aromatic]
-        );
-        assert_eq!(
-            parse_smarts("C-C").unwrap().bonds[0].specs,
-            vec![BondSpec::Single]
-        );
+        for (query, smiles, expected) in [
+            ("C=O", "CC=O", 1),
+            ("C=O", "CCO", 0),
+            ("C#N", "CC#N", 1),
+            ("C#N", "CCN", 0),
+            ("c:c", "c1ccccc1-c1ccccc1", 12),
+            ("C-C", "CCC", 2),
+            ("C-C", "C=C", 0),
+        ] {
+            let pattern = parse_smarts(query).unwrap();
+            assert_eq!(
+                count_unique(&pattern, &parse(smiles).unwrap()),
+                expected,
+                "{query} / {smiles}"
+            );
+        }
     }
 
     #[test]
@@ -1712,6 +1759,30 @@ mod tests {
     }
 
     #[test]
+    fn bond_disjunction_preserves_order_and_boolean_precedence() {
+        // Independent RDKit counts. OR must not turn '=,-' into an impossible
+        // conjunction or an unrestricted bond; ; applies after the OR.
+        for (query, smiles, expected) in [
+            ("[#6]-,=[#6]", "CC", 1),
+            ("[#6]=,-[#6]", "C=C", 1),
+            ("[#6]-,=[#6]", "C#C", 0),
+            ("[#6]-,=[#6]", "c1ccccc1", 0),
+            ("[#6]-,=;!@[#6]", "C1CC1", 0),
+            ("[#6]-,=;!@[#6]", "CC=C", 2),
+            ("[#6]-&!@,=&@[#6]", "CC=C", 1),
+            ("S(=,-O)(=,-O)(-C)-C", "CS(=O)(=O)C", 1),
+            ("S(=,-O)(=,-O)(-C)-C", "C[S+2]([O-])([O-])C", 1),
+        ] {
+            let pattern = parse_smarts(query).expect(query);
+            let mol = parse(smiles).expect(smiles);
+            assert_eq!(count_unique(&pattern, &mol), expected, "{query} / {smiles}");
+        }
+        for query in ["C-", "C-;N", "C-,", "C-&C"] {
+            assert!(parse_smarts(query).is_none(), "{query}");
+        }
+    }
+
+    #[test]
     fn unique_matches_preserve_pattern_order_after_dedup() {
         let pat = parse_smarts("[#6]~[#6]").unwrap();
         let mol = parse("CCC").unwrap();
@@ -1757,5 +1828,25 @@ mod tests {
         // [#16]!:*:* — sulfur attached by non-aromatic bond to an aromatic chain
         // thiophene-substituted: Cc1ccccc1 has methyl by non-aromatic bond
         assert!(matches_anywhere("[#6]!:*:*", "Cc1ccccc1"));
+    }
+    #[test]
+    fn prepared_matcher_retains_anchor_ring_and_recursive_semantics() {
+        let ethanol = parse("CCO").unwrap();
+        let matcher = PreparedMatcher::new(&ethanol, false);
+        let co = parse_smarts("C-O").unwrap();
+        assert!(!matcher.matches(&co, 0));
+        assert!(matcher.matches(&co, 1));
+        assert!(!matcher.matches(&co, 2));
+        assert!(!matcher.matches(&co, 99));
+        let recursive = parse_smarts("[$(C-O)]").unwrap();
+        assert!(matcher.matches(&recursive, 1));
+        assert!(!matcher.matches(&recursive, 0));
+        let benzene = parse("c1ccccc1").unwrap();
+        let ring = parse_smarts("[cR]-C").unwrap();
+        assert!(!PreparedMatcher::new(&benzene, true).matches(&ring, 0));
+        let in_ring = parse_smarts("[cR]").unwrap();
+        // Ring patterns stay correct even if a caller prepared without rings.
+        assert!(PreparedMatcher::new(&benzene, false).matches(&in_ring, 0));
+        assert!(!matcher.matches(&in_ring, 0));
     }
 }

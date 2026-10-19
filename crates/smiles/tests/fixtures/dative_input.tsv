@@ -1,0 +1,14 @@
+# source; formula; atom attached-H vector; sorted directed dative edges; ordinary ring count
+N->[Cu+2]	H3CuN+2	3,0	0,1	0
+[Cu+2]<-N	H3CuN+2	0,3	1,0	0
+N(->[Cu+2])C	CH5CuN+2	2,0,3	0,1	0
+[NH3]->[Cu+2]<-[NH3]	H6CuN2+2	3,0,3	0,1;2,1	0
+[13NH3]->[Cu+2]	H3CuN+2	3,0	0,1	0
+[Cu+2](<-N)(<-O)<-S	H7CuNOS+2	0,3,2,2	1,0;2,0;3,0	0
+N->B	H5BN	3,2	0,1	0
+B<-N	H5BN	2,3	1,0	0
+[Cu+2]1<-NCCN->1	C2H8CuN2+2	0,2,2,2,2	1,0;4,0	0
+N->1CCN[Cu+2]1	C2H7CuN2+2	2,2,2,1,0	0,4	0
+[Cu+2]<-1NCCN1	C2H7CuN2+2	0,1,2,2,2	4,0	0
+[Cu+2]1NCCN->1	C2H7CuN2+2	0,1,2,2,2	4,0	0
+N1CCN[Cu+2]<-1	C2H7CuN2+2	2,2,2,1,0	0,4	0

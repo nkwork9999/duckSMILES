@@ -1,0 +1,5 @@
+ChEBI data: https://www.ebi.ac.uk/chebi , release256.
+Evaluation-only test-bundle fixture; not part of the production app.
+Original source SMILES and order preserved; 10000 distinct RDKit canonical isomeric identities selected independently of native acceptance. CSV source SHA256 42056516c82d6c78ec91cb756fb746ca89b5622be9f62c3893c11452458ca66c
+Conversion/selection: tasks/descriptors/prepare_chebi.py; original source URL https://ftp.ebi.ac.uk/pub/databases/chebi/flat_files/structure_registry.tsv.gz .
+Upstream LICENSE and README preserved verbatim. Expected last-row formula/topology uses independent RDKit parsing and dense formula calculations.

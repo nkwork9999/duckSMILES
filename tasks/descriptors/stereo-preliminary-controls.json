@@ -1,0 +1,168 @@
+{
+  "rdkit": "2026.03.6",
+  "legacy_default": true,
+  "controls": [
+    {
+      "source": "C",
+      "atom_stereo_count": 0,
+      "unspecified_count": 0,
+      "sps": 0.0,
+      "sps_error": null,
+      "sps_modern_chiral_atoms": [],
+      "sps_double_stereo": [],
+      "sps_hybrid": [
+        3
+      ],
+      "sps_degree_square": [
+        0
+      ]
+    },
+    {
+      "source": "[H]C([H])([H])[H]",
+      "atom_stereo_count": 0,
+      "unspecified_count": 0,
+      "sps": 64.0,
+      "sps_error": null,
+      "sps_modern_chiral_atoms": [],
+      "sps_double_stereo": [],
+      "sps_hybrid": [
+        4,
+        3,
+        4,
+        4,
+        4
+      ],
+      "sps_degree_square": [
+        1,
+        16,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "source": "[H][H]",
+      "atom_stereo_count": 0,
+      "unspecified_count": 0,
+      "sps": null,
+      "sps_error": "ZeroDivisionError: division by zero",
+      "sps_modern_chiral_atoms": [],
+      "sps_double_stereo": [],
+      "sps_hybrid": [
+        4,
+        4
+      ],
+      "sps_degree_square": [
+        1,
+        1
+      ]
+    },
+    {
+      "source": "C1CCN2CCCC2C1",
+      "atom_stereo_count": 1,
+      "unspecified_count": 1,
+      "sps": 36.666666666666664,
+      "sps_error": null,
+      "sps_modern_chiral_atoms": [
+        7
+      ],
+      "sps_double_stereo": [],
+      "sps_hybrid": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "sps_degree_square": [
+        4,
+        4,
+        4,
+        9,
+        4,
+        4,
+        4,
+        9,
+        4
+      ]
+    },
+    {
+      "source": "CC(O)Cl",
+      "atom_stereo_count": 1,
+      "unspecified_count": 1,
+      "sps": 15.75,
+      "sps_error": null,
+      "sps_modern_chiral_atoms": [
+        1
+      ],
+      "sps_double_stereo": [],
+      "sps_hybrid": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "sps_degree_square": [
+        1,
+        9,
+        1,
+        1
+      ]
+    },
+    {
+      "source": "C[C@H](O)Cl",
+      "atom_stereo_count": 1,
+      "unspecified_count": 0,
+      "sps": 15.75,
+      "sps_error": null,
+      "sps_modern_chiral_atoms": [
+        1
+      ],
+      "sps_double_stereo": [],
+      "sps_hybrid": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "sps_degree_square": [
+        1,
+        9,
+        1,
+        1
+      ]
+    },
+    {
+      "source": "CC=CC",
+      "atom_stereo_count": 0,
+      "unspecified_count": 0,
+      "sps": 9.5,
+      "sps_error": null,
+      "sps_modern_chiral_atoms": [],
+      "sps_double_stereo": [
+        [
+          1,
+          2,
+          "STEREOANY"
+        ]
+      ],
+      "sps_hybrid": [
+        3,
+        2,
+        2,
+        3
+      ],
+      "sps_degree_square": [
+        1,
+        4,
+        4,
+        1
+      ]
+    }
+  ],
+  "scope": "Preliminary research controls only; not native implementation or added count"
+}

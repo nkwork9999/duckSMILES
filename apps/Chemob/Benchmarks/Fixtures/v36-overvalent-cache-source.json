@@ -1,0 +1,6 @@
+{
+  "revision": "ducksmiles-workbench-v36-ipc291-exact2026036",
+  "library_sha256": "6c8bec6a0e6fee4a847e0fd5a8725f53e0b2891ee18481ed724090426dc73c65",
+  "source": "C(C)(C)(C)(C)C",
+  "scope": "Actual frozen36 false-positive result; test-only stale cache fixture; not shipped in production App"
+}

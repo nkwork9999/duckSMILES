@@ -1,0 +1,217 @@
+{
+  "positive_ids": [
+    "MaxAbsPartialCharge",
+    "MaxPartialCharge",
+    "MinAbsPartialCharge",
+    "MinPartialCharge",
+    "NumRadicalElectrons",
+    "PEOE_VSA1",
+    "PEOE_VSA10",
+    "PEOE_VSA11",
+    "PEOE_VSA12",
+    "PEOE_VSA13",
+    "PEOE_VSA14",
+    "PEOE_VSA2",
+    "PEOE_VSA3",
+    "PEOE_VSA4",
+    "PEOE_VSA5",
+    "PEOE_VSA6",
+    "PEOE_VSA7",
+    "PEOE_VSA8",
+    "PEOE_VSA9"
+  ],
+  "status": "native-model oracle-ready; integration validation in progress",
+  "rdkit": "2026.03.6",
+  "descriptors": [
+    {
+      "id": "NumRadicalElectrons",
+      "title": "NumRadicalElectrons",
+      "group": "Composition",
+      "unit": "",
+      "digits": 0,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "MaxPartialCharge",
+      "title": "MaxPartialCharge",
+      "group": "Partial charge",
+      "unit": "e",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "MinPartialCharge",
+      "title": "MinPartialCharge",
+      "group": "Partial charge",
+      "unit": "e",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "MaxAbsPartialCharge",
+      "title": "MaxAbsPartialCharge",
+      "group": "Partial charge",
+      "unit": "e",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "MinAbsPartialCharge",
+      "title": "MinAbsPartialCharge",
+      "group": "Partial charge",
+      "unit": "e",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA1",
+      "title": "PEOE_VSA1",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA2",
+      "title": "PEOE_VSA2",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA3",
+      "title": "PEOE_VSA3",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA4",
+      "title": "PEOE_VSA4",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA5",
+      "title": "PEOE_VSA5",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA6",
+      "title": "PEOE_VSA6",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA7",
+      "title": "PEOE_VSA7",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA8",
+      "title": "PEOE_VSA8",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA9",
+      "title": "PEOE_VSA9",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA10",
+      "title": "PEOE_VSA10",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA11",
+      "title": "PEOE_VSA11",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA12",
+      "title": "PEOE_VSA12",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA13",
+      "title": "PEOE_VSA13",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "PEOE_VSA14",
+      "title": "PEOE_VSA14",
+      "group": "Charge surface",
+      "unit": "\u00c5\u00b2",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    }
+  ],
+  "molecules": 207,
+  "scalar_values": 3933,
+  "atomic_values": 2372,
+  "conjugation_values": 2343,
+  "bins": [
+    -0.3,
+    -0.25,
+    -0.2,
+    -0.15,
+    -0.1,
+    -0.05,
+    0,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3
+  ]
+}

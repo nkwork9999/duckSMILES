@@ -1,0 +1,16 @@
+{
+  "rdkit": "2026.03.6",
+  "molecules": 352,
+  "scalar_values": 1056,
+  "key_radii": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "removeHs": false,
+  "includeChirality": false,
+  "includeRedundantEnvironments": false,
+  "fp": "GetSparseCountFingerprint; unique keys, no bit-vector folding",
+  "native_acceptance_filter": false
+}

@@ -44,6 +44,7 @@ fn adjacency(m: &Molecule) -> Adj {
             BondOrder::Double => 2,
             BondOrder::Triple => 3,
             BondOrder::Aromatic => 4,
+            BondOrder::Dative => 17,
         };
         a[b.a].push((b.b, i, o));
         a[b.b].push((b.a, i, o));

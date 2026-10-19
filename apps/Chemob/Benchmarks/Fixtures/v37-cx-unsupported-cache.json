@@ -1,0 +1,12 @@
+{
+  "namespace": "ducksmiles-workbench-v37-valence291-rdkit2026036:descriptors",
+  "entries": [
+    {
+      "smiles": "CC(O)F |wU:1.0|",
+      "value": {
+        "index": 0,
+        "status": "invalid_or_unsupported"
+      }
+    }
+  ]
+}

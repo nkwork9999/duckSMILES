@@ -1,7 +1,7 @@
 //! Versioned native graph sidecar, not a pretrained ms-pred tensor format.
 //! Atom indices follow the input parse order. No canonicalization, H expansion,
 //! neutralization, CIP/EZ assignment or RDKit sanitization is performed.
-use crate::parser::{parse, BondOrder, Molecule};
+use crate::parser::{parse_with_ring_info, BondOrder, Molecule, RingInfo};
 use std::collections::HashSet;
 use std::fmt::Write;
 
@@ -28,7 +28,7 @@ fn atomic_number(symbol: &str) -> Option<usize> {
 // This API-specific conservative grammar guard avoids permissive native-parser
 // cases (dangling bonds, empty branches, overflowing isotope/map annotations).
 // It does not change the parser used by any existing SQL function.
-fn preflight(smiles: &str) -> bool {
+fn preflight(smiles: &str, allow_dative: bool, max_atoms: usize) -> bool {
     if smiles.is_empty() || smiles.len() > MAX_INPUT_BYTES || !smiles.is_ascii() {
         return false;
     }
@@ -92,18 +92,26 @@ fn preflight(smiles: &str) -> bool {
                 state = b'.';
                 i += 1;
             }
+            b'<' if allow_dative && b.get(i + 1) == Some(&b'-') => {
+                if state != b'A' && state != b'(' {
+                    return false;
+                }
+                state = b'B';
+                i += 2;
+            }
             b'-' | b'=' | b'#' | b':' | b'/' | b'\\' => {
                 if state != b'A' && state != b'(' {
                     return false;
                 }
                 state = b'B';
-                i += 1;
+                i += if allow_dative && b[i] == b'-' && b.get(i + 1) == Some(&b'>') {
+                    2
+                } else {
+                    1
+                };
             }
             b'0'..=b'9' | b'%' => {
-                // Explicit bonds/directions immediately before a ring label
-                // are outside v1 because the parser does not retain all opening
-                // bond annotations. Do not silently export their wrong order.
-                if state != b'A' {
+                if state != b'A' && state != b'B' {
                     return false;
                 }
                 if b[i] == b'%' {
@@ -115,30 +123,64 @@ fn preflight(smiles: &str) -> bool {
                 } else {
                     i += 1;
                 }
+                state = b'A';
             }
             _ => return false,
         }
-        if atoms > MAX_ATOMS {
+        if atoms > max_atoms {
             return false;
         }
     }
     state == b'A' && branches.is_empty()
 }
 
-fn graph(smiles: &str) -> Option<Molecule> {
-    if !preflight(smiles) {
+pub(crate) fn graph(smiles: &str) -> Option<Molecule> {
+    graph_with_ring_info(smiles).map(|(mol, _)| mol)
+}
+
+pub(crate) fn graph_with_ring_info(smiles: &str) -> Option<(Molecule, RingInfo)> {
+    checked_graph(smiles, false)
+}
+
+#[cfg(test)]
+pub(crate) fn graph_as_written_with_ring_info(smiles: &str) -> Option<(Molecule, RingInfo)> {
+    checked_graph(smiles, true)
+}
+
+pub(crate) fn graph_as_written_bounded(
+    smiles: &str,
+    max_atoms: usize,
+    max_bonds: usize,
+) -> Option<Molecule> {
+    if !preflight(smiles, true, max_atoms) {
         return None;
     }
-    let mol = parse(smiles)?;
-    if mol.atoms.len() > MAX_ATOMS || mol.bonds.len() > MAX_BONDS {
+    let mol = crate::parser::parse_as_written_graph(smiles)?;
+    supported_graph(&mol, max_atoms, max_bonds).then_some(mol)
+}
+
+fn checked_graph(smiles: &str, as_written: bool) -> Option<(Molecule, RingInfo)> {
+    if !preflight(smiles, as_written, MAX_ATOMS) {
         return None;
+    }
+    let (mol, rings) = if as_written {
+        crate::parser::parse_as_written_with_ring_info(smiles)?
+    } else {
+        parse_with_ring_info(smiles)?
+    };
+    supported_graph(&mol, MAX_ATOMS, MAX_BONDS).then_some((mol, rings))
+}
+
+fn supported_graph(mol: &Molecule, max_atoms: usize, max_bonds: usize) -> bool {
+    if mol.atoms.len() > max_atoms || mol.bonds.len() > max_bonds {
+        return false;
     }
     if mol
         .atoms
         .iter()
         .any(|atom| atomic_number(&atom.symbol).is_none())
     {
-        return None;
+        return false;
     }
     let mut edges = HashSet::new();
     if mol
@@ -146,9 +188,9 @@ fn graph(smiles: &str) -> Option<Molecule> {
         .iter()
         .any(|b| b.a == b.b || !edges.insert((b.a.min(b.b), b.a.max(b.b))))
     {
-        return None;
+        return false;
     }
-    Some(mol)
+    true
 }
 
 fn json_string(s: &str) -> String {
@@ -221,6 +263,7 @@ pub fn calculate(smiles: &str) -> Option<String> {
             BondOrder::Double => "double",
             BondOrder::Triple => "triple",
             BondOrder::Aromatic => "aromatic",
+            BondOrder::Dative => "dative",
         };
         let _ = write!(
             out,
@@ -294,7 +337,6 @@ mod tests {
             "*",
             "[99999C]",
             "[C:4294967296]",
-            "C=1CCCCC1",
             "C C",
             "C\0C",
             "炭素",
@@ -305,6 +347,7 @@ mod tests {
         assert!(calculate(&"C".repeat(MAX_INPUT_BYTES + 1)).is_none());
         assert!(calculate("C(=O)N").is_some());
         assert!(calculate("C%10CCCCC%10").is_some());
+        assert!(calculate("C=1CCCCC1").is_some());
     }
 
     #[test]

@@ -1,0 +1,13 @@
+{
+  "descriptors": [{
+    "id": "SPS", "title": "Spacial score (normalized)", "group": "Stereo",
+    "unit": "", "digits": 4, "origin": "rdkit-standard",
+    "verification": "pending-expanded-validation", "reference_version": "1.0.0",
+    "definition": "Sum hybridization × potential stereo × nonaromatic ring × explicit degree squared, divided by heavy atom count; null for no heavy atoms"
+  }],
+  "references": [
+    "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/rdkit/Chem/SpacialScore.py",
+    "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/FindStereo.cpp",
+    "https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_6/Code/GraphMol/Chirality.cpp"
+  ]
+}

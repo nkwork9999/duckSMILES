@@ -1,0 +1,6 @@
+F[Pt@SP0](Cl)(Br)(I)
+F[Fe@TB0](Cl)(Br)(I)(N)
+F[Co@OH0](Cl)(Br)(I)(N)(O)
+F[Pt@SP4](Cl)(Br)I
+F[Fe@TB21](Cl)(Br)(I)N
+F[Co@OH31](Cl)(Br)(I)(N)O

@@ -13,7 +13,7 @@
 //! **39**, 868-873 (1999).
 
 use crate::parser::Molecule;
-use crate::smarts::{match_at, parse_smarts, Pattern};
+use crate::smarts::{parse_smarts, Pattern, PreparedMatcher};
 use std::sync::OnceLock;
 
 /// Parameter table from RDKit's `Data/Crippen.txt`.
@@ -22,6 +22,8 @@ use std::sync::OnceLock;
 /// table drives both `calc_logp` (3rd field) and `calc_mr` (4th field, the
 /// Wildman-Crippen molar refractivity). RDKit leaves the MR cell blank for a
 /// few charged/metal types (N10, N12, O12, Hal, Me2); those contribute `0.0`.
+// Preserve aligned reference-data rows for comparison with the pinned table.
+#[rustfmt::skip]
 static CRIPPEN_DATA: &[(&str, &str, f64, f64)] = &[
     ("C1",  "[CH4]",                     0.1441,  2.503),
     ("C1",  "[CH3]C",                    0.1441,  2.503),
@@ -154,38 +156,69 @@ fn patterns() -> &'static [(Pattern, f64, f64)] {
     })
 }
 
-/// Shared atom-typing core: assign each atom (after H-expansion) its
-/// first-matching Crippen contribution, then sum `select`ed values.
-/// `select` picks LogP or MR from the `(logp, mr)` pair.
-fn crippen_sum(mol: &Molecule, select: fn(f64, f64) -> f64) -> f64 {
-    if mol.atoms.is_empty() {
-        return f64::NAN;
-    }
-    let mol_h = mol.with_explicit_hydrogens();
-    let n = mol_h.atoms.len();
-    let mut assigned = vec![false; n];
-    let mut contrib = vec![0.0_f64; n];
+/// Expanded-H molecular totals and original-graph atomic contributions.
+pub(crate) struct CrippenValues {
+    pub logp: f64,
+    pub mr: f64,
+    pub atoms: Vec<(f64, f64)>,
+}
 
-    for (pat, logp, mr) in patterns() {
+pub(crate) fn assign_contributions(mol: &Molecule) -> Vec<(f64, f64)> {
+    let n = mol.atoms.len();
+    let matcher = PreparedMatcher::new(mol, patterns().iter().any(|(p, _, _)| p.needs_ring_info));
+    let mut assigned = vec![false; n];
+    let mut values = vec![(0.0, 0.0); n];
+    for (pattern, logp, mr) in patterns() {
         for i in 0..n {
-            if !assigned[i] && match_at(pat, &mol_h, i) {
+            if !assigned[i] && matcher.matches(pattern, i) {
                 assigned[i] = true;
-                contrib[i] = select(*logp, *mr);
+                values[i] = (*logp, *mr);
             }
         }
-        if assigned.iter().all(|&x| x) {
+        if assigned.iter().all(|&value| value) {
             break;
         }
     }
+    values
+}
 
-    contrib.iter().sum()
+pub(crate) fn calc_with_atom_contributions(mol: &Molecule) -> CrippenValues {
+    if mol.atoms.is_empty() {
+        return CrippenValues {
+            logp: f64::NAN,
+            mr: f64::NAN,
+            atoms: Vec::new(),
+        };
+    }
+    let expanded = mol.with_explicit_hydrogens();
+    let contributions = assign_contributions(&expanded);
+    // With explicit H vertices, the original graph can have a different H
+    // environment from the H-expanded graph: [2H]O gets HS for its original
+    // isotope atom in VSA, but H2 after expansion for molecular LogP/MR.
+    // Heavy-only input shares its typing; original-H inputs need one extra
+    // original-graph context, reused by every surface bin.
+    let atoms = if mol.atoms.iter().any(|a| a.symbol == "H") {
+        assign_contributions(mol)
+    } else {
+        contributions[..mol.atoms.len()].to_vec()
+    };
+    CrippenValues {
+        logp: contributions.iter().map(|v| v.0).sum(),
+        mr: contributions.iter().map(|v| v.1).sum(),
+        atoms,
+    }
+}
+
+pub(crate) fn calc_logp_and_mr(mol: &Molecule) -> (f64, f64) {
+    let values = calc_with_atom_contributions(mol);
+    (values.logp, values.mr)
 }
 
 /// Compute Wildman-Crippen LogP for a molecule.
 ///
 /// Returns NaN if the molecule has no atoms.
 pub fn calc_logp(mol: &Molecule) -> f64 {
-    crippen_sum(mol, |logp, _mr| logp)
+    calc_logp_and_mr(mol).0
 }
 
 /// Compute Wildman-Crippen molar refractivity (MolMR) for a molecule, summing
@@ -193,7 +226,7 @@ pub fn calc_logp(mol: &Molecule) -> f64 {
 ///
 /// Returns NaN if the molecule has no atoms.
 pub fn calc_mr(mol: &Molecule) -> f64 {
-    crippen_sum(mol, |_logp, mr| mr)
+    calc_logp_and_mr(mol).1
 }
 
 // =============================================================================
@@ -204,6 +237,7 @@ pub fn calc_mr(mol: &Molecule) -> f64 {
 mod tests {
     use super::*;
     use crate::parser::parse;
+    use crate::smarts::match_at;
 
     fn logp_of(smiles: &str) -> f64 {
         let mol = parse(smiles).expect("parse smiles");
@@ -217,7 +251,10 @@ mod tests {
         assert!(
             (got - expected).abs() < tol,
             "LogP({}) = {:.4}, expected {:.4} ± {}",
-            smiles, got, expected, tol
+            smiles,
+            got,
+            expected,
+            tol
         );
     }
 
@@ -225,7 +262,8 @@ mod tests {
 
     #[test]
     fn all_patterns_parse() {
-        let patterns = CRIPPEN_DATA.iter()
+        let patterns = CRIPPEN_DATA
+            .iter()
             .filter_map(|(label, smarts, _, _)| {
                 if parse_smarts(smarts).is_none() {
                     Some(format!("{}: {}", label, smarts))
@@ -300,19 +338,30 @@ mod tests {
     #[test]
     fn mr_benzene() {
         // RDKit: MolMR(c1ccccc1) = 26.442 = 6× C18 (3.35) + 6× H1 (1.057)
-        assert!((mr_of("c1ccccc1") - 26.442).abs() < 0.05, "MR = {}", mr_of("c1ccccc1"));
+        assert!(
+            (mr_of("c1ccccc1") - 26.442).abs() < 0.05,
+            "MR = {}",
+            mr_of("c1ccccc1")
+        );
     }
 
     #[test]
     fn mr_shares_logp_atom_typing() {
         // Same molecule yields finite, positive MR for both LogP-typed atoms.
         let v = mr_of("CC(=O)Oc1ccccc1C(=O)O"); // aspirin
-        assert!(v > 30.0 && v < 50.0, "aspirin MR out of expected range: {}", v);
+        assert!(
+            v > 30.0 && v < 50.0,
+            "aspirin MR out of expected range: {}",
+            v
+        );
     }
 
     #[test]
     fn mr_grows_with_size() {
-        assert!(mr_of("CCCCCC") > mr_of("CC"), "hexane MR should exceed ethane");
+        assert!(
+            mr_of("CCCCCC") > mr_of("CC"),
+            "hexane MR should exceed ethane"
+        );
     }
 
     // --------- Every atom gets a type assigned ---------
@@ -340,7 +389,9 @@ mod tests {
 
     #[test]
     fn all_atoms_assigned_caffeine() {
-        let mol = parse("Cn1c(=O)c2c(ncn2C)n(C)c1=O").unwrap().with_explicit_hydrogens();
+        let mol = parse("Cn1c(=O)c2c(ncn2C)n(C)c1=O")
+            .unwrap()
+            .with_explicit_hydrogens();
         let n = mol.atoms.len();
         let mut assigned = vec![false; n];
 
@@ -356,7 +407,11 @@ mod tests {
             .filter(|&i| !assigned[i])
             .map(|i| (i, mol.atoms[i].symbol.clone()))
             .collect();
-        assert!(unassigned.is_empty(), "caffeine unassigned: {:?}", unassigned);
+        assert!(
+            unassigned.is_empty(),
+            "caffeine unassigned: {:?}",
+            unassigned
+        );
     }
 
     // --------- Consistency: order of magnitude sanity ---------
@@ -364,7 +419,11 @@ mod tests {
     #[test]
     fn logp_cholesterol_is_lipophilic() {
         let v = logp_of("CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C");
-        assert!(v > 3.0, "cholesterol should be strongly lipophilic, got {}", v);
+        assert!(
+            v > 3.0,
+            "cholesterol should be strongly lipophilic, got {}",
+            v
+        );
     }
 
     #[test]
@@ -390,19 +449,22 @@ mod print_values {
     #[ignore]
     fn print_logp_table() {
         let samples = [
-            ("methane",    "C"),
-            ("water",      "O"),
-            ("ethanol",    "CCO"),
-            ("methanol",   "CO"),
-            ("benzene",    "c1ccccc1"),
-            ("toluene",    "Cc1ccccc1"),
-            ("phenol",     "Oc1ccccc1"),
-            ("chloromethane","CCl"),
-            ("aspirin",    "CC(=O)Oc1ccccc1C(=O)O"),
-            ("ibuprofen",  "CC(C)Cc1ccc(cc1)C(C)C(=O)O"),
-            ("caffeine",   "Cn1c(=O)c2c(ncn2C)n(C)c1=O"),
-            ("glucose",    "OCC1OC(O)C(O)C(O)C1O"),
-            ("cholesterol","CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C"),
+            ("methane", "C"),
+            ("water", "O"),
+            ("ethanol", "CCO"),
+            ("methanol", "CO"),
+            ("benzene", "c1ccccc1"),
+            ("toluene", "Cc1ccccc1"),
+            ("phenol", "Oc1ccccc1"),
+            ("chloromethane", "CCl"),
+            ("aspirin", "CC(=O)Oc1ccccc1C(=O)O"),
+            ("ibuprofen", "CC(C)Cc1ccc(cc1)C(C)C(=O)O"),
+            ("caffeine", "Cn1c(=O)c2c(ncn2C)n(C)c1=O"),
+            ("glucose", "OCC1OC(O)C(O)C(O)C1O"),
+            (
+                "cholesterol",
+                "CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C",
+            ),
         ];
         for (name, smi) in samples {
             let mol = parse(smi).unwrap();

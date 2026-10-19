@@ -1,0 +1,1480 @@
+{
+  "schema": 1,
+  "rdkit": "2026.03.6",
+  "required_standard_count": 217,
+  "implemented_standard_count": 217,
+  "additional_required_count": 50,
+  "additional_implemented_count": 50,
+  "existing_profile_count": 24,
+  "standard": [
+    {
+      "id": "MaxAbsEStateIndex",
+      "family": "rdkit.Chem.EState.EState",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MaxEStateIndex",
+      "family": "rdkit.Chem.EState.EState",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MinAbsEStateIndex",
+      "family": "rdkit.Chem.EState.EState",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MinEStateIndex",
+      "family": "rdkit.Chem.EState.EState",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "qed",
+      "family": "rdkit.Chem.QED",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SPS",
+      "family": "rdkit.Chem.SpacialScore",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MolWt",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "HeavyAtomMolWt",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "ExactMolWt",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumValenceElectrons",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumRadicalElectrons",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MaxPartialCharge",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MinPartialCharge",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MaxAbsPartialCharge",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MinAbsPartialCharge",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "FpDensityMorgan1",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "FpDensityMorgan2",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "FpDensityMorgan3",
+      "family": "rdkit.Chem.Descriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_MWHI",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_MWLOW",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_CHGHI",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_CHGLO",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_LOGPHI",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_LOGPLOW",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_MRHI",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BCUT2D_MRLOW",
+      "family": "rdkit.Chem.ChemUtils.DescriptorUtilities",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "AvgIpc",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-exact-definition-pinned-numerically-divergent",
+      "implementation": "crates/smiles/src/information.rs"
+    },
+    {
+      "id": "BalabanJ",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "BertzCT",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi0",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi0n",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi0v",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi1",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi1n",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi1v",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi2n",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi2v",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi3n",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi3v",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi4n",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Chi4v",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "HallKierAlpha",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Ipc",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-exact-definition-pinned-numerically-divergent",
+      "implementation": "crates/smiles/src/information.rs"
+    },
+    {
+      "id": "Kappa1",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Kappa2",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Kappa3",
+      "family": "rdkit.Chem.GraphDescriptors",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "LabuteASA",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA1",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA10",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA11",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA12",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA13",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA14",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA2",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA3",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA4",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA5",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA6",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA7",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA8",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "PEOE_VSA9",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA1",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA10",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA2",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA3",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA4",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA5",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA6",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA7",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA8",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SMR_VSA9",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA1",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA10",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA11",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA12",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA2",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA3",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA4",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA5",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA6",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA7",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA8",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "SlogP_VSA9",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "TPSA",
+      "family": "rdkit.Chem.MolSurf",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA1",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA10",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA11",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA2",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA3",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA4",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA5",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA6",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA7",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA8",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "EState_VSA9",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState1",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState10",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState2",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState3",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState4",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState5",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState6",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState7",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState8",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "VSA_EState9",
+      "family": "rdkit.Chem.EState.EState_VSA",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "FractionCSP3",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "HeavyAtomCount",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NHOHCount",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NOCount",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAliphaticCarbocycles",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAliphaticHeterocycles",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAliphaticRings",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAmideBonds",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAromaticCarbocycles",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAromaticHeterocycles",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAromaticRings",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumAtomStereoCenters",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumBridgeheadAtoms",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumHAcceptors",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumHDonors",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumHeteroatoms",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumHeterocycles",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumRotatableBonds",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumSaturatedCarbocycles",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumSaturatedHeterocycles",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumSaturatedRings",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumSpiroAtoms",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "NumUnspecifiedAtomStereoCenters",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "Phi",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "RingCount",
+      "family": "rdkit.Chem.Lipinski",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MolLogP",
+      "family": "rdkit.Chem.Crippen",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "MolMR",
+      "family": "rdkit.Chem.Crippen",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Al_COO",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Al_OH",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Al_OH_noTert",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_ArN",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Ar_COO",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Ar_N",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Ar_NH",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Ar_OH",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_COO",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_COO2",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_C_O",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_C_O_noCOO",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_C_S",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_HOCCN",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Imine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_NH0",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_NH1",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_NH2",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_N_O",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Ndealkylation1",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Ndealkylation2",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_Nhpyrrole",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_SH",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_aldehyde",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_alkyl_carbamate",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_alkyl_halide",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_allylic_oxid",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_amide",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_amidine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_aniline",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_aryl_methyl",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_azide",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_azo",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_barbitur",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_benzene",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_benzodiazepine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_bicyclic",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_diazo",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_dihydropyridine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_epoxide",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_ester",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_ether",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_furan",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_guanido",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_halogen",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_hdrzine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_hdrzone",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_imidazole",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_imide",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_isocyan",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_isothiocyan",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_ketone",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_ketone_Topliss",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_lactam",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_lactone",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_methoxy",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_morpholine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_nitrile",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_nitro",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_nitro_arom",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_nitro_arom_nonortho",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_nitroso",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_oxazole",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_oxime",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_para_hydroxylation",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_phenol",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_phenol_noOrthoHbond",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_phos_acid",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_phos_ester",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_piperdine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_piperzine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_priamide",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_prisulfonamd",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_pyridine",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_quatN",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_sulfide",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_sulfonamd",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_sulfone",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_term_acetylene",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_tetrazole",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_thiazole",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_thiocyan",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_thiophene",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_unbrch_alkane",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    },
+    {
+      "id": "fr_urea",
+      "family": "rdkit.Chem.Fragments",
+      "status": "verified-pinned-on-100000-original-valid-graphs"
+    }
+  ],
+  "completion_gate": "All 217 implemented with pinned definitions, tolerances, acceptance parity and 100k differential evidence; 50 separately specified additional descriptors; API/cache/app/search/CSV and 10k distinct-compound tests. Current phase-1 profile counts do not count as those additional 50.",
+  "additional": [
+    {
+      "id": "ds_Wiener",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "sum_{i<j, finite d} d_ij"
+    },
+    {
+      "id": "ds_Harary",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "sum_{i<j, finite d} 1/d_ij"
+    },
+    {
+      "id": "ds_EccentricConnectivity",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "sum_i degree_i * max finite_j d_ij"
+    },
+    {
+      "id": "ds_DegreeDistance",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "sum_{i<j, finite d} (degree_i+degree_j)*d_ij"
+    },
+    {
+      "id": "ds_Gutman",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "sum_{i<j, finite d} degree_i*degree_j*d_ij"
+    },
+    {
+      "id": "ds_MDEC11",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 1,1"
+    },
+    {
+      "id": "ds_MDEC12",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 1,2"
+    },
+    {
+      "id": "ds_MDEC13",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 1,3"
+    },
+    {
+      "id": "ds_MDEC14",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 1,4"
+    },
+    {
+      "id": "ds_MDEC22",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 2,2"
+    },
+    {
+      "id": "ds_MDEC23",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 2,3"
+    },
+    {
+      "id": "ds_MDEC24",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 2,4"
+    },
+    {
+      "id": "ds_MDEC33",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 3,3"
+    },
+    {
+      "id": "ds_MDEC34",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 3,4"
+    },
+    {
+      "id": "ds_MDEC44",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite C-pair count / geometric mean distance; endpoint heavy-graph degrees 4,4"
+    },
+    {
+      "id": "ds_MDEN11",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite N-pair count / geometric mean distance; endpoint heavy-graph degrees 1,1"
+    },
+    {
+      "id": "ds_MDEN12",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite N-pair count / geometric mean distance; endpoint heavy-graph degrees 1,2"
+    },
+    {
+      "id": "ds_MDEN13",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite N-pair count / geometric mean distance; endpoint heavy-graph degrees 1,3"
+    },
+    {
+      "id": "ds_MDEN22",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite N-pair count / geometric mean distance; endpoint heavy-graph degrees 2,2"
+    },
+    {
+      "id": "ds_MDEN23",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite N-pair count / geometric mean distance; endpoint heavy-graph degrees 2,3"
+    },
+    {
+      "id": "ds_MDEN33",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite N-pair count / geometric mean distance; endpoint heavy-graph degrees 3,3"
+    },
+    {
+      "id": "ds_MDEO11",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite O-pair count / geometric mean distance; endpoint heavy-graph degrees 1,1"
+    },
+    {
+      "id": "ds_MDEO12",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite O-pair count / geometric mean distance; endpoint heavy-graph degrees 1,2"
+    },
+    {
+      "id": "ds_MDEO22",
+      "family": "Molecular distances",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Eligible finite O-pair count / geometric mean distance; endpoint heavy-graph degrees 2,2"
+    },
+    {
+      "id": "ds_GGI1",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 1; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI2",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 2; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI3",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 3; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI4",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 4; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI5",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 5; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI6",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 6; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI7",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 7; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI8",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 8; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI9",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 9; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_GGI10",
+      "family": "Topological charge",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "Sum |(A R − (A R)^T)_ij| for unordered pairs at distance 10; R_ij=1/d_ij²"
+    },
+    {
+      "id": "ds_MWC3",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^3))"
+    },
+    {
+      "id": "ds_MWC4",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^4))"
+    },
+    {
+      "id": "ds_MWC5",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^5))"
+    },
+    {
+      "id": "ds_MWC6",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^6))"
+    },
+    {
+      "id": "ds_MWC7",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^7))"
+    },
+    {
+      "id": "ds_MWC8",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^8))"
+    },
+    {
+      "id": "ds_MWC9",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^9))"
+    },
+    {
+      "id": "ds_MWC10",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + sum(A^10))"
+    },
+    {
+      "id": "ds_SRW3",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^3))"
+    },
+    {
+      "id": "ds_SRW4",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^4))"
+    },
+    {
+      "id": "ds_SRW5",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^5))"
+    },
+    {
+      "id": "ds_SRW6",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^6))"
+    },
+    {
+      "id": "ds_SRW7",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^7))"
+    },
+    {
+      "id": "ds_SRW8",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^8))"
+    },
+    {
+      "id": "ds_SRW9",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^9))"
+    },
+    {
+      "id": "ds_SRW10",
+      "family": "Walks",
+      "status": "verified-independent-formulas-on-100000-original-valid-graphs-and-app-io",
+      "formula": "ln(1 + trace(A^10))"
+    }
+  ],
+  "information_reference_policy": {
+    "fields": [
+      "Ipc",
+      "AvgIpc"
+    ],
+    "method": "exact integer characteristic coefficients, f64 entropy",
+    "pinned_compatibility": "separate numerical report; mathematical definition retained",
+    "existing_descriptor_tolerances_changed": false
+  },
+  "direct_pinned_numeric_standard_count": 215,
+  "exact_definition_standard_count": 2,
+  "current_revision": "ducksmiles-workbench-v42-cluster291-rdkit2026036",
+  "current_population_evidence": "../evidence/catalog289-sps/v42-full100k/comparison.json",
+  "accepted_value_gate": "passed",
+  "whole_input_acceptance_gate": "passed",
+  "common_accepted_rows": 100000,
+  "unsupported_rows": 0,
+  "pinned_information_differing_rows": 5723,
+  "verification_scope": "215 pinned RDKit numerical definitions + same-formula stable exact-integer Ipc/AvgIpc +24 profiles +50 independent published-formula extras. All100000 original input positions accepted; all291 and formula match unchanged per-field tolerances, zero reference errors. Pinned Ipc/AvgIpc numerical compatibility separately FAILS5723rows; CSV uses Ipc_stable/AvgIpc_stable.",
+  "latest_input_support_checkpoint": {
+    "revision": "ducksmiles-workbench-v42-cluster291-rdkit2026036",
+    "preparation_inputs": 100000,
+    "preparation_accepted": 100000,
+    "unsupported": 0,
+    "newly_accepted_vs_v40": 5,
+    "preparation_regressions": 0,
+    "new_inputs_all291_reference_gate": "passed",
+    "new_input_numeric_evidence": "../evidence/catalog289-sps/cluster-next-controls/manifest.json",
+    "whole100k_numeric_rerun_for_v42": true,
+    "whole100k_acceptance_gate": "passed",
+    "whole100k_all291_and_formula_gate": "passed",
+    "whole100k_reference_errors": 0,
+    "actual_host_cache_migration": "passed",
+    "actual_host_io_rows": 10000,
+    "actual_simulator_io_rows": 10000,
+    "installed_app_revision": "v42",
+    "current_ui_tests_passed": 4,
+    "physical_platform_unsigned_build": "passed",
+    "physical_runtime_measured": false
+  },
+  "active_current_native_verification": {
+    "revision": "ducksmiles-workbench-v42-cluster291-rdkit2026036",
+    "focused_original_metal_inputs": 5,
+    "focused_descriptor_controls": 158,
+    "focused_all291_and_formula_gate": "passed",
+    "raw_canonical_rank_controls": 423,
+    "raw_canonical_rank_gate": "passed",
+    "rust_passed": 808,
+    "rust_failed": 0,
+    "rust_ignored": 2,
+    "rust_warnings": 0,
+    "actual_swift_input_rows": 10000,
+    "actual_swift_unsupported_rows": 0,
+    "actual_disk_reused_rows": 10000,
+    "actual_disk_additional_native_calculations": 0,
+    "whole100k_numeric_gate": "passed",
+    "current_installed_normal_app_revision": "v42",
+    "normal_japanese_saved_inputs_preserved": 6,
+    "physical_runtime_measured": false,
+    "whole100k_inputs": 100000,
+    "whole100k_all_values_matching_rows": 100000,
+    "whole100k_differences": 0,
+    "pinned_information_numerical_compatibility": "failed-on5723rows-by-declared-stable-policy",
+    "physical_platform_build": "passed",
+    "current_ui_tests_passed": 4
+  },
+  "catalog_metadata_finalization": {
+    "calculation_revision": "ducksmiles-workbench-v42-cluster291-rdkit2026036",
+    "calculation_audit_library_sha256": "37243db55988cc222e2165069f0273f8cf106744b824cb143dee500018397ab2",
+    "final_host_library_sha256": "5f8a46346677675fe115e33deab9bed5ed8e97768886f993ba830a94e8cc4af4",
+    "unchanged_calculation_sources": 70,
+    "compiled_specs_byte_identical": true,
+    "math_catalog_fields_identical": true,
+    "fresh_original_rows_exactly_matching": 1006,
+    "individual_practical_uses": 50,
+    "pending_verification_flags": 0,
+    "apple_assets_finalization": "passed",
+    "final_normal_app_install": "app-v42/catalog-final-normal-ipad-install.json"
+  }
+}

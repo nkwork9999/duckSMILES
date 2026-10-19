@@ -48,15 +48,51 @@ fn fmix32(mut h: u32) -> u32 {
 /// Periodic table lookup. Covers the elements our SMILES parser emits.
 fn atomic_num(sym: &str) -> u32 {
     match sym {
-        "H" => 1, "He" => 2, "Li" => 3, "Be" => 4, "B" => 5,
-        "C" => 6, "N" => 7, "O" => 8, "F" => 9, "Ne" => 10,
-        "Na" => 11, "Mg" => 12, "Al" => 13, "Si" => 14, "P" => 15,
-        "S" => 16, "Cl" => 17, "Ar" => 18, "K" => 19, "Ca" => 20,
-        "Sc" => 21, "Ti" => 22, "V" => 23, "Cr" => 24, "Mn" => 25,
-        "Fe" => 26, "Co" => 27, "Ni" => 28, "Cu" => 29, "Zn" => 30,
-        "Ga" => 31, "Ge" => 32, "As" => 33, "Se" => 34, "Br" => 35,
-        "Kr" => 36, "Rb" => 37, "Sr" => 38, "Ag" => 47, "I" => 53,
-        "Cs" => 55, "Ba" => 56, "Pt" => 78, "Au" => 79, "Hg" => 80,
+        "H" => 1,
+        "He" => 2,
+        "Li" => 3,
+        "Be" => 4,
+        "B" => 5,
+        "C" => 6,
+        "N" => 7,
+        "O" => 8,
+        "F" => 9,
+        "Ne" => 10,
+        "Na" => 11,
+        "Mg" => 12,
+        "Al" => 13,
+        "Si" => 14,
+        "P" => 15,
+        "S" => 16,
+        "Cl" => 17,
+        "Ar" => 18,
+        "K" => 19,
+        "Ca" => 20,
+        "Sc" => 21,
+        "Ti" => 22,
+        "V" => 23,
+        "Cr" => 24,
+        "Mn" => 25,
+        "Fe" => 26,
+        "Co" => 27,
+        "Ni" => 28,
+        "Cu" => 29,
+        "Zn" => 30,
+        "Ga" => 31,
+        "Ge" => 32,
+        "As" => 33,
+        "Se" => 34,
+        "Br" => 35,
+        "Kr" => 36,
+        "Rb" => 37,
+        "Sr" => 38,
+        "Ag" => 47,
+        "I" => 53,
+        "Cs" => 55,
+        "Ba" => 56,
+        "Pt" => 78,
+        "Au" => 79,
+        "Hg" => 80,
         "Pb" => 82,
         _ => 0,
     }
@@ -100,6 +136,7 @@ fn bond_invariant(order: BondOrder) -> u32 {
         BondOrder::Double => 2,
         BondOrder::Triple => 3,
         BondOrder::Aromatic => 4,
+        BondOrder::Dative => 17,
     }
 }
 
@@ -140,7 +177,9 @@ pub fn morgan_invariants(mol: &Molecule, radius: u32) -> Vec<u32> {
         let mut this_round: Vec<(Vec<bool>, u32, usize)> = Vec::with_capacity(n);
 
         for atom_idx in 0..n {
-            if dead[atom_idx] { continue; }
+            if dead[atom_idx] {
+                continue;
+            }
             if bonds_of[atom_idx].is_empty() {
                 dead[atom_idx] = true;
                 continue;
@@ -260,9 +299,18 @@ mod tests {
     #[test]
     fn bit_count_grows_with_radius() {
         let mol = parse("c1ccccc1O").unwrap(); // phenol
-        let r0_pop = morgan_bits(&mol, 0, 2048).iter().map(|b| b.count_ones()).sum::<u32>();
-        let r2_pop = morgan_bits(&mol, 2, 2048).iter().map(|b| b.count_ones()).sum::<u32>();
-        assert!(r2_pop >= r0_pop, "radius-2 should set at least as many bits as radius-0");
+        let r0_pop = morgan_bits(&mol, 0, 2048)
+            .iter()
+            .map(|b| b.count_ones())
+            .sum::<u32>();
+        let r2_pop = morgan_bits(&mol, 2, 2048)
+            .iter()
+            .map(|b| b.count_ones())
+            .sum::<u32>();
+        assert!(
+            r2_pop >= r0_pop,
+            "radius-2 should set at least as many bits as radius-0"
+        );
     }
 
     #[test]
@@ -289,7 +337,7 @@ mod tests {
     #[test]
     fn caffeine_radius2_distinct_from_benzene() {
         let caffeine = morgan_bits(&parse(test_fixtures::CAFFEINE).unwrap(), 2, 2048);
-        let benzene  = morgan_bits(&parse(test_fixtures::BENZENE).unwrap(), 2, 2048);
+        let benzene = morgan_bits(&parse(test_fixtures::BENZENE).unwrap(), 2, 2048);
         assert_ne!(caffeine, benzene);
     }
 
@@ -312,7 +360,9 @@ mod tests {
         assert_eq!(scored.last().unwrap().1, 0.0);
         assert!(scored.iter().all(|(_, sim)| (0.0..=1.0).contains(sim)));
         assert!(
-            scored.iter().position(|(name, _)| *name == "salicylic acid")
+            scored
+                .iter()
+                .position(|(name, _)| *name == "salicylic acid")
                 < scored.iter().position(|(name, _)| *name == "caffeine"),
             "salicylic acid should rank above caffeine: {scored:?}"
         );
@@ -323,10 +373,16 @@ mod tests {
         // Run with: cargo test -p ducksmiles_smiles morgan::tests::popcount_report -- --nocapture
         eprintln!("\n=== ECFP4 (radius=2, 2048 bits) popcounts ===");
         for entry in test_fixtures::ECFP_REPORT_SET {
-            let mol = parse(entry.smiles).unwrap_or_else(|| panic!("parse failed for {}", entry.smiles));
+            let mol =
+                parse(entry.smiles).unwrap_or_else(|| panic!("parse failed for {}", entry.smiles));
             let bits = morgan_bits(&mol, 2, 2048);
             let pop: u32 = bits.iter().map(|b| b.count_ones()).sum();
-            eprintln!("  {:<12} ({:<2} atoms) → {} bits", entry.name, mol.atoms.len(), pop);
+            eprintln!(
+                "  {:<12} ({:<2} atoms) → {} bits",
+                entry.name,
+                mol.atoms.len(),
+                pop
+            );
         }
         eprintln!("\n=== ECFP6 (radius=3, 4096 bits) popcounts ===");
         for entry in test_fixtures::ECFP_REPORT_SET {
@@ -340,7 +396,11 @@ mod tests {
         for entry in test_fixtures::ECFP_REPORT_SET {
             let mol = parse(entry.smiles).unwrap();
             let bits = morgan_bits(&mol, 2, 2048);
-            let hex: String = bits.iter().take(8).map(|b| format!("\\x{:02x}", b)).collect();
+            let hex: String = bits
+                .iter()
+                .take(8)
+                .map(|b| format!("\\x{:02x}", b))
+                .collect();
             eprintln!("  {:<12} → {}...", entry.name, hex);
         }
     }

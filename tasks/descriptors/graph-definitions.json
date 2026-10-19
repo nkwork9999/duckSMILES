@@ -1,0 +1,179 @@
+{
+  "rdkit": "2026.03.6",
+  "descriptors": [
+    {
+      "id": "BalabanJ",
+      "title": "BalabanJ",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "BertzCT",
+      "title": "BertzCT",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi0",
+      "title": "Chi0",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi0n",
+      "title": "Chi0n",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi0v",
+      "title": "Chi0v",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi1",
+      "title": "Chi1",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi1n",
+      "title": "Chi1n",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi1v",
+      "title": "Chi1v",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi2n",
+      "title": "Chi2n",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi2v",
+      "title": "Chi2v",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi3n",
+      "title": "Chi3n",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi3v",
+      "title": "Chi3v",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi4n",
+      "title": "Chi4n",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Chi4v",
+      "title": "Chi4v",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "HallKierAlpha",
+      "title": "HallKierAlpha",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Kappa1",
+      "title": "Kappa1",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Kappa2",
+      "title": "Kappa2",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Kappa3",
+      "title": "Kappa3",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    },
+    {
+      "id": "Phi",
+      "title": "Phi",
+      "group": "Topology",
+      "unit": "",
+      "digits": 4,
+      "origin": "rdkit-standard",
+      "verification": "pending-expanded-validation"
+    }
+  ],
+  "molecules": 185,
+  "scalar_values": 3515,
+  "atomic_values": 2290
+}
