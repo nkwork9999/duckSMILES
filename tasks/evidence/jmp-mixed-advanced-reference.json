@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "module": "mixed_advanced",
+  "scope": "Gaussian repeated covariance nine structures,known GLS,profile ML/REML,correlated random slopes and portable BLUP prediction;partial numerical JMP19.2 coverage.",
+  "source_sha256": {
+    "crates/analytics/src/mixed_advanced.rs": "ac552cc093662b4347d06c9563bf1833d21a99945de7280a0ed5a9a47d336270",
+    "crates/analytics/tests/mixed_advanced.rs": "09dcf10e343992988cbf4083baa9ce27efc68e8c59783c1f738829803aa41e33",
+    "tasks/jmp-mixed-advanced-api.json": "128853d16f51efe067b5db91938b85fb0a9e7b50ef5f71d99f42703f14331147",
+    "tasks/jmp-mixed-advanced-registry.inc": "2c4b20df24b79427b60a22afc94f80cb0a960ae67bca6ec55eaa0d07b138129b"
+  },
+  "verification_layer": "Public Rust execute API. These oracle comparisons and metadata examples do not claim SQL/native execution;parent validates integration separately.",
+  "baseline": {
+    "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo check -p ducksmiles_analytics",
+    "result": "GREEN before new module/test implementation"
+  },
+  "TDD": {
+    "initial_red": "Public execute tests:9 behavior tests failed unknown optimization operation;1 broad invalid-input validation passed. This was recorded before run stub/implementation.",
+    "first_green": "10/10 tests passed after implementation and parent activation.",
+    "regression_red_green": [
+      "negative AR1 at3e9 actual lag:powi(i32) truncation yielded -0.9978548679464442 instead of +0.9970045616697369. Test failed,then parity+powf handling fixed it.",
+      "reported negative AR1 parameter when first elapsed gap even:returned+.4 instead of-.4. Test failed,then preserved supplied physical parameters and optimizer rho instead of recovering sign from one covariance."
+    ],
+    "final_focused": "16 public execute tests GREEN,including18 independent nine-family ML/REML fits,unbalanced random slopes,BLUP prediction,known GLS,nonuniform timing,missing global levels,permutations,feature translation,boundary/unidentified covariance,rank deficiency,resource/input validation,and explicit iteration limit."
+  },
+  "oracle": {
+    "seed": 892104,
+    "comparisons": 630,
+    "families": {
+      "covariance_builder": 360,
+      "known_covariance_GLS": 120,
+      "repeated_ML_REML": 54,
+      "random_slope_ML_REML": 32,
+      "portable_BLUP_prediction": 32,
+      "unit_translation_invariance": 32
+    },
+    "max_scaled_absolute_error": 1.934571859707468e-06,
+    "worst_label": "slope_G",
+    "diagnostics": [
+      [
+        0,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        1,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        2,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        3,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        4,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        5,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        6,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        7,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        8,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        0,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        1,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        2,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        3,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        4,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        5,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        6,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        7,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        8,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        0,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        1,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        2,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        3,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        4,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        5,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        6,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        7,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        8,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        0,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        1,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        2,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        3,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        4,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        5,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        6,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        7,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        8,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        0,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        1,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        2,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        3,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        4,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        5,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        6,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        7,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        8,
+        0,
+        true,
+        false,
+        true
+      ],
+      [
+        0,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        1,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        2,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        3,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        4,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        5,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        6,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        7,
+        1,
+        true,
+        false,
+        true
+      ],
+      [
+        8,
+        1,
+        true,
+        false,
+        true
+      ]
+    ],
+    "python": "3.14.3 (main, Feb  3 2026, 15:32:20) [Clang 17.0.0 (clang-1700.6.3.2)]",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "failures": 0,
+    "skipped": 0,
+    "api_layer": "public Rust execute; no SQL/native claims"
+  },
+  "reference_independence": "Builder uses direct NumPy formulas. Known GLS uses full covariance inverse. Repeated ML/REML oracle optimizes all physical covariance scales using SciPy SLSQP plus Nelder-Mead with dense inverses,unlike production profiled scale and SPD shape coordinates. Random-slope oracle uses full covariance eigendecomposition+inverse and SciPy BFGS,unlike production subject-block Cholesky+QR. Portable BLUPs compared to GZ^T V^-1 residual. Unit changes verify correct ML/REML constants.",
+  "harness_notes": [
+    "An initial oracle generator could produce an empty subject and NumPy rejected a0x0 multivariate_normal request;generator then ensures at least one observation per generated subject. No production change or silent skipped case was involved.",
+    "No project dependency added;only installed NumPy2.4.2 and SciPy1.17.1 used. Statsmodels unavailable,and no installation attempted.",
+    "All630 cases were rerun against the final source after numerical-boundary diagnostic clarification."
+  ],
+  "checks": [
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test mixed_advanced",
+      "result": "16 passed,0 failed"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy -p ducksmiles_analytics --test mixed_advanced -- -D warnings",
+      "result": "GREEN at13test stage;later workspace sibling GLMM implementation temporarily had unused warnings. No broad final crate lint claim."
+    },
+    {
+      "command": "clippy-driver --edition=2021 --crate-type lib crates/analytics/src/mixed_advanced.rs -D warnings -o /private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/libmixed_lint.rlib",
+      "result": "final owned source strict lint GREEN"
+    },
+    {
+      "command": "clippy-driver --edition=2021 --test crates/analytics/tests/mixed_advanced.rs --extern ducksmiles_analytics=/private/tmp/rusta-ducksmiles-jmp-target/debug/libducksmiles_analytics.rlib -L dependency=/private/tmp/rusta-ducksmiles-jmp-target/debug/deps -D warnings -o /private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/test_mixed_lint",
+      "result": "final owned16tests strict lint GREEN"
+    },
+    {
+      "command": "rustfmt --check crates/analytics/src/mixed_advanced.rs crates/analytics/tests/mixed_advanced.rs",
+      "result": "GREEN"
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 python3 /private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/verify.py",
+      "result": "630 cases GREEN,0skips,0failures"
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 python3 /private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/write_api.py",
+      "result": "all4metadata examples valid version1 JSON through public execute"
+    }
+  ],
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-random-coefficient-model.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-measures.shtml"
+  ],
+  "additional_primary_reference": "https://www.statsmodels.org/stable/_modules/statsmodels/regression/mixed_linear_model.html",
+  "method_limitations": {
+    "matrix": "Finite nonempty rectangular numeric data<=100000rows,1024columns,1000000cells; fitting further capped256rows/16fixednumericfeatures. Exact signed subject IDs<=2^53-1.",
+    "covariance_codes": {
+      "0": "heterogeneous diagonal [variance_per_level...]",
+      "1": "unstructured [lower triangle covariance including diagonal,row-major]",
+      "2": "compound symmetry [variance,rho]",
+      "3": "heterogeneous compound symmetry [variances...,rho]",
+      "4": "AR1 [variance,rho]",
+      "5": "Toeplitz [variance,rho_lag1,...rho_lag(m-1)]",
+      "6": "heterogeneous Toeplitz [variances...,rho_lag1,...rho_lag(m-1)]",
+      "7": "antedependent [variances...,adjacent_rho0,...adjacent_rho(m-2)]",
+      "8": "equal-variance antedependent [variance,adjacent_rho0,...adjacent_rho(m-2)]"
+    },
+    "time_semantics": "Parameters refer to sorted global time levels. AR1 covariance=variance*rho^abs(actual_elapsed_time);negative rho requires integral gaps. Toeplitz requires uniform global grid and uses lag in grid increments;missing visits retain global lag. Antedependence multiplies all intervening global adjacent correlations,including omitted visits. Other heterogeneity parameters are categorical by ordered level.",
+    "SPD": "Variances>0;correlations strictly(-1,1);CS rho>-1/(m-1);all matrices SPD at relative per-diagonal Cholesky pivot1e-12. No pseudoinverse. Full-rank whitened design relative QR threshold1e-11.",
+    "likelihood": "Exact Gaussian conditional/profile likelihood;REML includes original-design determinant,so response and feature rescaling affects restricted likelihood by the mathematically required constants. AIC/BIC counts fixed coefficients plus covariance parameters;REML comparisons require identical fixed designs. Known-covariance method2 AIC/BIC=null.",
+    "uncertainty": "coefficient_covariance/SE conditional on covariance estimate only;covariance parameter SE/CI/tests not supplied. Local profile Hessian is an identification diagnostic only. covariance_parameters_identified=false or boundary causes converged=false. optimizer_converged separately reports solver result.",
+    "covariance_boundary": "Search coordinate abs>24.9 (repeated coordinate cap25),relative variance<=1e-12,relative conditional pivot<=1e-8,or random G determinant/diagonal<=1e-8 criteria. These numerical boundary diagnostics do not provide boundary-mixture tests.",
+    "fit_limits": "Max30000likelihood evaluations and1000000000nominal blockdense work units;line search<=40trials;max1000iterations. Repeated covariance<=8levels,unstructured<=36covariance parameters. Numerical failure/invalid input/work exhaustion errors explicitly.",
+    "saved_model": "[p,response_origin,response_mean_offset,response_population_scale,standardized_intercept,feature_origins(p),feature_mean_offsets(p),feature_population_scales(p),standardized_fixed_slopes(p),n_subjects,(subject_id,normalized_intercept_BLUP,normalized_slope_BLUP)*n_subjects]. Here p includes the auto fixed slope;last fixed feature is the random slope covariate.",
+    "outputs": "coefficients ordered intercept,other fixed slopes,auto slope;standard_errors same order. fitted_values are marginal fixed-effect means. conditional_fitted_values add BLUPs. blups columns are original-unit random intercept and raw-slope coefficient. covariance_parameters uses physical layouts above."
+  },
+  "reproduction": {
+    "working_directory": "/Users/nk/Desktop/ducksmiles-analytics-20261021",
+    "artifact_directory": "/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check",
+    "build_commands": [
+      "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo build -p ducksmiles_analytics",
+      "rustc --edition=2021 /private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/runner.rs --extern ducksmiles_analytics=/private/tmp/rusta-ducksmiles-jmp-target/debug/libducksmiles_analytics.rlib -L dependency=/private/tmp/rusta-ducksmiles-jmp-target/debug/deps -o /private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/runner"
+    ],
+    "instructions": "Write each embedded script to artifact_directory,build runner with commands,run verify.py. Optional research/compact scripts recreate fixed fixtures independently.",
+    "complete_scripts": {
+      "runner.rs": "use std::io::{self,BufRead};\nfn main(){for line in io::stdin().lock().lines(){let line=line.unwrap();let p=line.split('|').collect::<Vec<_>>();let a=p[1].split(',').filter(|s|!s.is_empty()).map(|s|s.parse().unwrap()).collect::<Vec<f64>>();let d=p[2].split(';').map(|r|r.split(',').map(|s|s.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();match ducksmiles_analytics::execute(p[0],&d,&a){Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}}}\n",
+      "research.py": "import json,sys,platform\nimport numpy as np\nfrom scipy import optimize,linalg\nimport scipy\nSEED=892104\n\ndef cov(code,t,p):\n    t=np.asarray(t,float);m=len(t);p=np.asarray(p,float)\n    if code==0: return np.diag(p)\n    if code==1:\n        v=np.zeros((m,m));v[np.tril_indices(m)]=p\n        return v+v.T-np.diag(np.diag(v))\n    if code in (2,4,5,8): sd=np.repeat(np.sqrt(p[0]),m);r=p[1:]\n    else: sd=np.sqrt(p[:m]);r=p[m:]\n    if code in (2,3): c=np.full((m,m),r[0]);np.fill_diagonal(c,1)\n    elif code==4: c=r[0]**np.abs(t[:,None]-t[None,:])\n    elif code in (5,6):\n        c=np.eye(m)\n        for i in range(m):\n            for j in range(i):c[i,j]=c[j,i]=r[i-j-1]\n    elif code in (7,8):\n        c=np.eye(m)\n        for i in range(m):\n            for j in range(i): c[i,j]=c[j,i]=np.prod(r[j:i])\n    return sd[:,None]*c*sd[None,:]\n\ndef profile(y,x,v,reml):\n    # Independent oracle: full covariance eigendecomposition and dense inverse.\n    # Does not use production block Cholesky / Householder QR.\n    w,u=np.linalg.eigh(v)\n    if min(w)<=0:return None\n    vi=(u/w)@u.T\n    info=x.T@vi@x\n    sign,ldx=np.linalg.slogdet(info)\n    if sign<=0:return None\n    beta=np.linalg.solve(info,x.T@vi@y)\n    e=y-x@beta;q=e@vi@e\n    n,k=x.shape;df=n-k if reml else n\n    s=q/df\n    ll=-.5*(df*(np.log(2*np.pi)+1+np.log(s))+np.log(w).sum()+(ldx if reml else 0))\n    return dict(beta=beta,scale=s,log_likelihood=ll,covariance=np.linalg.inv(info)*s,residuals=e)\n\ndef random_fixture(reml):\n    rng=np.random.default_rng(SEED)\n    sizes=[3,4,5,3,5,4,3,5,4,5,3,5]\n    G=np.array([[1.4,.3],[.3,.6]]);sig=.22\n    u=[];y=[];g=[]\n    for i,n in enumerate(sizes):\n        tt=np.sort(rng.uniform(-1.8,2.1,n)); b=rng.multivariate_normal([0,0],G)\n        u.extend(tt); y.extend(2.3+1.2*tt+b[0]+tt*b[1]+rng.normal(0,np.sqrt(sig),n));g.extend([i]*n)\n    u=np.asarray(u);y=np.asarray(y);g=np.asarray(g)\n    x=np.c_[np.ones(len(y)),u]\n    def build(theta):\n        L=np.array([[np.exp(theta[0]),0],[theta[1],np.exp(theta[2])]])\n        gg=L@L.T;v=np.eye(len(y))\n        for group in np.unique(g):\n            ix=np.flatnonzero(g==group); z=x[ix]\n            v[np.ix_(ix,ix)]+=z@gg@z.T\n        return v,gg\n    def obj(theta):\n        try:\n            v,_=build(theta);r=profile(y,x,v,reml)\n            return -r['log_likelihood'] if r else 1e100\n        except (ValueError,OverflowError,np.linalg.LinAlgError):return 1e100\n    starts=[[-.2,.1,-.2],[.5,.2,.2],[-1,0,-1]]\n    fits=[optimize.minimize(obj,s,method='BFGS',options={'gtol':1e-8,'maxiter':1000}) for s in starts]\n    fit=min(fits,key=lambda r:r.fun)\n    v,gg=build(fit.x);r=profile(y,x,v,reml);r['G']=gg*r['scale']\n    r['theta']=fit.x;r['data']=np.c_[u,y,g]\n    vi=np.linalg.inv(v*r['scale']); e=y-x@r['beta']\n    r['blups']=[]\n    for group in np.unique(g):\n        ix=np.flatnonzero(g==group)\n        r['blups'].append(r['G']@x[ix].T@vi[np.ix_(ix,ix)]@e[ix])\n    return r\ndef serial(v):\n    if isinstance(v,np.ndarray):return v.tolist()\n    if isinstance(v,np.floating):return float(v)\n    raise TypeError(type(v))\nif __name__=='__main__':\n    out={'seed':SEED,'python':sys.version,'numpy':np.__version__,'scipy':scipy.__version__}\n    for mode in (False,True):out['random_slope_'+('REML' if mode else 'ML')]=random_fixture(mode)\n    with open('/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/fixtures.json','w') as f:json.dump(out,f,default=serial,indent=2)\n    for mode in ('ML','REML'):\n        r=out['random_slope_'+mode]\n        print(mode,'beta',r['beta'],'sigma2',r['scale'],'G',r['G'],'LL',r['log_likelihood'])\ndef repeated_fixture(code=4,reml=True):\n    rng=np.random.default_rng(SEED+code)\n    ts=np.array([0.,1.,2.,3.])\n    params={0:[.5,.9,.7,1.2],1:[1,.2,.9,.1,.25,.8,.05,.1,.3,1.1],2:[.8,.35],3:[.5,.9,.7,1.2,.35],4:[.8,.55],5:[.8,.4,.2,.1],6:[.5,.9,.7,1.2,.4,.2,.1],7:[.5,.9,.7,1.2,.3,.5,-.2],8:[.8,.3,.5,-.2]}[code]\n    c=cov(code,ts,params); rows=[]\n    for j in range(16):\n        ix=np.arange(4) if j%3 else np.array([0,2,3])\n        trt=float(j%2);x=np.c_[np.ones(len(ix)),np.repeat(trt,len(ix)),ts[ix]]\n        yy=x@np.array([1.1,.7,.35])+rng.multivariate_normal(np.zeros(len(ix)),c[np.ix_(ix,ix)])\n        rows.extend(np.c_[np.repeat(trt,len(ix)),ts[ix],yy,np.repeat(j,len(ix)),ts[ix]])\n    rows=np.array(rows);x=np.c_[np.ones(len(rows)),rows[:,:2]];y=rows[:,2]\n    v=np.zeros((len(rows),len(rows)))\n    for group in np.unique(rows[:,3]):\n        ix=np.flatnonzero(rows[:,3]==group);ti=rows[ix,4].astype(int);v[np.ix_(ix,ix)]=c[np.ix_(ti,ti)]\n    iv=np.linalg.inv(v);info=x.T@iv@x;beta=np.linalg.solve(info,x.T@iv@y);res=y-x@beta\n    ll=-.5*(len(y)*np.log(2*np.pi)+np.linalg.slogdet(v)[1]+res@iv@res)\n    return dict(data=rows,parameters=params,covariance=c,beta=beta,beta_covariance=np.linalg.inv(info),log_likelihood=ll)\nif __name__=='__main__':\n    r={str(i):repeated_fixture(i) for i in range(9)}\n    with open('/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/repeated-known-fixtures.json','w') as f:json.dump(r,f,default=serial,indent=2)\n    print('known AR1 GLS',r['4']['beta'],r['4']['log_likelihood'])\n",
+      "verify.py": "import os,sys,json,subprocess,hashlib,time\nimport numpy as np\nfrom scipy import optimize\nfrom research import cov,profile,serial\nSEED=892104\nrng=np.random.default_rng(SEED)\nproc=subprocess.Popen(['/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/runner'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)\nchecks=0;worst=(0,None);families={};diagnostics=[]\ndef run(op,data,args=[]):\n line=op+'|'+','.join(map(str,args))+'|'+ ';'.join(','.join(map(str,row)) for row in data)\n proc.stdin.write(line+'\\n');proc.stdin.flush();out=proc.stdout.readline().strip()\n if out.startswith('ERROR'):raise AssertionError((op,out))\n r=json.loads(out);assert r['version']==1\n return r\ndef close(a,b,label,rtol=2e-5,atol=2e-7):\n global worst\n a=np.asarray(a);b=np.asarray(b)\n assert a.shape==b.shape,(label,a.shape,b.shape)\n err=np.max(np.abs(a-b)/np.maximum(1,np.abs(b))) if a.size else 0.\n if err>worst[0]:worst=(float(err),label)\n assert np.allclose(a,b,rtol=rtol,atol=atol),(label,err,a,b)\ndef count(name):\n global checks\n checks+=1;families[name]=families.get(name,0)+1\ndef parameters(code,m):\n v=np.exp(rng.uniform(-1.5,1.5,m))\n if code==0:return v\n if code==1:\n  L=np.tril(rng.normal(0,.2,(m,m)));L[np.diag_indices(m)]=np.sqrt(v);C=L@L.T;return C[np.tril_indices(m)]\n if code==2:return [v[0],rng.uniform(-.1,.65)]\n if code==3:return np.r_[v,rng.uniform(-.1,.65)]\n if code==4:return [v[0],rng.uniform(.1,.8)]\n if code==5:return np.r_[v[0],.6**np.arange(1,m)]\n if code==6:return np.r_[v,.6**np.arange(1,m)]\n if code==7:return np.r_[v,rng.uniform(-.65,.65,m-1)]\n return np.r_[v[0],rng.uniform(-.65,.65,m-1)]\ndef block_cov(data,C):\n V=np.zeros((len(data),len(data)));ts=np.unique(data[:,-1])\n for gid in np.unique(data[:,-2]):\n  ix=np.flatnonzero(data[:,-2]==gid);ti=np.searchsorted(ts,data[ix,-1]);V[np.ix_(ix,ix)]=C[np.ix_(ti,ti)]\n return V\ndef known_oracle(data,C):\n p=data.shape[1]-3;x=np.c_[np.ones(len(data)),data[:,:p]];y=data[:,p];V=block_cov(data,C)\n vi=np.linalg.inv(V);info=x.T@vi@x;b=np.linalg.solve(info,x.T@vi@y);e=y-x@b\n ll=-.5*(len(y)*np.log(2*np.pi)+np.linalg.slogdet(V)[1]+e@vi@e)\n return b,np.linalg.inv(info),x@b,ll\nfor k in range(360):\n code=k%9;m=int(rng.integers(2,7));t=np.arange(m,dtype=float)\n if code==4 and k%2:t=np.cumsum(rng.uniform(.3,1.8,m));t-=t[0]\n p=parameters(code,m);C=cov(code,t,p)\n r=run('repeated_covariance',t[:,None],[code,*p]);close(r['covariance'],C,'builder',1e-12,1e-12)\n count('covariance_builder')\nfor k in range(120):\n code=k%9;m=int(rng.integers(3,6));t=np.arange(m,dtype=float);p=parameters(code,m);C=cov(code,t,p)\n rows=[];nf=k%3\n for group in range(5):\n  ix=np.arange(m) if group<2 else np.flatnonzero(rng.random(m)>.2)\n  if len(ix)==0:ix=np.array([0])\n  feats=rng.normal(size=(len(ix),nf));x=np.c_[np.ones(len(ix)),feats]\n  y=x@np.arange(1,nf+2)/3+rng.multivariate_normal(np.zeros(len(ix)),C[np.ix_(ix,ix)])\n  rows.extend(np.c_[feats,y,np.repeat(group,len(ix)),t[ix]])\n rows=np.array(rows);r=run('repeated_model',rows,[code,2,300,1e-8,*p]);b,bc,f,ll=known_oracle(rows,C)\n close(r['coefficients'],b,'known_beta',1e-10,1e-10);close(r['coefficient_covariance'],bc,'known_cov',1e-10,1e-10);close(r['fitted_values'],f,'known_fitted',1e-10,1e-10);close(r['log_likelihood'],ll,'known_ll',1e-10,1e-10)\n count('known_covariance_GLS')\n\ndef repeated_oracle(data,code,init,reml):\n # Full physical covariance parameters with every scale optimized explicitly.\n m=len(np.unique(data[:,-1]));t=np.unique(data[:,-1]);p=data.shape[1]-3;x=np.c_[np.ones(len(data)),data[:,:p]];y=data[:,p]\n ns=m if code in [0,3,6,7] else 1\n if code==1:\n  L=np.linalg.cholesky(cov(code,t,init));L[np.diag_indices(m)]=np.log(L[np.diag_indices(m)]);th=L[np.tril_indices(m)]\n else:th=np.r_[np.log(init[:ns]),init[ns:]]\n def decode(th):\n  if code==1:\n   L=np.zeros((m,m));L[np.tril_indices(m)]=th;L[np.diag_indices(m)]=np.exp(L[np.diag_indices(m)]);return L@L.T\n  return cov(code,t,np.r_[np.exp(th[:ns]),th[ns:]])\n def objective(th,full=False):\n  try:\n   C=decode(th);e=np.linalg.eigvalsh(C)\n   if min(e)<1e-9:return 1e30\n   V=block_cov(data,C);vi=np.linalg.inv(V);info=x.T@vi@x;b=np.linalg.solve(info,x.T@vi@y);res=y-x@b\n   ll=-.5*((len(y)-x.shape[1] if reml else len(y))*np.log(2*np.pi)+np.linalg.slogdet(V)[1]+res@vi@res+(np.linalg.slogdet(info)[1] if reml else 0))\n   return (ll,b,C) if full else -ll\n  except (ValueError,np.linalg.LinAlgError,OverflowError):return 1e30\n bounds=None if code==1 else [(-12,12)]*ns+[(-.98,.98)]*(len(th)-ns)\n s=optimize.minimize(objective,th,method='SLSQP',bounds=bounds,options={'ftol':1e-10,'maxiter':1000})\n nm=optimize.minimize(objective,s.x,method='Nelder-Mead',options={'xatol':1e-8,'fatol':1e-10,'maxiter':3000})\n best=min([s,nm],key=lambda r:r.fun)\n return objective(best.x,True)\nfor k in range(54):\n code=k%9;reml=(k//9)%2;m=4;t=np.arange(m,dtype=float);p=parameters(code,m);C=cov(code,t,p);rows=[]\n for group in range(16):\n  ix=np.arange(m) if group%3 else np.array([0,2,3])\n  y=.7+.3*t[ix]+.5*(group%2)+rng.multivariate_normal(np.zeros(len(ix)),C[np.ix_(ix,ix)])\n  rows.extend(np.c_[np.repeat(group%2,len(ix)),t[ix],y,np.repeat(group,len(ix)),t[ix]])\n rows=np.array(rows);r=run('repeated_model',rows,[code,reml,600,1e-9]);ll,b,CC=repeated_oracle(rows,code,np.array(p),reml)\n close(r['log_likelihood'],ll,'repeated_ll',1e-7,1e-7);close(r['coefficients'],b,'repeated_beta',3e-4,3e-5);close(r['covariance_by_level'],CC,'repeated_cov',3e-4,3e-5)\n assert r['optimizer_converged'],('repeated optimizer',code,reml,r['gradient_norm'])\n diagnostics.append([code,reml,r['converged'],r['variance_boundary'],r['covariance_parameters_identified']])\n count('repeated_ML_REML')\n\ndef slope_oracle(data,reml):\n u,y,g=data.T;x=np.c_[np.ones(len(y)),u]\n def decode(th):\n  L=np.array([[np.exp(th[0]),0],[th[1],np.exp(th[2])]]);G=L@L.T;V=np.eye(len(y))\n  for gid in np.unique(g):\n   ix=np.flatnonzero(g==gid);V[np.ix_(ix,ix)]+=x[ix]@G@x[ix].T\n  return G,V\n def obj(th):\n  try:\n   G,V=decode(th);r=profile(y,x,V,reml);return -r['log_likelihood']\n  except (ValueError,OverflowError,np.linalg.LinAlgError):return 1e100\n fits=[optimize.minimize(obj,s,method='BFGS',options={'gtol':1e-8,'maxiter':1000}) for s in [[1,0,1],[0,.2,0]]]\n fit=min(fits,key=lambda r:r.fun);G,V=decode(fit.x);r=profile(y,x,V,reml);G*=r['scale'];V*=r['scale'];vi=np.linalg.inv(V);e=y-x@r['beta'];conditional=x@r['beta']\n for gid in np.unique(g):\n  ix=np.flatnonzero(g==gid);b=G@x[ix].T@vi[np.ix_(ix,ix)]@e[ix];conditional[ix]+=x[ix]@b\n return r,G,conditional\nfor k in range(32):\n rows=[];reml=k%2\n for g in range(16):\n  nn=int(rng.integers(3,7));u=np.sort(rng.uniform(-2,2,nn));b=rng.multivariate_normal([0,0],[[1,.25],[.25,.6]])\n  y=2.+.8*u+b[0]+b[1]*u+rng.normal(0,.25,nn);rows.extend(np.c_[u,y,np.repeat(g,nn)])\n data=np.array(rows);r=run('random_slope_model',data,[reml,600,1e-9]);ref,G,cond=slope_oracle(data,reml)\n close(r['coefficients'],ref['beta'],'slope_beta',2e-5,2e-6);close(r['log_likelihood'],ref['log_likelihood'],'slope_ll',1e-7,1e-7);close(r['residual_variance'],ref['scale'],'slope_scale',2e-5,2e-6);close(r['random_effect_covariance'],G,'slope_G',2e-5,2e-6);close(r['conditional_fitted_values'],cond,'BLUP',2e-5,2e-6)\n assert r['converged'],('slope convergence',k,r['gradient_norm'])\n count('random_slope_ML_REML')\n pp=run('random_slope_predict',data[:,[0,2]],r['predict_parameters']);close(pp['predictions'],cond,'portable_predict',2e-5,2e-6);count('portable_BLUP_prediction')\n data[:,0]=data[:,0]*2.5+1e6;data[:,1]=data[:,1]*3.5+7\n shifted=run('random_slope_model',data,[reml,600,1e-9]);close(shifted['conditional_fitted_values'],cond*3.5+7,'units_predict',2e-5,2e-6)\n delta=-(len(data)-2 if reml else len(data))*np.log(3.5)-(np.log(2.5) if reml else 0)\n close(shifted['log_likelihood'],ref['log_likelihood']+delta,'units_ll',1e-7,1e-7);count('unit_translation_invariance')\nproc.stdin.close();proc.wait()\nout=dict(seed=SEED,comparisons=checks,families=families,max_scaled_absolute_error=worst[0],worst_label=worst[1],diagnostics=diagnostics,python=sys.version,numpy=np.__version__,scipy=__import__('scipy').__version__,failures=0,skipped=0,api_layer='public Rust execute; no SQL/native claims')\nprint(json.dumps(out,indent=2));json.dump(out,open('/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/oracle-summary.json','w'),indent=2)\n",
+      "fit_repeated.py": "from research import *\ndef fit_known_fixture(code,reml):\n r=repeated_fixture(code);rows=r['data'];t=np.unique(rows[:,-1]);m=len(t);y=rows[:,2];x=np.c_[np.ones(len(rows)),rows[:,:2]]\n groups=[np.flatnonzero(rows[:,3]==g) for g in np.unique(rows[:,3])]\n def decode(th):\n  if code==1:\n   L=np.zeros((m,m));L[np.tril_indices(m)]=th\n   L[np.diag_indices(m)]=np.exp(L[np.diag_indices(m)])\n   V=L@L.T;return V,V[np.tril_indices(m)]\n  ns=m if code in (0,3,6,7) else 1\n  p=np.r_[np.exp(th[:ns]),th[ns:]]\n  return cov(code,t,p),p\n p=np.array(r['parameters']);ns=m if code in (0,3,6,7) else 1\n if code==1:\n  L=np.linalg.cholesky(r['covariance']);L[np.diag_indices(m)]=np.log(L[np.diag_indices(m)]);th=L[np.tril_indices(m)]\n else:th=np.r_[np.log(p[:ns]),p[ns:]]\n def evaluate(th):\n  C,_=decode(th)\n  ev=np.linalg.eigvalsh(C)\n  if min(ev)<=1e-10:return 1e30\n  V=np.zeros((len(y),len(y)))\n  for ix in groups:\n   ti=rows[ix,-1].astype(int);V[np.ix_(ix,ix)]=C[np.ix_(ti,ti)]\n  vi=np.linalg.inv(V);info=x.T@vi@x;b=np.linalg.solve(info,x.T@vi@y);e=y-x@b\n  ll=-.5*((len(y)-x.shape[1] if reml else len(y))*np.log(2*np.pi)+np.linalg.slogdet(V)[1]+e@vi@e+(np.linalg.slogdet(info)[1] if reml else 0))\n  return -ll\n # Unlike production profile-shape parameterization: optimize all physical scale\n # parameters, using SLSQP and explicit positive eigenvalue constraint.\n bounds=None if code==1 else [(-12,12)]*ns+[(-.98,.98)]*(len(th)-ns)\n fits=[optimize.minimize(evaluate,th,method='SLSQP',bounds=bounds,options={'ftol':1e-11,'maxiter':1000}),\n       optimize.minimize(evaluate,th,method='Nelder-Mead',options={'xatol':1e-9,'fatol':1e-10,'maxiter':4000})]\n fit=min(fits,key=lambda z:z.fun);C,p=decode(fit.x)\n return dict(parameters=p,covariance=C,log_likelihood=-fit.fun,success=bool(fit.success),message=fit.message)\nif __name__=='__main__':\n out={}\n for c in range(9):\n  for reml in (False,True):\n   k=f'{c}_{int(reml)}';out[k]=fit_known_fixture(c,reml);print(k,out[k]['success'],out[k]['log_likelihood'])\n json.dump(out,open('/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/repeated-fit-fixtures.json','w'),default=serial,indent=2)\n",
+      "compact_fixture.py": "from research import *\ndef compact_random_rows():\n rows=[]\n for g,n in enumerate([3,4,5,3,4,5,3,5]):\n  for j in range(n):\n   u=-1.5+3*j/(n-1)+.07*g\n   y=2.3+1.2*u+.9*np.sin(g*1.17)+(.6*np.cos(g*.91))*u+.2*np.sin(j*2.31+g*.57)\n   rows.append([u,y,g])\n return np.array(rows)\ndef fit_compact(reml):\n rows=compact_random_rows();u,y,g=rows.T;x=np.c_[np.ones(len(rows)),u]\n def decode(th):\n  L=np.array([[np.exp(th[0]),0],[th[1],np.exp(th[2])]])\n  G=L@L.T;V=np.eye(len(rows))\n  for gid in np.unique(g):\n   ix=np.flatnonzero(g==gid);V[np.ix_(ix,ix)]+=x[ix]@G@x[ix].T\n  return G,V\n def obj(th):\n  G,V=decode(th);r=profile(y,x,V,reml);return -r['log_likelihood']\n fits=[optimize.minimize(obj,s,method='BFGS',options={'gtol':1e-9,'maxiter':500}) for s in [[1,0,1],[.2,0,.2],[0,.5,-1]]]\n f=min(fits,key=lambda f:f.fun);G,V=decode(f.x);r=profile(y,x,V,reml);r['G']=G*r['scale'];r['data']=rows\n return r\nif __name__=='__main__':\n o={k:fit_compact(k=='REML') for k in ['ML','REML']}\n print(json.dumps(o,default=serial,indent=2))\n",
+      "compact_repeated.py": "import fit_repeated as fr\nfrom research import *\ndef compact_repeated(code):\n r=repeated_fixture(code);rows=[]\n for g in range(16):\n  for t in range(4):\n   if g%3==0 and t==1:continue\n   y=1.1+.7*(g%2)+.35*t+.6*np.sin(g*.7)+.3*np.cos(g*1.3)*t+.5*np.sin(g*1.7+t*2.1)\n   rows.append([g%2,t,y,g,t])\n r['data']=np.array(rows);return r\nfr.repeated_fixture=compact_repeated\nif __name__=='__main__':\n out={}\n for c in range(9):\n  for reml in [False,True]:\n   k=f'{c}_{int(reml)}';out[k]=fr.fit_known_fixture(c,reml);print(k,out[k]['log_likelihood'],out[k]['success'])\n json.dump(out,open('/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check/compact-repeated-fit.json','w'),default=serial,indent=2)\n",
+      "write_api.py": "import json,sys,subprocess,hashlib\nfrom pathlib import Path\nsys.path.insert(0,'/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check')\nfrom compact_fixture import compact_random_rows\nROOT=Path('/Users/nk/Desktop/ducksmiles-analytics-20261021');D=Path('/private/tmp/rusta-ducksmiles-jmp-target/mixed-advanced-check')\ndef request(op,data,args):\n line=op+'|'+','.join(map(str,args))+'|'+ ';'.join(','.join(map(str,row)) for row in data)+'\\n'\n s=subprocess.run([str(D/'runner')],input=line,text=True,capture_output=True,check=True).stdout\n if s.startswith('ERROR'):raise ValueError(s)\n return json.loads(s)\nrefs=[\n 'https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml',\n 'https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-random-coefficient-model.shtml',\n 'https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-measures.shtml',\n 'https://www.statsmodels.org/stable/_modules/statsmodels/regression/mixed_linear_model.html']\nslopes=compact_random_rows().tolist();sfit=request('random_slope_model',slopes,[])\ngls=[[0.,1.1,0.,0.],[1.,1.8,0.,1.],[2.,2.1,0.,2.],[0.,.8,1.,0.],[2.,2.4,1.,2.],[0.,1.4,2.,0.],[1.,1.9,2.,1.],[2.,2.8,2.,2.]]\nspecs=[\n ('repeated_covariance','RepeatedCovariance','Nine repeated covariance matrices: scalar increasing times; [structure_code, physical parameters...].',[[0.],[1.],[2.]],[4.,1.,.5],\n  '2..64 scalar strictly increasing global time levels.',\n  ['structure_code integer0..8','complete physical covariance parameters for the selected code'],\n  'Direct documented variance/correlation formulas; Cholesky verifies SPD with pivots relative to each original diagonal.',\n  ['Covariance parameter estimation (use repeated_model)','spatial covariance families','nonuniform Toeplitz grids'],\n  'covariance',[[1.,.5,.25],[.5,1.,.5],[.25,.5,1.]]),\n ('repeated_model','RepeatedModel','Gaussian repeated measures: [features...,y,subject,time]; [structure,method=1,maxiter=300,tolerance=1e-8,known covariance if method2].',gls,[4.,2.,300.,1e-8,.7,.4],\n  '0..16 numeric fixed features followed by response, exact integer subject id, actual time. Intercept is automatic. <=256 rows,2..8 global levels,unique subject/time,>=2 subjects and within-subject replication.',\n  ['structure_code integer0..8','method0ML/1REML(default)/2known-covariance GLS','max_iterations integer1..1000,default300','tolerance1e-12..1e-3,default1e-8; gradient norm convergence sqrt(tolerance) clamped[1e-7,1e-5]','method2 only: complete physical covariance parameters; method0/1 prohibit extra values'],\n  'Independent-subject Gaussian likelihood. Subject-block Cholesky whitening and Householder QR compute GLS. ML profiles scale with n;REML with n-p and original-design determinant correction. Shape uses SPD Cholesky/PACF/partial-correlation coordinates and finite-difference BFGS. Method2 uses the supplied covariance without estimating a residual scale. Coefficient covariance conditions on estimated covariance parameters; no small-sample correction. Hessian of profile objective diagnoses local identification. Unconverged/boundary/unidentified solutions are explicit flags,never converged=true.',\n  ['simultaneous random G-side plus structured R-side model','Kenward-Roger/Satterthwaite or covariance-parameter SE/CI/tests','automatic covariance selection','repeated-model portable prediction','likelihood comparison of REML models with different fixed designs'],\n  'coefficients',[1.1040760869565218,.6666666666666667]),\n ('random_slope_model','RandomSlopeModel','Correlated Gaussian random slopes: [other_features...,slope,y,subject]; [method=1,maxiter=300,tolerance=1e-8].',slopes,[],\n  '0..15 other numeric features followed by numeric slope covariate,response,exact integer subject id. Intercept and slope are included as fixed and correlated random effects. <=256 rows,<=16 total fixed numeric features,>=3 subjects,within-subject replication.',\n  ['method0ML/1REML(default)','max_iterations integer1..1000,default300','tolerance1e-12..1e-3,default1e-8; gradient norm convergence sqrt(tolerance) clamped[1e-7,1e-5]'],\n  'Gaussian marginal covariance sigma2 I + Z G Z^T with positive-semidefinite 2x2 G from a free lower factor. True profile ML/REML,origin-relative numerical standardization,conditional GLS covariance,group BLUPs G Z^T V^-1 residual. Random covariance/BLUPs reported for original raw slope units; portable model retains normalized coordinates. Boundary singular G returns variance_boundary=true and converged=false,even if optimizer converged.',\n  ['crossed/nested multiple grouping factors','multiple random slope covariates','structured residual covariance jointly with G','GLMM','covariance-parameter SE/CI/tests or small-sample df corrections'],\n  'coefficients',[2.471342534219114,1.2706739077161133]),\n ('random_slope_predict','RandomSlopePredict','Saved random slope prediction: [other_features...,slope,subject]; exact returned predict_parameters.',[[0.,0.],[.5,999.]],sfit['predict_parameters'],\n  'Same fixed features/slope order as training,followed by exact integer subject id. Finite rectangular matrix<=100000 rows/1000000 cells.',\n  ['exact predict_parameters from random_slope_model; layout in common_contract'],\n  'Reuses training feature/response references. Known subjects receive stored normalized random intercept+slope BLUPs;unknown subjects receive zero random effects. Returns conditional predictions,marginal predictions,and known_subjects flags.',\n  ['refitting new subject effects','prediction intervals','parameter-uncertainty propagation'],\n  'known_subjects',[True,False])\n]\nops=[];fragment=['// Gaussian repeated covariance/GLS/ML/REML and correlated random slopes.']\nfor op,symbol,desc,data,args,datadoc,argdoc,est,unsupported,key,value in specs:\n result=request(op,data,args)\n sql='chem_'+op+'('+json.dumps(data,separators=(',',':'))+', '+json.dumps(args,separators=(',',':'))+')'\n item=dict(operation=op,symbol=symbol,sql_name='chem_'+op,source='crates/analytics/src/mixed_advanced.rs',description=desc,data=datadoc,args=argdoc,estimator=est,sql_example=sql,known_value={key:value},fixture=dict(data=data,args=args),unsupported=unsupported,official_references=refs[:3],reference=refs[-1],evidence='tasks/evidence/jmp-mixed-advanced-reference.json')\n ops.append(item)\n fragment.append('ANALYTICS_METHOD('+symbol+','+','.join(json.dumps(x) for x in ['chem_'+op,op,desc,sql])+')')\napi=dict(schema_version=1,module='mixed_advanced',module_path='crates/analytics/src/mixed_advanced.rs',source='crates/analytics/src/mixed_advanced.rs',\n scope='Four bounded CPU Gaussian covariance/mixed-model operations covering nine repeated covariance families;partial JMP19.2 numerical coverage.',\n integration_status='Parent public execute routes enabled;16focusedtests pass. NativeSQL validation is owned by parent.',\n common_contract=dict(\n  matrix='Finite nonempty rectangular numeric data<=100000rows,1024columns,1000000cells; fitting further capped256rows/16fixednumericfeatures. Exact signed subject IDs<=2^53-1.',\n  covariance_codes={'0':'heterogeneous diagonal [variance_per_level...]','1':'unstructured [lower triangle covariance including diagonal,row-major]','2':'compound symmetry [variance,rho]','3':'heterogeneous compound symmetry [variances...,rho]','4':'AR1 [variance,rho]','5':'Toeplitz [variance,rho_lag1,...rho_lag(m-1)]','6':'heterogeneous Toeplitz [variances...,rho_lag1,...rho_lag(m-1)]','7':'antedependent [variances...,adjacent_rho0,...adjacent_rho(m-2)]','8':'equal-variance antedependent [variance,adjacent_rho0,...adjacent_rho(m-2)]'},\n  time_semantics='Parameters refer to sorted global time levels. AR1 covariance=variance*rho^abs(actual_elapsed_time);negative rho requires integral gaps. Toeplitz requires uniform global grid and uses lag in grid increments;missing visits retain global lag. Antedependence multiplies all intervening global adjacent correlations,including omitted visits. Other heterogeneity parameters are categorical by ordered level.',\n  SPD='Variances>0;correlations strictly(-1,1);CS rho>-1/(m-1);all matrices SPD at relative per-diagonal Cholesky pivot1e-12. No pseudoinverse. Full-rank whitened design relative QR threshold1e-11.',\n  likelihood='Exact Gaussian conditional/profile likelihood;REML includes original-design determinant,so response and feature rescaling affects restricted likelihood by the mathematically required constants. AIC/BIC counts fixed coefficients plus covariance parameters;REML comparisons require identical fixed designs. Known-covariance method2 AIC/BIC=null.',\n  uncertainty='coefficient_covariance/SE conditional on covariance estimate only;covariance parameter SE/CI/tests not supplied. Local profile Hessian is an identification diagnostic only. covariance_parameters_identified=false or boundary causes converged=false. optimizer_converged separately reports solver result.',\n  covariance_boundary='Search coordinate abs>24.9 (repeated coordinate cap25),relative variance<=1e-12,relative conditional pivot<=1e-8,or random G determinant/diagonal<=1e-8 criteria. These numerical boundary diagnostics do not provide boundary-mixture tests.',\n  fit_limits='Max30000likelihood evaluations and1000000000nominal blockdense work units;line search<=40trials;max1000iterations. Repeated covariance<=8levels,unstructured<=36covariance parameters. Numerical failure/invalid input/work exhaustion errors explicitly.',\n  saved_model='[p,response_origin,response_mean_offset,response_population_scale,standardized_intercept,feature_origins(p),feature_mean_offsets(p),feature_population_scales(p),standardized_fixed_slopes(p),n_subjects,(subject_id,normalized_intercept_BLUP,normalized_slope_BLUP)*n_subjects]. Here p includes the auto fixed slope;last fixed feature is the random slope covariate.',\n  outputs='coefficients ordered intercept,other fixed slopes,auto slope;standard_errors same order. fitted_values are marginal fixed-effect means. conditional_fitted_values add BLUPs. blups columns are original-unit random intercept and raw-slope coefficient. covariance_parameters uses physical layouts above.'\n ),operations=ops,official_references=refs[:3],additional_primary_reference=refs[-1],evidence='tasks/evidence/jmp-mixed-advanced-reference.json')\n(ROOT/'tasks/jmp-mixed-advanced-api.json').write_text(json.dumps(api,indent=2)+'\\n')\n(ROOT/'tasks/jmp-mixed-advanced-registry.inc').write_text('\\n'.join(fragment)+'\\n')\nprint('API examples validated',len(ops),'registry entries',len(fragment)-1)\n"
+    }
+  },
+  "toolchain": {
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)"
+  }
+}

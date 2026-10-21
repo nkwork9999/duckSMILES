@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "module": "design_classical",
+  "module_path": "crates/analytics/src/design_classical.rs",
+  "source": "crates/analytics/src/design_classical.rs",
+  "scope": "Six bounded classical plan constructors,partial JMP19.2 DOE numerical coverage. Complete factorial treatment structure is explicit only for split/strip;BIBDs and mixed orthogonal arrays are not mislabeled full factorial.",
+  "integration_status": "Parent pubmod/public execute6routes enabled;11public execute tests GREEN. NativeSQL unknown-function RED observed on old181snapshot;updated native GREEN pending parent gate.",
+  "common_contract": {
+    "input": "Finite rectangular nonempty data<=4096rows,64columns,1000000cells;operation-specific stricter bounds. Treatment plans require distinct treatment rows;IDs refer to input row positions.",
+    "output": "Design<=16384runs and1000000setting cells. IDs zero-based except run_order1based. Physical row order is execution order;blocks/whole plots remain contiguous.",
+    "randomization": "SplitMix64(seed) with rejection-sampled unbiased Fisher-Yates;seed exact0..2^53-1,including0. Repeat seed and inputs reproduce output. RNG is deterministic construction,not cryptographic.",
+    "block_information": "IncidenceN[treatment,block],pair_concurrence=N N^T (diagonal treatment replication),treatment_information=diag(replication)-N N^T/block_size. Connected complete/BIBD designs have rankv-1;contrast information is adjusted for block effects.",
+    "BIBD_limits": "v3..9,k2..4,k<v,lambda1..3,b<=128;backtracking nodes<=100000 andcandidate feasibility checks<=5000000. Errors distinguish unsupported parameter scope,no_solution (violated necessary equations or exhaustive search completed),search_limit (budget exhausted;existence undetermined). Repeated blocks allowed when lambda>1.",
+    "split_strip": "Hard-factor treatment combinations havea=2^(role0factor count),easy/column combinationsb=2^(role1factor count). Replicate labels are blocking strata. inference_ready only diagnoses positive classical replication error df;response inference is never performed.",
+    "OA": "L4<=3binary,L8<=7binary,L9<=4ternary,L18<=1binary+7ternary. Only catalog column subsets;coded levels0..L-1. Main effects orthogonal,interactions may be aliased. No robust-design response analysis.",
+    "limitations": "No general custom-optimal design search,no ANOVA/REML fitting in these constructors,no arbitrary mixed-level/IBD/resolvability claims."
+  },
+  "operations": [
+    {
+      "operation": "rcbd_design",
+      "symbol": "RcbdDesign",
+      "sql_name": "chem_rcbd_design",
+      "source": "crates/analytics/src/design_classical.rs",
+      "description": "Randomized complete blocks: distinct treatment rows; [blocks,seed=0].",
+      "data": "2..256distinct treatment-setting rows,1..16numeric columns. Each input row is one treatment.",
+      "args": [
+        "blocks integer1..1024(required)",
+        "seed exact nonnegative integer<=2^53-1,default0"
+      ],
+      "estimator": "Each block contains every input treatment once. Fisher-Yates randomizes treatment order within each complete block;blocks remain contiguous. Returns treatment/block/run IDs,replications,pair concurrence and block-adjusted treatment information.",
+      "sql_example": "chem_rcbd_design([[0.0],[1.0],[2.0],[3.0]], [3.0,42.0])",
+      "known_value": {
+        "n_blocks": 3,
+        "block_size": 4,
+        "replication": [
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0
+          ],
+          [
+            1.0
+          ],
+          [
+            2.0
+          ],
+          [
+            3.0
+          ]
+        ],
+        "args": [
+          3.0,
+          42.0
+        ]
+      },
+      "unsupported": [
+        "arbitrary optimal blocking",
+        "response-model fitting",
+        "BIBD incomplete blocks"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml"
+      ],
+      "reference": "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm",
+      "evidence": "tasks/evidence/jmp-design-classical-reference.json"
+    },
+    {
+      "operation": "balanced_incomplete_block",
+      "symbol": "BalancedIncompleteBlock",
+      "sql_name": "chem_balanced_incomplete_block",
+      "source": "crates/analytics/src/design_classical.rs",
+      "description": "Exact balanced incomplete blocks: distinct treatments<=9; [block_size,lambda=1,seed=0].",
+      "data": "3..9distinct treatment-setting rows,1..16numeric columns.",
+      "args": [
+        "block_size integer2..4,strictly less than treatment count",
+        "lambda integer1..3,default1",
+        "seed exact nonnegative integer<=2^53-1,default0"
+      ],
+      "estimator": "Exact pair/replication-constrained BIBD. Integer equations determine r=lambda(v-1)/(k-1),b=vr/k. Search may use repeated blocks and fixes first block by treatment-label symmetry;certified binary affine construction handles(v,k,lambda)=(8,4,3),cyclic Z9 difference-family handles(9,4,3). Randomized treatment relabeling,block order and within-block order preserve exact incidence. No solver dependency in Rust.",
+      "sql_example": "chem_balanced_incomplete_block([[0.0],[1.0],[2.0],[3.0],[4.0],[5.0],[6.0]], [3.0,1.0,7.0])",
+      "known_value": {
+        "n_blocks": 7,
+        "block_size": 3,
+        "replication": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0
+          ],
+          [
+            1.0
+          ],
+          [
+            2.0
+          ],
+          [
+            3.0
+          ],
+          [
+            4.0
+          ],
+          [
+            5.0
+          ],
+          [
+            6.0
+          ]
+        ],
+        "args": [
+          3.0,
+          1.0,
+          7.0
+        ]
+      },
+      "unsupported": [
+        "arbitrary unbalanced incomplete block optimization",
+        "v>9,k>4,lambda>3",
+        "guaranteed completion outside bounded work budget"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml"
+      ],
+      "reference": "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm",
+      "evidence": "tasks/evidence/jmp-design-classical-reference.json"
+    },
+    {
+      "operation": "resolvable_incomplete_block",
+      "symbol": "ResolvableIncompleteBlock",
+      "sql_name": "chem_resolvable_incomplete_block",
+      "source": "crates/analytics/src/design_classical.rs",
+      "description": "Resolvable affine incomplete blocks: q^2 treatment rows,q=2/3/5/7; [seed=0].",
+      "data": "q^2distinct treatment-setting rows,prime q in{2,3,5,7};1..16numeric columns.",
+      "args": [
+        "seed exact nonnegative integer<=2^53-1,default0"
+      ],
+      "estimator": "Affine-plane lines over prime finite field Fq:vertical plus q slope classes. v=q^2,k=q,r=q+1,b=q(q+1),lambda1. Each parallel class partitions all treatments once. Seed randomizes treatment labels,class/block order and order within block;parallel_class_ids explicitly retain class structure. This is a resolvable BIBD family,not an arbitrary resolvable-design search.",
+      "sql_example": "chem_resolvable_incomplete_block([[0.0],[1.0],[2.0],[3.0],[4.0],[5.0],[6.0],[7.0],[8.0]], [17.0])",
+      "known_value": {
+        "n_blocks": 12,
+        "block_size": 3,
+        "replication": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0
+          ],
+          [
+            1.0
+          ],
+          [
+            2.0
+          ],
+          [
+            3.0
+          ],
+          [
+            4.0
+          ],
+          [
+            5.0
+          ],
+          [
+            6.0
+          ],
+          [
+            7.0
+          ],
+          [
+            8.0
+          ]
+        ],
+        "args": [
+          17.0
+        ]
+      },
+      "unsupported": [
+        "composite finite fields such as q4",
+        "arbitrary resolvable BIBD parameters",
+        "generic meaning of RIBD as any randomized incomplete plan"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml"
+      ],
+      "reference": "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm",
+      "evidence": "tasks/evidence/jmp-design-classical-reference.json"
+    },
+    {
+      "operation": "split_plot_design",
+      "symbol": "SplitPlotDesign",
+      "sql_name": "chem_split_plot_design",
+      "source": "crates/analytics/src/design_classical.rs",
+      "description": "Classical two-level split plot: factor rows[low,high,role0whole/1subplot]; [replicates=1,seed=0].",
+      "data": "2..12factor rows[finite low<high,role0whole-plot/1subplot];both roles required.",
+      "args": [
+        "replicates integer1..256,default1",
+        "seed exact nonnegative integer<=2^53-1,default0"
+      ],
+      "estimator": "Complete two-level factorial treatment structure crossed with replicate blocks. Whole treatment combinations are randomized per replicate and held constant over contiguous whole plots. All subplot combinations randomize independently inside each whole plot. Returns replicate/whole-plot/treatment IDs and aggregate classical replication error df[(r-1)(a-1),a(r-1)(b-1)]. Replicate1produces a plan with zero replication error df and inference_ready=false. No response inference performed.",
+      "sql_example": "chem_split_plot_design([[0.0,1.0,0.0],[2.0,3.0,1.0],[4.0,5.0,1.0]], [2.0,31.0])",
+      "known_value": {
+        "replication_error_df": [
+          1,
+          6
+        ],
+        "inference_ready": true
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            2.0,
+            3.0,
+            1.0
+          ],
+          [
+            4.0,
+            5.0,
+            1.0
+          ]
+        ],
+        "args": [
+          2.0,
+          31.0
+        ]
+      },
+      "unsupported": [
+        "arbitrary custom D/I-optimal split plots",
+        "more than2levels per factor",
+        "split-split plots",
+        "response-model inference"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml"
+      ],
+      "reference": "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm",
+      "evidence": "tasks/evidence/jmp-design-classical-reference.json"
+    },
+    {
+      "operation": "strip_plot_design",
+      "symbol": "StripPlotDesign",
+      "sql_name": "chem_strip_plot_design",
+      "source": "crates/analytics/src/design_classical.rs",
+      "description": "Classical crossed strip plot: factor rows[low,high,role0row/1column]; [replicates=1,seed=0].",
+      "data": "2..12factor rows[finite low<high,role0row-strip/1column-strip];both roles required.",
+      "args": [
+        "replicates integer1..256,default1",
+        "seed exact nonnegative integer<=2^53-1,default0"
+      ],
+      "estimator": "Complete crossed two-level row/column treatment combinations in each replicate. Row and column strips randomize independently. Membership crosses rather than nests:every row strip intersects every column strip once. Returned design rows follow stage1order;stage2_order is a zero-based permutation regrouping units by column strip,randomizing row subunits within each column strip. Replication error df[(r-1)(a-1),(r-1)(b-1),(r-1)(a-1)(b-1)]. Replicate1zero df explicitly;no response inference.",
+      "sql_example": "chem_strip_plot_design([[0.0,1.0,0.0],[2.0,3.0,1.0],[4.0,5.0,1.0]], [2.0,31.0])",
+      "known_value": {
+        "replication_error_df": [
+          1,
+          3,
+          3
+        ],
+        "inference_ready": true
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            2.0,
+            3.0,
+            1.0
+          ],
+          [
+            4.0,
+            5.0,
+            1.0
+          ]
+        ],
+        "args": [
+          2.0,
+          31.0
+        ]
+      },
+      "unsupported": [
+        "arbitrary custom optimal strip plots",
+        "nested split-split interpretation",
+        "additional third-stage easy factors",
+        "response-model inference"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml"
+      ],
+      "reference": "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm",
+      "evidence": "tasks/evidence/jmp-design-classical-reference.json"
+    },
+    {
+      "operation": "taguchi_orthogonal_array",
+      "symbol": "TaguchiOrthogonalArray",
+      "sql_name": "chem_taguchi_orthogonal_array",
+      "source": "crates/analytics/src/design_classical.rs",
+      "description": "Catalog orthogonal arrays: scalar factor levels2/3; [array4/8/9/18,seed=0].",
+      "data": "1..8scalar factor level counts2or3. Output categorical level codes are zero-based.",
+      "args": [
+        "array required integer4/8/9/18",
+        "seed exact nonnegative integer<=2^53-1,default0"
+      ],
+      "estimator": "L4/L8 binary projective strength2arrays,L9 ternary finite-field array,NIST tabulated mixed L18(2^1 3^7). Requested factors map to first unused compatible catalog columns. Run order randomized. Runtime verifies pair balance. Normalized Helmert contrast main_effect_gram and main-vs-two-factor-interaction alias matrix expose confounding. Interaction terms use[factor,contrast,factor,contrast] zero-based;alias excludes intercept.",
+      "sql_example": "chem_taguchi_orthogonal_array([[2.0],[3.0],[3.0],[3.0],[3.0],[3.0],[3.0],[3.0]], [18.0,11.0])",
+      "known_value": {
+        "main_effect_rank": 16,
+        "strength2": true
+      },
+      "fixture": {
+        "data": [
+          [
+            2.0
+          ],
+          [
+            3.0
+          ],
+          [
+            3.0
+          ],
+          [
+            3.0
+          ],
+          [
+            3.0
+          ],
+          [
+            3.0
+          ],
+          [
+            3.0
+          ],
+          [
+            3.0
+          ]
+        ],
+        "args": [
+          18.0,
+          11.0
+        ]
+      },
+      "unsupported": [
+        "full Taguchi robust parameter-design platform",
+        "inner/outer array crossing",
+        "signal-to-noise response analysis",
+        "arbitrary mixed-level orthogonal array search",
+        "interaction-free claims"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml"
+      ],
+      "reference": "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm",
+      "evidence": "tasks/evidence/jmp-design-classical-reference.json"
+    }
+  ],
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml",
+    "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm"
+  ],
+  "evidence": "tasks/evidence/jmp-design-classical-reference.json",
+  "native_sql_validation": {
+    "status": "PASS matching current209-function checkpoint",
+    "evidence": "tasks/evidence/jmp-models-validation.json",
+    "overall_jmp_parity": false
+  }
+}

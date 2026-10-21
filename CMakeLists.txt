@@ -99,7 +99,7 @@ else()
     set(RUST_LIB_SUFFIX ".a")
 endif()
 
-set(RUST_CRATE_NAMES smiles inchi mol pdb selfies)
+set(RUST_CRATE_NAMES smiles inchi mol pdb selfies analytics)
 set(RUST_STATIC_LIBS "")
 foreach(CRATE ${RUST_CRATE_NAMES})
     list(APPEND RUST_STATIC_LIBS "${CARGO_TARGET_DIR}/${RUST_LIB_PREFIX}ducksmiles_${CRATE}${RUST_LIB_SUFFIX}")
@@ -142,6 +142,7 @@ add_custom_target(rust_lib DEPENDS ${RUST_STATIC_LIBS})
 # ---------------------------------------------------------------------------
 set(EXTENSION_SOURCES
     src/ducksmiles_extension.cpp
+    src/analytics_functions.cpp
 )
 
 include_directories(src/include)

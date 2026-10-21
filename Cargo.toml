@@ -5,6 +5,7 @@ members = [
     "crates/mol",
     "crates/pdb",
     "crates/selfies",
+    "crates/analytics",
 ]
 resolver = "2"
 

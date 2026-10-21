@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-21",
+  "source": "crates/analytics/src/spectral.rs",
+  "scope": "Ten bounded explicit spectral/common-grid numerical methods. Not equivalent to full JMP19.2 FDE automatic basis fitting, smoothing selection, sparse curves or fitted peak models.",
+  "layer": "Independent oracle uses isolated rustc module wrapper delegating execute to spectral::run; Rust focused tests separately exercise actual crate public execute. Native SQL validation belongs to parent.",
+  "versions": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1"
+  },
+  "seed": 234819,
+  "reference": {
+    "cases": 1100,
+    "max_scaled_absolute_error": [
+      3.6953264752005007e-11,
+      [
+        "savitzky_golay",
+        "rows"
+      ]
+    ],
+    "failure_count": 0,
+    "breakdown": {
+      "snv": 100,
+      "savgol": 100,
+      "gradient": 100,
+      "polynomial_detrend": 100,
+      "dft_forward": 100,
+      "dft_inverse_complex": 100,
+      "msc_explicit_reference": 100,
+      "peaks_and_prominence": 100,
+      "haar_forward_inverse": 160,
+      "trapezoid_grid_fpca": 80,
+      "dtw_all_monotone_paths": 60
+    }
+  },
+  "independence": "SG/peaks use SciPy; gradients/std/FFT/lstsq/SVD use NumPy; Haar uses analytically constructed support basis matrix; DTW enumerates all admissible monotone paths for small unequal sequences, independently of the production dynamic program.",
+  "tdd": {
+    "baseline": "cargo check -p ducksmiles_analytics passed",
+    "public_execute_initial_red": {
+      "failed": 12,
+      "passed_validation_only": 1,
+      "expected_error": "unknown optimization operation"
+    },
+    "focused_tests_final": 13,
+    "important_behaviors": [
+      "saved MSC reference has no query-batch refitting",
+      "SG interpolation edge polynomials and analytical derivatives",
+      "finite-difference endpoint accuracy",
+      "Haar full/partial inverse and Parseval",
+      "complex inverse retains imaginary part",
+      "DTW unequal-length monotone paths",
+      "trapezoid L2 FPCA rather than ordinary unweighted PCA",
+      "prominence base and plateau/distance handling",
+      "large-origin small-variation centering"
+    ]
+  },
+  "api_example_validation": [
+    {
+      "operation": "spectral_snv",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "spectral_msc",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "savitzky_golay",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "curve_derivative",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "spectral_detrend",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "haar_transform",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "fourier_transform",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "dynamic_time_warping",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "functional_pca",
+      "valid_version1_json": true
+    },
+    {
+      "operation": "peak_find",
+      "valid_version1_json": true
+    }
+  ],
+  "source_sha256": {
+    "crates/analytics/src/spectral.rs": "3ef760b47e28d74d6b74316edb46fa972d36ece2a49b428c8141b103f61a2f23",
+    "crates/analytics/tests/spectral.rs": "e7840dbf730c0ac2ad5557aa9ad70ffafe57d3adbcf21b9b621db3b0ed274a52",
+    "tasks/jmp-spectral-api.json": "758b75d948f9511bd40d85da5cd2d90d7c3f9956d158bc0af37c1737880d1e0a",
+    "tasks/jmp-spectral-registry.inc": "0cedad9b71b35059be4b47961ad8eeef890e8f6262a6c890fae73b38b3946b96"
+  },
+  "primary_sources": [
+    "https://docs.scipy.org/doc/scipy-1.17.0/reference/generated/scipy.signal.find_peaks.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.peak_prominences.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html",
+    "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/direct-model-report.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/functional-data-explorer.shtml"
+  ],
+  "harness": {
+    "build_directory": "/private/tmp/rusta-ducksmiles-jmp-target/spectral-check",
+    "lib_rs": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/spectral.rs\"]\npub mod spectral;\npub fn execute(op:&str,data:&[Vec<f64>],args:&[f64])->Result<String,String>{spectral::run(op,data,args)}\n",
+    "runner_rs": "use std::io::{self,BufRead};\nfn main(){for line in io::stdin().lock().lines(){let line=line.unwrap();let parts=line.split('|').collect::<Vec<_>>();let args=parts[1].split(',').filter(|s|!s.is_empty()).map(|s|s.parse().unwrap()).collect::<Vec<f64>>();let rows=parts[2].split(';').map(|r|r.split(',').map(|v|v.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();match ducksmiles_analytics::execute(parts[0],&rows,&args){Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}}}\n",
+    "oracle_py": "import numpy as np, scipy.signal as signal, itertools,json,subprocess\nrng=np.random.default_rng(234819);cases=[]\ndef add(op,rows,args,expect):\n cases.append((op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r))for r in rows),op,expect))\nfor _ in range(100):\n n=int(rng.integers(11,45));curves=int(rng.integers(1,5));x=rng.normal(0,2,(curves,n))+rng.uniform(-10,10,(curves,1));ddof=int(rng.integers(0,2));dx=float(rng.uniform(.1,3))\n add('spectral_snv',x,[ddof],{'rows':(x-x.mean(1)[:,None])/x.std(1,ddof=ddof)[:,None]})\n window=int(rng.choice([3,5,7,9,11]));degree=int(rng.integers(0,min(5,window)));deriv=int(rng.integers(0,degree+1))\n add('savitzky_golay',x,[window,degree,deriv,dx],{'rows':signal.savgol_filter(x,window,degree,deriv=deriv,delta=dx,axis=1,mode='interp')})\n order=int(rng.integers(1,3));gradient=x.copy()\n for i in range(order):gradient=np.gradient(gradient,dx,axis=1,edge_order=2)\n add('curve_derivative',x,[order,dx],{'rows':gradient})\n degree=int(rng.integers(0,5));grid=np.linspace(-1,1,n);design=np.vander(grid,degree+1,increasing=True);coef=np.linalg.lstsq(design,x.T,rcond=None)[0].T\n add('spectral_detrend',x,[degree],{'rows':x-coef@design.T,'coefficients':coef})\n fourier=np.fft.fft(x,axis=1)\n add('fourier_transform',x,[],{'rows':np.c_[fourier.real,fourier.imag]})\n z=rng.normal(0,1,(curves,n))+1j*rng.normal(0,1,(curves,n));inverse=np.fft.ifft(z,axis=1)\n add('fourier_transform',np.c_[z.real,z.imag],[1],{'rows':inverse.real,'imaginary_rows':inverse.imag})\n # MSC query spectra have an explicit independent training reference.\n ref=rng.normal(0,1,n);query=np.array([rng.uniform(-3,3)+rng.uniform(.3,3)*ref+rng.normal(0,.02,n)for i in range(curves)]);design=np.c_[np.ones(n),ref];coef=np.linalg.lstsq(design,query.T,rcond=None)[0]\n add('spectral_msc',query,ref,{'rows':(query-coef[0,:,None])/coef[1,:,None],'slopes':coef[1],'intercepts':coef[0]})\n # Distinct real-valued heights avoid implementation-specific equal-height priorities.\n prominence=float(rng.uniform(0,1));distance=int(rng.integers(1,5));peaks=[];prom=[];lb=[];rb=[]\n for row in x:\n  indices,props=signal.find_peaks(row,prominence=prominence,distance=distance)\n  peaks.append(indices);prom.append(props['prominences']);lb.append(props['left_bases']);rb.append(props['right_bases'])\n add('peak_find',x,[prominence,distance],{'peak_indices':peaks,'prominences':prom,'left_bases':lb,'right_bases':rb})\nfor _ in range(80):\n n=2**int(rng.integers(1,8));levels=int(rng.integers(1,int(np.log2(n))+1));x=rng.normal(0,1,(2,n));basis=[];block=2**levels\n for start in range(0,n,block):\n  v=np.zeros(n);v[start:start+block]=1/np.sqrt(block);basis.append(v)\n for level in range(levels,0,-1):\n  block=2**level\n  for start in range(0,n,block):\n   v=np.zeros(n);v[start:start+block//2]=1/np.sqrt(block);v[start+block//2:start+block]=-1/np.sqrt(block);basis.append(v)\n H=np.array(basis);coef=x@H.T\n add('haar_transform',x,[0,levels],{'rows':coef});add('haar_transform',coef,[1,levels],{'rows':x})\nfor _ in range(80):\n n=int(rng.integers(3,18));p=int(rng.integers(3,25));count=min(3,n-1,p);dx=float(rng.uniform(.2,3));curves=rng.normal(0,1,(n,p));weights=np.r_[dx/2,np.repeat(dx,p-2),dx/2];A=(curves-curves.mean(0))*np.sqrt(weights);U,s,V=np.linalg.svd(A,full_matrices=False)\n for row in V:\n  if row[np.argmax(abs(row))]<0:row*=-1\n scores=A@V[:count].T;functions=V[:count]/np.sqrt(weights);reconstructed=curves.mean(0)+scores@functions\n add('functional_pca',curves,[count,dx],{'eigenvalues':s[:count]**2/(n-1),'eigenfunctions':functions,'scores':scores,'reconstructed_rows':reconstructed})\ndef all_paths(n,m,window,i=0,j=0):\n if abs(i-j)>window:return\n if i==n-1 and j==m-1:yield[(i,j)];return\n for di,dj in [(1,1),(1,0),(0,1)]:\n  if i+di<n and j+dj<m:\n   for rest in all_paths(n,m,window,i+di,j+dj):yield[(i,j)]+rest\nfor _ in range(60):\n n=int(rng.integers(2,6));m=int(rng.integers(2,6));a=rng.normal(0,1,n);b=rng.normal(0,1,m);window=int(rng.integers(max(1,abs(n-m)),max(n,m)+1));expected=min(sum((a[i]-b[j])**2 for i,j in path)for path in all_paths(n,m,window))**.5\n add('dynamic_time_warping',[[v,0]for v in a]+[[v,1]for v in b],[window],{'distance':expected})\nproc=subprocess.run(['/private/tmp/rusta-ducksmiles-jmp-target/spectral-check/runner'],input='\\n'.join(c[0]for c in cases)+'\\n',text=True,capture_output=True,check=True)\nerrors=[];maximum=(0,None)\nfor (_,op,expected),out in zip(cases,proc.stdout.splitlines()):\n if out.startswith('ERROR'):errors.append((op,out));continue\n actual=json.loads(out)\n for key,ee in expected.items():\n  # Flatten ragged per-curve peak arrays while preserving lengths.\n  if isinstance(ee,list)and ee and isinstance(ee[0],np.ndarray):\n   if [len(v)for v in actual[key]]!=[len(v)for v in ee]:errors.append((op,key,'raggedshape'));continue\n   aa=np.concatenate(actual[key]);ee=np.concatenate(ee)\n  else:aa=np.asarray(actual[key]);ee=np.asarray(ee)\n  if aa.size==0:continue\n  error=float(np.max(abs(aa-ee)/np.maximum(1,abs(ee))))\n  if error>maximum[0]:maximum=error,(op,key)\n  if error>2e-7:errors.append((op,key,error))\nprint(json.dumps({'cases':len(cases),'max_scaled_absolute_error':maximum,'failure_count':len(errors),'errors':errors[:20]}))\n",
+    "reproduction": "Restore lib_rs,runner_rs,oracle_py as lib.rs,runner.rs,verify.py under build_directory. rustc --edition 2021 --crate-name ducksmiles_analytics --crate-type rlib lib.rs -o libducksmiles_analytics.rlib; rustc --edition 2021 runner.rs --extern ducksmiles_analytics=<build_directory>/libducksmiles_analytics.rlib -o runner; python3 verify.py. Production has no added dependencies."
+  }
+}

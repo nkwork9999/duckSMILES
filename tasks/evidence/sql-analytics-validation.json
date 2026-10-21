@@ -1,0 +1,44 @@
+{
+  "base_revision": "985af99",
+  "branch": "feat/sql-analytics-20261021",
+  "workspace": "/Users/nk/Desktop/ducksmiles-analytics-20261021",
+  "platform": "macOS arm64",
+  "duckdb": "v1.5.3, pinned submodule 90628df28564545e9f4716b9dbfc7bb5b292ad21",
+  "final_tested_extension_sha256": "21977138a2bb61516b8cf794dd2bcac2c169afeca04aa2f43cdd7c77a1a37d66",
+  "new_analytics_sql_functions": 24,
+  "new_rust_tests": 54,
+  "rust_workspace": {
+    "passed": 865,
+    "failed": 0,
+    "ignored_existing": 2,
+    "suites": 28,
+    "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-analytics-target cargo test --workspace --quiet"
+  },
+  "native_sql": {
+    "passed_cases": 7,
+    "assertions": 367,
+    "skipped": 0,
+    "log": "Filters: /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*\n\n[0/7] (0%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test\n[1/7] (14%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/fallibility.test\n[2/7] (28%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/mass_context.test\n[3/7] (42%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/native_graph.test\n[4/7] (57%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/vector_compat.test\n[5/7] (71%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test\n[6/7] (85%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test\n[7/7] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test\n===============================================================================\nAll tests passed (367 assertions in 7 test cases)\n\n",
+    "command": "LOCAL_EXTENSION_REPO=<build>/cpp/repository <build>/cpp/test/unittest '<worktree>/test/sql/*' --autoloading available --require ducksmiles --settings \"[{'name':'extension_directory','value':'<build>/test-extensions'}]\""
+  },
+  "model_boundary_checks": "PASS: 25 numerical/model SQL checks; 7 invalid inputs; selected-vector rows; molecule descriptor integration",
+  "function_catalog": "PASS: 175 overloads documented; 175 examples executed",
+  "static_checks": [
+    "cargo clippy -p ducksmiles_analytics --all-targets -- -D warnings: passed",
+    "rustfmt explicit analytics source/test paths: passed",
+    "clang-format --dry-run --Werror src/analytics_functions.cpp src/include/analytics.h: passed",
+    "git diff --check: passed"
+  ],
+  "independent_reference": "sql-analytics-reference.json; 18 seeded NumPy/SciPy fixtures; GP rerun after tail-CDF correction agrees within 1.12e-15 and exact ranking",
+  "documentation_workflow": "All 3 SQL blocks in ANALYTICS.md executed; saved model predictions and experimental-candidate workflow verified.",
+  "scope_limits": [
+    "No GUI changes.",
+    "D-optimal design uses local exchange over explicit supplied candidates.",
+    "Gaussian-process optimization scores a finite candidate pool with caller-supplied hyperparameters.",
+    "Mixed effects are limited to balanced one-way random-intercept ANOVA variance components.",
+    "Survival analysis is Kaplan-Meier, without a Cox or general survival-regression solver.",
+    "PCA explicitly rejects unrepresentable extreme-offset centering; subtract an appropriate reference first.",
+    "Only native macOS arm64 extension execution verified in this task."
+  ],
+  "build_artifacts": "Task-owned build tree removed after verification; source, tests and evidence retained. No publishing or community-package update performed."
+}

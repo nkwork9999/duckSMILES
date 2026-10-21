@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-21T16:24:44.492353+00:00",
+  "status": "PASS",
+  "seed": 293015,
+  "python": "3.14.3",
+  "numpy": "2.4.2",
+  "scipy": "1.17.1",
+  "boundary": "Independent oracle uses an isolated wrapper importing exact production kinship.rs; separate witnessed public execute16tests GREEN. C ABI/native SQL rebuild remains a separate pending gate.",
+  "cases": 180,
+  "numeric_fields": 3228,
+  "maximum_scaled_error": 6.599366026740342e-07,
+  "fit_boundary_diagnostics": {
+    "lower_boundary": 42,
+    "upper_boundary": 14,
+    "interior": 34
+  },
+  "boundary_regressions": {
+    "cases": 19,
+    "numeric_fields": 54,
+    "rejected_inputs": 3,
+    "maximum_scaled_error": 2.2204460492687645e-16,
+    "reference_methods": "NumPy symmetric eigendecomposition with independently clipped PSD kernel, direct covariance spectral GLS/BLUP; Decimal.from_float at 1200 digits for exact supplied-binary64 saved-model algebra and finite cancellation; valid-dimension matrix rejection checks",
+    "case_catalog": [
+      {
+        "case": "roundoff_negative_eigenvalue_fit",
+        "operation": "kinship_model",
+        "expected_error": false
+      },
+      {
+        "case": "roundoff_negative_eigenvalue_training_score",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "supported_dimension_psd_control",
+        "operation": "kinship_model",
+        "expected_error": false
+      },
+      {
+        "case": "nonexact_asymmetry_rejected",
+        "operation": "kinship_model",
+        "expected_error": true
+      },
+      {
+        "case": "supported_dimension_indefinite_rejected",
+        "operation": "kinship_model",
+        "expected_error": true
+      },
+      {
+        "case": "supported_dimension_negative_diagonal_rejected",
+        "operation": "kinship_model",
+        "expected_error": true
+      },
+      {
+        "case": "subnormal_feature_nonzero_slope_fit",
+        "operation": "kinship_model",
+        "expected_error": false
+      },
+      {
+        "case": "subnormal_feature_nonzero_slope_score",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "subnormal_feature_zero_slope_fit",
+        "operation": "kinship_model",
+        "expected_error": false
+      },
+      {
+        "case": "subnormal_feature_zero_slope_score",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "subnormal_kernel_zero_genetic_fit",
+        "operation": "kinship_model",
+        "expected_error": false
+      },
+      {
+        "case": "subnormal_kernel_zero_genetic_score",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "ratio_overflows_before_finite_physical_product",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "early_product_underflows_before_finite_ratio",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "small_finite_residual_of_large_kernel_terms",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "finite_sum_of_unrepresentable_opposite_physical_terms",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "subnormal_saved_weight_survives_unit_products",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "mean_feature_physical_cancellation",
+        "operation": "kinship_predict",
+        "expected_error": false
+      },
+      {
+        "case": "zero_feature_slope_with_overflowing_standardized_query",
+        "operation": "kinship_predict",
+        "expected_error": false
+      }
+    ]
+  },
+  "source_sha256": {
+    "crates/analytics/src/kinship.rs": "9824e96be68c31287dad1dcd91da60337089f027f8552f46abd26c83edd30c85",
+    "crates/analytics/tests/candidates/kinship.rs": "4a23feb0bf987d7855ad4609e8228ba27968edce937bb853984f5549791ed1b7",
+    "crates/analytics/tests/kinship.rs": "9d7d3a66e934a7e2089d066fab5f48f9fae0dd4642dc826f84e184a353c4ed4d",
+    "scripts/check_kinship_reference.py": "527467502215b10780f3616a0933968333252fd5a83acc9edaf490edebdbd6fd"
+  },
+  "reference_methods": "Independent full dense covariance Cholesky whitening, NumPy QR, 301-point+bounded Brent plus independently seeded differential-evolution likelihood search, direct mixed-model covariance equations and cross-kernel BLUP",
+  "limitations": "45 randomized datasets, both ML/REML, plus separate deterministic arithmetic/PSD boundary regressions; no installed JMP oracle, no global optimum theorem, no GWAS or variance-component uncertainty. Arbitrary saved-parameter probes validate scoring algebra, not estimation or a jointly valid query/training covariance.",
+  "harness_python": "#!/usr/bin/env python3\n\"\"\"Independent dense-Cholesky/QR genomic profile likelihood references.\"\"\"\nimport argparse\nimport datetime\nfrom decimal import Decimal, localcontext\nimport hashlib\nimport json\nimport math\nfrom pathlib import Path\nimport platform\nimport subprocess\n\nimport numpy as np\nimport scipy\nfrom scipy.linalg import solve_triangular\nfrom scipy.optimize import differential_evolution, minimize_scalar\n\n\ndef decimal_prediction(data, params):\n    \"\"\"Evaluate saved-model algebra independently, without binary64 intermediates.\n\n    Decimal.from_float preserves the actual supplied binary64 values.  The\n    precision also retains the smallest residuals in the cancellation fixtures;\n    no production exponent-product or compensated-sum algorithm is reused.\n    \"\"\"\n    with localcontext() as context:\n        context.prec = 1200\n        value = lambda x: Decimal.from_float(float(x))\n        p = int(params[2])\n        saved = list(map(value, params))\n        output, marginal = [], []\n        for observation in data:\n            row = list(map(value, observation))\n            fixed = saved[6] + sum(\n                ((row[j]-saved[8+j])/saved[8+2*p+j]-saved[8+p+j])*saved[8+3*p+j]\n                for j in range(p)\n            )\n            random = sum(row[p+j]*weight/saved[7]\n                         for j, weight in enumerate(saved[8+4*p:]))\n            marginal.append(float(saved[3]+saved[5]*(saved[4]+fixed)))\n            output.append(float(saved[3]+saved[5]*(saved[4]+fixed+random)))\n        return output, marginal\n\n\ndef boundary_references(request):\n    \"\"\"Independent deterministic regressions, separate from the 180 random cases.\"\"\"\n    cases = fields = rejected = 0\n    errors, reports = [], []\n\n    def run(name, op, data, params=(), expected_error=False):\n        nonlocal cases, rejected\n        result = request(op, data, params, expected_error=expected_error)\n        cases += 1\n        rejected += int(expected_error)\n        reports.append({\"case\": name, \"operation\": op, \"expected_error\": expected_error})\n        return result\n\n    def close(actual, expected, relative=2e-12, absolute=0.):\n        nonlocal fields\n        actual, expected = np.asarray(actual, dtype=float), np.asarray(expected, dtype=float)\n        assert np.all(np.isfinite(actual)) and np.all(np.isfinite(expected))\n        # Two representable ulps permit correct rounding at the subnormal edge.\n        ulps = max((2*math.ulp(float(x)) for x in expected.ravel()), default=0.)\n        np.testing.assert_allclose(actual, expected, rtol=relative, atol=max(absolute, ulps))\n        fields += expected.size\n        errors.append(float(np.max(np.abs(actual-expected)/(1+np.abs(expected)))))\n\n    def score(name, query, params, expected=None):\n        predictions, marginal = decimal_prediction(query, params)\n        if expected is not None:\n            close(predictions, expected)\n        result = run(name, \"kinship_predict\", query, params)\n        close(result[\"predictions\"], predictions)\n        close(result[\"marginal_predictions\"], marginal)\n        return result\n\n    n = 6\n    block = np.equal.outer(np.arange(n)//2, np.arange(n)//2).astype(float)\n    z = np.array([1., -1., 0., 0., 0., 0.])/np.sqrt(2.)\n    kernel = block-1e-12*np.outer(z, z)\n    y = np.repeat(np.arange(3, dtype=float), 2)+1e-5*z\n    result = run(\"roundoff_negative_eigenvalue_fit\", \"kinship_model\",\n                 np.column_stack((y, kernel)), [0, 1, .999999999999, 128, 1e-12])\n    assert result[\"converged\"] and not result[\"upper_bound_active\"]\n    normalized = kernel/(np.trace(kernel)/n)\n    eigenvalues, eigenvectors = np.linalg.eigh(normalized)\n    assert -1e-11 < eigenvalues[0] < 0.\n    clipped = np.maximum(eigenvalues, 0.)\n    h = result[\"normalized_genetic_fraction\"]\n    diagonal = 1-h+h*clipped\n    rotated_y = eigenvectors.T@y\n    rotated_one = eigenvectors.T@np.ones(n)\n    beta = np.sum(rotated_one*rotated_y/diagonal)/np.sum(rotated_one**2/diagonal)\n    expected = eigenvectors@(h*clipped*(rotated_y-rotated_one*beta)/diagonal)\n    close(result[\"genetic_values\"], expected, relative=2e-8, absolute=2e-9)\n    # The negative direction is an exact null contrast after PSD clipping.\n    close(np.dot(z, result[\"genetic_values\"]), 0., absolute=2e-10)\n    psd_kernel = (eigenvectors*clipped)@eigenvectors.T\n    saved = result[\"predict_parameters\"]\n    close(saved[5]*(psd_kernel@np.array(saved[8:])), result[\"genetic_values\"],\n          relative=2e-8, absolute=2e-9)\n    scored = score(\"roundoff_negative_eigenvalue_training_score\", kernel, saved)\n    close(scored[\"predictions\"], result[\"conditional_fitted\"], absolute=2e-9)\n\n    # All validation fixtures have supported n=4, so matrix validation is reached.\n    valid_kernel = np.equal.outer(np.arange(4)//2, np.arange(4)//2).astype(float)+.2*np.eye(4)\n    run(\"supported_dimension_psd_control\", \"kinship_model\",\n        np.column_stack(([0., 2., 4., 6.], valid_kernel)), [0])\n    asymmetric = valid_kernel.copy()\n    asymmetric[0, 1] = np.nextafter(asymmetric[0, 1], np.inf)\n    run(\"nonexact_asymmetry_rejected\", \"kinship_model\",\n        np.column_stack(([0., 2., 4., 6.], asymmetric)), [0], expected_error=True)\n    indefinite = np.eye(4)\n    indefinite[0, 1] = indefinite[1, 0] = 2.\n    run(\"supported_dimension_indefinite_rejected\", \"kinship_model\",\n        np.column_stack(([0., 2., 4., 6.], indefinite)), [0], expected_error=True)\n    negative_diagonal = np.eye(4)\n    negative_diagonal[0, 0] = -1.\n    run(\"supported_dimension_negative_diagonal_rejected\", \"kinship_model\",\n        np.column_stack(([0., 2., 4., 6.], negative_diagonal)), [0], expected_error=True)\n\n    tiny = 1e-320\n    x = np.tile([0., tiny], 3)\n    for name, last in [(\"subnormal_feature_nonzero_slope\", 1.+1e-14),\n                       (\"subnormal_feature_zero_slope\", 1.)]:\n        feature_y = [0., 2., 2., 0., 1., last]\n        fit = run(name+\"_fit\", \"kinship_model\", np.column_stack((feature_y, x, block)), [1, 1])\n        assert fit[\"converged\"] and fit[\"normalized_genetic_fraction\"] == 0.\n        predicted = score(name+\"_score\", [[1., 0., 0., 0., 0., 0., 0.]], fit[\"predict_parameters\"])\n        if last == 1.:\n            close(predicted[\"predictions\"], [1.])\n        else:\n            assert predicted[\"predictions\"][0] > 1e300\n\n    fit = run(\"subnormal_kernel_zero_genetic_fit\", \"kinship_model\",\n              np.column_stack(([0., 2., 0., 2., 0., 2.], block*tiny)), [0, 1])\n    assert fit[\"converged\"] and fit[\"normalized_genetic_fraction\"] == 0.\n    score(\"subnormal_kernel_zero_genetic_score\", [[1.]*6], fit[\"predict_parameters\"], [1.])\n\n    # These valid version-1 models isolate scoring arithmetic from estimation.\n    # Four training weights suffice; joint query PSD cannot be checked by this API.\n    scalar_cases = [\n        (\"ratio_overflows_before_finite_physical_product\", 1e-100, 1e-320,\n         [1e-200, 0., 0., 0.], [1., 0., 0., 0.]),\n        (\"early_product_underflows_before_finite_ratio\", 1e-200, 1e-100,\n         [1e-200, 0., 0., 0.], [1e150, 0., 0., 0.]),\n        (\"small_finite_residual_of_large_kernel_terms\", 1e-100, 1e-320,\n         [1., 1e-300, -1., 0.], [1., 1., 1., 0.]),\n        (\"finite_sum_of_unrepresentable_opposite_physical_terms\", 1e100, 1e-320,\n         [1., 1e-300, -1., 0.], [1., 1., 1., 0.]),\n        (\"subnormal_saved_weight_survives_unit_products\", 1e200, 1e-200,\n         [float.fromhex(\"0x0.0000000000001p-1022\"), 0., 0., 0.], [1e100, 0., 0., 0.]),\n    ]\n    for name, response_scale, kernel_scale, weights, query in scalar_cases:\n        params = [1., 4., 0., 0., 0., response_scale, 0., kernel_scale, *weights]\n        score(name, [query], params)\n\n    # Include cancellation among mean and feature terms, not only random terms.\n    params = [1., 4., 1., 1e300, 0., 1e300, -1., 1.,\n              0., 0., 1., 1e-300, 0., 0., 0., 0.]\n    score(\"mean_feature_physical_cancellation\", [[1., 0., 0., 0., 0.]], params)\n    params = [1., 4., 1., 1., 0., 1., 0., 1.,\n              0., 0., tiny, 0., 0., 0., 0., 0.]\n    score(\"zero_feature_slope_with_overflowing_standardized_query\",\n          [[1., 0., 0., 0., 0.]], params, [1.])\n\n    return {\"cases\": cases, \"numeric_fields\": fields, \"rejected_inputs\": rejected,\n            \"maximum_scaled_error\": max(errors),\n            \"reference_methods\": \"NumPy symmetric eigendecomposition with independently clipped PSD kernel, direct covariance spectral GLS/BLUP; Decimal.from_float at 1200 digits for exact supplied-binary64 saved-model algebra and finite cancellation; valid-dimension matrix rejection checks\",\n            \"case_catalog\": reports}\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--wrapper\", required=True, type=Path)\n    parser.add_argument(\"--evidence\", type=Path)\n    args = parser.parse_args()\n    process = subprocess.Popen([str(args.wrapper.resolve())], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)\n    rng = np.random.default_rng(293015)\n    cases = fields = 0\n    errors = []\n    flags = {\"lower_boundary\": 0, \"upper_boundary\": 0, \"interior\": 0}\n\n    def request(op, data, params=(), expected_error=False):\n        data = np.asarray(data)\n        n, p = data.shape\n        process.stdin.write(\" \".join([op, str(n), str(p), str(len(params)), *map(repr, map(float, data.ravel())), *map(repr, map(float, params))])+\"\\n\")\n        process.stdin.flush()\n        line = process.stdout.readline()\n        assert line, (op, \"wrapper closed its output\", data, params)\n        if expected_error:\n            assert line.startswith(\"ERROR:\"), (op, line, data, params)\n            return line.removeprefix(\"ERROR:\").strip()\n        assert not line.startswith(\"ERROR:\"), (op, line, data, params)\n        def invalid(value):\n            raise AssertionError(value)\n        return json.loads(line, parse_constant=invalid)\n\n    def run(op, data, params=()):\n        nonlocal cases\n        result = request(op, data, params)\n        cases += 1\n        return result\n\n    def close(a, b, relative=3e-5, absolute=1e-8):\n        nonlocal fields\n        np.testing.assert_allclose(a, b, rtol=relative, atol=absolute)\n        aa, bb = np.asarray(a), np.asarray(b)\n        fields += bb.size\n        errors.append(float(np.max(np.abs(aa-bb)/(1+np.abs(bb)))))\n\n    try:\n        for trial in range(45):\n            n, p = int(rng.integers(7, 22)), int(rng.integers(0, 4))\n            markers = int(rng.integers(3, 15))\n            Z = rng.normal(size=(n+3, markers))\n            kernel_scale = float(10**rng.uniform(-3, 3))\n            K = (Z[:n]@Z[:n].T/markers+.2*np.eye(n))*kernel_scale\n            cross = Z[n:]@Z[:n].T/markers*kernel_scale\n            X = np.column_stack((np.ones(n+3), rng.normal(size=(n+3, p))))\n            beta = rng.normal(size=p+1)\n            y = X[:n]@beta+np.linalg.cholesky(K/kernel_scale+float(10**rng.uniform(-2, 2))*np.eye(n))@rng.normal(size=n)\n            normalized = K/np.trace(K)*n\n            upper = .99999999\n            data = np.column_stack((y, X[:n, 1:], K))\n            query = np.column_stack((X[n:, 1:], cross))\n            for reml in [0, 1]:\n                df = n-(p+1 if reml else 0)\n                def profile(h, detail=False):\n                    covariance = (1-h)*np.eye(n)+h*normalized\n                    L = np.linalg.cholesky(covariance)\n                    white_x = solve_triangular(L, X[:n], lower=True)\n                    white_y = solve_triangular(L, y, lower=True)\n                    q, r = np.linalg.qr(white_x, mode=\"reduced\")\n                    coef = np.linalg.solve(r, q.T@white_y)\n                    residual = white_y-white_x@coef\n                    variance = residual@residual/df\n                    value = .5*(df*(np.log(2*np.pi)+1+np.log(variance))+\n                                 2*np.log(np.diag(L)).sum()+\n                                 (2*np.log(np.abs(np.diag(r))).sum() if reml else 0))\n                    return (value, coef, variance) if detail else value\n                # An independent fine mesh brackets all resolved local minima;\n                # bounded Brent uses a different solve and stopping mechanism.\n                mesh = np.linspace(0, upper, 301)\n                values = np.array([profile(h) for h in mesh])\n                candidates = [(values[0], 0.), (values[-1], upper)]\n                for i in range(1, len(mesh)-1):\n                    if values[i] <= min(values[i-1], values[i+1]):\n                        oracle = minimize_scalar(profile, bounds=(mesh[i-1], mesh[i+1]), method=\"bounded\", options={\"xatol\": 1e-12})\n                        assert oracle.success\n                        candidates.append((oracle.fun, oracle.x))\n                # A separate population search also resolves narrow extrema\n                # between the last mesh point and the parameter boundary.\n                global_check=differential_evolution(lambda v:profile(v[0]),[(0.,upper)],rng=np.random.default_rng(293015+2*trial+reml),tol=1e-11,atol=1e-12,polish=True)\n                assert global_check.success,global_check.message\n                candidates.append((global_check.fun,float(global_check.x[0])))\n                objective, h = min(candidates)\n                _, coefficient, variance = profile(h, True)\n                genetic, residual = variance*h/(np.trace(K)/n), variance*(1-h)\n                result = run(\"kinship_model\", data, [p, reml, upper, 128, 1e-11])\n                if abs(result[\"log_likelihood\"]+objective)>1e-8+2e-8*abs(objective):\n                    diagnostic={\"trial\":trial,\"reml\":reml,\"oracle_h\":h,\"returned_h\":result[\"normalized_genetic_fraction\"],\"returned_ll\":result[\"log_likelihood\"],\"oracle_ll\":-objective,\"dense_ll_at_returned_h\":-profile(result[\"normalized_genetic_fraction\"]),\"data\":data.tolist(),\"args\":[p,reml,upper,128,1e-11]}\n                    Path(str(args.wrapper)+\"-failure.json\").write_text(json.dumps(diagnostic,indent=2)+\"\\n\")\n                    print(json.dumps({k:v for k,v in diagnostic.items() if k!=\"data\"}),flush=True)\n                close(result[\"log_likelihood\"], -objective, relative=2e-8)\n                close([result[\"intercept\"], *result[\"coefficients\"]], coefficient)\n                close(result[\"genetic_variance\"], genetic, absolute=2e-7)\n                close(result[\"residual_variance\"], residual, absolute=2e-7)\n                # Verify BLUP and original-unit covariance against a direct solve\n                # at the actual returned estimates, separate from optimization.\n                g, e = result[\"genetic_variance\"], result[\"residual_variance\"]\n                V = g*K+e*np.eye(n)\n                direct_beta = np.linalg.solve(X[:n].T@np.linalg.solve(V, X[:n]), X[:n].T@np.linalg.solve(V, y))\n                alpha = np.linalg.solve(V, y-X[:n]@direct_beta)\n                close(result[\"genetic_values\"], g*K@alpha, relative=2e-7)\n                close(result[\"conditional_fitted\"], X[:n]@direct_beta+g*K@alpha, relative=2e-7)\n                predicted = run(\"kinship_predict\", query, result[\"predict_parameters\"])\n                close(predicted[\"predictions\"], X[n:]@direct_beta+g*cross@alpha, relative=2e-7)\n                key = \"upper_boundary\" if result[\"upper_bound_active\"] else \"lower_boundary\" if result[\"boundary\"] else \"interior\"\n                flags[key] += 1\n                if result[\"upper_bound_active\"]:\n                    assert not result[\"converged\"]\n        boundary_results = boundary_references(request)\n        repo = Path(__file__).resolve().parents[1]\n        paths = [\"crates/analytics/src/kinship.rs\", \"crates/analytics/tests/candidates/kinship.rs\", \"scripts/check_kinship_reference.py\"]\n        if (repo/\"crates/analytics/tests/kinship.rs\").exists():\n            paths.append(\"crates/analytics/tests/kinship.rs\")\n        evidence = {\"schema_version\": 1, \"created_at_utc\": datetime.datetime.now(datetime.timezone.utc).isoformat(),\n                    \"status\": \"PASS\", \"seed\": 293015, \"python\": platform.python_version(), \"numpy\": np.__version__, \"scipy\": scipy.__version__,\n                    \"boundary\": \"Independent oracle uses an isolated wrapper importing exact production kinship.rs; separate witnessed public execute16tests GREEN. C ABI/native SQL rebuild remains a separate pending gate.\",\n                    \"cases\": cases, \"numeric_fields\": fields, \"maximum_scaled_error\": max(errors), \"fit_boundary_diagnostics\": flags,\n                    \"boundary_regressions\": boundary_results,\n                    \"source_sha256\": {s: hashlib.sha256((repo/s).read_bytes()).hexdigest() for s in paths},\n                    \"reference_methods\": \"Independent full dense covariance Cholesky whitening, NumPy QR, 301-point+bounded Brent plus independently seeded differential-evolution likelihood search, direct mixed-model covariance equations and cross-kernel BLUP\",\n                    \"limitations\": \"45 randomized datasets, both ML/REML, plus separate deterministic arithmetic/PSD boundary regressions; no installed JMP oracle, no global optimum theorem, no GWAS or variance-component uncertainty. Arbitrary saved-parameter probes validate scoring algebra, not estimation or a jointly valid query/training covariance.\",\n                    \"harness_python\": Path(__file__).read_text(),\n                    \"wrapper_source\": Path(str(args.wrapper)+\".rs\").read_text() if Path(str(args.wrapper)+\".rs\").exists() else None}\n        if args.evidence:\n            if args.evidence.exists():\n                previous = json.loads(args.evidence.read_text())\n                if \"TDD\" in previous:\n                    evidence[\"TDD\"] = previous[\"TDD\"]\n            evidence[\"api_sha256\"] = hashlib.sha256((repo/\"tasks/jmp-kinship-api.json\").read_bytes()).hexdigest()\n            evidence[\"registry_sha256\"] = hashlib.sha256((repo/\"tasks/jmp-kinship-registry.inc\").read_bytes()).hexdigest()\n            args.evidence.write_text(json.dumps(evidence, indent=2)+\"\\n\")\n        print(json.dumps({k: v for k, v in evidence.items() if k not in [\"source_sha256\", \"harness_python\", \"wrapper_source\"]}, indent=2))\n    finally:\n        process.stdin.close()\n        process.wait(timeout=5)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "wrapper_source": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/kinship.rs\"]\nmod kinship;\nuse std::io::{BufRead,Write};\nfn main(){for line in std::io::stdin().lock().lines(){let line=line.unwrap();let mut t=line.split_whitespace();let op=t.next().unwrap();let n:usize=t.next().unwrap().parse().unwrap();let p:usize=t.next().unwrap().parse().unwrap();let m:usize=t.next().unwrap().parse().unwrap();let mut rows=Vec::new();for _ in 0..n{rows.push((0..p).map(|_|t.next().unwrap().parse::<f64>().unwrap()).collect::<Vec<_>>());}let args=(0..m).map(|_|t.next().unwrap().parse::<f64>().unwrap()).collect::<Vec<_>>();match kinship::run(op,&rows,&args){Ok(j)=>println!(\"{}\",j),Err(e)=>println!(\"ERROR:{}\",e)}std::io::stdout().flush().unwrap();}}\n",
+  "TDD": {
+    "initial": "direct6tests:5pending-behaviorRED/1validationpass before implementation",
+    "regressions": [
+      "flat profile no wasted local search",
+      "subnormal kernel units false overflow",
+      "boundary interval hides a true interior optimum",
+      "exactly explained response spurious finite Gaussian MLE",
+      "physical positive variance underflow rejects a degenerate reported model"
+    ],
+    "regression_tests": "crates/analytics/tests/candidates/kinship.rs",
+    "status": "16 public execute tests GREEN after review regression RED (11 passed/5 failed); direct candidate16GREEN; cargo clippy -D warnings GREEN; scoped rustfmt GREEN",
+    "review_regressions": {
+      "original_source_sha256": "ae365a9e38b1bbeb8fca83300e52483b45c6b62e6d8b7f5311a697286f3cef4a",
+      "regression_tests": "crates/analytics/tests/kinship.rs",
+      "behavioral_red": {
+        "passed": 11,
+        "failed": 5,
+        "ignored": 0
+      },
+      "behavioral_green": {
+        "passed": 16,
+        "failed": 0,
+        "ignored": 0
+      },
+      "cases": [
+        "clipped_kernel_null_space_is_absent_from_blup_and_saved_training_predictions",
+        "physical_prediction_keeps_underflowed_products_and_cancelling_large_terms",
+        "subnormal_fixed_feature_scale_preserves_finite_zero_and_nonzero_slope_predictions",
+        "subnormal_kernel_prediction_scales_physical_effect_before_ratio_overflow",
+        "valid_training_dimensions_exercise_psd_and_exact_symmetry_validation"
+      ],
+      "witness": "Implementation owner recorded actual public execute RED before edits and GREEN after source changes, and confirmed unchanged final source SHA for the independent oracle compile/run.",
+      "reproduce_public_tests": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test kinship",
+      "strict_lint_command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy -p ducksmiles_analytics --test kinship -- -D warnings",
+      "logs": {
+        "behavioral-red.log": "   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.53s\n     Running tests/kinship.rs (/private/tmp/rusta-ducksmiles-jmp-target/debug/deps/kinship-d8e59b5e0f032f4b)\n\nrunning 16 tests\ntest kinship_contract_rejects_indefinite_asymmetric_and_invalid_dimensions ... ok\n\nthread 'physical_prediction_keeps_underflowed_products_and_cancelling_large_terms' (1280913) panicked at crates/analytics/tests/kinship.rs:303:70:\ncalled `Result::unwrap()` on an `Err` value: \"kinship result outside finite binary64 range\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest exactly_explained_response_rejects_a_spurious_finite_variance_mle ... ok\ntest physical_prediction_keeps_underflowed_products_and_cancelling_large_terms ... FAILED\ntest genomic_ml_and_reml_have_different_variance_likelihood_contracts ... ok\ntest genomic_reml_recovers_balanced_random_intercept_variances_and_blups ... ok\n\nthread 'clipped_kernel_null_space_is_absent_from_blup_and_saved_training_predictions' (1280905) panicked at crates/analytics/tests/kinship.rs:261:5:\nclipped null-space BLUP -0.0000003008714584140648\ntest saved_kinship_prediction_uses_fixed_cross_covariances_without_reestimating_variance ... ok\ntest clipped_kernel_null_space_is_absent_from_blup_and_saved_training_predictions ... FAILED\ntest profile_refines_a_true_interior_optimum_inside_the_last_grid_interval ... ok\n\nthread 'subnormal_kernel_prediction_scales_physical_effect_before_ratio_overflow' (1280917) panicked at crates/analytics/tests/kinship.rs:289:95:\ncalled `Result::unwrap()` on an `Err` value: \"kinship result outside finite binary64 range\"\ntest fixed_covariates_and_original_design_reml_determinant_are_preserved ... ok\ntest subnormal_kernel_prediction_scales_physical_effect_before_ratio_overflow ... FAILED\ntest unrepresentable_positive_variance_does_not_appear_as_a_zero_variance_model ... ok\ntest genetic_zero_boundary_is_distinct_from_unidentifiable_identity_kernel ... ok\ntest subnormal_kernel_units_do_not_overflow_portable_weights_or_finite_predictions ... ok\n\nthread 'valid_training_dimensions_exercise_psd_and_exact_symmetry_validation' (1280920) panicked at crates/analytics/tests/kinship.rs:313:48:\ncalled `Result::unwrap_err()` on an `Ok` value: \"{\\\"version\\\":1,\\\"method\\\":\\\"kinship_model\\\",\\\"estimation\\\":\\\"REML\\\",\\\"intercept\\\":3.0000000000002185,\\\"coefficients\\\":[],\\\"genetic_variance\\\":7.000000027869252,\\\"residual_variance\\\":1.9999999967211606,\\\"kernel_mean_diagonal\\\":1,\\\"normalized_genetic_fraction\\\":0.7777777787492639,\\\"log_likelihood\\\":-7.029404321853798,\\\"genetic_values\\\":[-1.7500000012280337,-1.7500000012293464,1.7500000012293464,1.7500000012293464],\\\"marginal_fitted\\\":[3.0000000000002185,3.0000000000002185,3.0000000000002185,3.0000000000002185],\\\"conditional_fitted\\\":[1.2499999987721848,1.249999998770872,4.750000001229565,4.750000001229565],\\\"predict_parameters\\\":[1,4,0,0,0.5,6,0.00000000000003646465847317454,1,-0.7291666700478778,0.4375000031763201,-0.4375000031763201,0.7291666700478778],\\\"variance_components_identified\\\":true,\\\"boundary\\\":false,\\\"upper_bound_active\\\":false,\\\"converged\\\":true,\\\"likelihood_evaluations\\\":171,\\\"variance_parameter_uncertainty\\\":null,\\\"search\\\":\\\"bounded_grid_and_local_profile_refinement_no_global_optimum_certificate\\\"}\"\ntest valid_training_dimensions_exercise_psd_and_exact_symmetry_validation ... FAILED\n\nthread 'subnormal_fixed_feature_scale_preserves_finite_zero_and_nonzero_slope_predictions' (1280916) panicked at crates/analytics/tests/kinship.rs:278:117:\ncalled `Result::unwrap()` on an `Err` value: \"kinship result outside finite binary64 range\"\ntest subnormal_fixed_feature_scale_preserves_finite_zero_and_nonzero_slope_predictions ... FAILED\ntest kernel_and_response_units_do_not_change_fitted_values ... ok\n\nfailures:\n\nfailures:\n    clipped_kernel_null_space_is_absent_from_blup_and_saved_training_predictions\n    physical_prediction_keeps_underflowed_products_and_cancelling_large_terms\n    subnormal_fixed_feature_scale_preserves_finite_zero_and_nonzero_slope_predictions\n    subnormal_kernel_prediction_scales_physical_effect_before_ratio_overflow\n    valid_training_dimensions_exercise_psd_and_exact_symmetry_validation\n\ntest result: FAILED. 11 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p ducksmiles_analytics --test kinship`\n",
+        "behavioral-green.log": "   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.50s\n     Running tests/kinship.rs (/private/tmp/rusta-ducksmiles-jmp-target/debug/deps/kinship-d8e59b5e0f032f4b)\n\nrunning 16 tests\ntest kinship_contract_rejects_indefinite_asymmetric_and_invalid_dimensions ... ok\ntest exactly_explained_response_rejects_a_spurious_finite_variance_mle ... ok\ntest physical_prediction_keeps_underflowed_products_and_cancelling_large_terms ... ok\ntest profile_refines_a_true_interior_optimum_inside_the_last_grid_interval ... ok\ntest genomic_reml_recovers_balanced_random_intercept_variances_and_blups ... ok\ntest genomic_ml_and_reml_have_different_variance_likelihood_contracts ... ok\ntest clipped_kernel_null_space_is_absent_from_blup_and_saved_training_predictions ... ok\ntest genetic_zero_boundary_is_distinct_from_unidentifiable_identity_kernel ... ok\ntest saved_kinship_prediction_uses_fixed_cross_covariances_without_reestimating_variance ... ok\ntest kernel_and_response_units_do_not_change_fitted_values ... ok\ntest valid_training_dimensions_exercise_psd_and_exact_symmetry_validation ... ok\ntest fixed_covariates_and_original_design_reml_determinant_are_preserved ... ok\ntest subnormal_kernel_prediction_scales_physical_effect_before_ratio_overflow ... ok\ntest subnormal_kernel_units_do_not_overflow_portable_weights_or_finite_predictions ... ok\ntest unrepresentable_positive_variance_does_not_appear_as_a_zero_variance_model ... ok\ntest subnormal_fixed_feature_scale_preserves_finite_zero_and_nonzero_slope_predictions ... ok\n\ntest result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n",
+        "clippy.log": "    Checking ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.63s\n",
+        "candidate-green.log": "\nrunning 16 tests\ntest exactly_explained_response_rejects_a_spurious_finite_variance_mle ... ok\ntest kinship_contract_rejects_indefinite_asymmetric_and_invalid_dimensions ... ok\ntest physical_prediction_keeps_underflowed_products_and_cancelling_large_terms ... ok\ntest genetic_zero_boundary_is_distinct_from_unidentifiable_identity_kernel ... ok\ntest kernel_and_response_units_do_not_change_fitted_values ... ok\ntest saved_kinship_prediction_uses_fixed_cross_covariances_without_reestimating_variance ... ok\ntest fixed_covariates_and_original_design_reml_determinant_are_preserved ... ok\ntest genomic_ml_and_reml_have_different_variance_likelihood_contracts ... ok\ntest genomic_reml_recovers_balanced_random_intercept_variances_and_blups ... ok\ntest clipped_kernel_null_space_is_absent_from_blup_and_saved_training_predictions ... ok\ntest valid_training_dimensions_exercise_psd_and_exact_symmetry_validation ... ok\ntest profile_refines_a_true_interior_optimum_inside_the_last_grid_interval ... ok\ntest subnormal_kernel_prediction_scales_physical_effect_before_ratio_overflow ... ok\ntest subnormal_kernel_units_do_not_overflow_portable_weights_or_finite_predictions ... ok\ntest unrepresentable_positive_variance_does_not_appear_as_a_zero_variance_model ... ok\ntest subnormal_fixed_feature_scale_preserves_finite_zero_and_nonzero_slope_predictions ... ok\n\ntest result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+      }
+    }
+  },
+  "api_sha256": "d37686841c17cf430921dca99e500edf2b8ce4143c28a71c275d4fb355b62b59",
+  "registry_sha256": "a9e0e072dd3cc2312606dbc0a531a66d5b35956ef08ba18b4c5997f89c464d5e",
+  "oracle_reproduction": {
+    "wrapper_source_embedded": true,
+    "build_command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target rustc --edition=2021 -O /private/tmp/rusta-ducksmiles-jmp-target/kinship-oracle/wrapper.rs -o /private/tmp/rusta-ducksmiles-jmp-target/kinship-oracle/wrapper",
+    "run_command": "python3 scripts/check_kinship_reference.py --wrapper /private/tmp/rusta-ducksmiles-jmp-target/kinship-oracle/wrapper --evidence tasks/evidence/jmp-kinship-reference.json",
+    "wrapper_binary_sha256": "d496ed956047fbef879b8721a060f29dd832797dfd350c7ebc5d7bdabde0bb6e",
+    "source_unchanged_during_compile_run_confirmed_by_implementation_owner": true
+  }
+}

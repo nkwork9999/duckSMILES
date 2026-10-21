@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "source": "crates/analytics/src/latent_inference.rs",
+  "scope": "Four bounded CPU method contracts. Extends partial multivariate coverage; does not establish full MANOVA/canonical/factor/MCA platform parity.",
+  "integration_status": "Public execute10focusedtests, exported public C ABI41groups/5937assertions, strictClippy andfmt pass. All4SQLexample payloads pass actualCABI. Parent owns registryintegration/nativeDuckDBSQLgate; no nativeSQLclaim here.",
+  "common_limits": "Finite rectangular nonempty matrix,<=10000rows,128columns,1000000cells;<=16384finiteparameters; method-specific lower limits apply. Nominal200M preflight work plus separate eigensolver bounds.",
+  "operations": [
+    {
+      "operation": "manova",
+      "symbol": "Manova",
+      "data": "Numeric rows [X predictors...,Y responses...]. At least one predictor and response; <=32 of each and <=64 total columns. Categorical effects must be explicitly encoded as a full-rank numeric design by the caller.",
+      "args": [
+        "x_columns: required integer 1..total_columns-1"
+      ],
+      "method": "Adds an unpenalized intercept by centering all columns; twice-reorthogonalized QR of population-standardized predictors. Tests the whole predictor design against intercept-only. H is fitted centered-response SSCP and E is residual SSCP. Generalized roots are computed by symmetric E whitening.",
+      "outputs": [
+        "hypothesis_sscp and error_sscp in original response units",
+        "hypothesis_df, error_df",
+        "eigenvalues of E^-1 H",
+        "wilks_lambda and log_wilks_lambda",
+        "pillai_trace",
+        "hotelling_lawley_trace",
+        "roy_largest_root",
+        "test_order = [wilks,pillai,hotelling_lawley,roy]",
+        "f_statistics,numerator_df,denominator_df,p_values in test_order",
+        "f_is_exact",
+        "roy_p_value_is_lower_bound"
+      ],
+      "inference": "When min(response rank,hypothesis df)=1 all four statistics reduce to the same exact F reference. Otherwise uses the JMP 19.2 published Rao Wilks, Pillai, simple Hotelling-Lawley and Roy F conventions. Generic multi-root results are labeled approximate; Roy p is a lower bound. If an approximate denominator df is nonpositive or F is not representable, that test has null F/df/p fields while the criteria remain available.",
+      "validation": "n>x_columns+1, full-rank centered X, positive-definite numerically identifiable residual SSCP. No covariance ridge is silently introduced.",
+      "unsupported": [
+        "effect-specific or custom L contrasts",
+        "response M transforms/repeated-measures specification",
+        "automatic categorical coding",
+        "univariate effect tables",
+        "sphericity tests",
+        "missing values/weights",
+        "singular-covariance generalized inverse inference"
+      ],
+      "sql_example": "chem_manova([[0.0,-1.0,-1.0],[0.0,-1.0,1.0],[0.0,1.0,-1.0],[0.0,1.0,1.0],[1.0,1.0,0.0],[1.0,1.0,2.0],[1.0,3.0,0.0],[1.0,3.0,2.0]], [1.0])",
+      "known_values": "H=[[8,4],[4,2]],E=8I,roots=[1.25,0],Wilks4/9,Pillai5/9,F3.125(df2,5),p.1316872427983539",
+      "references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-multivariate-tests.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-approximate-ftests.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/the-extended-multivariate-report.shtml"
+      ],
+      "sql_name": "chem_manova",
+      "registry_line": "ANALYTICS_METHOD(Manova,\"chem_manova\",\"manova\",\"Whole-model numeric MANOVA with intercept: [X...,Y...] rows, <=32predictors/responses; [x_columns]; H/E and4criteria, exact rank-one F otherwise JMP approximate F with Roy p lower bound.\",\"chem_manova([[0.0,-1.0,-1.0],[0.0,-1.0,1.0],[0.0,1.0,-1.0],[0.0,1.0,1.0],[1.0,1.0,0.0],[1.0,1.0,2.0],[1.0,3.0,0.0],[1.0,3.0,2.0]], [1.0])\")"
+    },
+    {
+      "operation": "canonical_correlation_inference",
+      "symbol": "CanonicalCorrelationInference",
+      "data": "One-column rows containing every fitted unregularized sample canonical correlation, sorted descending in [0,1]. Row count must be min(p,q). This operation consumes correlation summaries, not raw X/Y observations.",
+      "args": [
+        "n_samples: integer 3..1000000, must exceed p+q",
+        "p: number of X variables, integer 1..64",
+        "q: number of Y variables, integer 1..64"
+      ],
+      "method": "For each sequential null that the remaining canonical correlations are zero, computes Wilks product of (1-rho^2) and Bartlett statistic -(n-1-(p+q+1)/2)*log(Wilks), with chi-square df=(p-j)*(q-j) for zero-based j.",
+      "outputs": [
+        "correlations",
+        "wilks_lambdas",
+        "bartlett_factor",
+        "bartlett_chi_square",
+        "degrees_of_freedom",
+        "p_values",
+        "exact=false"
+      ],
+      "inference": "An asymptotic Bartlett chi-square approximation under complete multivariate-normal unregularized sample CCA. A perfect correlation gives Wilks0, statistic null (positive infinity) and p0. The summary cannot establish whether the supplied values came from a regularized estimator; using ridge/sparse CCA values violates this contract.",
+      "validation": "Requires all correlations, correct block dimensions, n>p+q, sorted finite unit-interval values.",
+      "unsupported": [
+        "raw-data CCA fitting (use existing canonical_correlation)",
+        "regularized/sparse CCA inference",
+        "permutation inference",
+        "Lawley/Rao refinements",
+        "full MANOVA canonical report"
+      ],
+      "sql_example": "chem_canonical_correlation_inference([[0.8],[0.6]], [100.0,2.0,2.0])",
+      "known_values": "Wilks[.2304,.64],firstBartlettchi-square141.6560507904787,df4,p1.247594163207293e-29",
+      "references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-canonical-calculations.shtml",
+        "https://search.r-project.org/CRAN/refmans/CCP/html/p.asym.html",
+        "https://search.r-project.org/CRAN/refmans/yacca/html/cca.html"
+      ],
+      "sql_name": "chem_canonical_correlation_inference",
+      "registry_line": "ANALYTICS_METHOD(CanonicalCorrelationInference,\"chem_canonical_correlation_inference\",\"canonical_correlation_inference\",\"Sequential Wilks/Bartlett asymptotic chi-square: sorted unregularized correlations as one-column rows; [n_samples>p+q,p1..64,q1..64]; all min(p,q) correlations required; not raw-data fitting.\",\"chem_canonical_correlation_inference([[0.8],[0.6]], [100.0,2.0,2.0])\")"
+    },
+    {
+      "operation": "multiple_correspondence_analysis",
+      "symbol": "MultipleCorrespondenceAnalysis",
+      "data": "Complete integer-coded categorical observation rows: >=2 observations,2..32 variables,<=64 total observed categories. Codes may be negative, must be exact integers with absolute value <=2^53-1. Categories are sorted within each variable; constant variables are allowed if some dimension remains.",
+      "args": [
+        "dimensions: integer 1..min(n-1,total_categories-variables), default min(2,available_axes)"
+      ],
+      "method": "Constructs the complete disjunctive indicator matrix implicitly and its Burt counts. Eigenvalues of the centered standardized Burt matrix equal indicator-CA principal inertias. Reports all available raw inertias and square-root singular values. Principal category coordinates and individual row coordinates use the same eigenvectors. Numeric inertias <=1e-12 and their row coordinates are zero.",
+      "outputs": [
+        "category_variables (zero-based)",
+        "category_levels,category_counts,category_masses",
+        "burt_table",
+        "inertias,singular_values,total_inertia",
+        "row_coordinates,category_coordinates",
+        "benzecri_inertias,benzecri_proportions",
+        "greenacre_total_inertia,greenacre_proportions",
+        "inertia_convention,scaling"
+      ],
+      "inference": "Benz\u00e9cri correction is (Q/(Q-1)*(lambda-1/Q))^2 for lambda>1/Q, otherwise zero. Benz\u00e9cri proportions divide by sum corrected inertias; Greenacre proportions divide by Q/(Q-1)*(sum lambda^2-(J-Q)/Q^2). A denominator <=1e-12 yields null adjusted proportions. These are descriptive inertia adjustments, not significance tests.",
+      "validation": "Rejects fractional/inexact category codes, more than64observedcategories and all-constant data. All rows participate in fitting.",
+      "unsupported": [
+        "supplementary variables/individuals",
+        "unknown-category prediction",
+        "Cochran Q",
+        "partial contributions/cosines",
+        "frequency weights",
+        "missing categories",
+        "joint correspondence analysis"
+      ],
+      "sql_example": "chem_multiple_correspondence_analysis([[0.0,0.0],[0.0,0.0],[1.0,1.0],[1.0,1.0]], [1.0])",
+      "known_values": "indicator inertias[1,0],total1,Benzecri[1,0],Greenacre total1; same-class row coordinates coincide",
+      "references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/multiple-correspondence-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-details-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-adjusted-inertia.shtml"
+      ],
+      "sql_name": "chem_multiple_correspondence_analysis",
+      "registry_line": "ANALYTICS_METHOD(MultipleCorrespondenceAnalysis,\"chem_multiple_correspondence_analysis\",\"multiple_correspondence_analysis\",\"Complete integer-coded MCA: 2..32categorical variables, <=64observedcategories; [dimensions=min(2,n-1,categories-variables)]; indicator/Burt inertias, principal scores, Benzecri/Greenacre adjustments.\",\"chem_multiple_correspondence_analysis([[0.0,0.0],[0.0,0.0],[1.0,1.0],[1.0,1.0]], [1.0])\")"
+    },
+    {
+      "operation": "factor_analysis_ml",
+      "symbol": "FactorAnalysisMl",
+      "data": "Numeric observation rows with n>variables and2..24variables, or a positive-definite correlation matrix with diagonal1 and entries[-1,1].",
+      "args": [
+        "factors: required integer 1..p-1 with nominal model df>=0",
+        "rotation: 0 none,1 Kaiser-normalized orthogonal varimax (default)",
+        "maxiter: integer1..1000,default200; applies independently to optimizer and varimax",
+        "tolerance:1e-12..1e-2,default1e-8; maximum projected uniqueness gradient",
+        "uniqueness_floor:1e-10..1,default1e-6; uniquenesses constrained to [floor,1]",
+        "input:0 raw rows (default),1 correlation matrix",
+        "n_samples_for_correlation:integer0..1000000,default0; raw mode requires0 and uses row count; correlation mode0 omits sample-size inference, positive count must exceed p"
+      ],
+      "method": "Gaussian maximum-likelihood factor model Sigma=L L^T+diag(psi) on population-standardized correlation. Analytic maximum-likelihood loadings for fixed psi are obtained from the whitened correlation eigenpairs; uniquenesses minimize the profiled likelihood criterion with projected BFGS, SMC uniqueness start, active-set curvature updates and safeguarded line search. This is a local optimizer, not a global-optimum guarantee.",
+      "outputs": [
+        "loadings,unrotated_loadings,rotation_matrix",
+        "uniquenesses,communalities,reproduced_correlation,residual_rms",
+        "criterion,criterion_history,criterion_definition",
+        "model_df",
+        "optimizer_converged,rotation_converged,converged,iterations",
+        "projected_gradient_max,line_search_failed,boundary",
+        "model_chi_square,model_p_value",
+        "scores,score_predict_parameters,score_input,score_method"
+      ],
+      "inference": "Nominal model df=((p-k)^2-p-k)/2. When sample size is supplied, df>0, convergence succeeds and no uniqueness is on a constraint boundary, reports the Bartlett-corrected asymptotic chi-square (n-1-(2p+5)/6-2k/3)*criterion and its tail. Otherwise statistic and p are null. The criterion is logdet(Sigma)+tr(R Sigma^-1)-logdet(R)-p. Boundary includes lower variance constraints and uniqueness near1.",
+      "scoring": "Regression scores use standardized rows*Sigma_fit^-1*loadings. Each saved score_predict_parameters axis is directly reusable by existing glm_predict. Raw input stores stable fit-time origins/offsets/population scales; correlation input gives no training scores and saved scoring expects standardized variables.",
+      "validation": "Rejects negative nominal model df, non-SPD/singular correlations, bad diagonal/asymmetry, invalid variance floor or unsupported sample size. Finite iteration/line-search limits return honest converged:false with null fit-test p.",
+      "unsupported": [
+        "oblique rotations",
+        "multiple optimizer starts/global guarantee",
+        "missing-data ML",
+        "score imputation",
+        "Bartlett factor scoring",
+        "no-common-factor sphericity test",
+        "TLI/RMSEA/AIC/BIC tables",
+        "full local/global identification diagnostics",
+        "loading standard errors/confidence intervals"
+      ],
+      "sql_example": "chem_factor_analysis_ml([[1.0,0.49,0.49,0.49],[0.49,1.0,0.49,0.49],[0.49,0.49,1.0,0.49],[0.49,0.49,0.49,1.0]], [1.0,0.0,300.0,1e-9,1e-6,1.0,200.0])",
+      "known_values": "one-factor population loadings.7,uniquenesses.51,criterion0,modeldf2,p1",
+      "references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-factor-analysis-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis-model-fit-options.shtml",
+        "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/factanal.html"
+      ],
+      "sql_name": "chem_factor_analysis_ml",
+      "registry_line": "ANALYTICS_METHOD(FactorAnalysisMl,\"chem_factor_analysis_ml\",\"factor_analysis_ml\",\"Gaussian ML correlation-factor model with2..24variables: [factors,rotation0none/1varimax=1,maxiter1..1000=200,tol=1e-8,uniqueness_floor=1e-6,input0rows/1correlation=0,n_correlation_samples=0]; bounded local optimizer.\",\"chem_factor_analysis_ml([[1.0,0.49,0.49,0.49],[0.49,1.0,0.49,0.49],[0.49,0.49,1.0,0.49],[0.49,0.49,0.49,1.0]], [1.0,0.0,300.0,1e-9,1e-6,1.0,200.0])\")"
+    }
+  ],
+  "evidence": "tasks/evidence/jmp-latent-inference-reference.json",
+  "next_gaps": [
+    "MANOVA arbitrary L/M contrasts and repeated-response designs",
+    "ML factor oblique rotations/inference diagnostics",
+    "MCA supplementary category projection and descriptive diagnostics",
+    "SEM/CFA and latent-class models remain separate absent families"
+  ]
+}

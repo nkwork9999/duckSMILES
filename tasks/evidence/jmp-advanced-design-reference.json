@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-21",
+  "scope": "Seven advanced DOE operations, no GUI. Sylvester Hadamard main-effect screening is not general Plackett-Burman or definitive screening; generator factorials do not infer alias resolution or optimality.",
+  "layer": "Independent NumPy oracle uses isolated Rust advanced_design::run; final Rust integration tests use public execute routing; SQL/native validation is parent-owned.",
+  "versions": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1"
+  },
+  "seed": 76439,
+  "reference_result": {
+    "cases": 406,
+    "breakdown": {
+      "numpy_design_evaluation": 200,
+      "hadamard_orthogonality": 64,
+      "fractional_factorial_orthogonality": 6,
+      "box_behnken_full_quadratic_rank": 6,
+      "latin_hypercube_strata": 40,
+      "constrained_mixture_lattice_and_unit_scaling": 60,
+      "lossless_balanced_replicate_randomization": 30
+    },
+    "max_scaled_absolute_error": [
+      4.594102875898898e-13,
+      "inverse_information_matrix"
+    ],
+    "failure_count": 0
+  },
+  "tdd": {
+    "initial_behavioral_red": {
+      "failed": 9,
+      "passed_validation_only": 1
+    },
+    "final_focused_tests": 11,
+    "regression": {
+      "name": "mixture_sum_tolerance_respects_small_measurement_units",
+      "red": "fixed mixture lower total2e-15 was accepted against requested total1e-100 because tolerance used max(total,1)",
+      "green": "Relative tolerance (64*epsilon*factors)*total rejects impossible mixtures and preserves valid tiny-unit simplex lattices"
+    }
+  },
+  "contracts": {
+    "box_behnken": {
+      "data": "bounds [low,high] rows; at least3 factors",
+      "args": "[center_points=1]",
+      "construction": "four sign combinations for every factor pair; remaining factors centered"
+    },
+    "latin_hypercube": {
+      "data": "bounds [low,high] rows",
+      "args": "[n_runs,seed]",
+      "construction": "one independently shuffled, uniformly jittered sample per stratum per factor"
+    },
+    "mixture_lattice": {
+      "data": "nonnegative [lower,upper] rows; fixed components lower=upper allowed",
+      "args": "[degree,total=1]",
+      "construction": "lower_i+(total-sum(lower))*count_i/degree, all nonnegative integer compositions of degree, filter upper constraints; degenerate remaining total yields one point"
+    },
+    "fractional_factorial": {
+      "data": "bounds [low,high] rows",
+      "args": "[base_count,center_points,generator_masks...] exact one mask per remaining factor",
+      "construction": "base columns enumerate all2^base corners; generated columns are positive products of selected base columns"
+    },
+    "orthogonal_screening": {
+      "data": "bounds [low,high] rows",
+      "args": "[]",
+      "construction": "first p nonconstant Sylvester Hadamard columns, run_count next_power_of_two(p+1)"
+    },
+    "randomize_design": {
+      "data": "arbitrary finite numeric rectangular design matrix",
+      "args": "[replicates,seed,blocks=1]",
+      "construction": "independent complete shuffle per replicate, then consecutive equal-size blocks; input row count divisible by blocks; labels/sourceindices zero-based"
+    },
+    "design_evaluate": {
+      "data": "supplied model terms excluding intercept",
+      "args": "[]",
+      "construction": "intercept added; twice reorthogonalized QR on origin-relative mean-centered populationRMS-scaled terms; raw and coded information/inverse/logdet both returned; spectral2norm condition is coded design matrix; leverages from Q"
+    }
+  },
+  "limits": {
+    "input_rows": 100000,
+    "input_columns": 1024,
+    "input_cells": 1000000,
+    "factors_or_modelterms": 64,
+    "output_rows": 100000,
+    "output_cells": 1000000,
+    "exact_seed_max": 9007199254740991,
+    "fractional_base_max": 16,
+    "mixture_degree_max": 1000,
+    "mixture_enumerated_compositions_max": 1000000,
+    "replicates_max": 1000,
+    "design_evaluation_work_units_max": 50000000,
+    "rank_rule": "QRrelative residualnorm<=1e-10 rejects; coded spectral eigenvalue ratio<=1e-14 rejects as unreliable",
+    "jacobi_sweeps_max": 64
+  },
+  "source_sha256": {
+    "crates/analytics/src/advanced_design.rs": "054a3e17592a123babb908bdcec4d1f1a037ec22030ab2aa4518748ad1de32c1",
+    "crates/analytics/tests/advanced_design.rs": "66a6d0f2d05f50ee33c0dde09e2e8d0b4c1634001cb52ea422d31e9e977902d7"
+  },
+  "primary_sources": [
+    "https://www.jmp.com/en/statistics-knowledge-portal/design-of-experiments/response-surface-methodology/box-behnken-designs",
+    "https://www.jmp.com/support/help/en/19.2/jmp/choose-a-design.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/introduction-to-doe.shtml"
+  ],
+  "harness": {
+    "build_directory": "/private/tmp/rusta-ducksmiles-jmp-target/inference-check",
+    "lib_rs": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/inference.rs\"]\npub mod inference;\n#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/timeseries.rs\"]\npub mod timeseries;\n#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/survival.rs\"]\npub mod survival;\n#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/advanced_design.rs\"]\npub mod advanced_design;\n",
+    "runner_rs": "use std::io::{self, BufRead};\nfn main() {\n for line in io::stdin().lock().lines() {\n  let line=line.unwrap(); let parts=line.split('|').collect::<Vec<_>>();\n  let args=parts[1].split(',').filter(|x|!x.is_empty()).map(|x|x.parse().unwrap()).collect::<Vec<f64>>();\n  let rows=parts[2].split(';').map(|r|r.split(',').map(|x|x.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();\n  match ducksmiles_analytics::advanced_design::run(parts[0],&rows,&args) {Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}\n }\n}\n",
+    "oracle_py": "import json, subprocess, itertools, numpy as np\nrng=np.random.default_rng(76439);cases=[]\ndef add(op,rows,args,oracle):\n text=op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r)) for r in rows)\n cases.append((text,op,oracle))\nfor _ in range(200):\n p=int(rng.integers(1,9));n=int(rng.integers(p+3,p+40));D=rng.normal(0,1,(n,p))*rng.uniform(.3,3,p)+rng.uniform(-5,5,p);X=np.c_[np.ones(n),D];G=X.T@X;I=np.linalg.inv(G);Z=np.c_[np.ones(n),(D-D.mean(0))/np.sqrt(np.mean((D-D.mean(0))**2,axis=0))]\n add('design_evaluate',D,[],{'numeric':{'information_matrix':G,'inverse_information_matrix':I,'log_determinant':np.linalg.slogdet(G)[1],'coded_log_determinant':np.linalg.slogdet(Z.T@Z)[1],'condition_number_coded':np.linalg.cond(Z),'leverages':np.einsum('ij,jk,ik->i',X,I,X)}})\nfor p in range(1,65):\n add('orthogonal_screening',[[-1,1]]*p,[],{'orthogonal':p})\nfor base in range(2,8):\n p=min(64,2**base-1);masks=[m for m in range(1,2**base) if m.bit_count()>=2][:p-base]\n add('fractional_factorial',[[-1,1]]*p,[base,0,*masks],{'orthogonal':p})\nfor p in range(3,9):\n add('box_behnken',[[-1,1]]*p,[1],{'box':p})\nfor _ in range(40):\n p=int(rng.integers(1,9));n=int(rng.integers(2,80));lo=rng.uniform(-20,20,p);hi=lo+rng.uniform(.5,5,p)\n add('latin_hypercube',list(zip(lo,hi)),[n,int(rng.integers(0,1000000))],{'lhs':(p,n,lo,hi)})\nfor _ in range(60):\n p=int(rng.integers(2,5));degree=int(rng.integers(1,6));unit=10.**rng.uniform(-40,40);lo=rng.uniform(0,.07,p);hi=rng.uniform(.5,.95,p);remaining=1-lo.sum()\n points=[]\n for counts in itertools.product(range(degree+1),repeat=p):\n  if sum(counts)!=degree:continue\n  point=lo+remaining*np.array(counts)/degree\n  if np.all(point<=hi+1e-13):points.append(point)\n add('mixture_lattice',list(zip(lo*unit,hi*unit)),[degree,unit],{'mixture':(np.array(points),unit)})\nfor _ in range(30):\n n=int(rng.choice([6,8,12,16,18,24]));r=int(rng.integers(1,5));blocks=int(rng.choice([b for b in range(1,n+1) if n%b==0]))\n add('randomize_design',[[i,i+100]for i in range(n)],[r,int(rng.integers(0,1000000)),blocks],{'random':(n,r,blocks)})\nproc=subprocess.run(['/private/tmp/rusta-ducksmiles-jmp-target/inference-check/design_runner'],input='\\n'.join(c[0]for c in cases)+'\\n',text=True,capture_output=True,check=True)\nerrors=[];maxerror=(0,None)\nfor (_,op,oracle),out in zip(cases,proc.stdout.splitlines()):\n if out.startswith('ERROR'):\n  if 'mixture'in oracle and len(oracle['mixture'][0])==0:continue\n  errors.append((op,out));continue\n result=json.loads(out)\n if 'numeric'in oracle:\n  for key,expected in oracle['numeric'].items():\n   aa=np.asarray(result[key]);ee=np.asarray(expected);error=float(np.max(np.abs(aa-ee)/np.maximum(1,np.abs(ee))))\n   if error>maxerror[0]:maxerror=(error,key)\n   if error>2e-8:errors.append((op,key,error))\n if 'orthogonal'in oracle:\n  p=oracle['orthogonal'];a=np.asarray(result['coded_rows']);X=np.c_[np.ones(len(a)),a]\n  if not np.array_equal(X.T@X,np.eye(p+1)*len(a)):errors.append((op,'not orthogonal'))\n if 'box'in oracle:\n  p=oracle['box'];a=np.asarray(result['coded_rows']);X=np.c_[np.ones(len(a)),a,a*a,np.array([a[:,i]*a[:,j]for i in range(p)for j in range(i+1,p)]).T]\n  if len(a)!=2*p*(p-1)+1 or np.linalg.matrix_rank(X)!=X.shape[1]:errors.append((op,'run count or quadratic rank'))\n if 'lhs'in oracle:\n  p,n,lo,hi=oracle['lhs'];a=np.asarray(result['rows']);strata=np.floor((a-lo)/(hi-lo)*n).astype(int)\n  if any(not np.array_equal(np.sort(strata[:,j]),np.arange(n))for j in range(p)):errors.append((op,'strata'))\n if 'mixture'in oracle:\n  expected,unit=oracle['mixture'];actual=np.asarray(result['rows'])/unit\n  if actual.shape!=expected.shape or np.max(abs(actual-expected))>1e-12:errors.append((op,'composition discrepancy'))\n if 'random'in oracle:\n  n,r,b=oracle['random'];rows=np.asarray(result['rows']);source=np.asarray(result['source_indices']);rep=np.asarray(result['replicate_labels']);blocks=np.asarray(result['block_labels'])\n  if any(not np.array_equal(np.sort(source[i*n:(i+1)*n]),np.arange(n))for i in range(r)):errors.append((op,'source loss'))\n  if any(np.count_nonzero((rep==i)&(blocks==j))!=n//b for i in range(r)for j in range(b)):errors.append((op,'unbalanced block'))\nprint(json.dumps({'cases':len(cases),'max_scaled_absolute_error':maxerror,'failure_count':len(errors),'errors':errors[:20]}))\n",
+    "reproduction": "Restore lib_rs to lib.rs, runner_rs to design_runner.rs, oracle_py to design_verify.py under build_directory. Compile with rustc --edition 2021 --crate-name ducksmiles_analytics --crate-type rlib lib.rs -o libducksmiles_analytics.rlib; rustc --edition 2021 design_runner.rs --extern ducksmiles_analytics=<build_directory>/libducksmiles_analytics.rlib -o design_runner. Run python3 design_verify.py. No runtime dependencies added to production."
+  }
+}

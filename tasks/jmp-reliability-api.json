@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "module": "reliability",
+  "module_path": "crates/analytics/src/reliability.rs",
+  "source": "crates/analytics/src/reliability.rs",
+  "scope": "Seven bounded CPU parametric-reliability operations,partial JMP19.2 numerical coverage; not full parametric survival/reliability growth/RBD equivalence.",
+  "integration_status": "Parent pubmod/publicexecute routes enabled;11focusedtests passed. NativeSQL validation belongs to parent.",
+  "common_contract": {
+    "data": "Finite rectangular nonempty numeric data,<=100000rows,<=1024columns,<=1000000cells. AFT uses<=16covariates and more observations than parameters.",
+    "arguments": "<=16384finite doubles,operation-specific exact ordered layout.",
+    "AFT_parameters": "coefficients are original-unit intercept+slopes. standard_errors,z,p,CI/covariance append log_sigma as final parameter only for Weibull/lognormal. Exponential log_sigma0is fixed and not counted as estimated.",
+    "AFT_saved_model": "[distribution0exp/1Weibull/2lognormal,p,log_time_reference,log_sigma,centered_intercept,feature_origins(p),mean_offsets(p),population_scales(p),standardized_slopes(p)]",
+    "numerical_limits": "AFT actual likelihood/derivative evaluation budget200000000nominal n*d*d units; max1000iterations and50line-searchtrials; log_sigma in[-30,30]. Identifiability checks use positive-definite observed information with relative pivot1e-12.",
+    "inference": "Unpenalized observed-information95%Wald asymptotics; penalized curvature has no calibrated p/CI/AIC/BIC. Error on zero events,unidentified design/shape or exhausted iterations.",
+    "normal_tails": "Incomplete gamma for ordinary tails; Laplace continued fraction for positive z>=8 retains inverse-Mills derivative without cancellation.",
+    "block_work": "k-of-n rows*components^2<=50000000; series/parallel linear time.",
+    "nulls": "Nonrepresentable positive lifetime quantile/eta or NHPP infinity may be null; log-scale quantities remain available. No invalid JSON nonfinite tokens."
+  },
+  "operations": [
+    {
+      "operation": "aft_exponential",
+      "symbol": "AftExponential",
+      "sql_name": "chem_aft_exponential",
+      "source": "crates/analytics/src/reliability.rs",
+      "description": "Right-censored exponential AFT: [features...,positive_time,event0/1]; [ridge=0,maxiter=200,tolerance=1e-8].",
+      "data": "0..16numeric features followed by positive lifetime and event1/exact or0/right-censored; intercept-only rows[time,event]supported; observations>estimatedparameters.",
+      "args": [
+        "ridge:0..1e12,default0; penaltylambda/2 times sum squared population-standardized slopes",
+        "maxiter:integer1..1000,default200",
+        "tolerance:1e-12..1e-3,default1e-8"
+      ],
+      "estimator": "Full likelihood product of failure densities and censor survival probabilities. Log-time location=intercept+linear covariate effects. Exponential has SEV scale1; Weibull has common SEV scale sigma=1/shape; lognormal has common normal log-time sigma. Analytic score and observed information; BFGS inverse-curvature updates and Armijo line search. Original-unit coefficients/covariance and95%Wald intervals when unpenalized. With penalized slopes,curvature SEs remain descriptive,p-values/CI/AIC/BIC are null. Search log_sigma bounded[-30,30]; no false convergence or pseudoinverse.",
+      "sql_example": "chem_aft_exponential([[1.0,1.0],[2.0,1.0],[3.0,0.0],[4.0,1.0],[5.0,0.0]], [])",
+      "known_value": "Finite identified right-censored MLE; exponential reduces to total exposure/failures in an intercept-only model.",
+      "fixture": {
+        "data": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            0
+          ]
+        ],
+        "args": []
+      },
+      "unsupported": [
+        "left/interval censoring",
+        "delayed entry",
+        "time-dependent/scale covariates",
+        "competing risks",
+        "frailty",
+        "automatic model/feature selection",
+        "shape outside supported log-sigma range",
+        "exact finite-sample inference"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/fit-parametric-survival.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-fit-parametric-survival-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/exponential-weibull-and-lognormal-plots-and-fits.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+    },
+    {
+      "operation": "aft_weibull",
+      "symbol": "AftWeibull",
+      "sql_name": "chem_aft_weibull",
+      "source": "crates/analytics/src/reliability.rs",
+      "description": "Right-censored weibull AFT: [features...,positive_time,event0/1]; [ridge=0,maxiter=200,tolerance=1e-8].",
+      "data": "0..16numeric features followed by positive lifetime and event1/exact or0/right-censored; intercept-only rows[time,event]supported; observations>estimatedparameters.",
+      "args": [
+        "ridge:0..1e12,default0; penaltylambda/2 times sum squared population-standardized slopes",
+        "maxiter:integer1..1000,default200",
+        "tolerance:1e-12..1e-3,default1e-8"
+      ],
+      "estimator": "Full likelihood product of failure densities and censor survival probabilities. Log-time location=intercept+linear covariate effects. Exponential has SEV scale1; Weibull has common SEV scale sigma=1/shape; lognormal has common normal log-time sigma. Analytic score and observed information; BFGS inverse-curvature updates and Armijo line search. Original-unit coefficients/covariance and95%Wald intervals when unpenalized. With penalized slopes,curvature SEs remain descriptive,p-values/CI/AIC/BIC are null. Search log_sigma bounded[-30,30]; no false convergence or pseudoinverse.",
+      "sql_example": "chem_aft_weibull([[1.0,1.0],[2.0,1.0],[3.0,0.0],[4.0,1.0],[5.0,0.0]], [])",
+      "known_value": "Finite identified right-censored MLE; exponential reduces to total exposure/failures in an intercept-only model.",
+      "fixture": {
+        "data": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            0
+          ]
+        ],
+        "args": []
+      },
+      "unsupported": [
+        "left/interval censoring",
+        "delayed entry",
+        "time-dependent/scale covariates",
+        "competing risks",
+        "frailty",
+        "automatic model/feature selection",
+        "shape outside supported log-sigma range",
+        "exact finite-sample inference"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/fit-parametric-survival.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-fit-parametric-survival-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/exponential-weibull-and-lognormal-plots-and-fits.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+    },
+    {
+      "operation": "aft_lognormal",
+      "symbol": "AftLognormal",
+      "sql_name": "chem_aft_lognormal",
+      "source": "crates/analytics/src/reliability.rs",
+      "description": "Right-censored lognormal AFT: [features...,positive_time,event0/1]; [ridge=0,maxiter=200,tolerance=1e-8].",
+      "data": "0..16numeric features followed by positive lifetime and event1/exact or0/right-censored; intercept-only rows[time,event]supported; observations>estimatedparameters.",
+      "args": [
+        "ridge:0..1e12,default0; penaltylambda/2 times sum squared population-standardized slopes",
+        "maxiter:integer1..1000,default200",
+        "tolerance:1e-12..1e-3,default1e-8"
+      ],
+      "estimator": "Full likelihood product of failure densities and censor survival probabilities. Log-time location=intercept+linear covariate effects. Exponential has SEV scale1; Weibull has common SEV scale sigma=1/shape; lognormal has common normal log-time sigma. Analytic score and observed information; BFGS inverse-curvature updates and Armijo line search. Original-unit coefficients/covariance and95%Wald intervals when unpenalized. With penalized slopes,curvature SEs remain descriptive,p-values/CI/AIC/BIC are null. Search log_sigma bounded[-30,30]; no false convergence or pseudoinverse.",
+      "sql_example": "chem_aft_lognormal([[1.0,1.0],[2.0,1.0],[3.0,0.0],[4.0,1.0],[5.0,0.0]], [])",
+      "known_value": "Finite identified right-censored MLE; exponential reduces to total exposure/failures in an intercept-only model.",
+      "fixture": {
+        "data": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            0
+          ]
+        ],
+        "args": []
+      },
+      "unsupported": [
+        "left/interval censoring",
+        "delayed entry",
+        "time-dependent/scale covariates",
+        "competing risks",
+        "frailty",
+        "automatic model/feature selection",
+        "shape outside supported log-sigma range",
+        "exact finite-sample inference"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/fit-parametric-survival.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-fit-parametric-survival-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/exponential-weibull-and-lognormal-plots-and-fits.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+    },
+    {
+      "operation": "aft_predict",
+      "symbol": "AftPredict",
+      "sql_name": "chem_aft_predict",
+      "source": "crates/analytics/src/reliability.rs",
+      "description": "Saved AFT survival/quantile prediction: [features...,query] rows; [mode0survival/1quantile,predict_parameters...].",
+      "data": "Same p feature columns as fit plus one query column. Query is nonnegative time for mode0 or probability strictly in(0,1)for mode1.",
+      "args": [
+        "mode:0survival or1timequantile",
+        "then unchanged predict_parameters from an AFT fit; savedvectorlength5+4p"
+      ],
+      "estimator": "Reuse [distribution0exp/1Weibull/2lognormal,p,log_time_reference,log_sigma,centered_intercept,feature_origins(p),mean_offsets(p),population_scales(p),standardized_slopes(p)]. Feature centering uses origin and separate offset,with no query-driven refitting. Survival and lognormal quantiles use stable normal tails; nonrepresentable positive quantile is null while finite log_time_quantile is retained.",
+      "sql_example": "chem_aft_predict([[0.0],[5.0],[10.0]], [0.0,0.0,0.0,0.0,0.0,1.6094379124341003])",
+      "known_value": "Saved exponential mean5 gives survival[1,exp(-1),exp(-2)].",
+      "fixture": {
+        "data": [
+          [
+            0
+          ],
+          [
+            5
+          ],
+          [
+            10
+          ]
+        ],
+        "args": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1.6094379124341003
+        ]
+      },
+      "unsupported": [
+        "prediction standard errors/confidence bands",
+        "model refitting",
+        "left/interval prediction probabilities"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/fit-parametric-survival.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/exponential-weibull-and-lognormal-plots-and-fits.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+    },
+    {
+      "operation": "nhpp_powerlaw",
+      "symbol": "NhppPowerlaw",
+      "sql_name": "chem_nhpp_powerlaw",
+      "source": "crates/analytics/src/reliability.rs",
+      "description": "Single-system time-truncated power NHPP MLE: scalar exact recurrence times; [observation_end].",
+      "data": "At least2positive exact event times,each<=positive observation end; all events at end is unidentified.",
+      "args": [
+        "observation_end:positive finite,time-truncated observation window[0,T]"
+      ],
+      "estimator": "Cumulative mean Lambda(t)=(t/eta)^shape. MLE shape=n/sum(log(T/t_i)),log_eta=log(T)-log(n)/shape. Ordered-event process loglik=sum(log intensity(t_i))-Lambda(T). Observed information for[log Lambda(T),log shape]isdiag(n,n),with delta-method shape/logeta SEs and95%log-Wald shape interval.",
+      "sql_example": "chem_nhpp_powerlaw([[1.0],[2.0],[4.0],[7.0]], [10.0])",
+      "known_value": "shape0.771457807511085,log_eta0.5056049501753199,Lambda(T)=4.",
+      "fixture": {
+        "data": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            4
+          ],
+          [
+            7
+          ]
+        ],
+        "args": [
+          10
+        ]
+      },
+      "unsupported": [
+        "failure-truncated sampling/modified MLE",
+        "multiple systems/exposure adjustments",
+        "phases/reset/change points",
+        "interval event counts",
+        "recurrence covariates",
+        "repair simulation"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/fit-model.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+    },
+    {
+      "operation": "nhpp_predict",
+      "symbol": "NhppPredict",
+      "sql_name": "chem_nhpp_predict",
+      "source": "crates/analytics/src/reliability.rs",
+      "description": "Power NHPP cumulative/intensity prediction: nonnegative scalar times; [shape,log_eta].",
+      "data": "Nonnegative scalar query times.",
+      "args": [
+        "shape:positive finite",
+        "log_eta:finite saved model value"
+      ],
+      "estimator": "Lambda(t)=(t/eta)^shape,intensity=shape*Lambda(t)/t. At t0,cumulative0 and intensity0/1eta/infinite for shape>1/=1/<1 respectively; infinite/nonrepresentable values are null,and finite log cumulative mean is retained.",
+      "sql_example": "chem_nhpp_predict([[0.0],[5.0],[10.0]], [2.0,1.6094379124341003])",
+      "known_value": "Expected cumulative counts[0,1,4],intensity[0,.4,.8].",
+      "fixture": {
+        "data": [
+          [
+            0
+          ],
+          [
+            5
+          ],
+          [
+            10
+          ]
+        ],
+        "args": [
+          2,
+          1.6094379124341003
+        ]
+      },
+      "unsupported": [
+        "prediction confidence bands",
+        "exposure/covariate model",
+        "phase-reset prediction"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/fit-model.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+    },
+    {
+      "operation": "reliability_blocks",
+      "symbol": "ReliabilityBlocks",
+      "sql_name": "chem_reliability_blocks",
+      "source": "crates/analytics/src/reliability.rs",
+      "description": "Independent reliability blocks: component probability rows; [structure0series/1parallel/2kofn,k_if2].",
+      "data": "Each row defines one block from component success probabilities in[0,1]. Component probabilities may differ.",
+      "args": [
+        "structure:0series(default),1parallel,2kofn",
+        "k:integer1..components,required only for structure2"
+      ],
+      "estimator": "Series product(p_i); parallel1-product(1-p_i)with stable log1p/expm1; k-of-n exact Poisson-binomial count recursion for nonidentical independent components. Returns block success and expected working-component count.",
+      "sql_example": "chem_reliability_blocks([[0.8,0.7,0.9]], [2.0,2.0])",
+      "known_value": "2-of3 reliability .902; series .504; parallel .994.",
+      "fixture": {
+        "data": [
+          [
+            0.8,
+            0.7,
+            0.9
+          ]
+        ],
+        "args": [
+          2,
+          2
+        ]
+      },
+      "unsupported": [
+        "dependent/common-cause failures",
+        "arbitrary graph/knot topology",
+        "component importance",
+        "repairable-system simulation",
+        "automatic component distribution fitting"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/documentation-pdf-addin.shtml",
+        "https://www.jmp.com/support/help/ja/18.2/jmp/overview-of-the-reliability-block-diagram-platform.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+    }
+  ],
+  "validation_evidence": "tasks/evidence/jmp-reliability-reference.json"
+}

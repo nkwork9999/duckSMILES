@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "module": "spectral",
+  "module_path": "crates/analytics/src/spectral.rs",
+  "source": "crates/analytics/src/spectral.rs",
+  "scope": "Ten bounded CPU operations for spectral/functional preprocessing and sampled-grid analysis. Partial JMP19.2 FDE-related method coverage, not complete FDE equivalence.",
+  "integration_status": "pubmod and publicexecute dispatch enabled by parent; all13focused tests green. Native SQL validation is parent-owned.",
+  "common_contract": {
+    "data": "Finite nonempty rectangular data,<=10000rows,<=1024columns,<=1000000cells; normally one curve per row, DTW uses a long[value,id]table.",
+    "args": "<=16384finite doubles,ordered operation-specific arguments.",
+    "result": "Version1JSON or Rust Result error. Undefined variance/rank,nonfinite derived quantities and supported workload limits return errors.",
+    "work": "SG/DFT/gridPCA use a50000000 nominal work guard; DTW has<=4000000cellpairs; prominence scans<=50000000steps; PCA eigensolver<=80cyclicsweeps on dimension<=128.",
+    "units": "Origins and mean offsets stabilize centering. No missing-data imputation or grid inference; supplied samples are interpreted as equally spaced.",
+    "automatic_training": "MSC mean reference and FPCA use all supplied curves. MSC explicit reference avoids query-driven fit; there is no implicit holdout split."
+  },
+  "operations": [
+    {
+      "operation": "spectral_snv",
+      "symbol": "SpectralSnv",
+      "sql_name": "chem_spectral_snv",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Per-spectrum standard normal variate: curve rows on a common grid; [variance_ddof=1].",
+      "data": "Each row one spectrum; at least2 samples per spectrum.",
+      "args": [
+        "variance_ddof: 0 population or1 sample(default)"
+      ],
+      "estimator": "Center each spectrum and divide by its own SD, using origin-relative centering and scaled squared norms. Constant spectra are rejected.",
+      "sql_example": "chem_spectral_snv([[1.0,2.0,3.0],[10.0,12.0,14.0]], [])",
+      "known_value": "Both rows[-1,0,1] with sample SD1.",
+      "unsupported": [
+        "missing samples",
+        "automatic choice of preprocessing",
+        "nonfinite observations"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            10,
+            12,
+            14
+          ]
+        ],
+        "args": []
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "spectral_msc",
+      "symbol": "SpectralMsc",
+      "sql_name": "chem_spectral_msc",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "MSC reference regression: curve rows; [] fits their mean reference, or args are the saved reference spectrum.",
+      "data": "Each row one spectrum with>=2 samples.",
+      "args": [
+        "Either[] or exactly one reference intensity per sample column"
+      ],
+      "estimator": "Regress each y on intercept+reference r and return(y-intercept)/slope. No arguments fits a mean reference from all supplied curves. Supplying the returned reference_parameters reuses that reference without query-driven fitting. Zero reference variance or zero slope is an error.",
+      "sql_example": "chem_spectral_msc([[5.0,7.0,11.0,19.0]], [1.0,2.0,4.0,8.0])",
+      "known_value": "Slope2,intercept3,corrected[1,2,4,8].",
+      "unsupported": [
+        "robust MSC",
+        "automatic validation-set separation when fitting mean reference",
+        "irregular grids"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            5,
+            7,
+            11,
+            19
+          ]
+        ],
+        "args": [
+          1,
+          2,
+          4,
+          8
+        ]
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "savitzky_golay",
+      "symbol": "SavitzkyGolay",
+      "sql_name": "chem_savitzky_golay",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Fixed Savitzky-Golay filter or derivative: equally spaced curve rows; [odd_window,degree=2,derivative=0,spacing=1].",
+      "data": "Each row one equally spaced curve.",
+      "args": [
+        "odd_window: odd integer3..min(samples,101)",
+        "degree: integer0..min(window-1,8),default2",
+        "derivative: integer0..degree,default0",
+        "spacing: positive finite,default1"
+      ],
+      "estimator": "Local least-squares polynomials via twice-reorthogonalized QR; analytical derivative and interpolation edge fits using first/last full window. Matches scipy.signal.savgol_filter(mode=interp) settings; fixed user parameters.",
+      "sql_example": "chem_savitzky_golay([[0.0,1.0,4.0,9.0,16.0,25.0,36.0]], [5.0,2.0,1.0,0.5])",
+      "known_value": "Derivative[0,4,8,12,16,20,24].",
+      "unsupported": [
+        "JMP AIC bandwidth/order selection",
+        "automatic interpolation of irregular sampling",
+        "alternative padding modes"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            4,
+            9,
+            16,
+            25,
+            36
+          ]
+        ],
+        "args": [
+          5,
+          2,
+          1,
+          0.5
+        ]
+      },
+      "algorithm_primary_sources": [
+        "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html"
+      ]
+    },
+    {
+      "operation": "curve_derivative",
+      "symbol": "CurveDerivative",
+      "sql_name": "chem_curve_derivative",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Finite curve derivatives: equally spaced curve rows; [order=1,spacing=1].",
+      "data": "Each row one curve with>=3 samples.",
+      "args": [
+        "order: integer1or2,default1",
+        "spacing: positive finite,default1"
+      ],
+      "estimator": "Repeated numpy.gradient-style second-order central first derivative with second-order one-sided endpoint stencils. Order2 repeats that operator; it is not a direct five-point second-derivative formula.",
+      "sql_example": "chem_curve_derivative([[0.0,1.0,4.0,9.0,16.0]], [2.0,0.5])",
+      "known_value": "Second derivative[8,8,8,8,8].",
+      "unsupported": [
+        "irregular sample locations",
+        "noise-adaptive smoothing",
+        "derivative orders>2"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            4,
+            9,
+            16
+          ]
+        ],
+        "args": [
+          2,
+          0.5
+        ]
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "spectral_detrend",
+      "symbol": "SpectralDetrend",
+      "sql_name": "chem_spectral_detrend",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Global polynomial baseline removal: curve rows; [degree=1] on a normalized equally spaced grid.",
+      "data": "Each row one curve with>=2 samples.",
+      "args": [
+        "degree: integer0..min(samples-1,8),default1"
+      ],
+      "estimator": "Fit a global unpenalized polynomial on sample locations normalized to[-1,1] via QR. Return fitted baselines,residual rows,and coefficients ordered ascending powers. This is a user-selected polynomial baseline rather than JMP automatic baseline correction.",
+      "sql_example": "chem_spectral_detrend([[2.0,3.0,6.0,11.0,18.0]], [2.0])",
+      "known_value": "Quadratic baseline removed to numerical zero.",
+      "unsupported": [
+        "automatic/robust lower-envelope baseline correction",
+        "spline baselines",
+        "peak exclusion masks"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            2,
+            3,
+            6,
+            11,
+            18
+          ]
+        ],
+        "args": [
+          2
+        ]
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "haar_transform",
+      "symbol": "HaarTransform",
+      "sql_name": "chem_haar_transform",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Orthonormal Haar forward/inverse: power-of-two curve rows; [inverse=0,levels=full].",
+      "data": "Each row one curve or Haar coefficient vector with length2..1024,power of2.",
+      "args": [
+        "inverse: 0forward(default),1inverse",
+        "levels: integer1..log2(samples),defaultfull"
+      ],
+      "estimator": "Orthogonal Mallat ordering: coarse approximation followed by detail bands from coarse to fine. Partial levels preserve remaining finest detail layout; inverse must receive the same levels.",
+      "sql_example": "chem_haar_transform([[1.0,2.0,3.0,4.0]], [])",
+      "known_value": "Coefficients[5,-2,-1/sqrt2,-1/sqrt2]; squared norm30.",
+      "unsupported": [
+        "Daubechies/Symlet/Coiflet/biorthogonal wavelets",
+        "automatic padding",
+        "wavelet thresholding/model selection"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/functional-data-explorer.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            1,
+            2,
+            3,
+            4
+          ]
+        ],
+        "args": []
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "fourier_transform",
+      "symbol": "FourierTransform",
+      "sql_name": "chem_fourier_transform",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Direct discrete Fourier forward/inverse: real curve rows or packed complex rows; [inverse=0].",
+      "data": "Forward rows1..512real samples. Inverse rows pack all real coefficients then all imaginary coefficients,even width<=1024.",
+      "args": [
+        "inverse:0real-forward(default),1complex-inverse"
+      ],
+      "estimator": "Unscaled negative-sign forward DFT; positive-sign inverse divided by n. Forward rows contain packed real+imaginary coefficients. Inverse rows contain real values and imaginary_rows retains the complete complex inverse.",
+      "sql_example": "chem_fourier_transform([[1.0,2.0,3.0,4.0]], [])",
+      "known_value": "Packed coefficients[10,-2,-2,-2,0,2,0,-2].",
+      "unsupported": [
+        "FFT performance claim",
+        "automatic Fourier-basis regression",
+        "nonuniform transforms",
+        "forward length>512"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/functional-data-explorer.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            1,
+            2,
+            3,
+            4
+          ]
+        ],
+        "args": []
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "dynamic_time_warping",
+      "symbol": "DynamicTimeWarping",
+      "sql_name": "chem_dynamic_time_warping",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Pairwise DTW distance and path: [value,series_id0or1] rows; [window_radius=unbounded].",
+      "data": "Long rows[value,series_id0or1]; preserve each series order; unequal lengths supported. Both series nonempty.",
+      "args": [
+        "window_radius: integerabs(n-m)..max(n,m),defaultmax(n,m)"
+      ],
+      "estimator": "Endpoint-to-endpoint dynamic program with diagonal/vertical/horizontal steps, squared amplitude difference local cost, square root of total cost returned. Sakoe-Chiba index window, deterministic diagonal/up/left ties. No path-length normalization. Internal origin/scale only stabilize arithmetic.",
+      "sql_example": "chem_dynamic_time_warping([[1.0,0.0],[2.0,0.0],[3.0,0.0],[1.0,1.0],[1.0,1.0],[2.0,1.0],[3.0,1.0]], [])",
+      "known_value": "Distance0,monotone endpoint-to-endpoint path.",
+      "unsupported": [
+        "barycenter/multiple-curve registration",
+        "slope constraints",
+        "JMP-identical warping defaults",
+        "irregular physical-time penalties"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "functional_pca",
+      "symbol": "FunctionalPca",
+      "sql_name": "chem_functional_pca",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Common-grid functional PCA: curve rows; [components,spacing=1], trapezoid L2 metric.",
+      "data": "At least2curves and2samples; min(curves,samples)<=128. All supplied curves train the decomposition.",
+      "args": [
+        "components: required integer1..min(curves-1,samples),must not exceed numerical covariance rank",
+        "spacing: positive finite,default1"
+      ],
+      "estimator": "Center grid columns, multiply by square-root trapezoid weights, eigendecompose the smaller sample/feature Gram matrix, and convert Euclidean loading vectors to L2-normalized grid eigenfunctions. Sample covariance denominatorn-1. Return scores,mean curve,eigenvalues and reconstruction.",
+      "sql_example": "chem_functional_pca([[1.0,2.0,3.0],[2.0,4.0,6.0],[3.0,6.0,9.0]], [1.0])",
+      "known_value": "Eigenvalue9,scores[-3,0,3],eigenfunction[1/3,2/3,1].",
+      "unsupported": [
+        "JMP smoothed direct FPCA/BIC component selection",
+        "sparse/irregular curves",
+        "B/P-spline or learned basis estimation",
+        "saved new-curve projection",
+        "functional DOE"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/functional-data-explorer.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/direct-model-report.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            2,
+            4,
+            6
+          ],
+          [
+            3,
+            6,
+            9
+          ]
+        ],
+        "args": [
+          1
+        ]
+      },
+      "algorithm_primary_sources": []
+    },
+    {
+      "operation": "peak_find",
+      "symbol": "PeakFind",
+      "sql_name": "chem_peak_find",
+      "source": "crates/analytics/src/spectral.rs",
+      "description": "Sampled local peaks with global prominence: curve rows; [minimum_prominence=0,minimum_distance=1].",
+      "data": "Each row one curve with>=3samples. Endpoints are excluded as peaks.",
+      "args": [
+        "minimum_prominence: nonnegative finite,default0",
+        "minimum_distance: integer1..samples,default1"
+      ],
+      "estimator": "Local maxima include plateaus represented by their lower middle index. Height-prioritized distance filtering occurs before global topographic prominence; equal-height priority chooses lowest index. Bases stop at higher peaks; equal-height peaks are ignored.",
+      "sql_example": "chem_peak_find([[0.0,3.0,1.0,4.0,0.0,2.0,0.0]], [])",
+      "known_value": "Indices[1,3,5],prominences[2,4,2].",
+      "unsupported": [
+        "JMP FDE fitted peak models",
+        "peak widths/areas/distribution fits",
+        "noise-adaptive baseline or threshold",
+        "equal-height distance tie equivalence to SciPy"
+      ],
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/functional-data-explorer.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-spectral-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0,
+            3,
+            1,
+            4,
+            0,
+            2,
+            0
+          ]
+        ],
+        "args": []
+      },
+      "algorithm_primary_sources": [
+        "https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.peak_prominences.html",
+        "https://docs.scipy.org/doc/scipy-1.17.0/reference/generated/scipy.signal.find_peaks.html"
+      ]
+    }
+  ],
+  "validation_evidence": "tasks/evidence/jmp-spectral-reference.json"
+}

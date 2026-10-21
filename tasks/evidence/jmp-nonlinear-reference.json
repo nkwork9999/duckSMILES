@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-10-21T14:34:43.413654+00:00",
+  "seed": 2026102107,
+  "layer": "direct Rust C ABI via ctypes; no DuckDB SQL or actual JMP execution in this evidence",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "source_sha256": {
+    "crates/analytics/src/nonlinear.rs": "a301a43b229f5abbc30221975cc6e897eaa1513df3c287d10bbfe3d08dfa7b62",
+    "crates/analytics/tests/nonlinear.rs": "7ada0e00f4745d0e43f649873e75fa58f4d7b47d960e284871b7ae7d778320ae"
+  },
+  "library_sha256": "65dc54232a7bbf5ef128d1fcd1176eac766a0c05a450a04f668920182c3e11f3",
+  "checks": {
+    "curve_coefficients": {
+      "assertions": 232,
+      "max_absolute_error": 4.227281635849067e-09
+    },
+    "curve_fitted": {
+      "assertions": 2560,
+      "max_absolute_error": 1.71210134958244e-09
+    },
+    "curve_sse": {
+      "assertions": 80,
+      "max_absolute_error": 2.237793284010081e-16
+    },
+    "curve_covariance": {
+      "assertions": 712,
+      "max_absolute_error": 2.5002547992050705e-11
+    },
+    "curve_standard_errors": {
+      "assertions": 232,
+      "max_absolute_error": 4.852038978930828e-10
+    },
+    "curve_saved_predictions": {
+      "assertions": 720,
+      "max_absolute_error": 1.6265002678039764e-09
+    },
+    "curve_auto_fitted_identity": {
+      "assertions": 2560,
+      "max_absolute_error": 8.881784197001252e-16
+    },
+    "bspline_basis": {
+      "assertions": 3600,
+      "max_absolute_error": 2.220446049250313e-16
+    },
+    "spline_coefficients": {
+      "assertions": 360,
+      "max_absolute_error": 6.217248937900877e-15
+    },
+    "spline_fitted": {
+      "assertions": 2160,
+      "max_absolute_error": 2.6645352591003757e-15
+    },
+    "spline_edf": {
+      "assertions": 72,
+      "max_absolute_error": 4.884981308350689e-15
+    },
+    "spline_variance_df": {
+      "assertions": 72,
+      "max_absolute_error": 3.552713678800501e-15
+    },
+    "spline_covariance": {
+      "assertions": 1848,
+      "max_absolute_error": 4.0245584642661925e-16
+    },
+    "spline_saved_predictions": {
+      "assertions": 936,
+      "max_absolute_error": 2.6645352591003757e-15
+    },
+    "loess_fitted": {
+      "assertions": 744,
+      "max_absolute_error": 7.792377854087817e-15
+    },
+    "loess_robust_weights": {
+      "assertions": 744,
+      "max_absolute_error": 1.3988810110276972e-14
+    },
+    "loess_saved_predictions": {
+      "assertions": 408,
+      "max_absolute_error": 1.3211653993039363e-14
+    }
+  },
+  "assertions_total": 18040,
+  "convergence": {
+    "explicit_start_true": 78,
+    "explicit_start_false": 2,
+    "automatic_start_true": 76,
+    "automatic_start_false": 4
+  },
+  "catalog_examples_direct_ffi": [
+    "curve_fit",
+    "curve_predict",
+    "bspline_basis",
+    "spline_fit",
+    "spline_predict",
+    "loess",
+    "loess_predict"
+  ],
+  "oracle_cases": {
+    "curve_fits_explicit_start": 80,
+    "curve_fits_automatic_start": 80,
+    "bspline_basis": 24,
+    "spline_fits": 72,
+    "loess_fits": 24
+  },
+  "references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fit-curve-models.shtml",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.BSpline.html"
+  ],
+  "tdd": "Observed 5 missing-operation failures before implementation. Initial 6 tests passed; then tiny-response uncertainty regression failed before scaled-information covariance repair; then extreme knot-width overflow rejected after observed RED; final focused suite 9 tests.",
+  "limits": [
+    "No actual JMP parity oracle.",
+    "Curve covariance is local asymptotic and conditional on family; no profile likelihood.",
+    "P-spline second coefficient difference penalty is explicit and not JMP smoothing-spline lambda.",
+    "LOESS uses explicit neighborhood/tricube/robust rules and not claimed JMP default-identical."
+  ],
+  "replay": {
+    "build": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo rustc -p ducksmiles_analytics --lib --crate-type cdylib",
+    "instructions": "Write harness_python to a Python file, adjust ROOT and LIB paths if needed, and run; this evidence JSON is rewritten."
+  },
+  "harness_python": "import ctypes, json, hashlib, sys, platform, pathlib, datetime, ast\nimport numpy as np\nimport scipy\nfrom scipy.optimize import least_squares\nfrom scipy.interpolate import BSpline\nROOT=pathlib.Path('/Users/nk/Desktop/ducksmiles-analytics-20261021')\nLIB=pathlib.Path('/private/tmp/rusta-ducksmiles-jmp-target/debug/libducksmiles_analytics.dylib')\nlib=ctypes.CDLL(str(LIB)); f=lib.ds_analytics_run\nf.argtypes=[ctypes.c_void_p,ctypes.c_size_t,ctypes.c_void_p,ctypes.c_size_t,ctypes.c_size_t,ctypes.c_void_p,ctypes.c_size_t,ctypes.POINTER(ctypes.c_size_t)];f.restype=ctypes.c_void_p\nlib.ds_analytics_free.argtypes=[ctypes.c_void_p,ctypes.c_size_t]\ndef run(op,data,args):\n    d=np.ascontiguousarray(data,dtype=np.float64);a=np.ascontiguousarray(args,dtype=np.float64);out=ctypes.c_size_t();name=op.encode()\n    ptr=f(name,len(name),d.ctypes.data,*d.shape,a.ctypes.data,len(a),ctypes.byref(out))\n    if not ptr: raise AssertionError((op,'returned NULL',data,args))\n    try:return json.loads(ctypes.string_at(ptr,out.value))\n    finally:lib.ds_analytics_free(ptr,out.value)\nrng=np.random.default_rng(2026102107);records={}\ndef check(key,actual,expected,rtol=1e-7,atol=1e-9):\n    a=np.asarray(actual);b=np.asarray(expected);np.testing.assert_allclose(a,b,rtol=rtol,atol=atol,err_msg=key)\n    r=records.setdefault(key,{'assertions':0,'max_absolute_error':0.});r['assertions']+=a.size;r['max_absolute_error']=max(r['max_absolute_error'],float(np.max(np.abs(a-b))))\ndef model(f,x,p):\n    if f==0:return p[0]*np.exp(p[1]*x)\n    if f==1:return p[0]+p[1]*np.exp(p[2]*x)\n    if f==2:return p[2]+(p[3]-p[2])/(1+np.exp(-p[0]*(x-p[1])))\n    if f==3:return p[0]+(p[1]-p[0])*np.exp(-np.exp(-p[2]*(x-p[3])))\n    if f==4:return p[0]+p[1]*x**p[2]\n    if f==5:return p[0]*x/(p[1]+x)\n    if f==6:return p[0]*np.exp(-.5*((x-p[1])/p[2])**2)\n    if f==7:return 1/(1+np.exp(-p[0]*(x-p[1])))\n    if f==8:return p[2]/(1+np.exp(-p[0]*(x-p[1])))\n    return p[0]*np.exp(-np.exp(-p[1]*(x-p[2])))\nconvergence={\"explicit_start_true\":0,\"explicit_start_false\":0,\"automatic_start_true\":0,\"automatic_start_false\":0}\ntrue=[[2.,.4],[1.,2.,-.6],[1.1,.3,1.,4.],[1.,5.,.8,.5],[.7,1.2,1.4],[8.,1.5],[3.,.4,1.2],[1.3,.4],[1.1,.3,4.],[5.,.7,.2]]\nfor fam,p in enumerate(true):\n    for rep in range(8):\n        x=np.linspace(.2,4.,32) if fam in (4,5) else np.linspace(0.,4.,32) if fam in (0,1) else np.linspace(-4.,4.,32)\n        y=model(fam,x,p)+rng.normal(0,.015,len(x));initial=np.asarray(p)+rng.normal(0,.04,len(p))\n        ref=least_squares(lambda q:model(fam,x,q)-y,initial,method='lm',x_scale='jac',max_nfev=5000,ftol=1e-13,gtol=1e-13,xtol=1e-13)\n        j=run('curve_fit',np.c_[x,y],[fam,2000.,1e-12,*initial]);convergence['explicit_start_'+str(j['converged']).lower()]+=1\n        check('curve_coefficients',j['coefficients'],ref.x,rtol=2e-5,atol=2e-6)\n        check('curve_fitted',j['fitted_values'],model(fam,x,ref.x),rtol=2e-6,atol=2e-7)\n        sse=np.sum(ref.fun**2);check('curve_sse',j['sse'],sse,rtol=2e-8,atol=1e-10)\n        cov=np.linalg.inv(ref.jac.T@ref.jac)*sse/(len(x)-len(p))\n        check('curve_covariance',j['covariance'],cov,rtol=3e-4,atol=2e-7)\n        check('curve_standard_errors',j['standard_errors'],np.sqrt(np.diag(cov)),rtol=2e-4,atol=1e-7)\n        q=np.linspace(x.min(),x.max(),9)\n        check('curve_saved_predictions',run('curve_predict',q[:,None],j['predict_parameters'])['predictions'],model(fam,q,ref.x),rtol=2e-6,atol=2e-7)\n        auto=run('curve_fit',np.c_[x,y],[fam,2000.,1e-12]);convergence['automatic_start_'+str(auto['converged']).lower()]+=1\n        # Automatic starts are only required to produce an admissible model; optimizers can find local minima.\n        check('curve_auto_fitted_identity',auto['fitted_values'],model(fam,x,auto['coefficients']),rtol=1e-12,atol=1e-12)\nfor degree in (1,2,3):\n    for rep in range(8):\n        t=np.r_[np.zeros(degree+1),[.3,.7],np.ones(degree+1)];x=np.r_[0,np.sort(rng.uniform(0,1,28)),1];b=BSpline.design_matrix(x,t,degree).toarray();q=np.linspace(0,1,13)\n        check('bspline_basis',run('bspline_basis',x[:,None],[degree,*t])['basis'],b,atol=1e-13)\n        y=3.+np.sin(5*x)+rng.normal(0,.1,len(x));origin=y[0]\n        for penalty in (0.,.3,30.):\n            d2=np.diff(np.eye(b.shape[1]),n=2,axis=0);raw=b.T@b;inv=np.linalg.inv(raw+penalty*d2.T@d2);coef=np.linalg.solve(raw+penalty*d2.T@d2,b.T@(y-origin));fit=origin+b@coef;h=inv@raw;edf=np.trace(h);vdf=len(x)-2*edf+np.trace(h@h);sse=np.sum((y-fit)**2);cov=inv@raw@inv*sse/vdf\n            j=run('spline_fit',np.c_[x,y],[degree,penalty,*t]);check('spline_coefficients',j['coefficients'],coef,rtol=1e-8,atol=1e-9);check('spline_fitted',j['fitted_values'],fit,atol=1e-9);check('spline_edf',j['effective_df'],edf,atol=1e-8);check('spline_variance_df',j['variance_df'],vdf,atol=1e-8);check('spline_covariance',j['covariance'],cov,atol=1e-9);check('spline_saved_predictions',run('spline_predict',q[:,None],j['predict_parameters'])['predictions'],origin+BSpline.design_matrix(q,t,degree).toarray()@coef,atol=1e-9)\ndef local(q,x,y,weights,span,degree):\n    k=min(len(x),max(int(np.ceil(span*len(x))),degree+2));bandwidth=np.partition(np.abs(x-q),k-1)[k-1];u=(x-q)/bandwidth;w=np.maximum(1-np.abs(u)**3,0)**3*weights;v=np.vander(u,degree+1,increasing=True);sw=np.sqrt(w)\n    return y[0]+np.linalg.lstsq(v*sw[:,None],(y-y[0])*sw,rcond=None)[0][0]\nfor degree in (0,1,2):\n    for rep in range(8):\n        x=np.linspace(0,10,31);y=np.sin(x/2)+rng.normal(0,.08,len(x));y[15]+=1.;span=.6;weights=np.ones(len(x));iters=rep%3\n        for it in range(iters+1):\n            fit=np.array([local(q,x,y,weights,span,degree) for q in x])\n            if it==iters:break\n            median=np.median(np.abs(y-fit));u=np.abs(y-fit)/(6*median);weights=np.where(u<1,(1-u*u)**2,0.)\n        j=run('loess',np.c_[x,y],[span,degree,iters]);check('loess_fitted',j['fitted_values'],fit,atol=2e-10);check('loess_robust_weights',j['robust_weights'],weights,atol=2e-10)\n        q=np.linspace(-.2,10.2,17);check('loess_saved_predictions',run('loess_predict',q[:,None],j['predict_parameters'])['predictions'],[local(z,x,y,weights,span,degree) for z in q],atol=2e-10)\nexample_operations=[]\nfor item in json.loads((ROOT/'tasks/jmp-nonlinear-api.json').read_text())['operations']:\n    call=ast.parse(item['sql_example'],mode='eval').body\n    assert call.func.id==item['sql_name']\n    result_example=run(item['operation'],ast.literal_eval(call.args[0]),ast.literal_eval(call.args[1]))\n    assert result_example['version']==1\n    example_operations.append(item['operation'])\nresult={'schema_version':1,'timestamp_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'seed':2026102107,'layer':'direct Rust C ABI via ctypes; no DuckDB SQL or actual JMP execution in this evidence','environment':{'python':sys.version.split()[0],'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['crates/analytics/src/nonlinear.rs','crates/analytics/tests/nonlinear.rs']},'library_sha256':hashlib.sha256(LIB.read_bytes()).hexdigest(),'checks':records,'assertions_total':sum(x['assertions'] for x in records.values()),'convergence':convergence,'catalog_examples_direct_ffi':example_operations,'oracle_cases':{'curve_fits_explicit_start':80,'curve_fits_automatic_start':80,'bspline_basis':24,'spline_fits':72,'loess_fits':24},'references':['https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fit-curve-models.shtml','https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html','https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.BSpline.html'],'tdd':'Observed 5 missing-operation failures before implementation. Initial 6 tests passed; then tiny-response uncertainty regression failed before scaled-information covariance repair; then extreme knot-width overflow rejected after observed RED; final focused suite 9 tests.','limits':['No actual JMP parity oracle.','Curve covariance is local asymptotic and conditional on family; no profile likelihood.','P-spline second coefficient difference penalty is explicit and not JMP smoothing-spline lambda.','LOESS uses explicit neighborhood/tricube/robust rules and not claimed JMP default-identical.'],'replay':{'build':'CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo rustc -p ducksmiles_analytics --lib --crate-type cdylib','instructions':'Write harness_python to a Python file, adjust ROOT and LIB paths if needed, and run; this evidence JSON is rewritten.'},'harness_python':pathlib.Path(__file__).read_text()}\n(ROOT/'tasks/evidence/jmp-nonlinear-reference.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\\n');print(json.dumps({k:v for k,v in result.items() if k in ['assertions_total','oracle_cases','checks']},indent=2))\n"
+}

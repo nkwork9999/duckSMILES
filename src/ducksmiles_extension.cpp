@@ -21,6 +21,8 @@
 
 namespace duckdb {
 
+void RegisterAnalyticsFunctions(ExtensionLoader &loader);
+
 // ============================================================================
 // Helper: call Rust string→bool/int FFI via UnaryExecutor
 // ============================================================================
@@ -2358,6 +2360,7 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
 
 void DucksmilesExtension::Load(ExtensionLoader &loader) {
   RegisterDucksmilesFunctions(loader);
+  RegisterAnalyticsFunctions(loader);
 }
 
 std::string DucksmilesExtension::Name() { return "ducksmiles"; }

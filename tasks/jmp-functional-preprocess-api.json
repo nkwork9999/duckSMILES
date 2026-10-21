@@ -1,0 +1,842 @@
+{
+  "schema_version": 1,
+  "source": "crates/analytics/src/functional_preprocess.rs",
+  "module_path": "ducksmiles_analytics::functional_preprocess::run",
+  "scope": "Eight bounded CPU FDE preprocessing/reference-distance contracts; partial JMP19.2 method coverage, not full platform or undocumented-default equivalence.",
+  "integration_status": "Public execute/formal tests,production exported C ABI fixtures and matching native SQL PASS;bounded partial contracts only",
+  "official_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/baseline-correction-reports.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-functional-data-explorer-platform.shtml",
+    "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp191/release-notes-for-jmp-1912.pdf",
+    "https://doi.org/10.1016/0168-583X(88)90063-8",
+    "https://www.scribd.com/document/653527159/SNIP-A-STATISTICS-SENSITIVE-BACKGROUND-TREATMENT-FOR-THE-QUANTITATIVE",
+    "https://doi.org/10.1039/C4AN01061B",
+    "https://repository.hanyang.ac.kr/bitstream/20.500.11754/21508/1/Baseline%20correction%20using%20asymmetrically%20reweighted%20penalized%20least%20squares%20smoothing.pdf"
+  ],
+  "primary_research_notes": [
+    "JMP19.2 Data Processing and Baseline Correction Reports read directly. The latter explicitly says validation functions are not baseline-corrected.",
+    "Ryan1988 original article publisher access403; the original seven-page article reprint was read, including log-log compression (without square root), broad-width clipping and separate low-statistics/FWHM filter. Only the explicit span-clipping variant is implemented.",
+    "Baek2015 original author-repository PDF was available as indexed full text, including equations9/10 and algorithm pseudocode; live repository access returned502/DNS failure. Algorithm matches that method contract, not an unverified JMP implementation."
+  ],
+  "common_contract": {
+    "data": "Nonempty finite long rows[x,y,id] or[x,y,id,role], uniform width3/4,<=100000 observations,<=128functions,<=10000observations/function. IDs exact integers within absolute2^53-1. Role0=analysis/training(default),1=validation; a single ID cannot mix roles.",
+    "args": "<=16384 finite doubles with exact operation-specific count/ranges.",
+    "ordering": "Function IDs preserve first appearance; observations sorted by x, then original row index for ties. Grid/baseline methods require distinct x; binning/thinning/DTW retain repeated observations explicitly.",
+    "baseline_validation": "SNIP/arWLS/supplied-baseline transform role0 curves only. Role1 original values pass unchanged, baseline/weights zero placeholders, applied=false and arWLS convergence=null. This does not mean a zero baseline was estimated.",
+    "uncertainty": "No inferential p-values, SEs or confidence bands are claimed for preprocessing or curve-distance rankings. Convergence concerns the specified numerical iteration only.",
+    "resource_limits": "SNIP sum(training lengths)*max_halfwindow<=200000000; arWLS sum(training lengths)*maxiter*16<=200000000; DTW pair n*m<=4000000 and total unordered or target/candidate cell pairs<=200000000.",
+    "uniform_grid_tolerance": "1e-8*spacing+8*machine_epsilon*max(abs(x)); no implicit resampling before baseline methods.",
+    "numeric": "Reject unresolved/rank-singular penalty systems and nonrepresentable required arithmetic. Null output is reserved for declared empty bins, outside-support values, skipped diagnostics or nonconvergence diagnostics. No JSON NaN/Infinity tokens.",
+    "inference_boundary": "No GUI selection semantics, FPC model fitting, golden-curve optimization, Fourier/basis/FDA model expansion is added here."
+  },
+  "saved_roundtrips": [
+    {
+      "name": "saved_common_grid_new_validation_only",
+      "fit_operation": "functional_grid",
+      "saved_fields": [
+        "grid"
+      ],
+      "replay_operation": "functional_grid",
+      "replay_args": "[len(grid),grid[0],grid[-1],2]",
+      "replay_data": [
+        [
+          0,
+          1,
+          8,
+          1
+        ],
+        [
+          2,
+          5,
+          8,
+          1
+        ]
+      ],
+      "example_fit_data": [
+        [
+          0,
+          0,
+          7,
+          0
+        ],
+        [
+          1,
+          2,
+          7,
+          0
+        ],
+        [
+          2,
+          4,
+          7,
+          0
+        ]
+      ],
+      "known_replay": {
+        "grid.1": 1.0,
+        "values.0.1": 3.0
+      },
+      "refits": false
+    },
+    {
+      "name": "saved_SNIP_baseline_as_supplied_reference",
+      "fit_operation": "functional_snip",
+      "saved_fields": [
+        "x.0",
+        "baselines.0"
+      ],
+      "replay_operation": "functional_baseline",
+      "replay_args": [
+        900,
+        2
+      ],
+      "replay_data_rule": "Zip saved x/baseline into [x,baseline,900,0] reference rows; append [0,4,800,0],[2,6,800,0],[4,8,800,0] for example constant baseline1.",
+      "known_replay": {
+        "corrected.0.0": 3.0,
+        "corrected.0.1": 5.0,
+        "corrected.0.2": 7.0
+      },
+      "refits": false,
+      "validation_policy": "If new curve role1, correction deliberately skipped; original [4,6,8] retained."
+    },
+    {
+      "name": "saved_golden_reference",
+      "replay_operation": "functional_golden_match",
+      "replay_args": [
+        900,
+        0,
+        -1,
+        0
+      ],
+      "saved_fields": "Explicit supplied target x/y observations, not estimated model coefficients",
+      "replay_data": [
+        [
+          0,
+          1,
+          900
+        ],
+        [
+          1,
+          2,
+          900
+        ],
+        [
+          2,
+          3,
+          900
+        ],
+        [
+          0,
+          2,
+          800
+        ],
+        [
+          1,
+          3,
+          800
+        ],
+        [
+          2,
+          4,
+          800
+        ]
+      ],
+      "known_replay": {
+        "candidate_ids.0": 800.0,
+        "scores.0": 1.0,
+        "target_excluded": true
+      },
+      "refits": false
+    }
+  ],
+  "operations": [
+    {
+      "operation": "functional_grid",
+      "symbol": "FunctionalGrid",
+      "sql_name": "chem_functional_grid",
+      "description": "Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy].",
+      "data": "Long function observations,>=2 distinct x per ID; internally sorted. Auto/size-only grid estimates use only role0 functions. Explicit bounds/size requires no training rows.",
+      "args": [
+        "[]:size=min(4096,longest training function),domain=intersection of training supports,outside null",
+        "[size]:integer2..min(4096,longest training function); training-domain intersection",
+        "[size,lower,upper,outside_policy]:size2..4096,lower<upper; all quantities supplied, so validation-only replay and size larger than query sample count are supported",
+        "outside_policy:0=null beyond support,1=constant endpoint extension,2=reject; required in full layout"
+      ],
+      "estimator": "Piecewise linear interpolation on a single evenly spaced grid. The full-argument layout replays a stored grid and estimates no new statistics. Auto bounds/length never use validation curves. Endpoints are exact, interior weights are convex; grids finer than representable x spacing reject. Null values explicitly mean unsupported query locations under policy0. Full explicit replay extends the JMP-style automatic longest-function size limit; it is an implementation contract, not an undocumented JMP default claim.",
+      "fixture": {
+        "data": [
+          [
+            4,
+            8,
+            1
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            2,
+            4,
+            1
+          ],
+          [
+            1,
+            3,
+            2
+          ],
+          [
+            2,
+            6,
+            2
+          ],
+          [
+            3,
+            9,
+            2
+          ],
+          [
+            4,
+            12,
+            2
+          ]
+        ],
+        "args": [
+          4
+        ]
+      },
+      "sql_example": "chem_functional_grid([[4.0,8.0,1.0],[0.0,0.0,1.0],[2.0,4.0,1.0],[1.0,3.0,2.0],[2.0,6.0,2.0],[3.0,9.0,2.0],[4.0,12.0,2.0]], [4.0])",
+      "known_value": {
+        "grid.0": 1.0,
+        "grid.3": 4.0,
+        "values.0.0": 2.0,
+        "values.1.2": 9.0,
+        "grid_estimation": "training_functions_only"
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "Persist result.grid. Replay on new [x,y,id,role1] functions with [len(grid),grid[0],grid[-1],policy]. No training rows or refitting required for this explicit layout.",
+      "unsupported": [
+        "cubic/spline interpolation",
+        "duplicate-x aggregation",
+        "automatic extrapolation",
+        "implicit missing-data imputation",
+        "exact JMP domain/default interpolation equivalence"
+      ]
+    },
+    {
+      "operation": "functional_bin",
+      "symbol": "FunctionalBin",
+      "sql_name": "chem_functional_bin",
+      "description": "Explicit equal-width function bins: [x,y,id,optional role]; [number,lower,upper,outside0reject/1drop=1].",
+      "data": "Long observations; repeated x accepted and all observations counted, including multiplicities. Same explicit bin edges for training and validation.",
+      "args": [
+        "number:required integer1..4096",
+        "lower,upper:required finite lower<upper",
+        "outside_policy:0=reject any out-of-range value,1=drop/report count;default1"
+      ],
+      "estimator": "Average observed Y within left-closed/right-open bins, with final upper edge included. Empty bins preserve count0 and null mean. Report centers, edges, per-function counts and dropped observations. No interpolation or weighting by time interval. User-supplied bounds avoid fitting a domain to validation data. Edges/centers must be representably increasing.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            0.25,
+            3,
+            1
+          ],
+          [
+            1,
+            5,
+            1
+          ],
+          [
+            2,
+            9,
+            1
+          ],
+          [
+            0,
+            2,
+            2
+          ],
+          [
+            2,
+            10,
+            2
+          ]
+        ],
+        "args": [
+          3,
+          0,
+          2
+        ]
+      },
+      "sql_example": "chem_functional_bin([[0.0,1.0,1.0],[0.25,3.0,1.0],[1.0,5.0,1.0],[2.0,9.0,1.0],[0.0,2.0,2.0],[2.0,10.0,2.0]], [3.0,0.0,2.0])",
+      "known_value": {
+        "values.0.0": 2.0,
+        "values.0.1": 5.0,
+        "values.1.2": 10.0,
+        "counts.1.1": 0.0
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "Persist number/lower/upper and reuse the same numeric argument vector on any new batch. No fitted carrier or cross-function estimates.",
+      "unsupported": [
+        "quantile/variable-width bins",
+        "interval-integral means",
+        "automatic training-domain estimation",
+        "silent empty-bin imputation"
+      ]
+    },
+    {
+      "operation": "functional_thin",
+      "symbol": "FunctionalThin",
+      "sql_name": "chem_functional_thin",
+      "description": "Sorted per-function stride selection: [x,y,id,optional role]; [stride=2,offset=0,keep_last=0].",
+      "data": "Long observations; each ID sorted by x and original row index for ties; repeated x allowed.",
+      "args": [
+        "stride:integer1..10000,default2",
+        "offset:integer0..stride-1,default0",
+        "keep_last:0/1,default0; union final point with stride selection without duplicate"
+      ],
+      "estimator": "Retain sorted indices i with i mod stride=offset, optionally retaining the final point. Return selected x/Y and original zero-based input row indices. This explicit keep-every-stride convention removes ambiguity in thinning-rate wording; it does not estimate a smoother. An ID can remain with an empty selected array.",
+      "fixture": {
+        "data": [
+          [
+            5,
+            5,
+            7
+          ],
+          [
+            4,
+            4,
+            7
+          ],
+          [
+            3,
+            3,
+            7
+          ],
+          [
+            2,
+            2,
+            7
+          ],
+          [
+            1,
+            1,
+            7
+          ],
+          [
+            0,
+            0,
+            7
+          ]
+        ],
+        "args": [
+          2,
+          1,
+          0
+        ]
+      },
+      "sql_example": "chem_functional_thin([[5.0,5.0,7.0],[4.0,4.0,7.0],[3.0,3.0,7.0],[2.0,2.0,7.0],[1.0,1.0,7.0],[0.0,0.0,7.0]], [2.0,1.0,0.0])",
+      "known_value": {
+        "x.0.0": 1.0,
+        "values.0.2": 5.0,
+        "original_row_indices.0.0": 4.0,
+        "stride": 2
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "Replay the same stride/offset/keep_last arguments independently per new curve; no fitted carrier. Original-row provenance is scoped to each invocation.",
+      "unsupported": [
+        "random/importance thinning",
+        "automatic anti-alias filtering",
+        "screen row selection state"
+      ]
+    },
+    {
+      "operation": "functional_snip",
+      "symbol": "FunctionalSnip",
+      "sql_name": "chem_functional_snip",
+      "description": "SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0].",
+      "data": "Training IDs require an evenly spaced strictly increasing x grid and n>=2*max_halfwindow+1. Validation IDs pass unchanged without fitting; their baseline arrays are zero placeholders with baseline_applied=false. Log-log input Y>=0; raw transform allows signed Y.",
+      "args": [
+        "max_halfwindow:required integer1..4999,also <=(n-1)/2 for every training ID",
+        "transform:0=identity,1=G(y)=ln(ln(1+y)+1);default1; original Ryan log-log transform has no square root",
+        "direction:0=widths1..max,1=max..1;default0; each pass reads the previous entire vector synchronously"
+      ],
+      "estimator": "At each width w replace z_i by min(z_i,(z_(i-w)+z_(i+w))/2) where both neighbors exist; retain other points. Invert G after clipping and return baseline plus Y-baseline. This is an explicit span-scheduled SNIP variant based on peak clipping and Ryan double-log compression. It does not implement the full original energy-dependent FWHM/adaptive low-statistics filter, later LLS square-root variant, or unknown JMP settings. Clipping is distinct from a moving average.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            7
+          ],
+          [
+            1,
+            1,
+            7
+          ],
+          [
+            2,
+            9,
+            7
+          ],
+          [
+            3,
+            1,
+            7
+          ],
+          [
+            4,
+            1,
+            7
+          ]
+        ],
+        "args": [
+          1,
+          1,
+          0
+        ]
+      },
+      "sql_example": "chem_functional_snip([[0.0,1.0,7.0],[1.0,1.0,7.0],[2.0,9.0,7.0],[3.0,1.0,7.0],[4.0,1.0,7.0]], [1.0,1.0,0.0])",
+      "known_value": {
+        "baselines.0.2": 1.0,
+        "corrected.0.2": 8.0,
+        "baseline_applied.0": true,
+        "max_halfwindow": 1
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/baseline-correction-reports.shtml",
+        "https://doi.org/10.1016/0168-583X(88)90063-8",
+        "https://www.scribd.com/document/653527159/SNIP-A-STATISTICS-SENSITIVE-BACKGROUND-TREATMENT-FOR-THE-QUANTITATIVE"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "Persist per-curve result.x/result.baselines as an explicit baseline function and reuse via functional_baseline with a separate reference ID. This is supplied-reference reuse, not refitting SNIP on validation curves.",
+      "unsupported": [
+        "original FWHM-dependent low-statistics filter",
+        "implicit irregular-grid interpolation",
+        "LLS square-root transform",
+        "automatic peak-width choice",
+        "JMP-default numerical equivalence",
+        "validation baseline estimation"
+      ]
+    },
+    {
+      "operation": "functional_arwls",
+      "symbol": "FunctionalArwls",
+      "sql_name": "chem_functional_arwls",
+      "description": "Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0].",
+      "data": "Training IDs require >=3 uniformly spaced distinct x values. Validation rows remain unchanged with zero placeholder baseline/weights, convergence null, baseline_applied=false.",
+      "args": [
+        "lambda:1e-8..1e10,default1e5; penalty on index-based second differences",
+        "weight_tolerance:1e-12..1e-2,default1e-6; L2 relative proposed-versus-used weight change",
+        "maxiter:integer1..1000,default100",
+        "negative_std_ddof:0=population,1=sample;default0; explicit convention because exact software defaults are not assumed"
+      ],
+      "estimator": "Solve (W+lambda D2^T D2)z=Wy with a true pentadiagonal Cholesky factorization. Start weights1; for d=y-z, estimate m,s from negative residuals and propose w_i=1/(1+exp(2*(d_i-(-m+2s))/s)), as Baek2015 arPLS (called ARWLS in JMP menu). Stop on relative weight change and small linear backward error. Returned weights are the weights that actually solved the returned baseline, not an unsolved next proposal. Zero/unidentified negative noise scale, iteration limits or numerical linear failures never claim convergence. No hidden ridge or weight floor. Affine signals within numeric tolerance have zero second-difference baseline correction and converge without iterations.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            0,
+            7
+          ],
+          [
+            1,
+            1,
+            7
+          ],
+          [
+            2,
+            0,
+            7
+          ]
+        ],
+        "args": [
+          1,
+          1e-12,
+          1
+        ]
+      },
+      "sql_example": "chem_functional_arwls([[0.0,0.0,7.0],[1.0,1.0,7.0],[2.0,0.0,7.0]], [1.0,1e-12,1.0])",
+      "known_value": {
+        "baselines.0.0": 0.2857142857142857,
+        "baselines.0.1": 0.42857142857142855,
+        "corrected.0.1": 0.5714285714285714,
+        "weights.0.0": 1.0,
+        "iterations.0": 1
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/baseline-correction-reports.shtml",
+        "https://doi.org/10.1039/C4AN01061B",
+        "https://repository.hanyang.ac.kr/bitstream/20.500.11754/21508/1/Baseline%20correction%20using%20asymmetrically%20reweighted%20penalized%20least%20squares%20smoothing.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "No global learned carrier: baseline is fitted independently for each role0 function. Persist x/baselines and load as a supplied baseline reference if desired. Validation functions are not silently baseline-corrected or refitted.",
+      "unsupported": [
+        "airPLS/AsLS substitution",
+        "moving-average substitution",
+        "implicit ridge/weight floor",
+        "nonuniform physical-spacing penalty",
+        "automatic lambda choice",
+        "baseline parameter confidence intervals",
+        "JMP-default numerical equivalence"
+      ]
+    },
+    {
+      "operation": "functional_baseline",
+      "symbol": "FunctionalBaseline",
+      "sql_name": "chem_functional_baseline",
+      "description": "Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2].",
+      "data": "Baseline ID must exist with role0,>=2 distinct x; its observations are a supplied reference and excluded from corrected IDs. Other training IDs may be irregular. Validation IDs pass unchanged.",
+      "args": [
+        "baseline_id:required exact ID of supplied reference function",
+        "outside_policy:0=null,1=constant endpoint extension,2=reject;default2"
+      ],
+      "estimator": "Linearly interpolate the supplied baseline to each training function x and subtract it. Return original data, interpolated baselines, corrected data and applied flags. Null outside support follows explicit policy0. The reference is neither estimated from other curves nor included in corrected candidates. A role1 validation function cannot be repurposed as a training baseline.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            9,
+            0
+          ],
+          [
+            2,
+            3,
+            9,
+            0
+          ],
+          [
+            0,
+            4,
+            1,
+            0
+          ],
+          [
+            1,
+            7,
+            1,
+            0
+          ],
+          [
+            2,
+            9,
+            1,
+            0
+          ],
+          [
+            0,
+            8,
+            2,
+            1
+          ],
+          [
+            2,
+            12,
+            2,
+            1
+          ]
+        ],
+        "args": [
+          9,
+          2
+        ]
+      },
+      "sql_example": "chem_functional_baseline([[0.0,1.0,9.0,0.0],[2.0,3.0,9.0,0.0],[0.0,4.0,1.0,0.0],[1.0,7.0,1.0,0.0],[2.0,9.0,1.0,0.0],[0.0,8.0,2.0,1.0],[2.0,12.0,2.0,1.0]], [9.0,2.0])",
+      "known_value": {
+        "ids.0": 1.0,
+        "corrected.0.1": 5.0,
+        "corrected.1.1": 12.0,
+        "baseline_excluded": true
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/baseline-correction-reports.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "Persist a supplied or computed reference as [x,baseline,reference_id,0] rows. Append those same rows to any new role0 analysis curves and call the same reference ID. Role1 curves deliberately remain unchanged, matching the documented validation policy.",
+      "unsupported": [
+        "parametric baseline fitting/anchor regions",
+        "implicit validation correction",
+        "baseline extrapolation beyond selected policy",
+        "baseline uncertainty propagation"
+      ]
+    },
+    {
+      "operation": "functional_dtw_matrix",
+      "symbol": "FunctionalDtwMatrix",
+      "sql_name": "chem_functional_dtw_matrix",
+      "description": "All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0].",
+      "data": ">=2 functions in within-ID sorted x order; unequal lengths permitted. Each ID has at least1 point. X determines sequence order, not a physical-time cost.",
+      "args": [
+        "window:-1=unconstrained,otherwise integer0..longest length; must reach every pair endpoint",
+        "normalize:0=original intensities,1=per-curve mean/population-standard-deviation standardization;default0; constant curves reject under1",
+        "cost:0=squared local amplitude difference and square root of summed path cost,1=absolute local difference and summed cost;default0"
+      ],
+      "estimator": "Sakoe-Chiba-band DTW with diagonal/up/left predecessor steps, two-row dynamic programming. Compute each unordered pair once and mirror it, diagonal0. Normalization is independently within each supplied curve, with scale-safe arithmetic; no training-set fitting. Window infeasibility or resource excess rejects rather than widening the window. DTW distances need not satisfy the triangle inequality. This contract supplies the numerical matrix for downstream clustering; it does not construct a JMP report script.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            1,
+            2,
+            1
+          ],
+          [
+            2,
+            3,
+            1
+          ],
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            1,
+            1,
+            2
+          ],
+          [
+            2,
+            2,
+            2
+          ],
+          [
+            3,
+            3,
+            2
+          ],
+          [
+            0,
+            2,
+            3
+          ],
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            2,
+            2,
+            3
+          ]
+        ],
+        "args": [
+          2,
+          0,
+          0
+        ]
+      },
+      "sql_example": "chem_functional_dtw_matrix([[0.0,1.0,1.0],[1.0,2.0,1.0],[2.0,3.0,1.0],[0.0,1.0,2.0],[1.0,1.0,2.0],[2.0,2.0,2.0],[3.0,3.0,2.0],[0.0,2.0,3.0],[1.0,2.0,3.0],[2.0,2.0,3.0]], [2.0,0.0,0.0])",
+      "known_value": {
+        "distances.0.1": 0.0,
+        "distances.0.2": 1.4142135623730951,
+        "distances.2.0": 1.4142135623730951,
+        "distances.1.1": 0.0
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "Persist distances+ids as a numerical artifact; recomputation reuses the same curve values/window/normalization/cost. No fitted model carrier is required.",
+      "unsupported": [
+        "physical-x/time penalization",
+        "multivariate local costs",
+        "warping-path/warping-function export",
+        "soft DTW",
+        "automatic registration",
+        "triangle-inequality guarantees"
+      ]
+    },
+    {
+      "operation": "functional_golden_match",
+      "symbol": "FunctionalGoldenMatch",
+      "sql_name": "chem_functional_golden_match",
+      "description": "Supplied golden/reference curve distance ranking: [x,y,id,optional role]; [target_id,metric0RMSE/1MAE/2DTW=0,window=-1,normalize=0].",
+      "data": ">=2 functions; explicit target ID excluded from candidate scores/ranking. RMSE/MAE require identical ordered x grids; DTW allows unequal lengths. Curve roles retained for candidate provenance.",
+      "args": [
+        "target_id:required exact ID of pre-specified reference/golden curve",
+        "metric:0=RMSE,1=MAE,2=squared-cost square-root DTW;default0",
+        "window:-1=unconstrained,otherwise valid DTW radius;default-1",
+        "normalize:0=original intensities,1=independent per-curve population standardization;default0"
+      ],
+      "estimator": "Compare each candidate with a supplied target, return scores in input function order and ascending ranking, deterministic ties by candidate order. Target is never included among candidates or used to estimate a common curve/model. Stable RMS avoids overflowing an intermediate unnormalized Euclidean norm. This is explicit distance matching, not FPC-score desirability profiling, model fitting, or process-setting optimization.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            9
+          ],
+          [
+            1,
+            2,
+            9
+          ],
+          [
+            2,
+            3,
+            9
+          ],
+          [
+            0,
+            2,
+            1
+          ],
+          [
+            1,
+            3,
+            1
+          ],
+          [
+            2,
+            4,
+            1
+          ],
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            1,
+            2,
+            2
+          ],
+          [
+            2,
+            3,
+            2
+          ]
+        ],
+        "args": [
+          9,
+          0,
+          -1,
+          0
+        ]
+      },
+      "sql_example": "chem_functional_golden_match([[0.0,1.0,9.0],[1.0,2.0,9.0],[2.0,3.0,9.0],[0.0,2.0,1.0],[1.0,3.0,1.0],[2.0,4.0,1.0],[0.0,1.0,2.0],[1.0,2.0,2.0],[2.0,3.0,2.0]], [9.0,0.0,-1.0,0.0])",
+      "known_value": {
+        "target_id": 9.0,
+        "candidate_ids.0": 1.0,
+        "scores.0": 1.0,
+        "scores.1": 0.0,
+        "ranking_ids.0": 2.0,
+        "model_fitted": false
+      },
+      "source": "crates/analytics/src/functional_preprocess.rs",
+      "tests": "crates/analytics/tests/candidates/functional_preprocess.rs",
+      "module_path": "ducksmiles_analytics::functional_preprocess::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "17/17 isolated exact production module candidate tests passed; formal public execute pending parent",
+        "isolated_C_ABI": "143,946 scalar checks;8methodsx200+100exhaustiveDTW+240saved-reference scenarios+14invalid;all8 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "saved_reference_contract": "Persist the exact target [x,y,target_id,role] rows and prepend them to new candidate rows. Same target_id/metric arguments replay matching; the target remains excluded, with no refitting.",
+      "unsupported": [
+        "FPC profiler/desirability optimizer",
+        "automatic golden-target selection",
+        "affine amplitude calibration",
+        "counterfactual process outcomes",
+        "statistical match p-values/confidence intervals"
+      ]
+    }
+  ],
+  "arwls_reference_convergence": {
+    "true": 177,
+    "false": 23,
+    "maxiter": 200,
+    "weight_tolerance": 1e-06,
+    "interpretation": "False status retained; independent baseline/weight/linear-equation agreement does not override numerical fixed-point convergence."
+  },
+  "native_sql_validation": {
+    "status": "PASS matching254 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-streams-validation.json",
+    "overall_jmp_parity": false
+  }
+}

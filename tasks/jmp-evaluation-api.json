@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "source": "crates/analytics/src/evaluation.rs",
+  "scope": "Prediction evaluation and partition index generation; no GUI or refitting. Binary curves are numerical outputs, multiclass one-vs-rest can be called per class.",
+  "common_contract": {
+    "input": "Finite rectangular nonempty matrix, <=100000 rows, <=1024 columns, <=1000000 cells; method constraints tighter. Optional nonnegative weights need finite positive sum; zero-weight rows do not contribute.",
+    "null_fields": "Undefined precision/recall/R2 and unrepresentable scalar totals are JSON null; malformed shapes/domains return errors/SQL NULL.",
+    "interpretation": "Evaluation rows and predictions must be supplied by caller from a properly isolated validation set; these routines cannot independently establish data provenance. Split indices are zero-based; they do not fit preprocessing.",
+    "verification": "Public Rust behavior tests GREEN; production exported C ABI independent references PASS: 1140 cases/22209 numerical fields; native SQL gate pending."
+  },
+  "operations": [
+    {
+      "operation": "regression_metrics",
+      "sql_name": "chem_regression_metrics",
+      "symbol": "RegressionMetrics",
+      "description": "[observed,prediction,optional_weight>=0]; []; <=100000 rows, numeric outcome/prediction absolute values<=1e150. Weighted RMSE/MAE/bias/R2 and residuals; constant-target R2 is null.",
+      "sql_example": "chem_regression_metrics([[1.0,2.0],[2.0,2.0],[3.0,1.0]], [])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "confusion_matrix",
+      "sql_name": "chem_confusion_matrix",
+      "symbol": "ConfusionMatrix",
+      "description": "[actual_integer_label,predicted_integer_label,optional_weight>=0]; []; <=256 observed/predicted levels; actual rows, predicted columns. Undefined class precision/recall null; macro F1 includes union of positive-weight levels.",
+      "sql_example": "chem_confusion_matrix([[10.0,10.0],[10.0,20.0],[20.0,20.0],[30.0,20.0]], [])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "binary_metrics",
+      "sql_name": "chem_binary_metrics",
+      "symbol": "BinaryMetrics",
+      "description": "[outcome0/1,probability0..1,optional_weight>=0]; [threshold=.5,probability_clip=1e-15]. Inclusive threshold, clipped natural-log loss, Brier and confusion metrics.",
+      "sql_example": "chem_binary_metrics([[0.0,0.1],[1.0,0.4],[0.0,0.4],[1.0,0.8]], [0.4])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "roc_curve",
+      "sql_name": "chem_roc_curve",
+      "symbol": "RocCurve",
+      "description": "[outcome0/1,finite_score,optional_weight>=0]; []; positive weight in both classes. Descending inclusive thresholds grouped by equal score, trapezoid AUC; first threshold null denotes above maximum.",
+      "sql_example": "chem_roc_curve([[0.0,0.1],[1.0,0.4],[0.0,0.4],[1.0,0.8]], [])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "precision_recall_curve",
+      "sql_name": "chem_precision_recall_curve",
+      "symbol": "PrecisionRecallCurve",
+      "description": "[outcome0/1,finite_score,optional_weight>=0]; []; both classes required. Descending grouped thresholds, initial precision1/recall0; step average_precision and trapezoid_area separately.",
+      "sql_example": "chem_precision_recall_curve([[0.0,0.1],[1.0,0.4],[0.0,0.4],[1.0,0.8]], [])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "lift_curve",
+      "sql_name": "chem_lift_curve",
+      "symbol": "LiftCurve",
+      "description": "[outcome0/1,finite_score,optional_weight>=0]; []; both classes required. Cumulative selection/gain/response/lift with equal-score batches; lift at zero selection null.",
+      "sql_example": "chem_lift_curve([[0.0,0.1],[1.0,0.4],[0.0,0.4],[1.0,0.8]], [])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "calibration_curve",
+      "sql_name": "chem_calibration_curve",
+      "symbol": "CalibrationCurve",
+      "description": "[outcome0/1,probability0..1,optional_weight>=0]; [bins1..1000=10]. Equal-width bins include probability1 in last bin; empty-bin means null; ECE and maximum error.",
+      "sql_example": "chem_calibration_curve([[0.0,0.0],[1.0,0.5],[1.0,1.0]], [4.0])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "profit_decision",
+      "sql_name": "chem_profit_decision",
+      "symbol": "ProfitDecision",
+      "description": "[outcome0/1,probability0..1,optional_weight>=0]; [profit00,profit01,profit10,profit11], actual rows/decision columns. Max expected-profit binary decision, exact ties choose0; totals outside f64 range null.",
+      "sql_example": "chem_profit_decision([[0.0,0.1],[1.0,0.6],[1.0,0.2]], [2.0,-1.0,-5.0,10.0])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "ensemble_predict",
+      "sql_name": "chem_ensemble_predict",
+      "symbol": "EnsemblePredict",
+      "description": "Rows of member predictions; [] equal weights or [nonnegative_weight_per_member...]. Up to1024 members, stable normalized weighted average; no fitting or automatic weight selection.",
+      "sql_example": "chem_ensemble_predict([[1.0,3.0],[3.0,7.0]], [1.0,3.0])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "model_compare",
+      "sql_name": "chem_model_compare",
+      "symbol": "ModelCompare",
+      "description": "[observed,prediction1,...] <=64 models; [task0regression/1binary=0,metric0RMSEorLogLoss/1MAEorBrier=0]. Rank caller-supplied predictions, no refitting; binary clipped log loss.",
+      "sql_example": "chem_model_compare([[0.0,0.0,1.0],[1.0,1.0,0.4],[2.0,2.0,1.0]], [])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "holdout_split",
+      "sql_name": "chem_holdout_split",
+      "symbol": "HoldoutSplit",
+      "description": "Finite rows, scalar integer class labels if stratified; [train_fraction in(0,1),seed,stratified0/1=0]. Per-group floor clamped to keep train/test nonempty, every stratum>=2; zero-based indices.",
+      "sql_example": "chem_holdout_split([[0.0],[0.0],[1.0],[1.0]], [0.5,42.0,1.0])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    },
+    {
+      "operation": "rolling_origin",
+      "sql_name": "chem_rolling_origin",
+      "symbol": "RollingOrigin",
+      "description": "Chronologically ordered finite rows; [initial_train>=1,horizon>=1,step>=1=1,window0expanding=0]. Full-horizon folds only; training precedes validation, <=1000000 output indices.",
+      "sql_example": "chem_rolling_origin([[0.0],[1.0],[2.0],[3.0],[4.0],[5.0],[6.0],[7.0]], [3.0,2.0,2.0,3.0])",
+      "source": "crates/analytics/src/evaluation.rs",
+      "tests": "crates/analytics/tests/evaluation.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/roc-curve.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/properties-that-control-how-columns-are-used-in-platforms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-make-validation-column-platform.shtml"
+      ],
+      "unsupported": [
+        "automatic model fitting/selection provenance",
+        "multiclass probability-curve aggregation",
+        "JMP UI/interactive plots"
+      ]
+    }
+  ]
+}

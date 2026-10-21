@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "source": "crates/analytics/src/causal.rs",
+  "module_path": "ducksmiles_analytics::causal::run",
+  "scope": "Binary-treatment propensity and causal numerical contracts plus supplied-uplift-score evaluation; restricted method coverage, not whole JMP Pro Causal Treatment/Uplift parity.",
+  "jmp_edition": "JMP Pro for Causal Treatment and Uplift per official help",
+  "official_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+    "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+  ],
+  "primary_source_notes": [
+    "JMP19.2 assumption/estimand/advanced matching pages read directly. Equations encoded as explicit contracts below; no arbitrary displayed-image equivalence inferred.",
+    "Direct19.2 Uplift page unavailable through browser tool; official JMP19 Consumer Research PDF explains the interaction-partition learner, which this implementation does not claim."
+  ],
+  "common_contract": {
+    "numeric": "Finite rectangular nonempty <=100000rows,<=66columns,<=1000000cells,<=16384finite args. Per-method work and dimensions stricter.",
+    "positivity": "All causal estimation/matching/evaluation input propensities must be strictly in(0,1). Optional clipping truncates only interior scores, reports count, does not cure failed identification and may bias inference.",
+    "causal_assumptions": "Consistency and well-defined interventions/no interference, conditional exchangeability given measured pre-treatment covariates, positivity and independent observations. These are not established by a balanced sample or good logistic fit.",
+    "nuisance_provenance": "Supply proper out-of-fold or independent nuisance predictions when needed; input cannot verify training provenance. Plain IPW conditional SE omits fitted nuisance uncertainty; AIPW needs orthogonality rate/regularity conditions.",
+    "outcomes": "One actual observed factual outcome per observation; m0/m1 are predictions, never simultaneously observed potential outcomes.",
+    "scope": "No actual JMP executable comparison, continuous treatment, missing outcomes, multiarm, clustered rows or finite-sample causal guarantee."
+  },
+  "operations": [
+    {
+      "operation": "propensity_fit",
+      "symbol": "PropensityFit",
+      "sql_name": "chem_propensity_fit",
+      "description": "Training-prefix logistic propensity model: [features...,treatment0/1]; [n_train,ridge=0,max_iterations=100,tolerance=1e-8]. Suffix labels ignored; saved preprocessing.",
+      "data": "[features...,treatment]; prefix training labels0/1, suffix labels ignored; <=32 features, <=10000 training rows; n_train>parameter_count",
+      "args": [
+        "n_train: required integer3..min(n,10000)",
+        "ridge: 0..1e12,default0; summed binomial negative log likelihood +ridge/2*squared standardized slopes",
+        "max_iterations: integer1..2000,default100",
+        "tolerance:1e-12..1e-2,default1e-8; final gradient max <= tolerance*n_train"
+      ],
+      "estimator": "Analytic Newton/IRLS with backtracking, unpenalized intercept, population feature scales fit on training prefix, original-unit display coefficients and stable saved vector. Unpenalized separated designs reject finite-MLE claims. Return actual final gradient/objective/converged flag; no uncertainty or causal identification is inferred.",
+      "sql_example": "chem_propensity_fit([[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,1.0],[1.0,0.0],[1.0,1.0],[1.0,1.0],[1.0,1.0]], [8.0])",
+      "source": "crates/analytics/src/causal.rs",
+      "tests": "crates/analytics/tests/causal.rs",
+      "module_path": "ducksmiles_analytics::causal::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-causal-reference.json",
+      "layers": {
+        "Rust_public_execute": "9focused tests passed",
+        "direct_C_ABI": "independent oracle and direct C ABI catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Multinomial/continuous treatments",
+        "Automatic covariate selection/tuning",
+        "Unmeasured confounding identification",
+        "Outcome model fitting",
+        "Automatic cross-fitting/provenance"
+      ]
+    },
+    {
+      "operation": "propensity_predict",
+      "symbol": "PropensityPredict",
+      "sql_name": "chem_propensity_predict",
+      "description": "Saved training-only logistic propensity scoring: feature rows; propensity_fit.predict_parameters.",
+      "data": "[features...] with same ordered predictors; intercept-only model uses ignored scalar dummy",
+      "args": [
+        "unchanged saved vector[p,standardized_intercept,origins[p],mean_offsets[p],population_scales[p],standardized_slopes[p]]"
+      ],
+      "estimator": "Stable origin-plus-offset feature normalization and logistic scoring. Query rows do not refit centering/scales. Returned probabilities can numerically reach0/1; downstream causal estimators reject endpoints rather than silently asserting positivity.",
+      "sql_example": "chem_propensity_predict([[0.0],[1.0]], [1.0,0.0,0.0,0.5,0.5,1.0986122886681098])",
+      "source": "crates/analytics/src/causal.rs",
+      "tests": "crates/analytics/tests/causal.rs",
+      "module_path": "ducksmiles_analytics::causal::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-causal-reference.json",
+      "layers": {
+        "Rust_public_execute": "9focused tests passed",
+        "direct_C_ABI": "independent oracle and direct C ABI catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Model refitting",
+        "Probability calibration",
+        "Causal assumption verification"
+      ]
+    },
+    {
+      "operation": "causal_balance",
+      "symbol": "CausalBalance",
+      "sql_name": "chem_causal_balance",
+      "description": "Raw-score overlap and weighted covariate balance: [features...,treatment,propensity]; [estimand0ATE/1ATT=0,explicit_clip=0]. Fixed baseline pooled SD, ESS; both groups>=2.",
+      "data": ">=1 numeric covariate, treatment0/1, propensity strictly(0,1); >=2rows per treatment group",
+      "args": [
+        "estimand:0ATE(default),1ATT",
+        "explicit_clip:0none(default),otherwise0<clip<.5; truncate interior input scores to[clip,1-clip] for weights only"
+      ],
+      "estimator": "ATE weights T/e and(1-T)/(1-e); ATT weights T and(1-T)*e/(1-e). Weighted mean differences use fixed unweighted pooled sample SD=sqrt((sample_var_T+sample_var_C)/2), not a post-weighting denominator. Return unweighted/weighted SMD, weighted means, baseline SD, treated/control ESS=(sumw)^2/sumw^2 and raw input propensity common-support interval. Common-support=null if empirical ranges do not intersect; outside count uses raw scores even when weights are clipped. Undefined infinite SMD is null; exact constant-equal feature SMD0. Balance is a design diagnostic, not proof of exchangeability.",
+      "sql_example": "chem_causal_balance([[0.0,1.0,0.5],[2.0,1.0,0.75],[1.0,0.0,0.25],[3.0,0.0,0.5]], [])",
+      "source": "crates/analytics/src/causal.rs",
+      "tests": "crates/analytics/tests/causal.rs",
+      "module_path": "ducksmiles_analytics::causal::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-causal-reference.json",
+      "layers": {
+        "Rust_public_execute": "9focused tests passed",
+        "direct_C_ABI": "independent oracle and direct C ABI catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Distributional/full covariate overlap tests",
+        "Automatic covariate encoding",
+        "JMP all positivity diagnostics",
+        "Proof of conditional exchangeability"
+      ]
+    },
+    {
+      "operation": "propensity_match",
+      "symbol": "PropensityMatch",
+      "sql_name": "chem_propensity_match",
+      "description": "Greedy1:1 ATT matching with explicit absolute caliper: [outcome,treatment,propensity]; [caliper=1,replacement1/0=1,metric0probability/1logit=0]. Matched-subset effect; SE null.",
+      "data": "[factual_outcome,treatment0/1,propensity strictly(0,1)], <=2000 rows, both groups present",
+      "args": [
+        "caliper: nonnegative absolute distance in selected score units,default1",
+        "replacement:1yes(default),0no",
+        "metric:0propensity(default),1logit propensity"
+      ],
+      "estimator": "Process treated rows in input order; choose nearest admissible control, exact distance ties lowest original control index. Optional control reuse; unmatched treated rows excluded and reported. Estimate is mean factual treated-minus-matched-control outcome difference over matched treated subset. No generic independent-pair SE is returned; control reuse and estimated matching need valid matching inference. JMP caliper is multiplied by estimated score SD and its matched report fits a mixed model; neither convention is claimed here.",
+      "sql_example": "chem_propensity_match([[5.0,1.0,0.25],[8.0,1.0,0.75],[9.0,1.0,0.875],[1.0,0.0,0.125],[2.0,0.0,0.375],[4.0,0.0,0.875]], [0.2,1.0,0.0])",
+      "source": "crates/analytics/src/causal.rs",
+      "tests": "crates/analytics/tests/causal.rs",
+      "module_path": "ducksmiles_analytics::causal::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-causal-reference.json",
+      "layers": {
+        "Rust_public_execute": "9focused tests passed",
+        "direct_C_ABI": "independent oracle and direct C ABI catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Optimal/global matching",
+        "Multiple controls per treated observation",
+        "Automatic score-SD caliper",
+        "Automatic min/max support trimming",
+        "JMP matched-sample GLMM inference",
+        "Abadie-Imbens matching variance"
+      ]
+    },
+    {
+      "operation": "ipw_effect",
+      "symbol": "IpwEffect",
+      "sql_name": "chem_ipw_effect",
+      "description": "Hajek IPW ATE/ATT with fixed-nuisance delta-method SE: [outcome,treatment,propensity]; [estimand0ATE/1ATT=0,explicit_clip=0].",
+      "data": "[factual_outcome,treatment0/1,propensity strictly(0,1)], both groups present",
+      "args": [
+        "estimand:0ATE(default),1ATT",
+        "explicit_clip:0none(default),otherwise(0,.5); changes effective weighting and can introduce bias"
+      ],
+      "estimator": "ATE compares separately normalized weighted means with w1=T/e,w0=(1-T)/(1-e); ATT uses w1=T,w0=(1-T)*e/(1-e). IF_i=n*[normalized_w1_i*(Y_i-mu1)-normalized_w0_i*(Y_i-mu0)]. SE is sample SD(IF)/sqrt(n); fixed95%normal interval. This conditions on fixed supplied nuisance scores and does not include fitted-propensity first-order uncertainty. Cross-fitting alone does not make plain IPW orthogonal. Correct nuisance identification, consistency/no interference, conditional exchangeability and positivity are caller assumptions.",
+      "sql_example": "chem_ipw_effect([[4.0,1.0,0.5],[6.0,1.0,0.75],[1.0,0.0,0.25],[3.0,0.0,0.5]], [])",
+      "source": "crates/analytics/src/causal.rs",
+      "tests": "crates/analytics/tests/causal.rs",
+      "module_path": "ducksmiles_analytics::causal::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-causal-reference.json",
+      "layers": {
+        "Rust_public_execute": "9focused tests passed",
+        "direct_C_ABI": "independent oracle and direct C ABI catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Estimated propensity-model uncertainty correction",
+        "Clustered/dependent rows",
+        "Sampling/external weights",
+        "Continuous/multivalued treatments",
+        "Automatic cross-fitting"
+      ]
+    },
+    {
+      "operation": "aipw_effect",
+      "symbol": "AipwEffect",
+      "sql_name": "chem_aipw_effect",
+      "description": "Canonical AIPW ATE/ATT scores with influence SE: [outcome,treatment,propensity,m0,m1]; [estimand0ATE/1ATT=0,explicit_clip=0]. External nuisance fitting required.",
+      "data": "[factual_outcome,treatment0/1,propensity strictly(0,1),predicted_m0,predicted_m1], both groups present",
+      "args": [
+        "estimand:0ATE(default),1ATT",
+        "explicit_clip:0none(default),otherwise(0,.5); explicit truncation can alter robustness/target"
+      ],
+      "estimator": "ATE score psi=m1-m0+T*(Y-m1)/e-(1-T)*(Y-m0)/(1-e); estimate=meanpsi,IF=psi-estimate. ATT numerator g=T*(Y-m0)-(1-T)*e/(1-e)*(Y-m0); estimate=sumg/n_treated,IF=(g-T*estimate)/treatment_prevalence. ATT does not use m1. SE=sample SD(IF)/sqrt(n),fixed95%normal interval. Nuisance predictions are externally supplied; calibrated inference needs independent observations, valid identification, suitable cross-fitting/Donsker and nuisance-product rate conditions. Input cannot verify these conditions.",
+      "sql_example": "chem_aipw_effect([[4.0,1.0,0.5,2.0,4.0],[6.0,1.0,0.75,3.0,6.0],[1.0,0.0,0.25,1.0,3.0],[3.0,0.0,0.5,3.0,5.0]], [])",
+      "source": "crates/analytics/src/causal.rs",
+      "tests": "crates/analytics/tests/causal.rs",
+      "module_path": "ducksmiles_analytics::causal::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-causal-reference.json",
+      "layers": {
+        "Rust_public_execute": "9focused tests passed",
+        "direct_C_ABI": "independent oracle and direct C ABI catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Automatic nuisance model fitting/cross-fitting",
+        "All JMP ratio-adjustment/inferential conventions",
+        "Clustered/dependent rows",
+        "Continuous/multivalued treatments",
+        "Finite-sample causal guarantee"
+      ]
+    },
+    {
+      "operation": "uplift_curve",
+      "symbol": "UpliftCurve",
+      "sql_name": "chem_uplift_curve",
+      "description": "Supplied-score uplift/Qini evaluation: [factual_outcome,treatment,predicted_effect_score,assignment_propensity]; []. Grouped-score HT gain; no uplift-tree fitting.",
+      "data": "[actual observed outcome,treatment0/1,predicted effect ranking score,known/valid assignment propensity strictly(0,1)], both groups present",
+      "args": [
+        "no parameters"
+      ],
+      "estimator": "Sort supplied scores descending and group exact ties. z=T*Y/e-(1-T)*Y/(1-e). Gain at selection fraction k/n=sum_selected(z)/n. Qini=gain-fraction*finalgain; report trapezoid AUUC and Qini area. Initial threshold null denotes above all scores. Appropriate held-out evaluation needs randomized known assignment or observational exchangeability/valid propensity, plus consistency/positivity. Actual outcomes are factual observations, not individual treatment effects; observed treated outcomes cannot be used as counterfactual truth. This evaluates a supplied ranking and is not the JMP interaction-significance uplift partition learner.",
+      "sql_example": "chem_uplift_curve([[3.0,1.0,0.9,0.5],[1.0,0.0,0.8,0.5],[2.0,1.0,0.8,0.5],[2.0,0.0,0.1,0.5]], [])",
+      "source": "crates/analytics/src/causal.rs",
+      "tests": "crates/analytics/tests/causal.rs",
+      "module_path": "ducksmiles_analytics::causal::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causal-treatment-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/propensity-score-matching-summary.shtml",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/consumer-research.pdf"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-causal-reference.json",
+      "layers": {
+        "Rust_public_execute": "9focused tests passed",
+        "direct_C_ABI": "independent oracle and direct C ABI catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "JMP uplift partition fitting",
+        "True individual-effect labels",
+        "Automatic score training/cross-fitting",
+        "Normalized perfect-model Qini",
+        "Confidence bands/policy optimization"
+      ]
+    }
+  ],
+  "layers": {
+    "Rust_public_execute": "9focused integration tests passed",
+    "direct_C_ABI": "independent NumPy/SciPy reference passed; see tasks/evidence/jmp-causal-reference.json",
+    "DuckDB_SQL": "parent integration pending",
+    "JMP_executable": "not available; no numerical parity claim"
+  },
+  "native_sql_validation": {
+    "status": "PASS matching current209-function checkpoint",
+    "evidence": "tasks/evidence/jmp-models-validation.json",
+    "overall_jmp_parity": false
+  }
+}

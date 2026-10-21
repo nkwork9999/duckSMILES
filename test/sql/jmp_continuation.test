@@ -1,0 +1,59 @@
+# name: test/sql/jmp_continuation.test
+# description: Numerical contracts for continued JMP-style CPU analytics
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+query I
+SELECT abs(json_extract(chem_roc_curve([[0.,0.1],[1.,0.4],[0.,0.4],[1.,0.8]],[]::DOUBLE[]),'$.auc')::DOUBLE-0.875)<1e-12;
+----
+true
+
+# A valid seed whose original binary64 midpoint rounded to one must preserve
+# certain Bernoulli events on both simulation paths.
+query II
+SELECT json_extract(chem_marker_simulate([[0.]], [1.,608688947055533.,0.]),'$.rows[0][0]')::INTEGER,
+       json_extract(chem_marker_cross([[2.]], [0.,0.,1.,608688947055533.]),'$.rows[0][0]')::INTEGER;
+----
+0	2
+
+query I
+SELECT abs(json_extract(chem_mds([[0.],[1.],[2.]], [1.]),'$.eigenvalues[0]')::DOUBLE-2.)<1e-10;
+----
+true
+
+query I
+SELECT json_extract(chem_spectral_snv([[1.,2.,3.]], []::DOUBLE[]),'$.rows[0][0]')::DOUBLE=-1.;
+----
+true
+
+# Saved parameters pass through the SQL JSON/DOUBLE[] conversion with all
+# preprocessing retained by the fitted model.
+query I
+WITH model AS (SELECT chem_curve_fit([[0.,2.],[1.,4.],[2.,8.]], [0.]) AS value)
+SELECT abs(json_extract(chem_curve_predict([[3.]], from_json(json_extract(value,'$.predict_parameters'),'["DOUBLE"]')),'$.predictions[0]')::DOUBLE-16.)<1e-6 FROM model;
+----
+true
+
+query I
+WITH model AS (SELECT chem_genomic_blup([[0.,1.],[1.,2.],[2.,5.]], [3.,1.]) AS value)
+SELECT abs(json_extract(chem_genomic_blup_predict([[1.]], from_json(json_extract(value,'$.predict_parameters'),'["DOUBLE"]')),'$.predictions[0]')::DOUBLE-8./3.)<1e-10 FROM model;
+----
+true
+
+query III
+SELECT chem_marker_impute([[0.,NULL],[1.,1.]],[]::DOUBLE[]) IS NULL,
+       chem_svm_fit([[0.,0.],[1.,1.],[2.,0.]], NULL::DOUBLE[]) IS NULL,
+       chem_spectral_snv([[1.,2.],[1.]],[]::DOUBLE[]) IS NULL;
+----
+true	true	true
+
+query I
+SELECT count(*) FROM (
+ SELECT chem_binary_metrics([[i%2,(i%100)::DOUBLE/100.]],[]::DOUBLE[]) AS result
+ FROM range(5000) t(i) WHERE i%997=0
+) WHERE json_valid(result);
+----
+6

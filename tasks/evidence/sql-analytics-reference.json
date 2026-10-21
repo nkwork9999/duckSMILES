@@ -1,0 +1,957 @@
+{
+  "created_at_utc": "2026-10-21T12:02:14.462120+00:00",
+  "reference_packages": {
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "python": "3.14.3",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "boundary": "actual DuckDB SQL -> C++ bridge -> Rust analytics",
+  "extension_path": "/private/tmp/rusta-ducksmiles-analytics-target/cpp/extension/ducksmiles/ducksmiles.duckdb_extension",
+  "extension_sha256": "c199e0ab422ca7772c5cda5e7d2f3345e6e7b784ff6ed779b672cdedd1ca7cde",
+  "reference_methods": {
+    "pca": "numpy.linalg.eigh(sample covariance), orthogonal projector and reconstruction",
+    "ridge": "numpy.linalg.solve(Xs.T Xs + lambda I, Xs.T centered_y), training population standard deviation",
+    "pls": "full-rank exact linear fixtures vs numpy.linalg.lstsq and known generating coefficients",
+    "gp": "direct numpy.linalg.solve of RBF covariance, latent posterior variance, scipy.stats.norm EI",
+    "welch": "scipy.stats.ttest_ind(equal_var=False)",
+    "anova": "scipy.stats.f_oneway(equal_var=True)"
+  },
+  "summary": {
+    "pca": {
+      "fixtures": 3,
+      "passed": 3,
+      "max_absolute_error": 5.329070518200751e-15
+    },
+    "ridge": {
+      "fixtures": 3,
+      "passed": 3,
+      "max_absolute_error": 1.2434497875801753e-14
+    },
+    "pls": {
+      "fixtures": 3,
+      "passed": 3,
+      "max_absolute_error": 3.552713678800501e-15
+    },
+    "gp": {
+      "fixtures": 3,
+      "passed": 3,
+      "max_absolute_error": 1.1102230246251565e-15
+    },
+    "welch": {
+      "fixtures": 3,
+      "passed": 3,
+      "max_absolute_error": 7.105427357601002e-15
+    },
+    "anova": {
+      "fixtures": 3,
+      "passed": 3,
+      "max_absolute_error": 8.881784197001252e-15
+    }
+  },
+  "fixture_count": 18,
+  "passed": true,
+  "failures": [],
+  "fixtures": [
+    {
+      "algorithm": "pca",
+      "seed": 100,
+      "checks": {
+        "means": {
+          "max_absolute_error": 1.7763568394002505e-15,
+          "allowed_absolute_error": 1.1837944296317142e-09,
+          "pass": true
+        },
+        "scales": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "eigenvalues": {
+          "max_absolute_error": 5.329070518200751e-15,
+          "allowed_absolute_error": 9.294767109438055e-10,
+          "pass": true
+        },
+        "variance_ratios": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "orthogonality": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "subspace_projector": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 2.0000000000000008e-10,
+          "pass": true
+        },
+        "projected_reconstruction": {
+          "max_absolute_error": 3.552713678800501e-15,
+          "allowed_absolute_error": 6.970768377911734e-10,
+          "pass": true
+        },
+        "raw_reconstruction": {
+          "max_absolute_error": 2.6645352591003757e-15,
+          "allowed_absolute_error": 1.6836477729160088e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "pca",
+      "seed": 101,
+      "checks": {
+        "means": {
+          "max_absolute_error": 1.7763568394002505e-15,
+          "allowed_absolute_error": 1.6266883735697288e-09,
+          "pass": true
+        },
+        "scales": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 6.943154431715333e-10,
+          "pass": true
+        },
+        "eigenvalues": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 7.726811721673597e-10,
+          "pass": true
+        },
+        "variance_ratios": {
+          "max_absolute_error": 4.85722573273506e-17,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "orthogonality": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "subspace_projector": {
+          "max_absolute_error": 7.771561172376096e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "projected_reconstruction": {
+          "max_absolute_error": 4.440892098500626e-15,
+          "allowed_absolute_error": 5.356966171676957e-10,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "pca",
+      "seed": 102,
+      "checks": {
+        "means": {
+          "max_absolute_error": 1.3877787807814457e-17,
+          "allowed_absolute_error": 7.000000000000001e-10,
+          "pass": true
+        },
+        "scales": {
+          "max_absolute_error": 1.1102230246251565e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "eigenvalues": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 3.8760621703411065e-10,
+          "pass": true
+        },
+        "variance_ratios": {
+          "max_absolute_error": 1.1102230246251565e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "orthogonality": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "subspace_projector": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "projected_reconstruction": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 3.8049683851749094e-10,
+          "pass": true
+        },
+        "raw_reconstruction": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 7.654529238275432e-10,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "ridge",
+      "seed": 200,
+      "checks": {
+        "coefficients": {
+          "max_absolute_error": 1.7763568394002505e-15,
+          "allowed_absolute_error": 3.896827795677688e-10,
+          "pass": true
+        },
+        "intercept": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 2.962946617060129e-10,
+          "pass": true
+        },
+        "feature_means": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 3.977194667884825e-10,
+          "pass": true
+        },
+        "feature_scales": {
+          "max_absolute_error": 5.551115123125783e-17,
+          "allowed_absolute_error": 8.166651937107423e-10,
+          "pass": true
+        },
+        "rmse": {
+          "max_absolute_error": 9.71445146547012e-17,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "reused_model_predictions": {
+          "max_absolute_error": 2.6645352591003757e-15,
+          "allowed_absolute_error": 1.6944293654906964e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "ridge",
+      "seed": 201,
+      "checks": {
+        "coefficients": {
+          "max_absolute_error": 9.992007221626409e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "intercept": {
+          "max_absolute_error": 3.9968028886505635e-15,
+          "allowed_absolute_error": 2.6744213127867387e-10,
+          "pass": true
+        },
+        "feature_means": {
+          "max_absolute_error": 8.881784197001252e-16,
+          "allowed_absolute_error": 1.0216108914691567e-09,
+          "pass": true
+        },
+        "feature_scales": {
+          "max_absolute_error": 8.881784197001252e-16,
+          "allowed_absolute_error": 5.775947246287786e-10,
+          "pass": true
+        },
+        "rmse": {
+          "max_absolute_error": 9.992007221626409e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "reused_model_predictions": {
+          "max_absolute_error": 7.549516567451064e-15,
+          "allowed_absolute_error": 1.9653793429619527e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "ridge",
+      "seed": 202,
+      "checks": {
+        "coefficients": {
+          "max_absolute_error": 1.6653345369377348e-15,
+          "allowed_absolute_error": 2.2694026205173705e-10,
+          "pass": true
+        },
+        "intercept": {
+          "max_absolute_error": 7.105427357601002e-15,
+          "allowed_absolute_error": 4.0839955825970677e-10,
+          "pass": true
+        },
+        "feature_means": {
+          "max_absolute_error": 1.3877787807814457e-16,
+          "allowed_absolute_error": 8.051279913508419e-10,
+          "pass": true
+        },
+        "feature_scales": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 4.964247789235306e-10,
+          "pass": true
+        },
+        "rmse": {
+          "max_absolute_error": 1.6653345369377348e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "reused_model_predictions": {
+          "max_absolute_error": 1.2434497875801753e-14,
+          "allowed_absolute_error": 2.3876588447247463e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "pls",
+      "seed": 300,
+      "checks": {
+        "coefficients_vs_ols": {
+          "max_absolute_error": 5.551115123125783e-17,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "intercept_vs_ols": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 3.4000000000000007e-10,
+          "pass": true
+        },
+        "coefficients_vs_known_truth": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "rmse": {
+          "max_absolute_error": 4.337780026311073e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "reused_model_predictions": {
+          "max_absolute_error": 8.881784197001252e-16,
+          "allowed_absolute_error": 9.994501020853487e-10,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "pls",
+      "seed": 301,
+      "checks": {
+        "coefficients_vs_ols": {
+          "max_absolute_error": 6.661338147750939e-16,
+          "allowed_absolute_error": 3.59049396868891e-10,
+          "pass": true
+        },
+        "intercept_vs_ols": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 3.399999999999999e-10,
+          "pass": true
+        },
+        "coefficients_vs_known_truth": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 3.590493968688909e-10,
+          "pass": true
+        },
+        "rmse": {
+          "max_absolute_error": 6.616942185294531e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "reused_model_predictions": {
+          "max_absolute_error": 1.7763568394002505e-15,
+          "allowed_absolute_error": 1.2776025394857221e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "pls",
+      "seed": 302,
+      "checks": {
+        "coefficients_vs_ols": {
+          "max_absolute_error": 2.4702462297909733e-15,
+          "allowed_absolute_error": 5.065917625936034e-10,
+          "pass": true
+        },
+        "intercept_vs_ols": {
+          "max_absolute_error": 1.1102230246251565e-15,
+          "allowed_absolute_error": 3.3999999999999945e-10,
+          "pass": true
+        },
+        "coefficients_vs_known_truth": {
+          "max_absolute_error": 6.245004513516506e-16,
+          "allowed_absolute_error": 5.065917625936034e-10,
+          "pass": true
+        },
+        "rmse": {
+          "max_absolute_error": 2.3521138664023584e-15,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "reused_model_predictions": {
+          "max_absolute_error": 3.552713678800501e-15,
+          "allowed_absolute_error": 1.7495253333402076e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "gp",
+      "seed": 400,
+      "checks": {
+        "feature_means_training_only": {
+          "max_absolute_error": 2.7755575615628914e-17,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "feature_scales_training_only": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 4.5728687883677255e-10,
+          "pass": true
+        },
+        "posterior_means": {
+          "max_absolute_error": 6.661338147750939e-16,
+          "allowed_absolute_error": 5.899780536494054e-10,
+          "pass": true
+        },
+        "posterior_latent_variances": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 2.4866968185350713e-10,
+          "pass": true
+        },
+        "expected_improvement": {
+          "max_absolute_error": 1.6653345369377348e-16,
+          "allowed_absolute_error": 1e-12,
+          "pass": true
+        },
+        "candidate_ranking": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 0.0,
+          "pass": true
+        }
+      },
+      "actual_expected_improvement": [
+        1.2751949096205995e-51,
+        0.19864051336122215,
+        1.9330508929517987e-09,
+        0.05986073383450294,
+        0.0009038984746063778,
+        8.528317733524985e-19
+      ],
+      "reference_expected_improvement": [
+        1.275194909619574e-51,
+        0.19864051336122232,
+        1.933050892951878e-09,
+        0.059860733834502855,
+        0.0009038984746063796,
+        8.52831773353312e-19
+      ],
+      "actual_candidate_ranking": [
+        1,
+        3,
+        4,
+        2,
+        5,
+        0
+      ],
+      "reference_candidate_ranking": [
+        1,
+        3,
+        4,
+        2,
+        5,
+        0
+      ],
+      "pass": true,
+      "extension_sha256": "c199e0ab422ca7772c5cda5e7d2f3345e6e7b784ff6ed779b672cdedd1ca7cde"
+    },
+    {
+      "algorithm": "gp",
+      "seed": 401,
+      "checks": {
+        "feature_means_training_only": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 3.573090772488182e-10,
+          "pass": true
+        },
+        "feature_scales_training_only": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 3.6433122671456234e-10,
+          "pass": true
+        },
+        "posterior_means": {
+          "max_absolute_error": 8.881784197001252e-16,
+          "allowed_absolute_error": 4.675939988596128e-10,
+          "pass": true
+        },
+        "posterior_latent_variances": {
+          "max_absolute_error": 8.881784197001252e-16,
+          "allowed_absolute_error": 2.7955416807198116e-10,
+          "pass": true
+        },
+        "expected_improvement": {
+          "max_absolute_error": 4.996003610813204e-16,
+          "allowed_absolute_error": 1e-12,
+          "pass": true
+        },
+        "candidate_ranking": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 0.0,
+          "pass": true
+        }
+      },
+      "actual_expected_improvement": [
+        0.05822945898325165,
+        0.24128521723601892,
+        0.21209880754940433,
+        0.19283675141674061,
+        0.18756173419359454
+      ],
+      "reference_expected_improvement": [
+        0.05822945898325215,
+        0.2412852172360188,
+        0.2120988075494042,
+        0.19283675141674061,
+        0.1875617341935944
+      ],
+      "actual_candidate_ranking": [
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "reference_candidate_ranking": [
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "pass": true,
+      "extension_sha256": "c199e0ab422ca7772c5cda5e7d2f3345e6e7b784ff6ed779b672cdedd1ca7cde"
+    },
+    {
+      "algorithm": "gp",
+      "seed": 402,
+      "checks": {
+        "feature_means_training_only": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 5e-10,
+          "pass": true
+        },
+        "feature_scales_training_only": {
+          "max_absolute_error": 2.220446049250313e-16,
+          "allowed_absolute_error": 2.9967463480401995e-10,
+          "pass": true
+        },
+        "posterior_means": {
+          "max_absolute_error": 8.881784197001252e-16,
+          "allowed_absolute_error": 5.047074394282413e-10,
+          "pass": true
+        },
+        "posterior_latent_variances": {
+          "max_absolute_error": 1.1102230246251565e-15,
+          "allowed_absolute_error": 5.893136570012132e-10,
+          "pass": true
+        },
+        "expected_improvement": {
+          "max_absolute_error": 3.3306690738754696e-16,
+          "allowed_absolute_error": 1e-12,
+          "pass": true
+        },
+        "candidate_ranking": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 0.0,
+          "pass": true
+        }
+      },
+      "actual_expected_improvement": [
+        7.707656116904284e-18,
+        9.720852146351527e-05,
+        0.3405033766141245,
+        0.26219559582864826,
+        0.007946207572386031,
+        0.33727739466291795,
+        0.00018534183786368327
+      ],
+      "reference_expected_improvement": [
+        7.707656116901918e-18,
+        9.72085214635144e-05,
+        0.34050337661412455,
+        0.26219559582864793,
+        0.007946207572385879,
+        0.33727739466291795,
+        0.00018534183786368067
+      ],
+      "actual_candidate_ranking": [
+        2,
+        5,
+        3,
+        4,
+        6,
+        1,
+        0
+      ],
+      "reference_candidate_ranking": [
+        2,
+        5,
+        3,
+        4,
+        6,
+        1,
+        0
+      ],
+      "pass": true,
+      "extension_sha256": "c199e0ab422ca7772c5cda5e7d2f3345e6e7b784ff6ed779b672cdedd1ca7cde"
+    },
+    {
+      "algorithm": "welch",
+      "seed": 500,
+      "checks": {
+        "t_statistic": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "degrees_of_freedom": {
+          "max_absolute_error": 3.552713678800501e-15,
+          "allowed_absolute_error": 3.3587516447728827e-09,
+          "pass": true
+        },
+        "two_sided_probability": {
+          "max_absolute_error": 1.2212453270876722e-15,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "welch",
+      "seed": 501,
+      "checks": {
+        "t_statistic": {
+          "max_absolute_error": 4.440892098500626e-16,
+          "allowed_absolute_error": 2.3608175665232645e-10,
+          "pass": true
+        },
+        "degrees_of_freedom": {
+          "max_absolute_error": 3.552713678800501e-15,
+          "allowed_absolute_error": 2.9169702087418364e-09,
+          "pass": true
+        },
+        "two_sided_probability": {
+          "max_absolute_error": 2.1649348980190553e-15,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "welch",
+      "seed": 502,
+      "checks": {
+        "t_statistic": {
+          "max_absolute_error": 8.881784197001252e-16,
+          "allowed_absolute_error": 9.276671714909783e-10,
+          "pass": true
+        },
+        "degrees_of_freedom": {
+          "max_absolute_error": 7.105427357601002e-15,
+          "allowed_absolute_error": 4.0405878441908335e-09,
+          "pass": true
+        },
+        "two_sided_probability": {
+          "max_absolute_error": 4.87890977618477e-19,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "anova",
+      "seed": 600,
+      "checks": {
+        "f_statistic": {
+          "max_absolute_error": 5.329070518200751e-15,
+          "allowed_absolute_error": 2.4885869689876624e-09,
+          "pass": true
+        },
+        "f_tail_probability": {
+          "max_absolute_error": 8.673617379884035e-19,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "df_between": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 4e-10,
+          "pass": true
+        },
+        "df_within": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 5e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "anova",
+      "seed": 601,
+      "checks": {
+        "f_statistic": {
+          "max_absolute_error": 8.881784197001252e-15,
+          "allowed_absolute_error": 2.2496633919664075e-09,
+          "pass": true
+        },
+        "f_tail_probability": {
+          "max_absolute_error": 1.6805133673525319e-18,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "df_between": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 4e-10,
+          "pass": true
+        },
+        "df_within": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 5.6000000000000005e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    },
+    {
+      "algorithm": "anova",
+      "seed": 602,
+      "checks": {
+        "f_statistic": {
+          "max_absolute_error": 3.552713678800501e-15,
+          "allowed_absolute_error": 1.82399790096059e-09,
+          "pass": true
+        },
+        "f_tail_probability": {
+          "max_absolute_error": 2.710505431213761e-18,
+          "allowed_absolute_error": 2e-10,
+          "pass": true
+        },
+        "df_between": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 4e-10,
+          "pass": true
+        },
+        "df_within": {
+          "max_absolute_error": 0.0,
+          "allowed_absolute_error": 6.2e-09,
+          "pass": true
+        }
+      },
+      "pass": true,
+      "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+    }
+  ],
+  "observations": [
+    {
+      "kind": "documented_approximation",
+      "algorithm": "gp",
+      "seed": 400,
+      "detail": "Exact rankings differ only for EI 8.53e-19 versus 1.28e-51; both are far below the documented normal-CDF approximation uncertainty. No rank inversions exceed the 4e-7 EI comparison resolution. Actual/reference scores and exact ranks are preserved in the fixture. The normal-CDF tail calculation was subsequently fixed; all three GP fixtures now agree with SciPy within4.996e-16 EI absolute error, and exact rankings match.",
+      "status": "resolved",
+      "historical_fixtures": [
+        {
+          "algorithm": "gp",
+          "seed": 400,
+          "checks": {
+            "feature_means_training_only": {
+              "max_absolute_error": 2.7755575615628914e-17,
+              "allowed_absolute_error": 2e-10,
+              "pass": true
+            },
+            "feature_scales_training_only": {
+              "max_absolute_error": 0.0,
+              "allowed_absolute_error": 4.5728687883677255e-10,
+              "pass": true
+            },
+            "posterior_means": {
+              "max_absolute_error": 6.661338147750939e-16,
+              "allowed_absolute_error": 5.899780536494054e-10,
+              "pass": true
+            },
+            "posterior_latent_variances": {
+              "max_absolute_error": 4.440892098500626e-16,
+              "allowed_absolute_error": 2.4866968185350713e-10,
+              "pass": true
+            },
+            "expected_improvement": {
+              "max_absolute_error": 9.119213470465404e-08,
+              "allowed_absolute_error": 2e-07,
+              "pass": true
+            },
+            "significant_pairwise_rank_inversions": {
+              "max_absolute_error": 0.0,
+              "allowed_absolute_error": 0.0,
+              "pass": true
+            }
+          },
+          "actual_expected_improvement": [
+            2.820527373687248e-49,
+            0.19864049887147708,
+            1.7924118924377802e-09,
+            0.05986064264236815,
+            0.00090388912362439,
+            0
+          ],
+          "reference_expected_improvement": [
+            1.275194909619574e-51,
+            0.19864051336122232,
+            1.933050892951878e-09,
+            0.059860733834502855,
+            0.0009038984746063796,
+            8.52831773353312e-19
+          ],
+          "actual_candidate_ranking": [
+            1,
+            3,
+            4,
+            2,
+            0,
+            5
+          ],
+          "reference_candidate_ranking": [
+            1,
+            3,
+            4,
+            2,
+            5,
+            0
+          ],
+          "strict_ranking_equal": false,
+          "ranking_ei_resolution": 4e-07,
+          "pass": true,
+          "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+        },
+        {
+          "algorithm": "gp",
+          "seed": 401,
+          "checks": {
+            "feature_means_training_only": {
+              "max_absolute_error": 2.220446049250313e-16,
+              "allowed_absolute_error": 3.573090772488182e-10,
+              "pass": true
+            },
+            "feature_scales_training_only": {
+              "max_absolute_error": 2.220446049250313e-16,
+              "allowed_absolute_error": 3.6433122671456234e-10,
+              "pass": true
+            },
+            "posterior_means": {
+              "max_absolute_error": 8.881784197001252e-16,
+              "allowed_absolute_error": 4.675939988596128e-10,
+              "pass": true
+            },
+            "posterior_latent_variances": {
+              "max_absolute_error": 8.881784197001252e-16,
+              "allowed_absolute_error": 2.7955416807198116e-10,
+              "pass": true
+            },
+            "expected_improvement": {
+              "max_absolute_error": 4.476442458378749e-08,
+              "allowed_absolute_error": 2e-07,
+              "pass": true
+            },
+            "candidate_ranking": {
+              "max_absolute_error": 0.0,
+              "allowed_absolute_error": 0.0,
+              "pass": true
+            }
+          },
+          "pass": true,
+          "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+        },
+        {
+          "algorithm": "gp",
+          "seed": 402,
+          "checks": {
+            "feature_means_training_only": {
+              "max_absolute_error": 2.220446049250313e-16,
+              "allowed_absolute_error": 5e-10,
+              "pass": true
+            },
+            "feature_scales_training_only": {
+              "max_absolute_error": 2.220446049250313e-16,
+              "allowed_absolute_error": 2.9967463480401995e-10,
+              "pass": true
+            },
+            "posterior_means": {
+              "max_absolute_error": 8.881784197001252e-16,
+              "allowed_absolute_error": 5.047074394282413e-10,
+              "pass": true
+            },
+            "posterior_latent_variances": {
+              "max_absolute_error": 1.1102230246251565e-15,
+              "allowed_absolute_error": 5.893136570012132e-10,
+              "pass": true
+            },
+            "expected_improvement": {
+              "max_absolute_error": 1.253878394572895e-07,
+              "allowed_absolute_error": 2e-07,
+              "pass": true
+            },
+            "candidate_ranking": {
+              "max_absolute_error": 0.0,
+              "allowed_absolute_error": 0.0,
+              "pass": true
+            }
+          },
+          "pass": true,
+          "extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409"
+        }
+      ]
+    },
+    {
+      "kind": "transient_process_failure",
+      "algorithm": "anova",
+      "seed": 602,
+      "detail": "Initial CLI process was killed by SIGKILL during parent shell relinking. An isolated retry on the same extension SHA passed; F error 3.55e-15, p error 2.71e-18. No numerical failure remains."
+    }
+  ],
+  "reproduction_harness_source": "#!/usr/bin/env python3\n\"\"\"Independent NumPy/SciPy references through actual DuckDB SQL -> C++ -> Rust.\"\"\"\nimport argparse\nfrom datetime import datetime, timezone\nimport hashlib\nimport json\nfrom pathlib import Path\nimport platform\nimport subprocess\nimport sys\n\nimport numpy as np\nimport scipy\nfrom scipy import stats\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument('--duckdb', required=True)\n    parser.add_argument('--extension', required=True, type=Path)\n    parser.add_argument('--output', required=True, type=Path)\n    parser.add_argument('--only', default='')\n    args = parser.parse_args()\n    extension = str(args.extension.resolve()).replace(\"'\", \"''\")\n    records = []\n    failures = []\n\n    def sql_array(values):\n        return json.dumps(np.asarray(values, dtype=float).tolist(), allow_nan=False, separators=(',', ':'))\n\n    def query(function, data, parameters):\n        parameter_sql = sql_array(parameters) if len(parameters) else '[]::DOUBLE[]'\n        expression = f'{function}({sql_array(data)}, {parameter_sql})'\n        result = subprocess.run(\n            [args.duckdb, '-unsigned', '-batch', '-bail', '-json', ':memory:'],\n            input=f\"LOAD '{extension}';\\nSELECT {expression} AS result;\\n\",\n            text=True, capture_output=True, check=True, timeout=60,\n        )\n        outer = json.loads(result.stdout)\n        if not outer or outer[0]['result'] is None:\n            raise AssertionError(f'{function} returned SQL NULL')\n        decoded = json.loads(outer[0]['result'], parse_constant=lambda token: (_ for _ in ()).throw(AssertionError(token)))\n        if decoded.get('version') != 1:\n            raise AssertionError(f'{function} returned unsupported result version')\n        return decoded\n\n    def compare(record, name, actual, expected, tolerance=2e-10):\n        actual = np.asarray(actual, dtype=float)\n        expected = np.asarray(expected, dtype=float)\n        if actual.shape != expected.shape:\n            record['checks'][name] = {'pass': False, 'actual_shape': list(actual.shape), 'expected_shape': list(expected.shape)}\n            raise AssertionError(f'{name}: shapes differ {actual.shape} != {expected.shape}')\n        if not np.all(np.isfinite(actual)) or not np.all(np.isfinite(expected)):\n            raise AssertionError(f'{name}: nonfinite result/reference')\n        error = float(np.max(np.abs(actual - expected), initial=0))\n        allowed = float(tolerance * max(1.0, float(np.max(np.abs(expected), initial=0))))\n        passed = error <= allowed\n        record['checks'][name] = {'max_absolute_error': error, 'allowed_absolute_error': allowed, 'pass': passed}\n        if not passed:\n            raise AssertionError(f'{name}: max error {error} > {allowed}')\n\n    def fixture(algorithm, seed, operation):\n        record = {'algorithm': algorithm, 'seed': seed, 'checks': {}}\n        records.append(record)\n        try:\n            operation(np.random.default_rng(seed), record)\n            record['pass'] = True\n        except Exception as exc:\n            record['pass'] = False\n            record['error'] = f'{type(exc).__name__}: {exc}'\n            failures.append({'algorithm': algorithm, 'seed': seed, 'error': record['error']})\n        print(json.dumps(record, allow_nan=False), flush=True)\n\n    def pca(rng, record):\n        case = record['seed'] - 100\n        n, p, standardize, count = [(19,4,False,4), (23,5,True,3), (11,3,True,3)][case]\n        x = rng.normal(size=(n,p)) @ np.triu(rng.normal(size=(p,p))) + np.arange(p)*2.0\n        if case == 2:\n            x[:,-1] = 3.5\n        result = query('chem_pca', x, [count, float(standardize)])\n        mean = x.mean(axis=0)\n        scale = x.std(axis=0, ddof=1) if standardize else np.ones(p)\n        scale[scale == 0] = 1.0\n        z = (x-mean)/scale\n        covariance = z.T @ z/(n-1)\n        eigenvalues, eigenvectors = np.linalg.eigh(covariance)\n        order = np.argsort(eigenvalues)[::-1]\n        eigenvalues = np.maximum(eigenvalues[order], 0.0)\n        eigenvectors = eigenvectors[:,order]\n        components = np.asarray(result['components'])\n        scores = np.asarray(result['scores'])\n        compare(record, 'means', result['mean'], mean)\n        compare(record, 'scales', result['scale'], scale)\n        compare(record, 'eigenvalues', result['explained_variance'], eigenvalues[:count])\n        compare(record, 'variance_ratios', result['explained_variance_ratio'], eigenvalues[:count]/eigenvalues.sum())\n        compare(record, 'orthogonality', components @ components.T, np.eye(count))\n        compare(record, 'subspace_projector', components.T @ components, eigenvectors[:,:count] @ eigenvectors[:,:count].T)\n        compare(record, 'projected_reconstruction', scores @ components, z @ eigenvectors[:,:count] @ eigenvectors[:,:count].T)\n        if count == p:\n            compare(record, 'raw_reconstruction', (scores @ components)*scale+mean, x)\n\n    def ridge(rng, record):\n        n,p = [(17,3), (24,5), (31,4)][record['seed']-200]\n        x = rng.normal(size=(n,p))*np.linspace(0.5,3.0,p)+np.arange(p)*1.3\n        truth = rng.normal(size=p)\n        y = 1.5+x@truth+rng.normal(scale=0.15,size=n)\n        lam = [0.0,0.7,4.0][record['seed']-200]\n        result = query('chem_ridge', np.column_stack([x,y]), [lam])\n        means, scales = x.mean(axis=0), x.std(axis=0,ddof=0)\n        z = (x-means)/scales\n        standardized_coef = np.linalg.solve(z.T@z+lam*np.eye(p), z.T@(y-y.mean()))\n        coef = standardized_coef/scales\n        intercept = y.mean()-means@coef\n        predictions = intercept+x@coef\n        compare(record, 'coefficients', result['coefficients'], coef)\n        compare(record, 'intercept', result['intercept'], intercept)\n        compare(record, 'feature_means', result['feature_means'], means)\n        compare(record, 'feature_scales', result['feature_scales'], scales)\n        compare(record, 'rmse', result['metrics']['rmse'], np.sqrt(np.mean((y-predictions)**2)))\n        predicted = query('chem_predict', x, [result['intercept'],*result['coefficients']])\n        compare(record, 'reused_model_predictions', predicted['predictions'], predictions)\n\n    def pls(rng, record):\n        n,p = [(16,2),(23,4),(29,5)][record['seed']-300]\n        x = rng.normal(size=(n,p))*np.linspace(0.6,2.4,p)+np.arange(p)*0.7\n        true_coef = rng.normal(size=p)\n        true_intercept = 1.7\n        y = true_intercept+x@true_coef\n        result = query('chem_pls', np.column_stack([x,y]), [p])\n        ols = np.linalg.lstsq(np.column_stack([np.ones(n),x]), y, rcond=None)[0]\n        compare(record, 'coefficients_vs_ols', result['coefficients'], ols[1:])\n        compare(record, 'intercept_vs_ols', result['intercept'], ols[0])\n        compare(record, 'coefficients_vs_known_truth', result['coefficients'], true_coef)\n        compare(record, 'rmse', result['metrics']['rmse'], 0.0)\n        predicted = query('chem_predict', x, [result['intercept'],*result['coefficients']])\n        compare(record, 'reused_model_predictions', predicted['predictions'], y)\n\n    def gp(rng, record):\n        case = record['seed']-400\n        n,p,m = [(7,2,6),(9,3,5),(11,4,7)][case]\n        train = rng.normal(size=(n,p))*np.linspace(0.6,2.2,p)+np.arange(p)*1.1\n        candidates = rng.normal(size=(m,p))*np.linspace(0.8,3.0,p)+np.arange(p)*1.1\n        candidates[0] = train[0]\n        if case == 2:\n            train[:,-1] = 2.5\n            candidates[:,-1] = 2.5\n        y = 2.0+np.sin(train[:,0])+0.2*train[:,1]+rng.normal(scale=0.1,size=n)\n        data = np.vstack([np.column_stack([train,y]), np.column_stack([candidates, 12345.0+np.arange(m)])])\n        length,signal,noise,minimize,xi = [(1.2,2.0,0.03,False,0.1),(0.8,1.4,0.1,True,0.0),(1.7,3.0,0.02,False,0.05)][case]\n        result = query('chem_gp_predict', data, [n,length,signal,noise,float(minimize),xi])\n        means, scales = train.mean(axis=0), train.std(axis=0,ddof=0)\n        scales[scales == 0] = 1.0\n        x, candidates_z = (train-means)/scales, (candidates-means)/scales\n        def kernel(a,b):\n            squared = np.sum(((a[:,None,:]-b[None,:,:])/length)**2,axis=2)\n            return signal*np.exp(-0.5*squared)\n        k = kernel(x,x)+noise*np.eye(n)\n        cross = kernel(candidates_z,x)\n        predicted = y.mean()+cross@np.linalg.solve(k,y-y.mean())\n        variance = np.maximum(signal-np.sum(cross*np.linalg.solve(k,cross.T).T,axis=1),0.0)\n        sigma = np.sqrt(variance)\n        best = y.min() if minimize else y.max()\n        delta = (best-predicted if minimize else predicted-best)-xi\n        expected_ei = delta*stats.norm.cdf(delta/sigma)+sigma*stats.norm.pdf(delta/sigma)\n        compare(record, 'feature_means_training_only', result['feature_means'], means)\n        compare(record, 'feature_scales_training_only', result['feature_scales'], scales)\n        compare(record, 'posterior_means', result['predictions'], predicted)\n        compare(record, 'posterior_latent_variances', result['variances'], variance)\n        compare(record, 'expected_improvement', result['expected_improvement'], expected_ei, tolerance=1e-12)\n        record['actual_expected_improvement'] = result['expected_improvement']\n        record['reference_expected_improvement'] = expected_ei.tolist()\n        record['actual_candidate_ranking'] = result['ranked_candidate_indices']\n        record['reference_candidate_ranking'] = np.argsort(-expected_ei,kind='stable').tolist()\n        compare(record, 'candidate_ranking', result['ranked_candidate_indices'], np.argsort(-expected_ei,kind='stable'), tolerance=0.0)\n\n    def welch(rng, record):\n        case = record['seed']-500\n        a = rng.normal(loc=-0.2+case*0.3,scale=0.7+case*0.2,size=7+case*3)\n        b = rng.normal(loc=0.9-case*0.1,scale=1.8-case*0.3,size=12-case)\n        rows = np.vstack([np.column_stack([a,np.zeros(a.size)]), np.column_stack([b,np.ones(b.size)])])\n        rng.shuffle(rows)\n        result = query('chem_welch_t_test', rows, [])\n        reference = stats.ttest_ind(a,b,equal_var=False)\n        compare(record, 't_statistic', result['t_statistic'], reference.statistic)\n        compare(record, 'degrees_of_freedom', result['degrees_of_freedom'], reference.df)\n        compare(record, 'two_sided_probability', result['p_value'], reference.pvalue)\n\n    def anova(rng, record):\n        case = record['seed']-600\n        groups = [rng.normal(loc=location+case*0.1,scale=scale,size=n+case) for location,scale,n in [(-0.3,0.8,7),(0.7,1.3,9),(1.6,0.4,12)]]\n        rows = np.vstack([np.column_stack([group,np.full(group.size,label)]) for group,label in zip(groups,[4,2,9])])\n        rng.shuffle(rows)\n        result = query('chem_one_way_anova',rows,[])\n        reference = stats.f_oneway(*groups)\n        compare(record, 'f_statistic', result['f_statistic'], reference.statistic)\n        compare(record, 'f_tail_probability', result['p_value'], reference.pvalue)\n        compare(record, 'df_between', result['df_between'], len(groups)-1)\n        compare(record, 'df_within', result['df_within'], sum(group.size for group in groups)-len(groups))\n\n    for algorithm,first_seed,operation in [('pca',100,pca),('ridge',200,ridge),('pls',300,pls),('gp',400,gp),('welch',500,welch),('anova',600,anova)]:\n        for seed in range(first_seed,first_seed+3):\n            if not args.only or args.only == algorithm or args.only == f'{algorithm}:{seed}':\n                fixture(algorithm,seed,operation)\n    summary = {}\n    for record in records:\n        item = summary.setdefault(record['algorithm'], {'fixtures':0,'passed':0,'max_absolute_error':0.0})\n        item['fixtures'] += 1\n        item['passed'] += int(record['pass'])\n        for check in record['checks'].values():\n            item['max_absolute_error'] = max(item['max_absolute_error'],check.get('max_absolute_error',0.0))\n    output = {\n        'created_at_utc': datetime.now(timezone.utc).isoformat(),\n        'reference_packages': {'numpy':np.__version__, 'scipy':scipy.__version__, 'python':sys.version.split()[0], 'platform':platform.platform()},\n        'boundary':'actual DuckDB SQL -> C++ bridge -> Rust analytics',\n        'extension_path':str(args.extension.resolve()),\n        'extension_sha256':hashlib.sha256(args.extension.read_bytes()).hexdigest(),\n        'reference_methods': {\n            'pca':'numpy.linalg.eigh(sample covariance), orthogonal projector and reconstruction',\n            'ridge':'numpy.linalg.solve(Xs.T Xs + lambda I, Xs.T centered_y), training population standard deviation',\n            'pls':'full-rank exact linear fixtures vs numpy.linalg.lstsq and known generating coefficients',\n            'gp':'direct numpy.linalg.solve of RBF covariance, latent posterior variance, scipy.stats.norm EI',\n            'welch':'scipy.stats.ttest_ind(equal_var=False)',\n            'anova':'scipy.stats.f_oneway(equal_var=True)',\n        },\n        'summary':summary,'fixture_count':len(records),'passed':not failures,'failures':failures,'fixtures':records,\n    }\n    args.output.parent.mkdir(parents=True,exist_ok=True)\n    args.output.write_text(json.dumps(output,indent=2,allow_nan=False)+'\\n')\n    print(json.dumps({'passed':not failures,'summary':summary,'output':str(args.output)},allow_nan=False),flush=True)\n    return int(bool(failures))\n\n\nif __name__ == '__main__':\n    raise SystemExit(main())\n",
+  "previous_extension_sha256": "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409",
+  "artifact_provenance": {
+    "5010fb9068b7c0f2ae1b04171883b1c21727233752749b2e07494d6695513409": {
+      "algorithms": [
+        "pca",
+        "ridge",
+        "pls",
+        "welch",
+        "anova"
+      ],
+      "detail": "These unchanged algorithms retain original native SQL reference results; they were not redundantly rerun after only the GP normal-CDF implementation changed."
+    },
+    "c199e0ab422ca7772c5cda5e7d2f3345e6e7b784ff6ed779b672cdedd1ca7cde": {
+      "algorithms": [
+        "gp"
+      ],
+      "detail": "All three GP native SQL fixtures rerun after the tail-preserving normal-CDF fix. EI absolute tolerance1e-12 and exact candidate rank equality."
+    }
+  }
+}

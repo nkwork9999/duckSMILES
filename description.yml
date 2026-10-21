@@ -1,6 +1,6 @@
 extension:
   name: ducksmiles
-  description: Cheminformatics toolkit for DuckDB - SMILES, SMARTS substructure match JSON, MolHash, standardization, MCS, scaffold networks, canonical SMILES normalization, Murcko scaffolds, InChI, MOL/SDF, PDB, SELFIES, LogP, TPSA, Morgan/ECFP and MACCS fingerprints, and Tanimoto similarity from SQL
+  description: Cheminformatics and numerical analytics for DuckDB - molecular formats, descriptors, fingerprints, similarity, PCA, clustering, regression, scaffold-controlled evaluation, experimental design and candidate-pool Bayesian optimization from SQL
   version: 0.5.0
   language: C++
   build: cmake
@@ -166,4 +166,15 @@ docs:
     convention). The SQL-level `bit_count(a & b)::DOUBLE / bit_count(a | b)`
     is still available and produces bit-exact identical results.
 
-    **Architecture:** Rust (core logic, 5 crates) + C++ (DuckDB integration via FFI)
+    **SQL analytics:** `chem_*` functions add PCA, k-means, Ridge/PLS1,
+    fold-local cross-validation, achiral scaffold folds, factorial and central
+    composite designs, candidate-constrained D-optimal exchange, quadratic
+    response surfaces, RBF Gaussian-process expected improvement, diversity
+    selection, and a defined set of statistical methods. Inputs are numeric
+    matrices and parameter lists; outputs are versioned JSON. See
+    [ANALYTICS.md](https://github.com/nkwork9999/duckSMILES/blob/main/ANALYTICS.md)
+    for method scope, model reuse and resource limits. These functions require
+    a build containing the analytics module; older community packages may not
+    include them.
+
+    **Architecture:** Rust (core logic, 6 crates) + C++ (DuckDB integration via FFI)

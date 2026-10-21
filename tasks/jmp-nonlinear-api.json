@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "domain": "Nonlinear and nonparametric curve modeling",
+  "official_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/fit-curve.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fit-curve-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/fit-curve-options.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-smoothing-fit-report.shtml"
+  ],
+  "operations": [
+    {
+      "operation": "curve_fit",
+      "sql_name": "chem_curve_fit",
+      "rows": "[x,y]",
+      "parameters": "[family, max_iter=300, tolerance=1e-9, optional initial_coefficients...]",
+      "contract": "Unweighted nonlinear least squares, analytic Jacobian and damped scaled Gauss-Newton (Levenberg-Marquardt). n > number of coefficients. max_iter 1..5000, tolerance 1e-12..1e-3. May converge to a local optimum. Covariance sigma_squared * inverse(J transpose J), when locally full rank, conditional on the supplied family. No bounds or arbitrary formula language.",
+      "families": [
+        {
+          "id": 0,
+          "name": "Exponential 2P",
+          "coefficients": [
+            "a",
+            "b"
+          ],
+          "formula": "a*exp(b*x)"
+        },
+        {
+          "id": 1,
+          "name": "Exponential 3P",
+          "coefficients": [
+            "a",
+            "b",
+            "c"
+          ],
+          "formula": "a+b*exp(c*x)"
+        },
+        {
+          "id": 2,
+          "name": "Logistic 4P",
+          "coefficients": [
+            "rate",
+            "midpoint",
+            "lower",
+            "upper"
+          ],
+          "formula": "lower+(upper-lower)/(1+exp(-rate*(x-midpoint)))"
+        },
+        {
+          "id": 3,
+          "name": "Gompertz 4P",
+          "coefficients": [
+            "lower",
+            "upper",
+            "rate",
+            "midpoint"
+          ],
+          "formula": "lower+(upper-lower)*exp(-exp(-rate*(x-midpoint)))"
+        },
+        {
+          "id": 4,
+          "name": "Power 3P",
+          "coefficients": [
+            "a",
+            "b",
+            "c"
+          ],
+          "formula": "a+b*x^c; x>0"
+        },
+        {
+          "id": 5,
+          "name": "Michaelis-Menten",
+          "coefficients": [
+            "a",
+            "b"
+          ],
+          "formula": "a*x/(b+x); x>0,b>0"
+        },
+        {
+          "id": 6,
+          "name": "Gaussian peak 3P",
+          "coefficients": [
+            "height",
+            "center",
+            "width"
+          ],
+          "formula": "height*exp(-0.5*((x-center)/width)^2); width>0"
+        },
+        {
+          "id": 7,
+          "name": "Logistic 2P",
+          "coefficients": [
+            "rate",
+            "midpoint"
+          ],
+          "formula": "1/(1+exp(-rate*(x-midpoint)))"
+        },
+        {
+          "id": 8,
+          "name": "Logistic 3P",
+          "coefficients": [
+            "rate",
+            "midpoint",
+            "upper"
+          ],
+          "formula": "upper/(1+exp(-rate*(x-midpoint)))"
+        },
+        {
+          "id": 9,
+          "name": "Gompertz 3P",
+          "coefficients": [
+            "upper",
+            "rate",
+            "midpoint"
+          ],
+          "formula": "upper*exp(-exp(-rate*(x-midpoint)))"
+        }
+      ],
+      "symbol": "CurveFit",
+      "description": "Nonlinear residual least squares, 10 curve families: [x,y] rows; [family0..9,max_iterations=300,tolerance=1e-9,optional_initial_coefficients...].",
+      "sql_example": "chem_curve_fit([[0.0,2.03],[0.5,2.64],[1.0,3.7],[1.5,4.88],[2.0,6.68],[2.5,8.94]], [0.0,500.0,1e-10,1.8,0.4])",
+      "module_path": "ducksmiles_analytics::nonlinear::run",
+      "unsupported": [
+        "Arbitrary formula language",
+        "Bounded/constrained fits",
+        "Weights or user loss",
+        "Profile likelihood intervals",
+        "Every JMP curve family",
+        "Group parameter/parallelism comparisons"
+      ],
+      "layers": {
+        "Rust_public_execute": "implemented",
+        "direct_C_ABI": "independent oracle passed",
+        "DuckDB_SQL": "parent validation pending"
+      }
+    },
+    {
+      "operation": "curve_predict",
+      "sql_name": "chem_curve_predict",
+      "rows": "[x]",
+      "parameters": "fit.predict_parameters: [family, coefficients...]",
+      "symbol": "CurvePredict",
+      "description": "Saved nonlinear curve prediction: [x] rows; fit.predict_parameters=[family,coefficients...].",
+      "sql_example": "chem_curve_predict([[0.0],[1.0]], [0.0,2.0,0.6])",
+      "module_path": "ducksmiles_analytics::nonlinear::run",
+      "unsupported": [
+        "Arbitrary formula evaluation",
+        "Prediction uncertainty intervals"
+      ],
+      "layers": {
+        "Rust_public_execute": "implemented",
+        "direct_C_ABI": "independent oracle passed",
+        "DuckDB_SQL": "parent validation pending"
+      }
+    },
+    {
+      "operation": "bspline_basis",
+      "sql_name": "chem_bspline_basis",
+      "rows": "[x]",
+      "parameters": "[degree, full_clamped_knots...]",
+      "contract": "Cox-de Boor recurrence, degree 1..3; full nondecreasing knot vector with degree+1 equal endpoint knots; interior multiplicity <= degree; <=64 basis columns. Queries outside closed knot domain rejected.",
+      "symbol": "BsplineBasis",
+      "description": "Clamped Cox-de Boor B-spline basis: [x] rows; [degree1..3,full_clamped_knots...].",
+      "sql_example": "chem_bspline_basis([[0.0],[0.5],[1.0],[2.0]], [3.0,0.0,0.0,0.0,0.0,1.0,2.0,2.0,2.0,2.0])",
+      "module_path": "ducksmiles_analytics::nonlinear::run",
+      "unsupported": [
+        "Degree above 3",
+        "Extrapolation beyond knot domain"
+      ],
+      "layers": {
+        "Rust_public_execute": "implemented",
+        "direct_C_ABI": "independent oracle passed",
+        "DuckDB_SQL": "parent validation pending"
+      }
+    },
+    {
+      "operation": "spline_fit",
+      "sql_name": "chem_spline_fit",
+      "rows": "[x,y]",
+      "parameters": "[degree, lambda, full_clamped_knots...]",
+      "contract": "B-spline regression minimizes SSE + lambda*sum(second coefficient differences squared). n > basis count; rank deficient penalized information rejected. Returns exact smoother effective df trace(S), variance df n-2trace(S)+trace(S squared), and conditional sandwich covariance. This is a P-spline; it is not JMP smoothing-spline lambda or exact integrated second-derivative penalty. Response-origin offsets preserved in portable parameters.",
+      "symbol": "SplineFit",
+      "description": "B-spline regression with second-difference coefficient penalty: [x,y] rows; [degree1..3,lambda,full_clamped_knots...].",
+      "sql_example": "chem_spline_fit([[0.0,1.0],[0.25,1.5],[0.5,2.0],[0.75,2.5],[1.0,3.0]], [1.0,0.0,0.0,0.0,0.5,1.0,1.0])",
+      "module_path": "ducksmiles_analytics::nonlinear::run",
+      "unsupported": [
+        "JMP integrated-curvature smoothing spline estimator",
+        "Automatic lambda selection/GCV",
+        "Automatic knot selection",
+        "Missing-data imputation"
+      ],
+      "layers": {
+        "Rust_public_execute": "implemented",
+        "direct_C_ABI": "independent oracle passed",
+        "DuckDB_SQL": "parent validation pending"
+      }
+    },
+    {
+      "operation": "spline_predict",
+      "sql_name": "chem_spline_predict",
+      "rows": "[x]",
+      "parameters": "fit.predict_parameters: [degree, n_knots, response_origin, knots..., offset_coefficients...]",
+      "symbol": "SplinePredict",
+      "description": "Saved penalized B-spline prediction: [x] rows; fit.predict_parameters=[degree,knot_count,response_origin,knots...,offset_coefficients...].",
+      "sql_example": "chem_spline_predict([[0.0],[0.5],[1.0]], [1.0,4.0,0.0,0.0,0.0,1.0,1.0,1.0,3.0])",
+      "module_path": "ducksmiles_analytics::nonlinear::run",
+      "unsupported": [
+        "Extrapolation beyond knot domain",
+        "Prediction uncertainty intervals"
+      ],
+      "layers": {
+        "Rust_public_execute": "implemented",
+        "direct_C_ABI": "independent oracle passed",
+        "DuckDB_SQL": "parent validation pending"
+      }
+    },
+    {
+      "operation": "loess",
+      "sql_name": "chem_loess",
+      "rows": "[x,y]",
+      "parameters": "[span, degree=1, robust_iterations=0]",
+      "contract": "Tricube nearest-neighbor local polynomial degree 0..2, span in (0,1], k=max(ceil(span*n),degree+2), distance at kth neighbor is bandwidth. Farthest point receives zero weight. Optional Tukey bisquare robust iterations use 6*median absolute residual. Rank deficient local fits rejected; no silent degree fallback. n<=2000. Returns training fits and portable state; no confidence interval calibration.",
+      "symbol": "Loess",
+      "description": "Tricube local polynomial smoothing with optional robust bisquare weights: [x,y] rows; [span,degree0..2=1,robust_iterations0..10=0].",
+      "sql_example": "chem_loess([[0.0,1.0],[1.0,3.0],[2.0,5.0],[3.0,7.0],[4.0,9.0]], [1.0,1.0,0.0])",
+      "module_path": "ducksmiles_analytics::nonlinear::run",
+      "unsupported": [
+        "Automatic span selection",
+        "Confidence intervals",
+        "Multivariate predictors",
+        "Silent rank fallback"
+      ],
+      "layers": {
+        "Rust_public_execute": "implemented",
+        "direct_C_ABI": "independent oracle passed",
+        "DuckDB_SQL": "parent validation pending"
+      }
+    },
+    {
+      "operation": "loess_predict",
+      "sql_name": "chem_loess_predict",
+      "rows": "[x]",
+      "parameters": "fit.predict_parameters: [span,degree,n_train,x_train...,y_train...,robust_weights...]",
+      "contract": "Reuses the saved training neighborhood and final robust weights; query rows cannot change training. Can locally extrapolate beyond training x using nearest-neighbor bandwidth.",
+      "symbol": "LoessPredict",
+      "description": "Saved LOESS neighborhood prediction: [x] rows; fit.predict_parameters=[span,degree,n_train,x_train...,y_train...,robust_weights...].",
+      "sql_example": "chem_loess_predict([[0.5],[2.5]], [1.0,1.0,5.0,0.0,1.0,2.0,3.0,4.0,1.0,3.0,5.0,7.0,9.0,1.0,1.0,1.0,1.0,1.0])",
+      "module_path": "ducksmiles_analytics::nonlinear::run",
+      "unsupported": [
+        "Confidence intervals",
+        "Multivariate predictors"
+      ],
+      "layers": {
+        "Rust_public_execute": "implemented",
+        "direct_C_ABI": "independent oracle passed",
+        "DuckDB_SQL": "parent validation pending"
+      }
+    }
+  ],
+  "limits": [
+    "No actual JMP numerical comparison or platform equivalence claim.",
+    "Does not implement arbitrary JSL formulas, constraints, loss formulas, group-parameter comparisons, profile likelihood, dissolution equivalence, pharmacokinetic compartments, or every Fit Curve preset.",
+    "Spline penalty and LOESS span conventions are explicit contracts; they are not claimed identical to JMP defaults.",
+    "CPU only, bounded finite numeric matrices, no new dependencies."
+  ],
+  "source": "crates/analytics/src/nonlinear.rs",
+  "module_path": "ducksmiles_analytics::nonlinear::run",
+  "layers": {
+    "Rust_public_execute": "implemented, focused suite green",
+    "direct_C_ABI": "18040 independent NumPy/SciPy scalar assertions passed; replay harness in tasks/evidence/jmp-nonlinear-reference.json",
+    "DuckDB_SQL": "parent integration pending",
+    "JMP_executable": "not available; no numeric parity claim"
+  },
+  "common_contract": {
+    "validation": "Finite rectangular data, <=10000 rows, <=2 columns; <=16384 finite argument doubles. Operation-specific limits apply. Out-of-domain and rank-deficient calculations return errors.",
+    "optimization": "Local nonlinear least squares; converged:false remains explicit on unmet tolerance or objective precision limits. Automatic initial values are heuristics; supply initial parameters when the family is difficult to identify.",
+    "uncertainty": "Curve covariance requires locally full-rank Jacobian; unavailable covariance/SE are null. Standard errors are computed before squaring to preserve tiny coefficient units.",
+    "basis_limits": "B-spline degree 1..3, <=64 basis columns, full finite-width clamped knot vector, closed-domain evaluation only.",
+    "loess_limits": "<=2000 training rows; robust iterations stop if median absolute residual is exactly zero; local rank deficiency is rejected."
+  }
+}

@@ -3,6 +3,10 @@
 version = 4
 
 [[package]]
+name = "ducksmiles_analytics"
+version = "0.3.0"
+
+[[package]]
 name = "ducksmiles_inchi"
 version = "0.3.0"
 

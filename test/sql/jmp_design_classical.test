@@ -1,0 +1,65 @@
+# name: test/sql/jmp_design_classical.test
+# description: Classical blocked and restricted-randomization designs
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+query II
+WITH d AS (SELECT chem_rcbd_design([[0.],[1.],[2.]], [4.,42.]) AS j)
+SELECT json_extract(j,'$.n_blocks')::BIGINT,
+       json_array_length(json_extract(j,'$.treatment_ids')) FROM d;
+----
+4	12
+
+query III
+WITH d AS (SELECT chem_balanced_incomplete_block([[0.],[1.],[2.],[3.],[4.],[5.],[6.]], [3.,1.,7.]) AS j)
+SELECT json_extract(j,'$.n_blocks')::BIGINT,
+       json_extract(j,'$.replication[0]')::BIGINT,
+       json_extract(j,'$.pair_concurrence[0][1]')::BIGINT FROM d;
+----
+7	3	1
+
+query II
+WITH d AS (SELECT chem_resolvable_incomplete_block([[0.],[1.],[2.],[3.],[4.],[5.],[6.],[7.],[8.]], [17.]) AS j)
+SELECT json_extract(j,'$.n_blocks')::BIGINT,
+       json_array_length(json_extract(j,'$.parallel_class_ids')) FROM d;
+----
+12	36
+
+query II
+WITH d AS (SELECT chem_split_plot_design([[0.,1.,0.],[2.,3.,1.]], [1.,31.]) AS j)
+SELECT json_extract(j,'$.inference_ready')::BOOLEAN=false,
+       json_extract(j,'$.replication_error_df[0]')::BIGINT=0 FROM d;
+----
+true	true
+
+query II
+WITH d AS (SELECT chem_strip_plot_design([[0.,1.,0.],[2.,3.,1.],[4.,5.,1.]], [2.,31.]) AS j)
+SELECT json_array_length(json_extract(j,'$.stage2_order')),
+       json_extract(j,'$.replication_error_df[2]')::BIGINT FROM d;
+----
+16	3
+
+query II
+WITH d AS (SELECT chem_taguchi_orthogonal_array([[2.],[3.],[3.],[3.],[3.],[3.],[3.],[3.]], [18.,11.]) AS j)
+SELECT json_extract(j,'$.main_effect_rank')::BIGINT,
+       json_array_length(json_extract(j,'$.design')) FROM d;
+----
+16	18
+
+query III
+SELECT chem_balanced_incomplete_block([[0.],[1.],[2.],[3.],[4.],[5.]], [3.,1.]) IS NULL,
+       chem_rcbd_design([[0.],[NULL]], [2.]) IS NULL,
+       chem_taguchi_orthogonal_array([[2.],[2.]], [18.]) IS NULL;
+----
+true	true	true
+
+query I
+SELECT count(*) FROM (
+ SELECT chem_rcbd_design([[i::DOUBLE],[i::DOUBLE+1.]], [2.,i::DOUBLE]) AS result
+ FROM range(5000) t(i) WHERE i%997=0
+) WHERE json_valid(result);
+----
+6

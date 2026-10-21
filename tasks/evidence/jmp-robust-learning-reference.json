@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-10-21T14:47:22.062022+00:00",
+  "seed": 2026102108,
+  "layer": "direct Rust C ABI via ctypes; no actual JMP or DuckDB SQL execution in this evidence",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "source_sha256": {
+    "crates/analytics/src/robust_learning.rs": "67111fee863499f8f722f9d6949b1d924891f43ddd371c9d5945fa017e0d1a6d",
+    "crates/analytics/tests/robust_learning.rs": "6b3561bdab9d09b4eb2f22bb57ac7ba633309b33a7f2a09013f6ebe78daccdd7"
+  },
+  "library_sha256": "b8e745be3d79812ac85240e4ac42efcaa16e731a3ba3f492fd46e009fb9bc937",
+  "checks": {
+    "svm_dual_objective": {
+      "assertions": 24,
+      "max_absolute_error": 1.0302869668521453e-12
+    },
+    "svm_equality_residual": {
+      "assertions": 24,
+      "max_absolute_error": 1.0658141036401503e-14
+    },
+    "svm_box_violation": {
+      "assertions": 24,
+      "max_absolute_error": 0.0
+    },
+    "svm_dual_reconstruction": {
+      "assertions": 24,
+      "max_absolute_error": 1.4210854715202004e-13
+    },
+    "svm_training_decisions": {
+      "assertions": 528,
+      "max_absolute_error": 3.6037884036943524e-06
+    },
+    "svm_saved_identity": {
+      "assertions": 168,
+      "max_absolute_error": 0.0
+    },
+    "svm_query_decisions": {
+      "assertions": 154,
+      "max_absolute_error": 1.0258364286919175e-06
+    },
+    "quantile_objective": {
+      "assertions": 18,
+      "max_absolute_error": 2.933702347718281e-07
+    },
+    "quantile_coefficients": {
+      "assertions": 54,
+      "max_absolute_error": 5.602699726381388e-07
+    },
+    "quantile_saved_predictions": {
+      "assertions": 90,
+      "max_absolute_error": 1.7763568394002505e-15
+    },
+    "huber_coefficients": {
+      "assertions": 54,
+      "max_absolute_error": 8.599929657293615e-10
+    },
+    "huber_objective": {
+      "assertions": 18,
+      "max_absolute_error": 5.684341886080802e-14
+    },
+    "huber_weights": {
+      "assertions": 720,
+      "max_absolute_error": 5.540187530961305e-09
+    },
+    "huber_sandwich_slope_se": {
+      "assertions": 36,
+      "max_absolute_error": 3.037026186092362e-11
+    },
+    "huber_saved_predictions": {
+      "assertions": 126,
+      "max_absolute_error": 2.395048603887062e-09
+    }
+  },
+  "assertions_total": 2062,
+  "oracle_cases": {
+    "svm_fits": 24,
+    "quantile_fits": 18,
+    "huber_fits": 18
+  },
+  "convergence": {
+    "svm": {
+      "true": 24,
+      "false": 0
+    },
+    "quantile": {
+      "true": 18,
+      "false": 0
+    },
+    "huber": {
+      "true": 18,
+      "false": 0
+    }
+  },
+  "catalog_examples_direct_ffi": [
+    "svm_fit",
+    "svm_predict",
+    "quantile_regression",
+    "huber_regression",
+    "robust_predict"
+  ],
+  "references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-launch-control-panel-3.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-summary.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/robust-fit-reports.shtml",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linprog.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html"
+  ],
+  "tdd": "Observed 5 missing-operation failures before implementation. Three added regressions observed RED before repairs: final-update SVM convergence flag, intercept-only saved prediction, Huber sandwich under huge fixed scale. Focused suite 9 tests passed.",
+  "limits": [
+    "Binary linear/RBF C-SVC only; no multiclass/SVR/probability calibration.",
+    "Unpenalized full-rank quantile regression; no quantile inference.",
+    "Huber scale is fixed or estimated once from OLS residual MAD; this is not a simultaneous high-breakdown scale estimator.",
+    "No actual JMP numeric parity claim."
+  ],
+  "replay": {
+    "build": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo rustc -p ducksmiles_analytics --lib --crate-type cdylib",
+    "instructions": "Write harness_python to a .py file, adjust ROOT/LIB if needed, execute; this evidence is rewritten."
+  },
+  "harness_python": "import ctypes,json,hashlib,sys,platform,pathlib,datetime,ast\nimport numpy as np\nimport scipy\nfrom scipy.optimize import minimize,linprog,least_squares\nROOT=pathlib.Path('/Users/nk/Desktop/ducksmiles-analytics-20261021');LIB=pathlib.Path('/private/tmp/rusta-ducksmiles-jmp-target/debug/libducksmiles_analytics.dylib')\nlib=ctypes.CDLL(str(LIB));f=lib.ds_analytics_run;f.argtypes=[ctypes.c_void_p,ctypes.c_size_t,ctypes.c_void_p,ctypes.c_size_t,ctypes.c_size_t,ctypes.c_void_p,ctypes.c_size_t,ctypes.POINTER(ctypes.c_size_t)];f.restype=ctypes.c_void_p;lib.ds_analytics_free.argtypes=[ctypes.c_void_p,ctypes.c_size_t]\ndef run(op,data,args):\n d=np.ascontiguousarray(data,dtype=np.float64);a=np.ascontiguousarray(args,dtype=np.float64);name=op.encode();n=ctypes.c_size_t();ptr=f(name,len(name),d.ctypes.data,*d.shape,a.ctypes.data,len(a),ctypes.byref(n))\n if not ptr:raise AssertionError((op,'NULL',data,args))\n try:return json.loads(ctypes.string_at(ptr,n.value))\n finally:lib.ds_analytics_free(ptr,n.value)\nrng=np.random.default_rng(2026102108);records={};convergence={}\ndef check(k,a,b,rtol=1e-7,atol=1e-9):\n a=np.asarray(a);b=np.asarray(b);np.testing.assert_allclose(a,b,rtol=rtol,atol=atol,err_msg=k);r=records.setdefault(k,{'assertions':0,'max_absolute_error':0.});r['assertions']+=a.size;r['max_absolute_error']=max(r['max_absolute_error'],float(np.max(np.abs(a-b))))\ndef count(k,j):\n r=convergence.setdefault(k,{'true':0,'false':0});r[str(j['converged']).lower()]+=1\nfor kind in (0,1):\n for cost in (.1,1.,10.):\n  for rep in range(4):\n   x=rng.normal(size=(24,2));label=(x[:,0]+.6*x[:,1]+rng.normal(0,.7,len(x))>0).astype(float);y=2*label-1;mean=x.mean(0);sd=x.std(0);z=(x-mean)/sd;gamma=.6\n   k=z@z.T if kind==0 else np.exp(-gamma*np.sum((z[:,None,:]-z[None,:,:])**2,axis=2));q=k*y[:,None]*y[None,:]\n   ref=minimize(lambda a:.5*a@q@a-a.sum(),np.zeros(len(x)),jac=lambda a:q@a-1,bounds=[(0,cost)]*len(x),constraints=[{'type':'eq','fun':lambda a:y@a,'jac':lambda a:y}],method='SLSQP',options={'ftol':1e-12,'maxiter':3000});assert ref.success,ref.message\n   alpha=ref.x;f0=k@(alpha*y);free=(alpha>1e-5)&(alpha<cost-1e-5)\n   if free.any():bias=np.mean(y[free]-f0[free])\n   else:\n    up=((y>0)&(alpha<cost-1e-6))|((y<0)&(alpha>1e-6));low=((y>0)&(alpha>1e-6))|((y<0)&(alpha<cost-1e-6));bias=(np.max((y-f0)[up])+np.min((y-f0)[low]))/2\n   query=rng.normal(size=(7,2));d=np.r_[np.c_[x,label],np.c_[query,np.full(len(query),-1e50)]]\n   j=run('svm_fit',d,[len(x),kind,cost,gamma,1e-8,200000]);count('svm',j);assert j['converged'],j\n   check('svm_dual_objective',j['dual_objective'],-ref.fun,rtol=1e-8,atol=1e-8);check('svm_equality_residual',j['equality_residual'],0,atol=1e-11);check('svm_box_violation',j['box_violation'],0,atol=1e-12)\n   assert j['duality_gap']<cost*len(x)*2e-8+1e-9,(j['duality_gap'],j['kkt_gap']);a=np.asarray(j['dual_alphas']);check('svm_dual_reconstruction',j['dual_objective'],a.sum()-.5*(a*y)@k@(a*y),atol=1e-9)\n   # Bias need not be unique when no margin support vectors exist. Compare it only when identified.\n   if free.any():check('svm_training_decisions',j['decision_values'][:len(x)],f0+bias,rtol=3e-5,atol=4e-6)\n   zq=(query-mean)/sd;kq=zq@z.T if kind==0 else np.exp(-gamma*np.sum((zq[:,None,:]-z[None,:,:])**2,axis=2))\n   saved=run('svm_predict',query,j['predict_parameters']);check('svm_saved_identity',saved['decision_values'],j['decision_values'][len(x):],atol=1e-12)\n   if free.any():check('svm_query_decisions',saved['decision_values'],kq@(alpha*y)+bias,rtol=3e-5,atol=6e-6)\nfor tau in (.25,.5,.75):\n for rep in range(6):\n  x=rng.normal(size=(32,2));design=np.c_[np.ones(len(x)),x];y=1.3+x@np.array([2.,-.7])+rng.standard_t(3,len(x))*.3;n=len(x);p=design.shape[1]\n  c=np.r_[np.zeros(p),np.full(n,tau),np.full(n,1-tau)];eq=np.c_[design,np.eye(n),-np.eye(n)];ref=linprog(c,A_eq=eq,b_eq=y,bounds=[(None,None)]*p+[(0,None)]*(2*n),method='highs');assert ref.success\n  j=run('quantile_regression',np.c_[x,y],[tau,1.,50000.,1e-8]);count('quantile',j)\n  # Report nonconvergence honestly; numerical assertions still compare the returned iterate.\n  check('quantile_objective',j['objective'],ref.fun,rtol=2e-5,atol=2e-5);check('quantile_coefficients',[j['intercept'],*j['coefficients']],ref.x[:p],rtol=2e-4,atol=2e-4)\n  if j['converged']:assert j['primal_residual']<=j['primal_tolerance'] and j['dual_residual']<=j['dual_tolerance']\n  query=rng.normal(size=(5,2));check('quantile_saved_predictions',run('robust_predict',query,j['predict_parameters'])['predictions'],np.c_[np.ones(5),query]@np.r_[j['intercept'],j['coefficients']],atol=1e-12)\nfor rep in range(18):\n x=rng.normal(size=(40,2));design=np.c_[np.ones(len(x)),x];y=.7+x@np.array([1.4,-.5])+rng.normal(0,.15,len(x));y[::8]+=rng.normal(0,4,len(y[::8]));delta=1.345;scale=.2\n ref=least_squares(lambda b:(y-design@b)/scale,np.linalg.lstsq(design,y,rcond=None)[0],jac=lambda b:-design/scale,loss='huber',f_scale=delta,ftol=1e-13,xtol=1e-13,gtol=1e-12,max_nfev=3000)\n j=run('huber_regression',np.c_[x,y],[delta,scale,1000.,1e-11]);count('huber',j);assert j['converged'];check('huber_coefficients',[j['intercept'],*j['coefficients']],ref.x,rtol=2e-7,atol=3e-8)\n residual=y-design@ref.x;u=residual/scale;objective=np.sum(np.where(np.abs(u)<=delta,.5*u*u,delta*(np.abs(u)-delta/2)));check('huber_objective',j['objective'],objective,rtol=1e-10,atol=1e-9);check('huber_weights',j['weights'],np.minimum(1,delta/np.maximum(np.abs(u),1e-300)),rtol=1e-7,atol=1e-8)\n bread=design.T@(design*(np.abs(u)<=delta)[:,None]);score=np.clip(residual,-delta*scale,delta*scale);meat=design.T@(design*(score*score)[:,None]);inv=np.linalg.inv(bread);cov=inv@meat@inv;check('huber_sandwich_slope_se',j['coefficient_standard_errors'],np.sqrt(np.diag(cov))[1:],rtol=1e-7,atol=1e-9)\n query=rng.normal(size=(7,2));check('huber_saved_predictions',run('robust_predict',query,j['predict_parameters'])['predictions'],np.c_[np.ones(len(query)),query]@ref.x,rtol=2e-7,atol=5e-8)\nexample_ops=[]\nfor item in json.loads((ROOT/'tasks/jmp-robust-learning-api.json').read_text())['operations']:\n call=ast.parse(item['sql_example'],mode='eval').body;assert call.func.id==item['sql_name'];assert run(item['operation'],ast.literal_eval(call.args[0]),ast.literal_eval(call.args[1]))['version']==1;example_ops.append(item['operation'])\nresult={'schema_version':1,'timestamp_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'seed':2026102108,'layer':'direct Rust C ABI via ctypes; no actual JMP or DuckDB SQL execution in this evidence','environment':{'python':sys.version.split()[0],'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['crates/analytics/src/robust_learning.rs','crates/analytics/tests/robust_learning.rs']},'library_sha256':hashlib.sha256(LIB.read_bytes()).hexdigest(),'checks':records,'assertions_total':sum(x['assertions'] for x in records.values()),'oracle_cases':{'svm_fits':24,'quantile_fits':18,'huber_fits':18},'convergence':convergence,'catalog_examples_direct_ffi':example_ops,'references':['https://www.jmp.com/support/help/en/19.2/jmp/model-launch-control-panel-3.shtml','https://www.jmp.com/support/help/en/19.2/jmp/model-summary.shtml','https://www.jmp.com/support/help/en/19.2/jmp/robust-fit-reports.shtml','https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html','https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linprog.html','https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html'],'tdd':'Observed 5 missing-operation failures before implementation. Three added regressions observed RED before repairs: final-update SVM convergence flag, intercept-only saved prediction, Huber sandwich under huge fixed scale. Focused suite 9 tests passed.','limits':['Binary linear/RBF C-SVC only; no multiclass/SVR/probability calibration.','Unpenalized full-rank quantile regression; no quantile inference.','Huber scale is fixed or estimated once from OLS residual MAD; this is not a simultaneous high-breakdown scale estimator.','No actual JMP numeric parity claim.'],'replay':{'build':'CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo rustc -p ducksmiles_analytics --lib --crate-type cdylib','instructions':'Write harness_python to a .py file, adjust ROOT/LIB if needed, execute; this evidence is rewritten.'},'harness_python':pathlib.Path(__file__).read_text()}\n(ROOT/'tasks/evidence/jmp-robust-learning-reference.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\\n');print(json.dumps({k:result[k] for k in ['assertions_total','oracle_cases','convergence','checks']},indent=2))\n"
+}

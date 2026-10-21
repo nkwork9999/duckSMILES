@@ -1,0 +1,504 @@
+{
+  "created_at_utc": "2026-10-21T12:53:07.211127+00:00",
+  "boundary": "direct Rust module run via a temporary rustc-compiled CLI; parent separately verifies DuckDB SQL/C ABI dispatch",
+  "packages": {
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "python": "3.14.3",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "seeds": [
+    701,
+    702,
+    703
+  ],
+  "reference_methods": {
+    "distribution": "SciPy fixed-zero-location MLE fit/logpdf; Weibull brentq of exact profile score",
+    "censored_lifetime": "Independent direct two-parameter log-likelihood BFGS optimizer and closed-form exponential rate",
+    "kde": "Explicit scipy.stats.norm fixed-bandwidth normalized density average",
+    "normality": "scipy.stats.jarque_bera asymptotic chi-square calibration",
+    "boxcox": "scipy.stats.boxcox MLE and boxcox_llf",
+    "arima": "Independent scipy.signal.lfilter CSS residuals, profiled mean, multi-start bounded direct-coefficient Nelder-Mead; this is CSS, not state-space likelihood"
+  },
+  "source_sha256": {
+    "crates/analytics/src/distributions.rs": "dbdb3e318ce81409f317ee7256b33312aa2f6f9fb4dee050fae8c35263b37a72",
+    "crates/analytics/src/arima.rs": "114d03aa73b915498868c323d048c73529a41568417f0cae6f1f081e4b44a898"
+  },
+  "probe_sha256": "2c28f3540ba9c901f3a2b71df5fcbcbeefe53e0ba9ac9c1119d22dc4e55e08a8",
+  "reproduction_source": "import json,subprocess,hashlib,platform,sys,math\nfrom datetime import datetime,timezone\nfrom pathlib import Path\nimport numpy as np\nimport scipy\nfrom scipy import stats,optimize,signal\nROOT=Path('/Users/nk/Desktop/ducksmiles-analytics-20261021')\nPROBE=Path('/private/tmp/rusta-ducksmiles-jmp-target/jmp-reference-probe')\nrecords=[]\ndef query(op,data,args=()):\n a=np.asarray(data,dtype=float)\n if a.ndim==1:a=a[:,None]\n rows=';'.join(','.join(repr(float(v)) for v in row) for row in a)\n raw=subprocess.check_output([str(PROBE),op,rows,','.join(repr(float(v)) for v in args)],text=True)\n return json.loads(raw)\ndef check(op,seed,actual,expected,tol=2e-8):\n err=float(np.max(np.abs(np.asarray(actual)-np.asarray(expected))))\n limit=tol*max(1.,float(np.max(np.abs(expected))))\n records.append(dict(operation=op,seed=seed,max_absolute_error=err,allowed_absolute_error=limit,passed=err<=limit))\n if err>limit:print('FAIL',records[-1],actual,expected,flush=True)\nfor seed,shape,scale in [(701,.4,1.2),(702,1.5,.8),(703,8.,2.)]:\n rng=np.random.default_rng(seed);x=rng.gamma(shape,scale,size=43)\n for op,dist in [('fit_normal',stats.norm),('fit_lognormal',stats.lognorm),('fit_exponential',stats.expon),('fit_gamma',stats.gamma),('fit_weibull',stats.weibull_min)]:\n  a=query(op,x)\n  if op=='fit_normal':\n   mu,sd=dist.fit(x);want=[mu,sd];got=[a['mean'],a['sigma']];params=(mu,sd)\n  elif op=='fit_lognormal':\n   sd,loc,s=dist.fit(x,floc=0);want=[np.log(s),sd];got=[a['log_mean'],a['log_sigma']];params=(sd,loc,s)\n  elif op=='fit_exponential':\n   loc,s=dist.fit(x,floc=0);want=[1/s];got=[a['rate']];params=(loc,s)\n  elif op=='fit_gamma':\n   k,loc,s=dist.fit(x,floc=0);want=[k,s];got=[a['shape'],a['scale']];params=(k,loc,s)\n  else:\n   z=np.log(x);shift=z.max()\n   def score(k):\n    w=np.exp(k*(z-shift));return 1/k+z.mean()-np.sum(w*z)/w.sum()\n   k=optimize.brentq(score,1e-8,1000,xtol=1e-13);s=(np.mean(x**k))**(1/k)\n   want=[k,s];got=[a['shape'],a['scale']];params=(k,0.,s)\n  check(op,seed,got,want)\n  check(op+':likelihood',seed,a['log_likelihood'],float(dist.logpdf(x,*params).sum()),2e-9)\n y=rng.poisson(2.5+shape,size=43);a=query('fit_poisson',y)\n check('fit_poisson',seed,[a['rate'],a['log_likelihood']],[y.mean(),stats.poisson.logpmf(y,y.mean()).sum()],2e-10)\n jb=stats.jarque_bera(x);a=query('normality_test',x);check('normality_test',seed,[a['statistic'],a['p_value']],[jb.statistic,jb.pvalue],2e-10)\n at=np.linspace(0,float(x.max()),7);h=.7;a=query('kde_gaussian',x,[h,*at]);ref=np.mean(stats.norm.pdf((at[:,None]-x[None,:])/h)/h,axis=1);check('kde_gaussian',seed,a['densities'],ref,2e-10)\n transformed,lam=stats.boxcox(x);a=query('box_cox',x);check('box_cox',seed,a['lambda'],lam,2e-6);check('box_cox:profile',seed,a['profile_log_likelihood'],stats.boxcox_llf(lam,x),2e-9)\n # Independent direct two-parameter likelihood optimizer, with right censoring.\n lifetime=rng.weibull(1.4,size=51)*3.;censor=rng.uniform(.5,5.,size=51);t=np.minimum(lifetime,censor);e=(lifetime<=censor).astype(float);d=e.sum()\n a=query('survival_exponential',np.column_stack([t,e]));rate=d/t.sum();check('survival_exponential',seed,[a['rate'],a['log_likelihood']],[rate,d*np.log(rate)-rate*t.sum()],2e-10)\n def nll(logparam):\n  k,s=np.exp(logparam);return -float(np.sum(e*(np.log(k)-k*np.log(s)+(k-1)*np.log(t))-(t/s)**k))\n best=min([optimize.minimize(nll,start,method='BFGS',options={'gtol':1e-9}) for start in [[0.,1.],[.5,1.],[1.,1.5]]],key=lambda v:v.fun)\n a=query('survival_weibull',np.column_stack([t,e]));check('survival_weibull',seed,[a['shape'],a['scale']],np.exp(best.x),3e-6);check('survival_weibull:likelihood',seed,a['log_likelihood'],-best.fun,2e-9)\n # ARMA(1,1) and SARMA(1,1) CSS: independent scipy.signal linear filter.\n for seasonal in [False,True]:\n  stride=4 if seasonal else 1;n=120\n  A=np.r_[1.,np.zeros(stride-1),-.55];C=np.r_[1.,np.zeros(stride-1),.25]\n  series=2.3+signal.lfilter(C,A,rng.normal(size=n))\n  burn=stride\n  def css(parameters,details=False):\n   ar,ma=parameters;aa=np.r_[1.,np.zeros(stride-1),-ar];cc=np.r_[1.,np.zeros(stride-1),ma]\n   ey=signal.lfilter(aa,cc,series);u=signal.lfilter(aa,cc,np.ones(n));mu=np.dot(ey[burn:],u[burn:])/np.dot(u[burn:],u[burn:]);residual=ey-mu*u;sse=residual[burn:]@residual[burn:]\n   return (sse/(n-burn),mu) if details else np.log(sse/(n-burn))\n  fit=min([optimize.minimize(css,start,bounds=[(-.999999,.999999)]*2,method='Nelder-Mead',options={'xatol':1e-11,'fatol':1e-12,'maxiter':5000}) for start in [[0.,0.],[.5,.2],[-.4,.5]]],key=lambda v:v.fun)\n  args=[0,0,0,3,1,2000,1e-9,1,0,1,4] if seasonal else [1,0,1,3,1,2000,1e-9]\n  a=query('arima',series,args)\n  got=[a['seasonal_ar_coefficients'][0],a['seasonal_ma_coefficients'][0]] if seasonal else [a['ar_coefficients'][0],a['ma_coefficients'][0]]\n  label='sarma_css' if seasonal else 'arma_css'\n  check(label,seed,got,fit.x,8e-6);v,mu=css(fit.x,True);check(label+':variance_mean',seed,[a['sigma_squared'],a['differenced_mean']],[v,mu],2e-7)\n  if not a['converged']:records.append(dict(operation=label+':convergence',seed=seed,passed=False))\nresult={'created_at_utc':datetime.now(timezone.utc).isoformat(),'boundary':'direct Rust module run via a temporary rustc-compiled CLI; parent separately verifies DuckDB SQL/C ABI dispatch','packages':{'numpy':np.__version__,'scipy':scipy.__version__,'python':sys.version.split()[0],'platform':platform.platform()},'seeds':[701,702,703],'reference_methods':{'distribution':'SciPy fixed-zero-location MLE fit/logpdf; Weibull brentq of exact profile score','censored_lifetime':'Independent direct two-parameter log-likelihood BFGS optimizer and closed-form exponential rate','kde':'Explicit scipy.stats.norm fixed-bandwidth normalized density average','normality':'scipy.stats.jarque_bera asymptotic chi-square calibration','boxcox':'scipy.stats.boxcox MLE and boxcox_llf','arima':'Independent scipy.signal.lfilter CSS residuals, profiled mean, multi-start bounded direct-coefficient Nelder-Mead; this is CSS, not state-space likelihood'},'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['crates/analytics/src/distributions.rs','crates/analytics/src/arima.rs']},'probe_sha256':hashlib.sha256(PROBE.read_bytes()).hexdigest(),'reproduction_source':Path(__file__).read_text(),'probe_source':PROBE.with_name('jmp-reference-probe.rs').read_text(),'checks':records,'passed':all(r['passed'] for r in records),'test_evidence':{'distributions':'13 passed','arima':'8 passed','behavioral_red':'distributions initial 7 expected unknown-operation failures; arima initial 5 expected unknown-operation failures. Additional Poisson cancellation, KDE extreme bandwidth and Box-Cox/ARIMA unit-origin regressions observed RED then GREEN.','clippy':'cargo clippy -p ducksmiles_analytics --test distributions --test arima -- -D warnings passed','build_dir':'/private/tmp/rusta-ducksmiles-jmp-target'}}\nout=ROOT/'tasks/evidence/jmp-distribution-arima-reference.json';out.write_text(json.dumps(result,indent=2,allow_nan=False)+'\\n')\nprint(json.dumps({'passed':result['passed'],'checks':len(records),'failures':[r for r in records if not r['passed']],'path':str(out)}))\n",
+  "probe_source": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/distributions.rs\"] mod distributions;\n#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/arima.rs\"] mod arima;\nfn main() {\n let v:Vec<String>=std::env::args().collect();\n let data:Vec<Vec<f64>>=v[2].split(';').map(|r|r.split(',').map(|x|x.parse().unwrap()).collect()).collect();\n let args:Vec<f64>=if v[3].is_empty(){vec![]}else{v[3].split(',').map(|x|x.parse().unwrap()).collect()};\n let out=if v[1]==\"arima\"{arima::run(&v[1],&data,&args)}else{distributions::run(&v[1],&data,&args)};\n match out {Ok(s)=>println!(\"{}\",s),Err(e)=>{eprintln!(\"{}\",e);std::process::exit(2);}}\n}\n",
+  "checks": [
+    {
+      "operation": "fit_normal",
+      "seed": 701,
+      "max_absolute_error": 2.220446049250313e-16,
+      "allowed_absolute_error": 2e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_normal:likelihood",
+      "seed": 701,
+      "max_absolute_error": 7.105427357601002e-15,
+      "allowed_absolute_error": 8.415074572250244e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_lognormal",
+      "seed": 701,
+      "max_absolute_error": 4.440892098500626e-16,
+      "allowed_absolute_error": 4.714843293925319e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_lognormal:likelihood",
+      "seed": 701,
+      "max_absolute_error": 1.9539925233402755e-14,
+      "allowed_absolute_error": 1.0502694881666212e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_exponential",
+      "seed": 701,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 4.458572384345353e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_exponential:likelihood",
+      "seed": 701,
+      "max_absolute_error": 1.7763568394002505e-15,
+      "allowed_absolute_error": 1.705539607097656e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_gamma",
+      "seed": 701,
+      "max_absolute_error": 2.8976820942716586e-13,
+      "allowed_absolute_error": 2.1375066975978135e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_gamma:likelihood",
+      "seed": 701,
+      "max_absolute_error": 1.5987211554602254e-14,
+      "allowed_absolute_error": 1.4860539151489082e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_weibull",
+      "seed": 701,
+      "max_absolute_error": 1.1102230246251565e-16,
+      "allowed_absolute_error": 2e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_weibull:likelihood",
+      "seed": 701,
+      "max_absolute_error": 7.105427357601002e-15,
+      "allowed_absolute_error": 1.4721340351414936e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_poisson",
+      "seed": 701,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 1.73286457977568e-08,
+      "passed": true
+    },
+    {
+      "operation": "normality_test",
+      "seed": 701,
+      "max_absolute_error": 1.0658141036401503e-14,
+      "allowed_absolute_error": 5.433445015595951e-09,
+      "passed": true
+    },
+    {
+      "operation": "kde_gaussian",
+      "seed": 701,
+      "max_absolute_error": 5.551115123125783e-17,
+      "allowed_absolute_error": 2e-10,
+      "passed": true
+    },
+    {
+      "operation": "box_cox",
+      "seed": 701,
+      "max_absolute_error": 1.2033039231695852e-08,
+      "allowed_absolute_error": 2e-06,
+      "passed": true
+    },
+    {
+      "operation": "box_cox:profile",
+      "seed": 701,
+      "max_absolute_error": 2.842170943040401e-14,
+      "allowed_absolute_error": 1.3563334807248686e-07,
+      "passed": true
+    },
+    {
+      "operation": "survival_exponential",
+      "seed": 701,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 1.2471491288549622e-08,
+      "passed": true
+    },
+    {
+      "operation": "survival_weibull",
+      "seed": 701,
+      "max_absolute_error": 8.235572446224637e-09,
+      "allowed_absolute_error": 7.185790104683214e-06,
+      "passed": true
+    },
+    {
+      "operation": "survival_weibull:likelihood",
+      "seed": 701,
+      "max_absolute_error": 7.105427357601002e-15,
+      "allowed_absolute_error": 1.1804818952188272e-07,
+      "passed": true
+    },
+    {
+      "operation": "arma_css",
+      "seed": 701,
+      "max_absolute_error": 6.7699773148577336e-09,
+      "allowed_absolute_error": 8e-06,
+      "passed": true
+    },
+    {
+      "operation": "arma_css:variance_mean",
+      "seed": 701,
+      "max_absolute_error": 9.509726339729241e-12,
+      "allowed_absolute_error": 5.136317010317683e-07,
+      "passed": true
+    },
+    {
+      "operation": "sarma_css",
+      "seed": 701,
+      "max_absolute_error": 2.9182480709710745e-08,
+      "allowed_absolute_error": 8e-06,
+      "passed": true
+    },
+    {
+      "operation": "sarma_css:variance_mean",
+      "seed": 701,
+      "max_absolute_error": 9.335714423741592e-10,
+      "allowed_absolute_error": 5.690667197275484e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_normal",
+      "seed": 702,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 2.1873051654061567e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_normal:likelihood",
+      "seed": 702,
+      "max_absolute_error": 7.105427357601002e-15,
+      "allowed_absolute_error": 1.0229141708559747e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_lognormal",
+      "seed": 702,
+      "max_absolute_error": 3.3306690738754696e-16,
+      "allowed_absolute_error": 2.081833914177257e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_lognormal:likelihood",
+      "seed": 702,
+      "max_absolute_error": 1.4210854715202004e-14,
+      "allowed_absolute_error": 9.900557516342451e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_exponential",
+      "seed": 702,
+      "max_absolute_error": 2.220446049250313e-16,
+      "allowed_absolute_error": 2e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_exponential:likelihood",
+      "seed": 702,
+      "max_absolute_error": 7.105427357601002e-15,
+      "allowed_absolute_error": 9.369898552328558e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_gamma",
+      "seed": 702,
+      "max_absolute_error": 2.5976998330179413e-12,
+      "allowed_absolute_error": 2.8033525253440155e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_gamma:likelihood",
+      "seed": 702,
+      "max_absolute_error": 3.552713678800501e-14,
+      "allowed_absolute_error": 9.096933906978882e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_weibull",
+      "seed": 702,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 2.583017119224934e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_weibull:likelihood",
+      "seed": 702,
+      "max_absolute_error": 1.4210854715202004e-14,
+      "allowed_absolute_error": 8.99466343244157e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_poisson",
+      "seed": 702,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 1.731735465413894e-08,
+      "passed": true
+    },
+    {
+      "operation": "normality_test",
+      "seed": 702,
+      "max_absolute_error": 5.773159728050814e-15,
+      "allowed_absolute_error": 6.006743136548667e-10,
+      "passed": true
+    },
+    {
+      "operation": "kde_gaussian",
+      "seed": 702,
+      "max_absolute_error": 5.551115123125783e-17,
+      "allowed_absolute_error": 2e-10,
+      "passed": true
+    },
+    {
+      "operation": "box_cox",
+      "seed": 702,
+      "max_absolute_error": 7.622117270678075e-09,
+      "allowed_absolute_error": 2e-06,
+      "passed": true
+    },
+    {
+      "operation": "box_cox:profile",
+      "seed": 702,
+      "max_absolute_error": 3.552713678800501e-15,
+      "allowed_absolute_error": 3.0831439155492847e-08,
+      "passed": true
+    },
+    {
+      "operation": "survival_exponential",
+      "seed": 702,
+      "max_absolute_error": 1.4210854715202004e-14,
+      "allowed_absolute_error": 1.3063028652399528e-08,
+      "passed": true
+    },
+    {
+      "operation": "survival_weibull",
+      "seed": 702,
+      "max_absolute_error": 1.4729694353121658e-08,
+      "allowed_absolute_error": 7.614968941108282e-06,
+      "passed": true
+    },
+    {
+      "operation": "survival_weibull:likelihood",
+      "seed": 702,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 1.259601437761031e-07,
+      "passed": true
+    },
+    {
+      "operation": "arma_css",
+      "seed": 702,
+      "max_absolute_error": 1.9197518519309398e-08,
+      "allowed_absolute_error": 8e-06,
+      "passed": true
+    },
+    {
+      "operation": "arma_css:variance_mean",
+      "seed": 702,
+      "max_absolute_error": 1.2460557030635755e-09,
+      "allowed_absolute_error": 4.583985177029639e-07,
+      "passed": true
+    },
+    {
+      "operation": "sarma_css",
+      "seed": 702,
+      "max_absolute_error": 2.105325247470091e-09,
+      "allowed_absolute_error": 8e-06,
+      "passed": true
+    },
+    {
+      "operation": "sarma_css:variance_mean",
+      "seed": 702,
+      "max_absolute_error": 5.663380875375879e-10,
+      "allowed_absolute_error": 4.470938564453006e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_normal",
+      "seed": 703,
+      "max_absolute_error": 8.881784197001252e-16,
+      "allowed_absolute_error": 3.311344437546081e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_normal:likelihood",
+      "seed": 703,
+      "max_absolute_error": 2.842170943040401e-14,
+      "allowed_absolute_error": 2.7000726329877885e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_lognormal",
+      "seed": 703,
+      "max_absolute_error": 5.551115123125783e-17,
+      "allowed_absolute_error": 5.500696008104593e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_lognormal:likelihood",
+      "seed": 703,
+      "max_absolute_error": 0.0,
+      "allowed_absolute_error": 2.653785862752657e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_exponential",
+      "seed": 703,
+      "max_absolute_error": 6.938893903907228e-18,
+      "allowed_absolute_error": 2e-08,
+      "passed": true
+    },
+    {
+      "operation": "fit_exponential:likelihood",
+      "seed": 703,
+      "max_absolute_error": 2.842170943040401e-14,
+      "allowed_absolute_error": 3.2738412867039196e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_gamma",
+      "seed": 703,
+      "max_absolute_error": 1.1331202642850258e-10,
+      "allowed_absolute_error": 1.8043509894161286e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_gamma:likelihood",
+      "seed": 703,
+      "max_absolute_error": 8.526512829121202e-14,
+      "allowed_absolute_error": 2.655616281850871e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_weibull",
+      "seed": 703,
+      "max_absolute_error": 1.0658141036401503e-14,
+      "allowed_absolute_error": 3.701712181462414e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_weibull:likelihood",
+      "seed": 703,
+      "max_absolute_error": 2.842170943040401e-14,
+      "allowed_absolute_error": 2.69318238283027e-07,
+      "passed": true
+    },
+    {
+      "operation": "fit_poisson",
+      "seed": 703,
+      "max_absolute_error": 7.105427357601002e-14,
+      "allowed_absolute_error": 2.218177199274283e-08,
+      "passed": true
+    },
+    {
+      "operation": "normality_test",
+      "seed": 703,
+      "max_absolute_error": 5.773159728050814e-15,
+      "allowed_absolute_error": 6.248079993313721e-10,
+      "passed": true
+    },
+    {
+      "operation": "kde_gaussian",
+      "seed": 703,
+      "max_absolute_error": 1.3877787807814457e-17,
+      "allowed_absolute_error": 2e-10,
+      "passed": true
+    },
+    {
+      "operation": "box_cox",
+      "seed": 703,
+      "max_absolute_error": 7.873009175152212e-08,
+      "allowed_absolute_error": 2e-06,
+      "passed": true
+    },
+    {
+      "operation": "box_cox:profile",
+      "seed": 703,
+      "max_absolute_error": 2.842170943040401e-14,
+      "allowed_absolute_error": 1.432765433920311e-07,
+      "passed": true
+    },
+    {
+      "operation": "survival_exponential",
+      "seed": 703,
+      "max_absolute_error": 1.4210854715202004e-14,
+      "allowed_absolute_error": 1.3085852691808526e-08,
+      "passed": true
+    },
+    {
+      "operation": "survival_weibull",
+      "seed": 703,
+      "max_absolute_error": 2.028339229909193e-08,
+      "allowed_absolute_error": 8.2344900840017e-06,
+      "passed": true
+    },
+    {
+      "operation": "survival_weibull:likelihood",
+      "seed": 703,
+      "max_absolute_error": 7.105427357601002e-15,
+      "allowed_absolute_error": 1.186754146912825e-07,
+      "passed": true
+    },
+    {
+      "operation": "arma_css",
+      "seed": 703,
+      "max_absolute_error": 1.0741622979981713e-08,
+      "allowed_absolute_error": 8e-06,
+      "passed": true
+    },
+    {
+      "operation": "arma_css:variance_mean",
+      "seed": 703,
+      "max_absolute_error": 1.680042771567969e-10,
+      "allowed_absolute_error": 4.0557156234108365e-07,
+      "passed": true
+    },
+    {
+      "operation": "sarma_css",
+      "seed": 703,
+      "max_absolute_error": 1.8218340724907023e-08,
+      "allowed_absolute_error": 8e-06,
+      "passed": true
+    },
+    {
+      "operation": "sarma_css:variance_mean",
+      "seed": 703,
+      "max_absolute_error": 2.5658564162256425e-09,
+      "allowed_absolute_error": 5.221799280436289e-07,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "test_evidence": {
+    "distributions": "13 passed",
+    "arima": "8 passed",
+    "behavioral_red": "distributions initial 7 expected unknown-operation failures; arima initial 5 expected unknown-operation failures. Additional Poisson cancellation, KDE extreme bandwidth and Box-Cox/ARIMA unit-origin regressions observed RED then GREEN. Exact deterministic AR decay was separately observed to produce a spurious finite-variance fit, then rejected below rounding identification precision; regression passes.",
+    "clippy": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy -p ducksmiles_analytics --test distributions --test arima -- -D warnings passed after final exact-decay guard (the transient shared-learning warning was resolved by its owner).",
+    "build_dir": "/private/tmp/rusta-ducksmiles-jmp-target",
+    "workspace": "Final root gate: CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test --workspace;40 suites,1006 passed,0failed,2pre-existing ignored.",
+    "native_sql": "Parent final loaded-extension macOS arm64 SQL gate passed for all95new operations including distributions and ARIMA;see tasks/evidence/jmp-sql-validation.json. This file retains the independent direct-module oracle separately."
+  }
+}

@@ -1,0 +1,603 @@
+{
+  "schema_version": 1,
+  "source": "crates/analytics/src/degradation.rs",
+  "module_path": "ducksmiles_analytics::degradation::run",
+  "scope": "Seven bounded CPU frequentist degradation,stability,independent destructive and step-stress cumulative-exposure contracts. Partial method coverage; no full JMP parity.",
+  "integration_status": "Public execute/formal Rust tests and matching native SQL PASS; bounded partial contracts only",
+  "official_sources": [
+    "https://www.jmp.com/support/help/ja/19.2/jmp/simple-linear-path.shtml",
+    "https://www.jmp.com/support/help/ja/19.2/jmp/stability-analysis-in-the-degradation-platform.shtml",
+    "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-degradation-platform.shtml",
+    "https://www.jmp.com/support/help/ja/19.2/jmp/destructive-degradation.shtml",
+    "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-destructive-degradation-platform.shtml",
+    "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-destructive-degradation-plot-options-and-models.shtml",
+    "https://www.jmp.com/support/help/zh-cn/19.2/jmp/cumulative-damage.shtml",
+    "https://www.jmp.com/support/help/zh-cn/19.2/jmp/stress-pattern.shtml",
+    "https://www.jmp.com/support/help/zh-cn/19.2/jmp/time-to-event.shtml",
+    "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-cumulative-damage-report.shtml",
+    "https://www.jmp.com/support/help/ja/19.2/jmp/repeated-measures-degradation.shtml",
+    "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-repeated-measures-degradation-platform.shtml"
+  ],
+  "primary_source_notes": [
+    "JMP19.2 Japanese/Chinese primary help pages read directly; corresponding English leaf pages intermittently unavailable in web tool.",
+    "Cumulative exposure integral and inverse-confidence algorithm are explicit implementation method contracts inferred/derived for the documented platform scope, not verified against actual JMP output.",
+    "JMP repeated-measures degradation uses Bayesian hierarchical estimation; fixed unit OLS is not a substitute or completion claim."
+  ],
+  "common_contract": {
+    "data": "Finite nonempty rectangular <=10000rows,<=128columns,<=1000000cells; stricter per-op caps apply.",
+    "args": "<=16384 finite doubles; IDs exact integers within absolute2^53-1. All fit rows are used, no implicit validation split.",
+    "inference": "Normal independent errors or independent destructive/event units as specified. Serial dependence within a unit is not adjusted. Uncertainty from model choice is not included.",
+    "path_work": "n*design_rank^2<=200000000; <=128 unit IDs, QR rank threshold1e-11*sqrt(n) on column-scaled design.",
+    "destructive_limits": "<=4000rows;<=4 location coefficients, maxiter<=1000; standardized coefficient guards +/-1e6 and logσ[-30,30]. Actual likelihood counter capped at200000000 n*location_dimension units; exhausted budget rejects.",
+    "cumulative_limits": "<=4000rows;<=128patterns,<=128segments each,<=1024segments total;200000000 nominal likelihood units and per-evaluation work counter; guards centeredβ +/-1e4 and logσ[-10,10].",
+    "numerical_scope": "Nonconvergence flags are diagnostics; three-start BFGS is not a proof of global maximum. Null indicates documented nonrepresentability/unboundedness/unidentified curvature, never JSON NaN/Infinity.",
+    "portable_path_df": "Saved path residual df must be integer1..10000, matching bounded fit resource domain; Student critical values solve the small survival tail directly.",
+    "inverse_numeric": "Cumulative time quantiles search log time, retaining relative accuracy far below a segment duration; stopped-pattern terminal rounding is clamped internally, query times remain strict.",
+    "ML_inference_validity": "For both ML fits, optimizer_converged reports the projected-gradient criterion; parameter_guard_bound reports any active numerical coefficient/scale guard. information_identified reports a positive-definite local observed information matrix at the returned iterate, independently of convergence. inference_valid (also converged) requires optimizer_converged, no parameter guard, and identified local information. Covariance and AIC are null otherwise. Local curvature alone never validates inference from an unconverged estimate, and no global maximum proof is claimed. Coefficients, attained log likelihood, convergence diagnostics and saved predictions remain available."
+  },
+  "operations": [
+    {
+      "operation": "degradation_path",
+      "symbol": "DegradationPath",
+      "sql_name": "chem_degradation_path",
+      "description": "Transformed fixed-unit linear paths: [time,response,unit_id]; [intercept_mode=0,slope_mode=0,response_transform=0,time_transform=0].",
+      "data": "[nonnegative time,response,exact integer unit ID]; <=128 IDs; positive time for log time; positive response for log response; n>design rank, rank identified.",
+      "args": [
+        "intercept_mode:0=separate per ID,1=common at transformed time zero,2=fixed zero; default0",
+        "slope_mode:0=separate per ID,1=common; default0",
+        "response_transform:0=identity,1=natural log; default0",
+        "time_transform:0=identity,1=natural log,2=square root; default0"
+      ],
+      "estimator": "Twice reorthogonalized QR OLS for g(Y)=a_ID+b_ID*f(time) under the selected equality constraints. Pooled SSE/(n-rank) residual variance and marginal coefficient covariance. Common intercept/separate slopes retains a common intercept at f(time)=0. All rows fit; no train/test prefix inference. Transformed normal independent homoskedastic errors are required for inference. Correlation among repeated observations is not adjusted.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            10.1,
+            1
+          ],
+          [
+            1,
+            7.9,
+            1
+          ],
+          [
+            2,
+            5.9,
+            1
+          ],
+          [
+            3,
+            4.1,
+            1
+          ],
+          [
+            0,
+            12.1,
+            2
+          ],
+          [
+            1,
+            9.9,
+            2
+          ],
+          [
+            2,
+            7.9,
+            2
+          ],
+          [
+            3,
+            6.1,
+            2
+          ]
+        ],
+        "args": [
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "sql_example": "chem_degradation_path([[0.0,10.1,1.0],[1.0,7.9,1.0],[2.0,5.9,1.0],[3.0,4.1,1.0],[0.0,12.1,2.0],[1.0,9.9,2.0],[2.0,7.9,2.0],[3.0,6.1,2.0]], [0.0,1.0,0.0,0.0])",
+      "source": "crates/analytics/src/degradation.rs",
+      "tests": "crates/analytics/tests/candidates/degradation.rs",
+      "module_path": "ducksmiles_analytics::degradation::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/ja/19.2/jmp/simple-linear-path.shtml",
+        "https://www.jmp.com/support/help/ja/19.2/jmp/repeated-measures-degradation.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-degradation-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "24/24 isolated direct-module tests passed; formal public execute integration pending parent",
+        "isolated_C_ABI": "820 method scenarios +69 independent Hessian checks;66,812 scalar assertions passed; all7 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Bayesian hierarchical repeated-measures estimation",
+        "nonlinear paths",
+        "correlated residuals/random effects",
+        "arbitrary/custom transforms",
+        "X-level-within-group equality constraints"
+      ],
+      "known_value": {
+        "intercepts.0": 10.0,
+        "intercepts.1": 12.0,
+        "slopes.0": -2.0,
+        "sse": 0.08,
+        "residual_df": 5
+      }
+    },
+    {
+      "operation": "degradation_predict",
+      "symbol": "DegradationPredict",
+      "sql_name": "chem_degradation_predict",
+      "description": "Saved path predictions and threshold inverse confidence sets: [time,unit_id,threshold]; [confidence,side,model...].",
+      "data": "[time,known saved unit_id,response-scale threshold]; same transform domains as fitted model; no response or refitting.",
+      "args": [
+        "confidence:required in(0.5,1)",
+        "side:required0=two-sided mean band,1=lower mean bound,2=upper mean bound",
+        "saved model unchanged: [1,response_transform,time_transform,G,(ID,a,b,covaa,covab,covbb,MSE,df)*G]"
+      ],
+      "estimator": "Student-t mean and individual-response prediction bounds on the transformed scale, back-transformed to the original response scale. Threshold point solves a+b*u=g(threshold). Inverse confidence set contains u for which the threshold belongs to the pointwise mean confidence interval/bound. Stable quadratic/sign interval partition retains empty, singleton, disjoint and unbounded sets, intersected with physical time domain [0,infinity) or (0,infinity) for log time. Interval endpoints are mapped back to time; null upper with upper_unbounded=true denotes positive infinity. Nonrepresentable finite endpoints/point crossings may be null. These sets invert pointwise bands, not simultaneous bands or individual first-passage distributions. Back-transformed log response point is a median.",
+      "fixture": {
+        "data": [
+          [
+            2,
+            7,
+            6
+          ]
+        ],
+        "args": [
+          0.95,
+          0,
+          1,
+          0,
+          0,
+          1,
+          7,
+          10,
+          -2,
+          0.04,
+          -0.01,
+          0.01,
+          0.16,
+          8
+        ]
+      },
+      "sql_example": "chem_degradation_predict([[2.0,7.0,6.0]], [0.95,0.0,1.0,0.0,0.0,1.0,7.0,10.0,-2.0,0.04,-0.01,0.01,0.16,8.0])",
+      "source": "crates/analytics/src/degradation.rs",
+      "tests": "crates/analytics/tests/candidates/degradation.rs",
+      "module_path": "ducksmiles_analytics::degradation::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/ja/19.2/jmp/simple-linear-path.shtml",
+        "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-degradation-platform.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-degradation-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "24/24 isolated direct-module tests passed; formal public execute integration pending parent",
+        "isolated_C_ABI": "820 method scenarios +69 independent Hessian checks;66,812 scalar assertions passed; all7 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "unknown ID prediction",
+        "joint simultaneous bands",
+        "first-passage lifetime distributions",
+        "serial-correlation-adjusted inference",
+        "uncertainty from model selection"
+      ],
+      "known_value": {
+        "fitted.0": 6.0,
+        "threshold_times.0": 2.0
+      }
+    },
+    {
+      "operation": "stability_analysis",
+      "symbol": "StabilityAnalysis",
+      "sql_name": "chem_stability_analysis",
+      "description": "Batch linear stability model selection and shelf life: [time,response,batch_id]; [lower_on,lower,upper_on,upper,pooling_alpha,confidence,pool_separate_MSE,horizon].",
+      "data": "Identity-scale [nonnegative time,response,batch_id], >=2 batches and each batch supports an identified separate line with residual degrees of freedom.",
+      "args": [
+        "lower_on:required0/1",
+        "lower:required finite lower specification (placeholder ignored when lower_on0)",
+        "upper_on:required0/1; at least one specification enabled",
+        "upper:required finite upper specification; lower<upper when both enabled",
+        "pooling_alpha:required in[0.01,0.5); ICH-style conventional choice0.25",
+        "confidence:required in(0.5,1); conventional choice0.95",
+        "pool_separate_MSE:required0=individual batch MSE/df for full-model bands,1=pooled MSE/df",
+        "horizon:required positive finite upper time searched"
+      ],
+      "estimator": "Fit full separate intercept/slopes, separate intercept/common slope, and common intercept/slope. First F-test the common-slope restriction against full with full-model MSE; if p<alpha choose full. Otherwise F-test common intercept against the common-slope model using that unrestricted model MSE; if p<alpha retain separate intercept/common slope, else pool all. Full model bands default to individual batch MSE/df; comparisons still use nested homoskedastic F tests. One enabled specification uses one-sided t(confidence) mean bound; both specifications use two-sided t((1+confidence)/2). Shelf life is the earliest mean-bound departure from specifications for any batch after time0, within horizon; initial noncompliance gives0, no crossing gives null+beyond_horizon. Model selection uncertainty and regulatory extrapolation restrictions are not incorporated.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            10.1,
+            1
+          ],
+          [
+            1,
+            7.9,
+            1
+          ],
+          [
+            2,
+            5.9,
+            1
+          ],
+          [
+            3,
+            4.1,
+            1
+          ],
+          [
+            0,
+            12.1,
+            2
+          ],
+          [
+            1,
+            9.9,
+            2
+          ],
+          [
+            2,
+            7.9,
+            2
+          ],
+          [
+            3,
+            6.1,
+            2
+          ]
+        ],
+        "args": [
+          1,
+          3,
+          0,
+          0,
+          0.25,
+          0.95,
+          0,
+          20
+        ]
+      },
+      "sql_example": "chem_stability_analysis([[0.0,10.1,1.0],[1.0,7.9,1.0],[2.0,5.9,1.0],[3.0,4.1,1.0],[0.0,12.1,2.0],[1.0,9.9,2.0],[2.0,7.9,2.0],[3.0,6.1,2.0]], [1.0,3.0,0.0,0.0,0.25,0.95,0.0,20.0])",
+      "source": "crates/analytics/src/degradation.rs",
+      "tests": "crates/analytics/tests/candidates/degradation.rs",
+      "module_path": "ducksmiles_analytics::degradation::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/ja/19.2/jmp/stability-analysis-in-the-degradation-platform.shtml",
+        "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-degradation-platform.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-degradation-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "24/24 isolated direct-module tests passed; formal public execute integration pending parent",
+        "isolated_C_ABI": "820 method scenarios +69 independent Hessian checks;66,812 scalar assertions passed; all7 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "nonlinear/time-transformed stability",
+        "regulatory approval/automatic ICH extrapolation limits",
+        "multiplicity-adjusted simultaneous bands",
+        "correlated observations",
+        "Bayesian models"
+      ],
+      "known_value": {
+        "selected_model": "separate_intercepts_common_slope",
+        "test_order.0": "slopes",
+        "test_order.1": "intercepts",
+        "confidence_sides": 1
+      }
+    },
+    {
+      "operation": "destructive_degradation",
+      "symbol": "DestructiveDegradation",
+      "sql_name": "chem_destructive_degradation",
+      "description": "Independent-unit Gaussian/lognormal censored degradation ML: [time,stress,lower,upper,type]; [family=0,time_transform=0,stress_mode=0,maxiter=300,tolerance=1e-8].",
+      "data": "<=4000 independent units, one measurement per destroyed unit. [time,stress,lower_response,upper_response,censor_type]. type0 exact requires lower=upper; type1 left requires lower placeholder0; type2 right requires upper placeholder0; type3 finite interval lower<upper. Lognormal used bounds positive. More exact measurements than location coefficients, exact-design rank identified.",
+      "args": [
+        "family:0=normal on original Y,1=normal on log(Y), default0",
+        "time_transform:0=identity,1=ln,2=sqrt; default0",
+        "stress_mode:0=no stress (stress column unused),1=linear stress,2=Arrhenius Celsius11604.5181215503/(stress+273.15),3=ln(stress); default0",
+        "maxiter:integer1..1000,default300",
+        "tolerance:1e-12..1e-3,default1e-8; average negative-likelihood score"
+      ],
+      "estimator": "Mean location μ=b0+b1*f(time) when no stress; otherwise μ=b0+b1*f(time)+b2*r(stress)+b3*f(time)*r(stress). This is a bilinear location model in transformed stress, not an exponential Arrhenius-rate kinetic path. Gaussian density includes -logσ-log(2π)/2; lognormal exact density additionally includes -logY Jacobian. Left/right/interval censor likelihood uses CDF/SF/CDF differences; no density Jacobian is added to probabilities. Analytic location/log-scale scores, bounded BFGS with backtracking, stable normal log tails, observed-information covariance in centered standardized coordinates. σ MLE uses n, not residual df. Guard/iteration/gradient and covariance diagnostics are explicit. Converged additionally requires identified observed information; an uncalibrated/null covariance cannot claim an identified fit. Covariance and AIC are available only when inference_valid=true; optimizer projected-gradient convergence, active guard status and local information identifiability are reported separately. An active numerical coefficient/log-scale guard always invalidates inference, even when its projected gradient vanishes.",
+      "fixture": {
+        "data": [
+          [
+            0,
+            0,
+            10.1,
+            10.1,
+            0
+          ],
+          [
+            1,
+            0,
+            7.9,
+            7.9,
+            0
+          ],
+          [
+            2,
+            0,
+            5.9,
+            5.9,
+            0
+          ],
+          [
+            3,
+            0,
+            4.1,
+            4.1,
+            0
+          ]
+        ],
+        "args": []
+      },
+      "sql_example": "chem_destructive_degradation([[0.0,0.0,10.1,10.1,0.0],[1.0,0.0,7.9,7.9,0.0],[2.0,0.0,5.9,5.9,0.0],[3.0,0.0,4.1,4.1,0.0]], [])",
+      "source": "crates/analytics/src/degradation.rs",
+      "tests": "crates/analytics/tests/candidates/degradation.rs",
+      "module_path": "ducksmiles_analytics::degradation::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/ja/19.2/jmp/destructive-degradation.shtml",
+        "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-destructive-degradation-platform.shtml",
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-destructive-degradation-plot-options-and-models.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-degradation-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "24/24 isolated direct-module tests passed; formal public execute integration pending parent",
+        "isolated_C_ABI": "820 method scenarios +69 independent Hessian checks;66,812 scalar assertions passed; all7 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "arbitrary nonlinear/kinetic paths",
+        "heterogeneous scale",
+        "random unit effects/repeated measures",
+        "censor-only identifiable designs without sufficient exact responses",
+        "measurement error in time/stress",
+        "Bayesian inference",
+        "MLE covariance/information criteria for unconverged or numerical-guard-bound estimates"
+      ],
+      "known_value": {
+        "coefficients.0": 10.0,
+        "coefficients.1": -2.0,
+        "sigma": 0.1,
+        "log_likelihood": 3.534586239157491,
+        "n_exact": 4
+      }
+    },
+    {
+      "operation": "destructive_predict",
+      "symbol": "DestructivePredict",
+      "sql_name": "chem_destructive_predict",
+      "description": "Saved independent-unit destructive distribution: [time,stress,threshold]; unchanged destructive_degradation.predict_parameters.",
+      "data": "[time,stress,response threshold] with same ordered transform domains; marginal response probability under fitted location-scale model.",
+      "args": [
+        "saved model [1,family,time_transform,stress_mode,sigma,centered_intercept,p,feature_origins[p],mean_offsets[p],original_feature_slopes[p]]"
+      ],
+      "estimator": "Return response median, mean,0.025/0.975 distribution quantiles, and P(response<=threshold). For lognormal, median expμ differs from mean exp(μ+σ²/2). Percentile bands describe the response distribution, not parameter confidence intervals. Probability below a response threshold is a marginal soft-failure probability at a fixed time, not the first time an individual path crosses.",
+      "fixture": {
+        "data": [
+          [
+            5,
+            0,
+            2.718281828459045
+          ]
+        ],
+        "args": [
+          1,
+          1,
+          0,
+          0,
+          0.5,
+          2,
+          1,
+          0,
+          0,
+          -0.2
+        ]
+      },
+      "sql_example": "chem_destructive_predict([[5.0,0.0,2.718281828459045]], [1.0,1.0,0.0,0.0,0.5,2.0,1.0,0.0,0.0,-0.2])",
+      "source": "crates/analytics/src/degradation.rs",
+      "tests": "crates/analytics/tests/candidates/degradation.rs",
+      "module_path": "ducksmiles_analytics::degradation::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-destructive-degradation-platform.shtml",
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-destructive-degradation-plot-options-and-models.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-degradation-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "24/24 isolated direct-module tests passed; formal public execute integration pending parent",
+        "isolated_C_ABI": "820 method scenarios +69 independent Hessian checks;66,812 scalar assertions passed; all7 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "parameter confidence bands",
+        "individual lifetime first passage",
+        "unit-level repeated prediction/random effects"
+      ],
+      "known_value": {
+        "medians.0": 2.718281828459045,
+        "means.0": 3.080216848918031,
+        "lower_failure_probabilities.0": 0.5
+      }
+    },
+    {
+      "operation": "cumulative_damage_fit",
+      "symbol": "CumulativeDamageFit",
+      "sql_name": "chem_cumulative_damage_fit",
+      "description": "Step-stress cumulative-exposure ML: [lo_time,hi_time,type,pattern_id]; [distribution,relation,continuation,maxiter,tolerance,pattern_count,patterns...].",
+      "data": "<=4000 event units. type0 exact0<lo=hi; type1 left lo0<hi; type2 right lo>0,hi placeholder0; type3 interval0<=lo<hi. Pattern IDs must exist. n>parameter count and at least parameter-count exact failures. >=2 distinct transformed stress levels and identified observed information for converged fit.",
+      "args": [
+        "distribution:required0=exponential,1=Weibull,2=lognormal",
+        "relation:required0=linear,1=ln(stress),2=Arrhenius Celsius11604.5181215503/(stress+273.15),3=reciprocal stress",
+        "continuation:required0=stop at pattern end,1=extend final level,2=repeat full pattern",
+        "maxiter:required integer1..1000",
+        "tolerance:required1e-12..1e-3 for average score",
+        "pattern_count:required integer1..128",
+        "each pattern: [ID,segment_count,(positive_duration,stress)*segment_count];1..128 segments each,<=1024 total; no trailing arguments"
+      ],
+      "estimator": "Under an explicit cumulative-exposure assumption, log scale μ(s)=b0+b1*r(s), A(t)=integral_0^t exp[-μ(stress(u))]du. Step integration is exact using log-sum-exp; response density is f_A(A(t))*exp[-μ(stress(t))]. Standardized exposure distribution is Exp(scale1), Weibull(shape1/σ,scale1), or Lognormal(log-location0,log-scaleσ); no extra shape is estimated for exponential. Censor likelihood uses F(A),S(A) or interval differences. Analytic scores include exposure and density-rate derivatives. Standardized stress optimization with three starts, bounded BFGS, covariance from observed information; no global optimum guarantee. Event density at an interior stress change is right-continuous; stop endpoint uses final level. Report failed convergence or unidentified curvature honestly. Covariance and AIC are available only when inference_valid=true; optimizer projected-gradient convergence, active guard status and local information identifiability are reported separately. An active numerical coefficient/log-scale guard always invalidates inference, even when its projected gradient vanishes.",
+      "fixture": {
+        "data": [
+          [
+            1,
+            1,
+            0,
+            1
+          ],
+          [
+            3,
+            3,
+            0,
+            1
+          ],
+          [
+            2,
+            2,
+            0,
+            2
+          ],
+          [
+            6,
+            6,
+            0,
+            2
+          ]
+        ],
+        "args": [
+          0,
+          0,
+          1,
+          300,
+          1e-09,
+          2,
+          1,
+          1,
+          10,
+          0,
+          2,
+          1,
+          10,
+          1
+        ]
+      },
+      "sql_example": "chem_cumulative_damage_fit([[1.0,1.0,0.0,1.0],[3.0,3.0,0.0,1.0],[2.0,2.0,0.0,2.0],[6.0,6.0,0.0,2.0]], [0.0,0.0,1.0,300.0,1e-09,2.0,1.0,1.0,10.0,0.0,2.0,1.0,10.0,1.0])",
+      "source": "crates/analytics/src/degradation.rs",
+      "tests": "crates/analytics/tests/candidates/degradation.rs",
+      "module_path": "ducksmiles_analytics::degradation::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/cumulative-damage.shtml",
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/stress-pattern.shtml",
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/time-to-event.shtml",
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-cumulative-damage-report.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-degradation-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "24/24 isolated direct-module tests passed; formal public execute integration pending parent",
+        "isolated_C_ABI": "820 method scenarios +69 independent Hessian checks;66,812 scalar assertions passed; all7 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "ramp/sinusoidal/piecewise-ramp stress",
+        "Box-Cox/custom stress relationship",
+        "loglogistic/Frechet lifetime",
+        "history effects beyond cumulative exposure",
+        "delayed entry/competing risks/frailty",
+        "Bayesian repeated measures",
+        "MLE covariance/information criteria for unconverged or numerical-guard-bound estimates"
+      ],
+      "known_value": {
+        "coefficients.0": 0.6931471805599453,
+        "coefficients.1": 0.6931471805599453,
+        "sigma": 1.0,
+        "log_likelihood": -8.158883083359672,
+        "n_exact": 4
+      }
+    },
+    {
+      "operation": "cumulative_damage_predict",
+      "symbol": "CumulativeDamagePredict",
+      "sql_name": "chem_cumulative_damage_predict",
+      "description": "Saved cumulative-exposure reliability: [time,pattern_id,probability]; unchanged cumulative_damage_fit.predict_parameters.",
+      "data": "[nonnegative time,known pattern ID,quantile probability strictly(0,1)]. Stop continuation rejects prediction times after final pattern end.",
+      "args": [
+        "saved model [1,distribution,relation,continuation,b0,b1,sigma,pattern_count,patterns...]; exponential requires sigma1"
+      ],
+      "estimator": "Return cumulative effective age, log age, survival/failure probability, event-time density, hazard/log hazard, and time quantile obtained by monotone inversion of exact cumulative exposure. Density includes dA/dt. Shape-specific density and hazard limits at time0 are handled; mathematically infinite/nonrepresentable values serialize as null, log quantities retained where finite. A quantile beyond a stopped pattern is null; it is not silently extrapolated. These contracts model accelerated event times under cumulative exposure, distinct from Miner fatigue damage. Quantile inversion is on log time; positive lifetimes below the minimum representable double become null.",
+      "fixture": {
+        "data": [
+          [
+            4,
+            7,
+            0.5
+          ]
+        ],
+        "args": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0.6931471805599453,
+          1,
+          1,
+          7,
+          2,
+          2,
+          0,
+          3,
+          1
+        ]
+      },
+      "sql_example": "chem_cumulative_damage_predict([[4.0,7.0,0.5]], [1.0,0.0,0.0,1.0,0.0,0.6931471805599453,1.0,1.0,7.0,2.0,2.0,0.0,3.0,1.0])",
+      "source": "crates/analytics/src/degradation.rs",
+      "tests": "crates/analytics/tests/candidates/degradation.rs",
+      "module_path": "ducksmiles_analytics::degradation::run",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/stress-pattern.shtml",
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/time-to-event.shtml",
+        "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-cumulative-damage-report.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-degradation-reference.json",
+      "layers": {
+        "Rust_direct_candidate": "24/24 isolated direct-module tests passed; formal public execute integration pending parent",
+        "isolated_C_ABI": "820 method scenarios +69 independent Hessian checks;66,812 scalar assertions passed; all7 API examples/known literals strict JSON passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "unknown/new stress patterns without an explicit new carrier",
+        "parameter uncertainty/confidence bands",
+        "ramp/sinusoidal schedules",
+        "mechanical Miner fatigue model"
+      ],
+      "known_value": {
+        "effective_ages.0": 3.0,
+        "survivals.0": 0.049787068367863944,
+        "hazards.0": 0.5,
+        "quantiles.0": 0.6931471805599453
+      }
+    }
+  ],
+  "reference_convergence": {
+    "destructive": {
+      "true": 231,
+      "false": 9,
+      "tolerance": 1e-08
+    },
+    "cumulative": {
+      "true": 118,
+      "false": 2,
+      "tolerance": 1e-08
+    },
+    "interpretation": "False flags retained honestly despite close reference objective/coefficients; no false-success override."
+  },
+  "native_sql_validation": {
+    "status": "PASS matching225 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-specialized-validation.json",
+    "overall_jmp_parity": false
+  }
+}

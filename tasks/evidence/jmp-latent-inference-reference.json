@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-10-21T14:58:59.393355+00:00",
+  "seed": 20261022,
+  "layer": "actual exported ds_analytics_run/free C ABI from production lib.rs; native DuckDB SQL not covered",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "checks": {
+    "manova_error_sscp": {
+      "assertions": 34,
+      "max_absolute_error": 5.684341886080802e-14
+    },
+    "manova_hypothesis_sscp": {
+      "assertions": 34,
+      "max_absolute_error": 8.526512829121202e-14
+    },
+    "manova_roots": {
+      "assertions": 12,
+      "max_absolute_error": 7.105427357601002e-15
+    },
+    "manova_four_criteria": {
+      "assertions": 20,
+      "max_absolute_error": 7.105427357601002e-15
+    },
+    "manova_F": {
+      "assertions": 20,
+      "max_absolute_error": 4.263256414560601e-14
+    },
+    "manova_df": {
+      "assertions": 40,
+      "max_absolute_error": 0.0
+    },
+    "manova_p": {
+      "assertions": 20,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "manova_response_congruence": {
+      "assertions": 12,
+      "max_absolute_error": 6.416200903913705e-12
+    },
+    "cca_wilks": {
+      "assertions": 14,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "cca_bartlett": {
+      "assertions": 14,
+      "max_absolute_error": 1.1368683772161603e-13
+    },
+    "cca_df": {
+      "assertions": 14,
+      "max_absolute_error": 0.0
+    },
+    "cca_p": {
+      "assertions": 14,
+      "max_absolute_error": 5.273559366969494e-16
+    },
+    "mca_burt": {
+      "assertions": 308,
+      "max_absolute_error": 0.0
+    },
+    "mca_category_variables": {
+      "assertions": 34,
+      "max_absolute_error": 0.0
+    },
+    "mca_category_levels": {
+      "assertions": 34,
+      "max_absolute_error": 0.0
+    },
+    "mca_counts": {
+      "assertions": 34,
+      "max_absolute_error": 0.0
+    },
+    "mca_masses": {
+      "assertions": 34,
+      "max_absolute_error": 0.0
+    },
+    "mca_inertias": {
+      "assertions": 22,
+      "max_absolute_error": 6.106226635438361e-16
+    },
+    "mca_row_geometry": {
+      "assertions": 3080,
+      "max_absolute_error": 4.773959005888173e-15
+    },
+    "mca_category_geometry": {
+      "assertions": 308,
+      "max_absolute_error": 7.993605777301127e-15
+    },
+    "mca_benzecri": {
+      "assertions": 22,
+      "max_absolute_error": 3.0531133177191805e-16
+    },
+    "mca_benzecri_proportions": {
+      "assertions": 22,
+      "max_absolute_error": 2.886579864025407e-15
+    },
+    "mca_greenacre": {
+      "assertions": 4,
+      "max_absolute_error": 8.881784197001252e-16
+    },
+    "mca_greenacre_proportions": {
+      "assertions": 22,
+      "max_absolute_error": 4.6629367034256575e-15
+    },
+    "ml_factor_optimizer_convergence": {
+      "assertions": 3,
+      "max_absolute_error": 0.0
+    },
+    "ml_factor_criterion": {
+      "assertions": 3,
+      "max_absolute_error": 1.609823385706477e-15
+    },
+    "ml_factor_uniquenesses": {
+      "assertions": 19,
+      "max_absolute_error": 7.713375715923121e-09
+    },
+    "ml_factor_covariance": {
+      "assertions": 125,
+      "max_absolute_error": 3.3608644756100148e-09
+    },
+    "ml_factor_scores": {
+      "assertions": 1350,
+      "max_absolute_error": 8.881784197001252e-15
+    },
+    "ml_factor_model_test": {
+      "assertions": 6,
+      "max_absolute_error": 3.934630399271555e-13
+    },
+    "ml_factor_saved_scores": {
+      "assertions": 35,
+      "max_absolute_error": 8.881784197001252e-15
+    },
+    "ml_factor_rotation_convergence": {
+      "assertions": 3,
+      "max_absolute_error": 0.0
+    },
+    "ml_factor_rotation": {
+      "assertions": 33,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "ml_factor_rotation_orthogonal": {
+      "assertions": 9,
+      "max_absolute_error": 1.0677335128758414e-17
+    },
+    "ml_factor_rotated_covariance": {
+      "assertions": 125,
+      "max_absolute_error": 2.886579864025407e-15
+    },
+    "ml_factor_constrained_convergence": {
+      "assertions": 4,
+      "max_absolute_error": 0.0
+    },
+    "ml_factor_constrained_boundary": {
+      "assertions": 4,
+      "max_absolute_error": 0.0
+    },
+    "ml_factor_boundary_inference_NULL": {
+      "assertions": 4,
+      "max_absolute_error": 0.0
+    },
+    "ml_factor_constrained_criterion": {
+      "assertions": 4,
+      "max_absolute_error": 9.992007221626409e-16
+    },
+    "ml_factor_constrained_uniquenesses": {
+      "assertions": 20,
+      "max_absolute_error": 2.758545836201165e-09
+    },
+    "public_ABI_invalid_NULL": {
+      "assertions": 18,
+      "max_absolute_error": 0.0
+    }
+  },
+  "assertions_total": 5937,
+  "ML_optimizer_diagnostics": [
+    {
+      "features": 5,
+      "factors": 1,
+      "rust_converged": true,
+      "rust_iterations": 10,
+      "rust_projected_gradient": 1.048662712221926e-09,
+      "scipy_success": true,
+      "scipy_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL"
+    },
+    {
+      "features": 6,
+      "factors": 2,
+      "rust_converged": true,
+      "rust_iterations": 16,
+      "rust_projected_gradient": 4.067006065255896e-09,
+      "scipy_success": true,
+      "scipy_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL"
+    },
+    {
+      "features": 8,
+      "factors": 2,
+      "rust_converged": true,
+      "rust_iterations": 9,
+      "rust_projected_gradient": 4.925616359230389e-09,
+      "scipy_success": true,
+      "scipy_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+      "boundary_floor": 0.1,
+      "rust_converged": true,
+      "rust_iterations": 17,
+      "rust_projected_gradient": 5.582336815024291e-10,
+      "scipy_success": true,
+      "scipy_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+      "boundary_floor": 0.2,
+      "rust_converged": true,
+      "rust_iterations": 9,
+      "rust_projected_gradient": 3.1434939096186554e-09,
+      "scipy_success": true,
+      "scipy_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+      "boundary_floor": 0.3,
+      "rust_converged": true,
+      "rust_iterations": 7,
+      "rust_projected_gradient": 4.71378491795349e-10,
+      "scipy_success": true,
+      "scipy_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+      "boundary_floor": 0.4,
+      "rust_converged": true,
+      "rust_iterations": 8,
+      "rust_projected_gradient": 4.0604675177746685e-09,
+      "scipy_success": true,
+      "scipy_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    }
+  ],
+  "library_sha256": "f8b6d82bacc57d269f7a0630364716a6492aa41d5b9be7ee4f2bd1b411920702",
+  "scope": "Four bounded CPU method contracts. Extends partial multivariate coverage; does not establish full MANOVA/canonical/factor/MCA platform parity.",
+  "operations": [
+    "manova",
+    "canonical_correlation_inference",
+    "multiple_correspondence_analysis",
+    "factor_analysis_ml"
+  ],
+  "primary_sources": {
+    "manova": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-multivariate-tests.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-approximate-ftests.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/the-extended-multivariate-report.shtml"
+    ],
+    "canonical_correlation_inference": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-canonical-calculations.shtml",
+      "https://search.r-project.org/CRAN/refmans/CCP/html/p.asym.html",
+      "https://search.r-project.org/CRAN/refmans/yacca/html/cca.html"
+    ],
+    "multiple_correspondence_analysis": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/multiple-correspondence-analysis.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-details-report.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-adjusted-inertia.shtml"
+    ],
+    "factor_analysis_ml": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-factor-analysis-platform.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis-model-fit-options.shtml",
+      "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/factanal.html"
+    ]
+  },
+  "rustc": "rustc1.94.0 (4a4ef493e2026-03-02)",
+  "source_sha256": {
+    "crates/analytics/src/latent_inference.rs": "3dfde230db062653d11b2d67bac47f81af054c9ed1283d8ece3ad0a38af19f0a",
+    "crates/analytics/tests/latent_inference.rs": "0f871a1e19808d6b723bb124d89551a7b37e8627a1ae3811e066cdb1f1701b23"
+  },
+  "public_source_snapshot_sha256": {
+    "crates/analytics/src/lib.rs": "edbb95a064d78fab20a90d8bfc7694aa9e01dc7cdebaec2ce19e12e179c12b44",
+    "crates/analytics/src/advanced_design.rs": "054a3e17592a123babb908bdcec4d1f1a037ec22030ab2aa4518748ad1de32c1",
+    "crates/analytics/src/arima.rs": "114d03aa73b915498868c323d048c73529a41568417f0cae6f1f081e4b44a898",
+    "crates/analytics/src/design.rs": "ef321449399727e186fec5eb8c9b858443bb072b6be24030851959b8d7fd4415",
+    "crates/analytics/src/distributions.rs": "dbdb3e318ce81409f317ee7256b33312aa2f6f9fb4dee050fae8c35263b37a72",
+    "crates/analytics/src/evaluation.rs": "2cea0146a8fdb996ecdce401663205fcc42c7482496d6547d869cad59548bc37",
+    "crates/analytics/src/explore.rs": "0861c7f15ad12ae7f83355a50909793be3407117c63a2eec0b0bdf4a11d25e53",
+    "crates/analytics/src/glm.rs": "6195fefd5e1e1e2c117ae54a1179b2607dff98539210f9492bf304a2f72218eb",
+    "crates/analytics/src/genomics.rs": "c3055b72490029c2981801ad0680cefa49ac383df8ce22fc40184441a16773cf",
+    "crates/analytics/src/inference.rs": "2e54fd0fc06ea59283978e733af60b5050a30a5d294dbded56ef3e4519dc2595",
+    "crates/analytics/src/latent.rs": "c98a82f87b0011f485d19c3d6eb9c517d02a2e5577d4bf6b660c5662b62dcfd0",
+    "crates/analytics/src/latent_inference.rs": "3dfde230db062653d11b2d67bac47f81af054c9ed1283d8ece3ad0a38af19f0a",
+    "crates/analytics/src/learning.rs": "1e73863a1da1cecaed61d253a6d25ad640eec33eefb9cfdb9b29e24258a91fe2",
+    "crates/analytics/src/mixed.rs": "f1fbc60df9d24ac0b95bd76076b48644c365f5a80db18997bf68e9c3d82a6a8e",
+    "crates/analytics/src/multivariate.rs": "75dd2b079e0b415583cc46227c534ea3c4a0ec51d3d36a747f70a9c63a397463",
+    "crates/analytics/src/nonlinear.rs": "a301a43b229f5abbc30221975cc6e897eaa1513df3c287d10bbfe3d08dfa7b62",
+    "crates/analytics/src/optimize.rs": "58cabd7597f80b51c98d22c25a91087f939159ed239630e0b55fe5a360fdc720",
+    "crates/analytics/src/quality.rs": "2b7411de07bdef8b61ea1acd1c00608dd293ea604e5430dc5de78e55a2cbbf37",
+    "crates/analytics/src/regression.rs": "6aedd8e4cce2fa1c853d7c2eaee27857656b6a3b0c7cdc570bfb1fb784df9fad",
+    "crates/analytics/src/reliability.rs": "ae174973d3f53dd0c62334857e02ea772ed9e7b902c4c2c9c22c306bfe501b1b",
+    "crates/analytics/src/resampling.rs": "a2bb594fb0051a4a55465b8ddd8fa667ee9bd770e4fdb07fa2de744319204793",
+    "crates/analytics/src/robust_learning.rs": "67111fee863499f8f722f9d6949b1d924891f43ddd371c9d5945fa017e0d1a6d",
+    "crates/analytics/src/spectral.rs": "3ef760b47e28d74d6b74316edb46fa972d36ece2a49b428c8141b103f61a2f23",
+    "crates/analytics/src/statistics.rs": "9f27bb4d08ff08ef1517896d850e8559ecf0f568252a49d159aa10039365a1a6",
+    "crates/analytics/src/survival.rs": "be525094fa9b54b202cb1b3c85c0a9c1534808102aba141a5ce361c40b7e0bcc",
+    "crates/analytics/src/timeseries.rs": "dea89cfc83541102db5aedd5cc0492fae412972268bba9a9f0f8d9a19309af2d"
+  },
+  "source_snapshot_note": "Unchanged production lib.rs and all pub-mod source files copied to temporary snapshot before direct rustc cdylib compilation. Real ds_analytics_run/free and execute dispatch are used; no wrapper dispatcher substitutes for public integration.",
+  "verification": {
+    "actual_public_execute": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test latent_inference --quiet",
+      "result": "10 passed,0failed; session88907 exit0 after final active-subspace update"
+    },
+    "actual_public_C_ABI": {
+      "result": "41groups,5937assertions including5919independent numerical/structural reference assertions and18NULL/zero-output-length contracts",
+      "max_absolute_error": 7.713375715923121e-09
+    },
+    "strict_Clippy": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy --manifest-path /private/tmp/ducksmiles-latent-inference-check/Cargo.toml -- -D warnings",
+      "result": "passed; temporary no-dependency library exposes the actual latent_inference.rs source only"
+    },
+    "rustfmt": {
+      "command": "rustfmt --check crates/analytics/src/latent_inference.rs crates/analytics/tests/latent_inference.rs",
+      "result": "passed"
+    },
+    "SQL_examples": {
+      "result": "All4registered example literal payloads executed through actual publicCABI; DuckDB SQLbinding/native execution not covered here"
+    },
+    "registry": {
+      "fragment": "tasks/jmp-latent-inference-registry.inc",
+      "entries": 4
+    },
+    "native_SQL": {
+      "result": "pending parent frozen native build/gating; this file makes no loaded-extension SQLclaim"
+    },
+    "full_workspace": {
+      "result": "owned by parent; focused public/CABIstatus stated above"
+    }
+  },
+  "TDD_evidence": [
+    {
+      "phase": "initial formal behavior RED",
+      "result": "Actual public execute9tests:8unknown-operation behavior failures,1rejection-only pass before implementation. Parent activated4dispatch names to explicit not-implemented stub before numerical implementation."
+    },
+    {
+      "phase": "base GREEN",
+      "result": "9publictests passed after four implementations."
+    },
+    {
+      "phase": "active-boundary direction RED",
+      "fixture": "Five-variable correlation from loadings[.95,.9,.7,.4,.2], diagonal1, uniqueness_floor.2; SciPy optimum criterion.056184900001420957.",
+      "result": "Formal added regression failed converged:true because unrestricted BFGS off-diagonal coupling moved active bounds into a costly direction. Fixed by holding active coordinates fixed."
+    },
+    {
+      "phase": "active-subspace curvature RED",
+      "fixture": "Samecorrelation,floor.1; objectiveoptimum but projectedgradientstalled~1.28e-7 after1000iterations.",
+      "result": "Extended formal regression failed convergence. Fixed by updating curvature only within unchanged free subspace and resetting inverse Hessian on active-set changes."
+    },
+    {
+      "phase": "final GREEN",
+      "result": "10actualpublictests; all7independentSciPyMLoptimizerfixtures including4constrainedfloors pass; all41publicCABIreferencegroups pass."
+    }
+  ],
+  "oracle_details": {
+    "MANOVA": "Independent NumPy least-squares coefficients and residual/corrected-total SSCP; SciPy generalized symmetric eigenvalues and F survival functions. Uses JMP19.2 simple Hotelling-Lawley formula rather than statsmodels alternative McKeon convention.",
+    "CCA": "Direct sequential Wilks/Bartlett formulas with SciPy chi-square survival probabilities; not an exact small-sample test.",
+    "MCA": "Independent full indicator-matrix SVD rather than production standardized Burt eigendecomposition; compares full row/category Gram geometry and all inertia adjustments.",
+    "ML_factor": "Independent SciPyL-BFGS-B on directly reconstructed Gaussian Sigma logdet+trace criterion, starting at three constantuniquenesses. Production uses a different projectedBFGS implementation and stable profiled-root criterion. Savedscore formulas checked against NumPy Sigma solves; active-boundary fixtures optimized independently.",
+    "dependencies": "NumPy/SciPy exist only in reference harness; production adds no dependencies.",
+    "optional_reference_libraries": "statsmodels and Rwere not used/required. No direct JMP numerical run is claimed."
+  },
+  "limits": [
+    "Whole-model numeric-design MANOVA only; no arbitrary L/M contrasts,repeated-response specification,sphericity or missing/weighteddata.",
+    "General multi-root MANOVA Fconventions are approximate; Roy p lowerbound is explicitly marked. Invalidreference degrees/nonfiniteF are null.",
+    "Canonical inference consumes complete unregularized correlation summaries; cannot detect if caller supplied regularized estimators. Bartlettreference is asymptotic.",
+    "MCA complete integer-coded categories only; no supplementary projection,weights,CochranQ or missingcategories.",
+    "MLfactor is bounded local Gaussian correlation-model likelihood; no global optimum guarantee,oblique rotations,fullidentification diagnostics,loadingSE or completeJMPfitindices.",
+    "Model-fit chi-square is asymptotic and withheld for boundary,nonconvergence,no samplecount or no positive df.",
+    "Workguard is nominal preflight plus bounded dimensions/iterations/separate eigensolver work; not a cumulative CPUinstruction ceiling.",
+    "NativeDuckDBSQLverification belongs to parent gate and is pending here."
+  ],
+  "replay": {
+    "instructions": [
+      "Save python_oracle below as /private/tmp/jmp-latent-inference-oracle.py.",
+      "Compile actual crates/analytics/src/lib.rs to a cdylib using the first command. The crate has no external dependencies. This preserves the actual exported CABI/execute dispatch.",
+      "The recorded artifact used an unchanged source snapshot to avoid concurrent unrelated parent edits; exactsnapshot hashes are above.",
+      "Run the Python command. The harness exits nonzero on any numeric,convergence,modelreuse orNULLcontract mismatch and emits a fresh summaryJSON."
+    ],
+    "commands": [
+      "mkdir -p /private/tmp/rusta-ducksmiles-jmp-target",
+      "rustc --edition=2021 --crate-type cdylib -O crates/analytics/src/lib.rs -o /private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_inference_public.dylib",
+      "python3 /private/tmp/jmp-latent-inference-oracle.py --library /private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_inference_public.dylib --output /private/tmp/jmp-latent-inference-oracle-result.json"
+    ],
+    "python_oracle": "import argparse,ctypes,hashlib,json,pathlib,platform\nfrom datetime import datetime,timezone\nimport numpy as np\nimport scipy\nfrom scipy import linalg,optimize,stats\np=argparse.ArgumentParser();p.add_argument('--library',default='/private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_inference_public.dylib');p.add_argument('--output',default='/private/tmp/jmp-latent-inference-oracle-result.json');args=p.parse_args()\nlib=ctypes.CDLL(args.library);lib.ds_analytics_run.argtypes=[ctypes.c_char_p,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.POINTER(ctypes.c_size_t)];lib.ds_analytics_run.restype=ctypes.c_void_p;lib.ds_analytics_free.argtypes=[ctypes.c_void_p,ctypes.c_size_t]\nchecks={};fit_diagnostics=[]\ndef run(operation,data,parameters=()):\n a=np.ascontiguousarray(data,dtype=float);b=np.ascontiguousarray(parameters,dtype=float);op=operation.encode();length=ctypes.c_size_t(0)\n pointer=lib.ds_analytics_run(op,len(op),a.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),a.shape[0],a.shape[1],b.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),b.size,ctypes.byref(length))\n if not pointer:raise AssertionError((operation,'public C ABI returned NULL',a.shape,list(parameters)))\n try:s=ctypes.string_at(pointer,length.value).decode()\n finally:lib.ds_analytics_free(pointer,length.value)\n result=json.loads(s);assert result['version']==1\n return result\n\ndef check(group,a,b,rtol=2e-7,atol=2e-9):\n a=np.asarray(a,dtype=float);b=np.asarray(b,dtype=float);assert a.shape==b.shape,(group,a.shape,b.shape);assert np.all(np.isfinite(a)),group;np.testing.assert_allclose(a,b,rtol=rtol,atol=atol,err_msg=group)\n item=checks.setdefault(group,{'assertions':0,'max_absolute_error':0.});item['assertions']+=int(a.size);item['max_absolute_error']=max(item['max_absolute_error'],float(np.max(abs(a-b),initial=0)))\ndef require(group,value):\n assert value,group\n checks.setdefault(group,{'assertions':0,'max_absolute_error':0.})['assertions']+=1\n\nrng=np.random.default_rng(20261022)\nfor predictors,responses,n in [(1,1,14),(2,3,23),(3,2,24),(2,2,17),(1,4,19)]:\n x=rng.normal(size=(n,predictors))*np.geomspace(.3,2,predictors)+12;y=x@rng.normal(size=(predictors,responses))+rng.normal(size=(n,responses))@np.diag(np.geomspace(.5,3,responses))+5\n design=np.c_[np.ones(n),x];coefficients=np.linalg.lstsq(design,y,rcond=None)[0];residual=y-design@coefficients;error=residual.T@residual;yc=y-y.mean(0);hypothesis=yc.T@yc-error;roots=linalg.eigvalsh(hypothesis,error)[::-1];roots=np.maximum(roots,0)\n fit=run('manova',np.c_[x,y],[predictors]);check('manova_error_sscp',fit['error_sscp'],error);check('manova_hypothesis_sscp',fit['hypothesis_sscp'],hypothesis);check('manova_roots',fit['eigenvalues'],roots)\n wilks=np.prod(1/(1+roots));pillai=np.sum(roots/(1+roots));hotelling=np.sum(roots);roy=np.max(roots);check('manova_four_criteria',[fit[k] for k in ['wilks_lambda','pillai_trace','hotelling_lawley_trace','roy_largest_root']],[wilks,pillai,hotelling,roy])\n pp=responses;qq=predictors;v=n-predictors-1;s=min(pp,qq);m=(abs(pp-qq)-1)/2;nn=(v-pp-1)/2\n if s==1:df1=np.repeat(pp*qq,4);df2=np.repeat(v-pp+1,4);f=np.repeat(hotelling*df2[0]/df1[0],4)\n else:\n  t=np.sqrt((pp*pp*qq*qq-4)/(pp*pp+qq*qq-5)) if pp*pp+qq*qq>5 else 1;r=v-(pp-qq+1)/2;u=(pp*qq-2)/4\n  df1=np.array([pp*qq,s*(2*m+s+1),s*(2*m+s+1),max(pp,qq)])\n  df2=np.array([r*t-2*u,s*(2*nn+s+1),2*(s*nn+1),v-max(pp,qq)+qq])\n  f=np.array([(wilks**(-1/t)-1)*df2[0]/df1[0],pillai/(s-pillai)*(2*nn+s+1)/(2*m+s+1),2*(s*nn+1)*hotelling/(s*s*(2*m+s+1)),roy*df2[3]/df1[3]])\n check('manova_F',fit['f_statistics'],f);check('manova_df',fit['numerator_df'],df1);check('manova_df',fit['denominator_df'],df2);check('manova_p',fit['p_values'],stats.f.sf(f,df1,df2),rtol=2e-8,atol=1e-15)\n transform=rng.normal(size=(responses,responses))+np.eye(responses)*4\n converted=run('manova',np.c_[x*4+1e5,y@transform-100],[predictors]);check('manova_response_congruence',converted['eigenvalues'],roots)\n\nfor p,q,n in [(1,1,50),(2,3,100),(3,2,80),(4,4,150),(7,5,120)]:\n rho=np.sort(rng.uniform(0,.92,min(p,q)))[::-1];fit=run('canonical_correlation_inference',rho[:,None],[n,p,q]);lambdas=np.array([np.prod(1-rho[j:]**2) for j in range(len(rho))]);statistic=-(n-1-(p+q+1)/2)*np.log(lambdas);df=np.array([(p-j)*(q-j) for j in range(len(rho))]);check('cca_wilks',fit['wilks_lambdas'],lambdas);check('cca_bartlett',fit['bartlett_chi_square'],statistic);check('cca_df',fit['degrees_of_freedom'],df);check('cca_p',fit['p_values'],stats.chi2.sf(statistic,df),rtol=1e-9,atol=0)\n\nfor n,width in [(18,2),(30,3),(40,4),(16,3)]:\n data=np.c_[*[rng.integers(0,j%3+2,size=n) for j in range(width)]];indicator=[];level_vars=[];level_values=[]\n for j in range(width):\n  for value in np.unique(data[:,j]):indicator.append(data[:,j]==value);level_vars.append(j);level_values.append(value)\n z=np.array(indicator,dtype=float).T;categories=z.shape[1];counts=z.sum(0);masses=counts/(n*width);probability=z/(n*width);standardized=(probability-masses/n)/np.sqrt(masses/n);u,s,vt=np.linalg.svd(standardized,full_matrices=False);axes=min(n-1,categories-width);inertia=s[:axes]**2\n fit=run('multiple_correspondence_analysis',data,[axes]);check('mca_burt',fit['burt_table'],z.T@z);check('mca_category_variables',fit['category_variables'],level_vars);check('mca_category_levels',fit['category_levels'],level_values);check('mca_counts',fit['category_counts'],counts);check('mca_masses',fit['category_masses'],masses);check('mca_inertias',fit['inertias'],inertia)\n row=u[:,:axes]*s[:axes]*np.sqrt(n);category=vt[:axes].T*s[:axes]/np.sqrt(masses)[:,None];rc=np.asarray(fit['row_coordinates']);cc=np.asarray(fit['category_coordinates']);check('mca_row_geometry',rc@rc.T,row@row.T);check('mca_category_geometry',cc@cc.T,category@category.T)\n adjusted=np.where(inertia>1/width,(width/(width-1)*(inertia-1/width))**2,0);greenacre=width/(width-1)*(np.sum(inertia**2)-(categories-width)/width**2);check('mca_benzecri',fit['benzecri_inertias'],adjusted);check('mca_benzecri_proportions',fit['benzecri_proportions'],adjusted/adjusted.sum());check('mca_greenacre',fit['greenacre_total_inertia'],greenacre);check('mca_greenacre_proportions',fit['greenacre_proportions'],adjusted/greenacre)\n\n# Independent optimizer directly evaluates the reconstructed model Gaussian likelihood,\n# rather than the production sum-of-unmodelled-whitened-eigenvalues criterion.\ndef fa_profile(psi,r,k):\n scales=np.sqrt(psi);d,v=np.linalg.eigh(r/np.outer(scales,scales));order=np.argsort(d)[::-1];d=d[order];v=v[:,order];loadings=scales[:,None]*v[:,:k]*np.sqrt(np.maximum(d[:k]-1,0));sigma=loadings@loadings.T+np.diag(psi);inverse=np.linalg.inv(sigma);criterion=np.linalg.slogdet(sigma)[1]+np.trace(inverse@r)-np.linalg.slogdet(r)[1]-len(r);gradient=np.diag(inverse-inverse@r@inverse);return criterion,gradient,loadings,sigma\nfor features,factors,n in [(5,1,250),(6,2,300),(8,2,250)]:\n true=rng.uniform(-.55,.55,size=(features,factors));true[:features//2,0]+=.3;variance=np.sum(true**2,axis=1);true*=np.minimum(1,np.sqrt(.7/variance))[:,None];population=true@true.T+np.diag(1-np.sum(true**2,axis=1));data=rng.multivariate_normal(np.arange(features)*3,population,n)*np.geomspace(.2,5,features);standardized=(data-data.mean(0))/data.std(0);r=standardized.T@standardized/n\n solutions=[]\n for initial in [.25,.5,.8]:\n  sol=optimize.minimize(lambda psi:fa_profile(psi,r,factors)[:2],np.repeat(initial,features),jac=True,bounds=[(1e-6,1)]*features,method='L-BFGS-B',options={'ftol':1e-14,'gtol':1e-9,'maxiter':3000});solutions.append(sol)\n reference=min(solutions,key=lambda s:s.fun);criterion,gradient,loadings,sigma=fa_profile(reference.x,r,factors)\n fit=run('factor_analysis_ml',data,[factors,0,1000,1e-8,1e-6]);fit_diagnostics.append({'features':features,'factors':factors,'rust_converged':fit['converged'],'rust_iterations':fit['iterations'],'rust_projected_gradient':fit['projected_gradient_max'],'scipy_success':bool(reference.success),'scipy_message':str(reference.message)})\n require('ml_factor_optimizer_convergence',fit['converged']);check('ml_factor_criterion',fit['criterion'],criterion,atol=2e-9);check('ml_factor_uniquenesses',fit['uniquenesses'],reference.x,rtol=1e-5,atol=3e-6);check('ml_factor_covariance',fit['reproduced_correlation'],sigma,rtol=1e-5,atol=3e-6)\n observed=np.asarray(fit['loadings']);model=np.asarray(fit['reproduced_correlation']);weights=np.linalg.solve(model,observed);check('ml_factor_scores',fit['scores'],standardized@weights)\n correction=n-1-(2*features+5)/6-2*factors/3;df=((features-factors)**2-features-factors)//2;check('ml_factor_model_test',[fit['model_chi_square'],fit['model_p_value']],[criterion*correction,stats.chi2.sf(criterion*correction,df)],atol=1e-7)\n query=rng.normal(size=(7,features))*2+data.mean(0);zq=(query-data.mean(0))/data.std(0)\n for axis,parameters in enumerate(fit['score_predict_parameters']):check('ml_factor_saved_scores',run('glm_predict',query,parameters)['predictions'],zq@weights[:,axis])\n rotated=run('factor_analysis_ml',r,[factors,1,1000,1e-8,1e-6,1,n]);rl=np.asarray(rotated['loadings']);rotation=np.asarray(rotated['rotation_matrix']);require('ml_factor_rotation_convergence',rotated['converged']);check('ml_factor_rotation',np.asarray(rotated['unrotated_loadings'])@rotation,rl);check('ml_factor_rotation_orthogonal',rotation.T@rotation,np.eye(factors));check('ml_factor_rotated_covariance',rotated['reproduced_correlation'],model)\n\n# Mixed active/free uniqueness constraints exercise projected optimizer geometry.\nloading=np.array([.95,.9,.7,.4,.2]);r=np.outer(loading,loading);np.fill_diagonal(r,1)\nfor lower in [.1,.2,.3,.4]:\n reference=optimize.minimize(lambda psi:fa_profile(psi,r,1)[:2],np.repeat(.5,5),jac=True,bounds=[(lower,1)]*5,method='L-BFGS-B',options={'ftol':1e-15,'gtol':1e-10,'maxiter':3000})\n fit=run('factor_analysis_ml',r,[1,0,1000,1e-8,lower,1,200]);require('ml_factor_constrained_convergence',fit['converged']);require('ml_factor_constrained_boundary',fit['boundary']);require('ml_factor_boundary_inference_NULL',fit['model_p_value'] is None);check('ml_factor_constrained_criterion',fit['criterion'],reference.fun,atol=2e-9);check('ml_factor_constrained_uniquenesses',fit['uniquenesses'],reference.x,rtol=1e-5,atol=3e-6)\n fit_diagnostics.append({'boundary_floor':lower,'rust_converged':fit['converged'],'rust_iterations':fit['iterations'],'rust_projected_gradient':fit['projected_gradient_max'],'scipy_success':bool(reference.success),'scipy_message':str(reference.message)})\n\n# Malformed contracts must return the production ABI NULL/zero-length result.\ndef reject(operation,data,parameters=()):\n a=np.ascontiguousarray(data,dtype=float);b=np.ascontiguousarray(parameters,dtype=float);op=operation.encode();length=ctypes.c_size_t(123)\n pointer=lib.ds_analytics_run(op,len(op),a.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),a.shape[0],a.shape[1],b.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),b.size,ctypes.byref(length))\n if pointer:\n  value=ctypes.string_at(pointer,length.value);lib.ds_analytics_free(pointer,length.value);raise AssertionError((operation,'unexpected success',value))\n require('public_ABI_invalid_NULL',length.value==0)\n\nreject('manova',[[0,1],[1,2]],[1])\nreject('manova',[[0,0,1],[1,1,2],[2,2,3],[3,3,4]],[2])\nreject('manova',[[0,1,1],[1,2,2],[2,4,4],[3,3,3],[4,2,2]],[1])\nreject('canonical_correlation_inference',[[.1],[.8]],[100,2,2])\nreject('canonical_correlation_inference',[[1.1]],[100,1,1])\nreject('canonical_correlation_inference',[[.8],[.6]],[4,2,2])\nreject('canonical_correlation_inference',[[.8]],[100,2,2])\nreject('multiple_correspondence_analysis',[[.5,1],[1,2]])\nreject('multiple_correspondence_analysis',[[1,2],[1,2]])\nreject('multiple_correspondence_analysis',np.c_[np.arange(70),np.arange(70)])\nr=np.full((4,4),.49);np.fill_diagonal(r,1)\nreject('factor_analysis_ml',np.ones((4,4)),[1,0,100,1e-8,1e-6,1,200])\nreject('factor_analysis_ml',r,[2,0,100,1e-8,1e-6,1,200])\nreject('factor_analysis_ml',r,[1,0,100,1e-8,0,1,200])\nreject('factor_analysis_ml',np.zeros((20,4)),[1,0,100,1e-8,1e-6,0,100])\nreject('factor_analysis_ml',r,[1,0,100,1e-8,1e-6,1,4])\nbad=r.copy();bad[0,0]=2;reject('factor_analysis_ml',bad,[1,0,100,1e-8,1e-6,1,200])\nreject('factor_analysis_ml',r,[float('nan')])\nreject('canonical_correlation_inference',[[.8]],[0]*16385)\n\nresult={'schema_version':1,'timestamp_utc':datetime.now(timezone.utc).isoformat(),'seed':20261022,'layer':'actual exported ds_analytics_run/free C ABI from production lib.rs; native DuckDB SQL not covered','environment':{'python':platform.python_version(),'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'checks':checks,'assertions_total':sum(c['assertions'] for c in checks.values()),'ML_optimizer_diagnostics':fit_diagnostics,'library_sha256':hashlib.sha256(pathlib.Path(args.library).read_bytes()).hexdigest()}\npathlib.Path(args.output).write_text(json.dumps(result,indent=2)+'\\n');print(json.dumps({'groups':len(checks),'assertions':result['assertions_total'],'max_absolute_error':max(v['max_absolute_error'] for v in checks.values()),'ML':fit_diagnostics}))\n"
+  }
+}

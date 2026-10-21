@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "module": "irt",
+  "module_path": "crates/analytics/src/irt.rs",
+  "source": "crates/analytics/src/irt.rs",
+  "scope": "Three unidimensional dichotomous IRT operations covering bounded1PL/2PL/3PL calibration,characteristic/information curves,and posterior EAP scoring. Partial JMP19.2 Item Analysis numerical coverage,separate from classical Cronbach item_reliability.",
+  "integration_status": "Public execute/formal Rust tests and matching native SQL PASS; bounded partial contracts only",
+  "common_contract": {
+    "finite_data": "Finite nonempty rectangular numeric matrix<=10000rows,128columns,1000000cells;fit<=2000rows and item counts2..12for1PL,3..12for2PL,5..12for3PL. Parameters<=16384finite doubles.",
+    "frequency": "Optional final frequency column integer0..1000000. Zero-frequency rows are validated then ignored. Identical response patterns collapse. Effective frequency excludes allmissing omitted patterns, must exceed kind*items+1and be<=10000000. No fractional case weights.",
+    "missing": "NaN/SQLNULL are not response missing values; finite-1sentinel requires policy1incorrect or2omit. Default0reject. JMP missing->incorrect is matched only with policy1; omission is an explicit extension.",
+    "assumptions": "One latent standard-normal ability,positive item discrimination,conditional local item independence. Ability location/scale fixed0/1;no learned person distribution. No automatic diagnostics prove substantive unidimensionality/local independence.",
+    "model_parameterization": "P_j(theta)=c_j+(1-c_j)*sigmoid(a_j*(theta-b_j));D=1.1PL fixes a1,c0;2PL fixes c0;3PL estimates c in[0,cmax].",
+    "bounds": "Difficulty[-8,8],a[.05,5]numerical guards;contact prevents combined convergence. Guessing bound0..cmax(.01..0.8)defines constrained3PL model. Active zero/upper guessing coefficients have null SE/covariance rows;other uncertainty conditions on that face.",
+    "penalty": "Explicit lambda/2*sum(c_j^2)on TOTAL log likelihood,not average. Returned penalized_log_likelihood=LL-penalty. It is not asserted to reproduce JMP proprietary guessing-penalty formula. Scaling all frequencies and lambda equally preserves estimates.",
+    "identification": "Each item needs both observed classes.2PLrequires>=3items,3PL>=5;effectiveN>parameter_count+1. These are preconditions,not generic/global-identification proofs. Positive definite observed free information required for combined convergence;negative/nearzero relative eigenvalues<=1e-10yield information_identifiedfalse.",
+    "quadrature": "Fit optimized at requested oddq11..81;reportedLL,posterior pattern moments,andinformation useq+8<=89. optimizer_gradient_quadrature_order names lowq;reported_likelihood_quadrature_order andinformation_quadrature_order name highq. ChecktotalLLdelta<=max(tol,1e-9)*(1+absLL)and eachpatternlogprobdelta<=max(tol,1e-9)*(1+abslogprob). Consistency is not rigorous error bound.",
+    "convergence": "Combined converged=optimizer_converged&&quadrature_converged&&!numerical_guard_bound&&information_identified. Optimizer uses average penalized NLL gradient tolerance. Local multistart search,not global proof. Remaining finite iterates are diagnostic.",
+    "inference": "parameter_covariance/standard_errors are null unless combined convergence;AIC/BIC also requirelambda0. information_identified/minimum_information_eigenvalue may still diagnose local curvature of a failed iterate. inference_valid reports validated converged curvature availability. Lambda>0uncertainty_kind explicitly denotes penalized-objective curvature,not MLE sampling covariance or a sandwich estimator. No p-values/CIs or boundary-mixture tests.",
+    "covariance_order": "Difficulties,then original-unit discriminations if2/3PL,then guessing if3PL. Hessian differentiates integrated scores in b,loga,c;inverse free block transformed by da/dloga=a. Active guessing rows/columns null;free stencil shrinks to25%of distance tobounds and rejects ifunresolvable.",
+    "portable_layout": "[1,kind1/2/3,items,missing_policy,saved_odd_q, a0,b0,c0,a1,b1,c1,...]. Savedq=fitq+8<=89;length5+3J<=41. Portable manual fixed-item models allow1..12items;fit still usesminimum2/3/5.",
+    "score": "EAP under fixed N(0,1),not JMPpersonMLE. Score compares savedq andq+8<=97;maximum of logprob/mean/variance order differences must be<=1e-7*(1+abslogprob). Completely omitted response patterns exactlyprior. Conditions on supplied item parameters.",
+    "sharp_tail_limit": "Measured12items,a5,b8,allcorrect,q81/89 returns mean8.39323 versus independentquad8.41561 and variance.04058 versus.03433;quadrature_convergedfalse withdelta.07225. Such returned values are diagnostic and must not be treated as converged precision. No adaptive integration fallback.",
+    "resource": "Nominal collapsed_patterns*items*q*starts*maxiter<=500000000;maxiter<=2000,1or3starts,line search<=50trials,Jacobi<=64sweeps with separate boundedworkcheck. Nominal preflight is not cumulative CPU instruction count;observed-information evaluations are additional bounded work. Output matrices fit<=12items and<=10000curverows.",
+    "JMP_gaps": "Bounded local optimizer,explicit ridge penalty andposterior EAP scoring differ from JMPdefaults/abilityformula. NoGUI,model-selection/reportplots,multidimensional/polytomous response,latent regression,multiple-groupDIF,equating/adaptive testing,fullfitindices orWald/LR inference."
+  },
+  "operations": [
+    {
+      "source": "crates/analytics/src/irt.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/item-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-item-response-curve-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fitting-the-irt-model.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-item-analysis-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-irt-model-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/information-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-ability-formula.shtml"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fitting-the-irt-model.shtml",
+      "evidence": "tasks/evidence/jmp-irt-reference.json",
+      "operation": "irt_fit",
+      "symbol": "IrtFit",
+      "sql_name": "chem_irt_fit",
+      "description": "Bounded1PL/2PL/3PL marginal item likelihood under fixed N(0,1): item rows,optional last integer frequency; [model=2,freq=0,missing=0,maxiter=300,tol=1e-6,oddq=41,cmax=.5,guess_penalty=0].",
+      "data": "Binary item columns, optional -1missing sentinel with explicit policy and optional final integer frequency. <=2000 rows;1PL2..12items,2PL3..12,3PL5..12. Each item needs correct/incorrect effective observations. No person/item covariates.",
+      "args": [
+        "model1Rasch/2logistic/3guessing;default2",
+        "frequency_column0no/1last;default0",
+        "missing0reject/1incorrect/2omit;default0;only finite-1sentinel",
+        "maxiter integer1..2000;default300",
+        "projected average-negative-objective gradient tolerance1e-10..1e-3;default1e-6",
+        "odd normal-Hermite quadrature q11..81;default41,validationq+8",
+        "guessing upper constraint cmax.01..0.8;default.5",
+        "total-loglikelihood penalty lambda/2*sum(c_j^2),lambda0..1e6;default0;3PLonly"
+      ],
+      "estimator": "Fixed standard normal ability and independent Bernoulli items conditional on ability. Normal Gauss-Hermite MML with analytic integrated scores and bounded projected BFGS;1start1PL,3starts2/3PL. Discrimination exp(loga)>0,1PL a1/c0;2PL c0. Difficulty[-8,8],discrimination[.05,5]are numerical guard bounds and prevent combined convergence on contact. Guessing[0,cmax]is the explicitly constrained3PL model;active guessing faces may legitimately converge. Local optimum only. Frequencies collapse identical patterns; allcorrect/allincorrect people contribute to calibration.",
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            0.0,
+            30.0
+          ],
+          [
+            0.0,
+            1.0,
+            20.0
+          ],
+          [
+            1.0,
+            0.0,
+            20.0
+          ],
+          [
+            1.0,
+            1.0,
+            30.0
+          ]
+        ],
+        "args": [
+          1.0,
+          1.0,
+          0.0,
+          300.0,
+          1e-08,
+          61.0,
+          0.5,
+          0.0
+        ]
+      },
+      "known_value": {
+        "difficulties": [
+          0.0,
+          0.0
+        ],
+        "discriminations": [
+          1.0,
+          1.0
+        ],
+        "guessing": [
+          0.0,
+          0.0
+        ],
+        "log_likelihood": -136.65216230776147,
+        "effective_frequency": 100.0
+      },
+      "unsupported": [
+        "unconstrained a,b or guessing1 bounds",
+        "1/2PL guessing penalty,3PL with<5items",
+        "multidimensional or polytomous IRT,latent regression,group DIF/equating",
+        "automatic item reversal/selection/local-independence tests",
+        "conditional/joint ML and exact JMP optimizer or guessing-penalty equivalence",
+        "person ML ability estimates or full item parameter CI/Wald/LR inference"
+      ],
+      "sql_example": "chem_irt_fit([[0.0,0.0,30.0],[0.0,1.0,20.0],[1.0,0.0,20.0],[1.0,1.0,30.0]], [1.0,1.0,0.0,300.0,1e-08,61.0,0.5,0.0])"
+    },
+    {
+      "source": "crates/analytics/src/irt.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/item-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-item-response-curve-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fitting-the-irt-model.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-item-analysis-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-irt-model-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/information-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-ability-formula.shtml"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fitting-the-irt-model.shtml",
+      "evidence": "tasks/evidence/jmp-irt-reference.json",
+      "operation": "irt_predict",
+      "symbol": "IrtPredict",
+      "sql_name": "chem_irt_predict",
+      "description": "Saved IRT characteristic/information curves: scalar ability rows and unchanged model_parameters; D1 logistic probabilities,individual/test Fisher information.",
+      "data": "One finite numeric ability per row,<=10000rows.",
+      "args": [
+        "unchanged model_parameters returned by irt_fit; portable layout in common_contract"
+      ],
+      "estimator": "P=c+(1-c)*sigmoid(a*(theta-b)),D=1. Conditional Bernoulli Fisher information=(dP/dtheta)^2/(P(1-P)),summed across items. Stable boundary formulas give zero information at saturated tails. Also returns expected total score and conditional total-score variance.",
+      "fixture": {
+        "data": [
+          [
+            0.5
+          ],
+          [
+            -1e+300
+          ],
+          [
+            1e+300
+          ]
+        ],
+        "args": [
+          1.0,
+          3.0,
+          1.0,
+          0.0,
+          61.0,
+          2.0,
+          0.5,
+          0.2
+        ]
+      },
+      "known_value": {
+        "probabilities": [
+          [
+            0.6
+          ],
+          [
+            0.2
+          ],
+          [
+            1.0
+          ]
+        ],
+        "item_information": [
+          [
+            0.6666666666666666
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ]
+        ],
+        "test_information": [
+          0.6666666666666666,
+          0.0,
+          0.0
+        ]
+      },
+      "unsupported": [
+        "ability uncertainty propagation or parameter uncertainty bands",
+        "adaptive testing/item selection",
+        "multidimensional curves"
+      ],
+      "sql_example": "chem_irt_predict([[0.5],[-1e+300],[1e+300]], [1.0,3.0,1.0,0.0,61.0,2.0,0.5,0.2])"
+    },
+    {
+      "source": "crates/analytics/src/irt.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/item-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-item-response-curve-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fitting-the-irt-model.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-item-analysis-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-irt-model-assumptions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/information-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-ability-formula.shtml"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fitting-the-irt-model.shtml",
+      "evidence": "tasks/evidence/jmp-irt-reference.json",
+      "operation": "irt_score",
+      "symbol": "IrtScore",
+      "sql_name": "chem_irt_score",
+      "description": "Posterior EAP ability scoring: binary item response rows,optional -1missing under saved policy,and unchanged model_parameters; finite extreme scores with quadrature diagnostics.",
+      "data": "Same ordered item columns as fitted model,without frequency;<=10000rows. Portable fixed-item models may contain1..12items.",
+      "args": [
+        "unchanged model_parameters returned by irt_fit"
+      ],
+      "estimator": "Posterior mean/variance under fixed N(0,1) prior,conditional on supplied item parameters. Uses savedq andq+8normal Hermite rules,returns higher-order moments/logpatternprobability. Both allcorrect/allincorrect patterns have proper finite EAP;allmissing under omission returns exactly mean0/variance1/logprobability0. This differs from JMP person-MLE ability scoring,which omits extreme patterns. Item parameters remain fixed.",
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            1.0
+          ]
+        ],
+        "args": [
+          1.0,
+          1.0,
+          2.0,
+          0.0,
+          61.0,
+          1.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      "known_value": {
+        "posterior_means": [
+          -0.7042799208115517,
+          0.0,
+          0.7042799208115517
+        ],
+        "posterior_variances": [
+          0.7166719426236876,
+          0.6980147478335965,
+          0.7166719426236875
+        ],
+        "marginal_log_probabilities": [
+          -1.2262898682525063,
+          -1.5768692553152777,
+          -1.2262898682525063
+        ],
+        "all_incorrect": [
+          true,
+          false,
+          false
+        ],
+        "all_correct": [
+          false,
+          false,
+          true
+        ],
+        "quadrature_converged": true
+      },
+      "unsupported": [
+        "JMP person-MLE/Newton ability formula",
+        "posterior intervals/plausible values or item-parameter uncertainty",
+        "refitting or scoring additional traits",
+        "automatic adaptive quadrature; sharp tails may remain unresolved and flagged"
+      ],
+      "sql_example": "chem_irt_score([[0.0,0.0],[0.0,1.0],[1.0,1.0]], [1.0,1.0,2.0,0.0,61.0,1.0,0.0,0.0,1.0,0.0,0.0])"
+    }
+  ],
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/item-analysis.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-item-response-curve-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-fitting-the-irt-model.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-item-analysis-platform.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-irt-model-assumptions.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/information-plot.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-ability-formula.shtml"
+  ],
+  "additional_primary_references": [
+    "https://philchalmers.github.io/mirt/reference/mirt.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.quad_vec.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.root.html"
+  ],
+  "evidence": "tasks/evidence/jmp-irt-reference.json",
+  "native_sql_validation": {
+    "status": "PASS matching225 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-specialized-validation.json",
+    "overall_jmp_parity": false
+  }
+}

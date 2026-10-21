@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-10-21T15:21:25.951691+00:00",
+  "seed": 2026102202,
+  "layer": "actual exported production Rust C ABI via ctypes; no DuckDB SQL or actual JMP execution",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "source_sha256": {
+    "crates/analytics/src/causal.rs": "20fdae369853d8f5250ac0f3613ecb7d0ea66ccff4f62c5690009eccf8b0cc61",
+    "crates/analytics/tests/causal.rs": "734f00fefcc40d6acfe5412d0483c8797a7747144c719d29b5b9a9b485221be8"
+  },
+  "library_sha256": "ee5c4149ea601fa87e73d20a0bc9cd39b0d70a33694cc5c43f56823fdc7c4412",
+  "checks": {
+    "propensity_coefficients": {
+      "assertions": 480,
+      "max_absolute_error": 3.0237193082705005e-08
+    },
+    "propensity_probabilities": {
+      "assertions": 5760,
+      "max_absolute_error": 1.2392357695567568e-08
+    },
+    "propensity_saved_prediction": {
+      "assertions": 640,
+      "max_absolute_error": 9.98069771274146e-09
+    },
+    "ipw_estimate_se": {
+      "assertions": 800,
+      "max_absolute_error": 1.3322676295501878e-15
+    },
+    "ipw_if": {
+      "assertions": 12800,
+      "max_absolute_error": 3.552713678800501e-15
+    },
+    "ipw_ci": {
+      "assertions": 800,
+      "max_absolute_error": 1.5543122344752192e-15
+    },
+    "aipw_estimate_se": {
+      "assertions": 800,
+      "max_absolute_error": 6.661338147750939e-16
+    },
+    "aipw_if": {
+      "assertions": 12800,
+      "max_absolute_error": 1.3322676295501878e-15
+    },
+    "aipw_ci": {
+      "assertions": 800,
+      "max_absolute_error": 8.881784197001252e-16
+    },
+    "balance_smd": {
+      "assertions": 1200,
+      "max_absolute_error": 8.326672684688674e-16
+    },
+    "balance_weighted_smd": {
+      "assertions": 1200,
+      "max_absolute_error": 1.2073675392798577e-15
+    },
+    "balance_ess": {
+      "assertions": 800,
+      "max_absolute_error": 1.4210854715202004e-14
+    },
+    "balance_raw_support": {
+      "assertions": 800,
+      "max_absolute_error": 0.0
+    },
+    "matching_treated_indices": {
+      "assertions": 1636,
+      "max_absolute_error": 0.0
+    },
+    "matching_control_indices": {
+      "assertions": 1636,
+      "max_absolute_error": 0.0
+    },
+    "matching_distances": {
+      "assertions": 1636,
+      "max_absolute_error": 0.0
+    },
+    "matching_effect": {
+      "assertions": 237,
+      "max_absolute_error": 2.220446049250313e-16
+    },
+    "uplift_fractions": {
+      "assertions": 1919,
+      "max_absolute_error": 0.0
+    },
+    "uplift_gain": {
+      "assertions": 1919,
+      "max_absolute_error": 8.881784197001252e-16
+    },
+    "uplift_qini": {
+      "assertions": 1919,
+      "max_absolute_error": 6.661338147750939e-16
+    },
+    "uplift_areas": {
+      "assertions": 480,
+      "max_absolute_error": 4.440892098500626e-16
+    }
+  },
+  "assertions_total": 51062,
+  "cases": {
+    "propensity_fits": 160,
+    "ipw_effects": 400,
+    "aipw_effects": 400,
+    "balance_diagnostics": 400,
+    "matching_fits": 237,
+    "matching_no_pairs": 3,
+    "uplift_evaluations": 240
+  },
+  "propensity_convergence": {
+    "True": 147,
+    "False": 13
+  },
+  "catalog_examples_direct_ffi": [
+    "propensity_fit",
+    "propensity_predict",
+    "causal_balance",
+    "propensity_match",
+    "ipw_effect",
+    "aipw_effect",
+    "uplift_curve"
+  ],
+  "references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.root.html"
+  ],
+  "tdd": "Six public execute missing-operation failures observed before implementation. Nine focused tests pass, including two additional RED-to-GREEN fixes: final-iterate propensity gradient and raw-overlap diagnostics preserved under score clipping.",
+  "limits": [
+    "Identification assumptions are not tested or established by numerical agreement.",
+    "IPW SE conditions on fixed nuisance scores; estimated-propensity uncertainty is not included.",
+    "AIPW requires suitable nuisance provenance/cross-fitting and rate conditions for calibrated inference.",
+    "Matching has no naive SE; caliper is explicit absolute score/logit distance and not JMP score-SD scaling/matched GLMM.",
+    "Uplift is supplied-score HT/Qini evaluation and not the JMP uplift partition learner."
+  ],
+  "replay": {
+    "build": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo rustc -p ducksmiles_analytics --lib --crate-type cdylib",
+    "instructions": "Write harness_python to a .py file, adjust ROOT/LIB as needed and execute; evidence is rewritten."
+  },
+  "harness_python": "import ctypes,json,hashlib,sys,platform,pathlib,datetime,ast\nimport numpy as np\nimport scipy\nfrom scipy.optimize import root\nfrom scipy.special import expit\nROOT=pathlib.Path('/Users/nk/Desktop/ducksmiles-analytics-20261021');LIB=pathlib.Path('/private/tmp/rusta-ducksmiles-jmp-target/debug/libducksmiles_analytics.dylib')\nlib=ctypes.CDLL(str(LIB));f=lib.ds_analytics_run;f.argtypes=[ctypes.c_void_p,ctypes.c_size_t,ctypes.c_void_p,ctypes.c_size_t,ctypes.c_size_t,ctypes.c_void_p,ctypes.c_size_t,ctypes.POINTER(ctypes.c_size_t)];f.restype=ctypes.c_void_p;lib.ds_analytics_free.argtypes=[ctypes.c_void_p,ctypes.c_size_t]\ndef run(op,data,args=(),allow_null=False):\n d=np.ascontiguousarray(data,dtype=np.float64);a=np.ascontiguousarray(args,dtype=np.float64);name=op.encode();n=ctypes.c_size_t();ptr=f(name,len(name),d.ctypes.data,*d.shape,a.ctypes.data,len(a),ctypes.byref(n))\n if not ptr:\n  if allow_null:return None\n  raise AssertionError((op,'NULL',data,args))\n try:return json.loads(ctypes.string_at(ptr,n.value))\n finally:lib.ds_analytics_free(ptr,n.value)\nrng=np.random.default_rng(2026102202);records={};counts={};convergence={}\ndef check(k,a,b,rtol=1e-7,atol=1e-9):\n a=np.asarray(a);b=np.asarray(b);np.testing.assert_allclose(a,b,rtol=rtol,atol=atol,err_msg=k);r=records.setdefault(k,{'assertions':0,'max_absolute_error':0.});r['assertions']+=a.size;r['max_absolute_error']=max(r['max_absolute_error'],float(np.max(np.abs(a-b))))\ndef case(k):counts[k]=counts.get(k,0)+1\ndef interval(theta,phi):\n phi=phi-np.mean(phi);se=np.std(phi,ddof=1)/np.sqrt(len(phi));return se,[theta-1.959963984540054*se,theta+1.959963984540054*se],phi\nfor rep in range(160):\n x=rng.normal(size=(32,2));e=expit(.2+.4*x[:,0]-.3*x[:,1]);t=rng.binomial(1,e).astype(float)\n if min(t.sum(),len(t)-t.sum())<3:continue\n means=x.mean(0);sd=x.std(0);z=np.c_[np.ones(len(x)),(x-means)/sd];penalty=[0,.2,2.,10.][rep%4];ridge=np.r_[0,penalty,penalty]\n def score(b):return z.T@(expit(z@b)-t)+ridge*b\n def jac(b):p=expit(z@b);return z.T@(z*(p*(1-p))[:,None])+np.diag(ridge)\n ref=root(score,np.zeros(3),jac=jac,tol=1e-11);assert np.max(np.abs(score(ref.x)))<1e-8\n query=rng.normal(size=(4,2));j=run('propensity_fit',np.r_[np.c_[x,t],np.c_[query,np.full(4,-1e100)]],[len(x),penalty,500,1e-9]);convergence[str(j['converged'])]=convergence.get(str(j['converged']),0)+1\n coef=ref.x[1:]/sd;intercept=ref.x[0]-means@coef\n check('propensity_coefficients',[j['intercept'],*j['coefficients']],[intercept,*coef],rtol=2e-6,atol=2e-7)\n expected=expit(np.c_[np.ones(len(x)+len(query)),(np.r_[x,query]-means)/sd]@ref.x);check('propensity_probabilities',j['propensities'],expected,rtol=2e-6,atol=1e-7)\n check('propensity_saved_prediction',run('propensity_predict',query,j['predict_parameters'])['propensities'],expected[-4:],rtol=2e-6,atol=1e-7);case('propensity_fits')\nfor rep in range(200):\n n=32;x=rng.normal(size=(n,3));p=expit(.1+.4*x[:,0]-.2*x[:,1]);t=rng.binomial(1,p).astype(float)\n if min(t.sum(),n-t.sum())<2:continue\n m0=1+.3*x[:,0]+.2*x[:,1];m1=m0+1.5+.2*x[:,2];y=m0+t*(m1-m0)+rng.normal(0,.4,n);threshold=[0,.1,.2][rep%3];e=np.clip(p,threshold,1-threshold)\n for att in (0,1):\n  w1=t if att else t/e;w0=(1-t)*e/(1-e) if att else (1-t)/(1-e);nw1=w1/w1.sum();nw0=w0/w0.sum();mu1=nw1@y;mu0=nw0@y;theta=mu1-mu0;phi=n*(nw1*(y-mu1)-nw0*(y-mu0));se,ci,phi=interval(theta,phi)\n  j=run('ipw_effect',np.c_[y,t,p],[att,threshold]);check('ipw_estimate_se',[j['estimate'],j['standard_error']],[theta,se],atol=1e-12);check('ipw_if',j['influence_values'],phi,atol=2e-12);check('ipw_ci',j['confidence_interval_95'],ci,atol=2e-12);case('ipw_effects')\n  g=m1-m0+t*(y-m1)/e-(1-t)*(y-m0)/(1-e) if not att else t*(y-m0)-(1-t)*e/(1-e)*(y-m0);theta=np.mean(g) if not att else np.sum(g)/np.sum(t);phi=g-theta if not att else (g-t*theta)/np.mean(t);se,ci,phi=interval(theta,phi)\n  j=run('aipw_effect',np.c_[y,t,p,m0,m1],[att,threshold]);check('aipw_estimate_se',[j['estimate'],j['standard_error']],[theta,se],atol=1e-12);check('aipw_if',j['influence_values'],phi,atol=2e-12);check('aipw_ci',j['confidence_interval_95'],ci,atol=2e-12);case('aipw_effects')\n  sd=np.sqrt((np.var(x[t==1],axis=0,ddof=1)+np.var(x[t==0],axis=0,ddof=1))/2);smd=(x[t==1].mean(0)-x[t==0].mean(0))/sd;wsmd=(nw1@x-nw0@x)/sd;ess=[1/np.sum(nw1*nw1),1/np.sum(nw0*nw0)];lo=max(p[t==1].min(),p[t==0].min());hi=min(p[t==1].max(),p[t==0].max())\n  j=run('causal_balance',np.c_[x,t,p],[att,threshold]);check('balance_smd',j['unweighted_smd'],smd,atol=2e-12);check('balance_weighted_smd',j['weighted_smd'],wsmd,atol=2e-12);check('balance_ess',j['effective_sample_sizes'],ess,atol=2e-12);check('balance_raw_support',j['common_support'],[lo,hi],atol=1e-14);case('balance_diagnostics')\nfor rep in range(240):\n n=20;t=np.r_[np.ones(n//2),np.zeros(n//2)];p=rng.uniform(.05,.95,n);y=rng.normal(size=n);metric=rep%2;replacement=(rep//2)%2;caliper=[.05,.2,1.][(rep//4)%3];score=p if metric==0 else np.log(p)-np.log1p(-p);used=set();ti=[];ci=[];dist=[];unmatched=[]\n for i in np.flatnonzero(t):\n  eligible=[j for j in np.flatnonzero(1-t) if (replacement or j not in used) and abs(score[i]-score[j])<=caliper]\n  if not eligible:unmatched.append(i);continue\n  chosen=min(eligible,key=lambda j:(abs(score[i]-score[j]),j));used.add(chosen);ti.append(i);ci.append(chosen);dist.append(abs(score[i]-score[chosen]))\n j=run('propensity_match',np.c_[y,t,p],[caliper,replacement,metric],allow_null=True)\n if not ti:assert j is None;case('matching_no_pairs');continue\n check('matching_treated_indices',j['treated_indices'],ti,atol=0);check('matching_control_indices',j['control_indices'],ci,atol=0);check('matching_distances',j['distances'],dist,atol=1e-13);check('matching_effect',j['estimate'],np.mean(y[ti]-y[ci]),atol=1e-12);assert j['standard_error'] is None;case('matching_fits')\nfor rep in range(240):\n n=40;p=rng.uniform(.1,.9,n);t=rng.binomial(1,p).astype(float);y=rng.normal(2,.5,n);score=rng.integers(0,7,n).astype(float);thresholds=sorted(set(score),reverse=True);z=t*y/p-(1-t)*y/(1-p);fractions=[0]+[np.mean(score>=s) for s in thresholds];gain=[0]+[np.sum(z[score>=s])/n for s in thresholds];qini=np.asarray(gain)-np.asarray(fractions)*gain[-1]\n j=run('uplift_curve',np.c_[y,t,score,p]);check('uplift_fractions',j['selection_fraction'],fractions,atol=1e-14);check('uplift_gain',j['gain'],gain,atol=1e-12);check('uplift_qini',j['qini'],qini,atol=1e-12);check('uplift_areas',[j['auuc'],j['qini_area']],[np.trapezoid(gain,fractions),np.trapezoid(qini,fractions)],atol=1e-12);case('uplift_evaluations')\nexamples=[]\nfor item in json.loads((ROOT/'tasks/jmp-causal-api.json').read_text())['operations']:\n call=ast.parse(item['sql_example'],mode='eval').body;assert run(item['operation'],ast.literal_eval(call.args[0]),ast.literal_eval(call.args[1]))['version']==1;examples.append(item['operation'])\nresult={'schema_version':1,'timestamp_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'seed':2026102202,'layer':'actual exported production Rust C ABI via ctypes; no DuckDB SQL or actual JMP execution','environment':{'python':sys.version.split()[0],'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['crates/analytics/src/causal.rs','crates/analytics/tests/causal.rs']},'library_sha256':hashlib.sha256(LIB.read_bytes()).hexdigest(),'checks':records,'assertions_total':sum(r['assertions'] for r in records.values()),'cases':counts,'propensity_convergence':convergence,'catalog_examples_direct_ffi':examples,'references':['https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-estimands-and-estimators.shtml','https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-causal-assumptions.shtml','https://www.jmp.com/support/help/en/19.2/jmp/advanced-models.shtml','https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.root.html'],'tdd':'Six public execute missing-operation failures observed before implementation. Nine focused tests pass, including two additional RED-to-GREEN fixes: final-iterate propensity gradient and raw-overlap diagnostics preserved under score clipping.','limits':['Identification assumptions are not tested or established by numerical agreement.','IPW SE conditions on fixed nuisance scores; estimated-propensity uncertainty is not included.','AIPW requires suitable nuisance provenance/cross-fitting and rate conditions for calibrated inference.','Matching has no naive SE; caliper is explicit absolute score/logit distance and not JMP score-SD scaling/matched GLMM.','Uplift is supplied-score HT/Qini evaluation and not the JMP uplift partition learner.'],'replay':{'build':'CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo rustc -p ducksmiles_analytics --lib --crate-type cdylib','instructions':'Write harness_python to a .py file, adjust ROOT/LIB as needed and execute; evidence is rewritten.'},'harness_python':pathlib.Path(__file__).read_text()}\n(ROOT/'tasks/evidence/jmp-causal-reference.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\\n');print(json.dumps({k:result[k] for k in ['assertions_total','cases','propensity_convergence','checks']},indent=2))\n"
+}

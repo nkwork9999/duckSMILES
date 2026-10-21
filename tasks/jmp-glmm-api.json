@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "module": "glmm",
+  "module_path": "crates/analytics/src/glmm.rs",
+  "source": "crates/analytics/src/glmm.rs",
+  "scope": "Three bounded CPU operations: Bernoulli/logit and Poisson/log one-Gaussian-random-intercept integrated ML and reusable conditional/posterior/population prediction. Partial JMP19.2 GLMM coverage.",
+  "integration_status": "Production source frozen after14public Rust tests,strict isolated Clippy/fmt,and551actual publicCABI checks across31groups. Native SQL parent-owned and pending frozen build.",
+  "common_contract": {
+    "finite": "Finite nonempty rectangular data; generic <=10000rows,128columns,1Mcells; fit additionally<=2000rows,<=16features,2..200groups. Exact signed group IDs abs<=2^53-1. Parameters<=16384finite doubles.",
+    "identification": "Automatic unpenalized intercept; full-rank standardized fixed design; n>features+2; >=2groups with repeat observations. Both Bernoulli classes required; allzero Poisson rejected. A fitted-tolerance-independent bounded LP rejects Bernoulli complete/quasi separation and Poisson zero-count recession directions. Numerical LP reduced-cost/pivot tolerance1e-12,positive summed-improvement threshold1e-10,feasibility1e-8; ambiguous/work/iteration failures reject. Extremely near-degenerate finite-MLE existence remains a numerical assessment,not exact arithmetic. Guard-bound hits cannot report convergence.",
+    "preprocessing": "Fit-only origin+mean-offset/population-scale feature normalization. Saved eta=eta_center+sum(original_slope*((x-origin)-mean_offset)); this avoids large-origin cancellation. Raw intercept is also reported and may lose digits; use saved model for stable prediction. Unrepresentable raw coefficients/intercepts reject explicitly.",
+    "limits": "Nominal n*(features+2)*q*maxiter*4<=200000000; per-group mode root<=100steps with<=60bracket expansions per side, line search<=50trials/step, eigen<=64sweeps. This preflight is not a cumulative CPU instruction cap. Finite-MLE LP<=4096Bland pivots and<=200M nominal tableau-cell updates,otherwise reject. LP constraints use row-normalized fixed design and |direction_j|<=1.",
+    "optimizer": "Constrained local projected BFGS; coefficients standardized bounded[-30,30] as numerical guard; variance>=0 and<=variance_upper. A separate v0 GLM and three positive starts are compared. Coefficient/upper-variance bound prevents overall convergence.",
+    "quadrature": "Fit uses requested odd q3..31; final likelihood,EB moments,saved posterior useq+4<=35. Compare total and each group LL differences; tolerance=max(user_tol,1e-8)*(1+abs(total_LL)),group tolerance=total_tolerance/G. This is order consistency,not a rigorous error bound. q15 can be insufficient,as recorded in evidence.",
+    "convergence": "converged=optimizer_converged && quadrature_converged && !coefficient_guard_bound && !variance_upper_bound. Variance zero itself is a legitimate boundary optimum. Finite maxiter or failure may return convergedfalse.",
+    "uncertainty": "Interior covariance inverts finite-difference joint integrated-likelihood Hessian in fixed coefficients/log1p variance; fixed block transformed to original units. At v0, exact fixed GLM information. Non-SPD/unrepresentable information gives null covariance/SE. Estimates/SE from unconverged fits remain diagnostic. No variance SE/pvalue.",
+    "portable_layout": "[1,family0logit/1log,p,G,Q,variance,eta_center,origins(p),mean_offsets(p),slopes_original(p),group_ids(G),posterior_means(G),posterior_modes(G),posterior_variances(G),posterior_nodes(G*Q),posterior_weights(G*Q)]",
+    "portable_size": "7+3p+4G+2GQ<=16384doubles; fit caps p16,G200,Q35 ->14855. Variance-zero saves Q1. Prediction validates uniqueIDs,nonnegative variance/weights,unit weight sums within1e-8,and finite consistent moments; normalizes accepted weights.",
+    "prediction_semantics": "conditional=known posterior-mean plug-in/new b0;posterior=known saved-posterior integral/new Gaussian-prior integral;population=Gaussian-prior integral for all. Logistic prior31/35consistency reported separately,not guaranteed for extreme variance.",
+    "JMP_differences": "JMP19.2 supports more distributions,summarized trials,probit,random slopes/multiple factors/repeated structures and permits noninteger Poisson responses/unbounded variance options; absent here. Do not claim identical JMP defaults or full GLMM parity.",
+    "finite_mle_reference_inference": "Bernoulli signed-X directions and Poisson directions unchanged on positive counts/nonincreasing on zero counts are standard GLM recession criteria. Their rejection in this random-intercept model follows because they improve conditional likelihood pointwise for every random intercept,thus also the positive Gaussian integral. This is a stated inference from the cited GLM theory,not a claim those papers establish full random-variance identification."
+  },
+  "operations": [
+    {
+      "source": "crates/analytics/src/glmm.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/generalized-linear-mixed-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-generalized-linear-mixed-model-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-linear-mixed-model-personality.shtml"
+      ],
+      "reference": "https://lme4.github.io/lme4/reference/glmer.html",
+      "evidence": "tasks/evidence/jmp-glmm-reference.json",
+      "operation": "glmm_binomial",
+      "symbol": "GlmmBinomial",
+      "sql_name": "chem_glmm_binomial",
+      "description": "Bernoulli logit Gaussian random-intercept integrated ML: [fixed features...,y,group]; [maxiter=200,tol=1e-6,odd quadrature order=15,variance_upper=100].",
+      "data": "0..16 numeric fixed features then response and exact integer group ID; n>features+2,n<=2000,2..200 groups including >=2 repeated groups; full-rank fixed design. Binary0/1, or Poisson integer0..1e9. All rows fit.",
+      "args": [
+        "max_iterations integer1..1000,default200",
+        "tolerance1e-10..1e-3,default1e-6",
+        "odd quadrature_order3..31,default15; final validation uses q+4",
+        "variance_upper positive<=1000,default100"
+      ],
+      "estimator": "Actual Gaussian-random-intercept integrated maximum likelihood. Per-group safeguarded posterior mode/curvature and adaptive Gauss-Hermite quadrature; finite-difference projected BFGS over centered/scaled coefficients and log1p variance. An explicit variance-zero GLM candidate and variance starts0.25,1,4 are compared. Full Poisson factorial constants are included. AIC counts the variance component even at boundary. Fixed covariance is the fixed block of the inverse joint observed Hessian in the interior; exact fixed-only GLM information at variance zero.",
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            1.0
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "intercept": 0.0,
+        "random_intercept_variance": 0.0,
+        "log_likelihood": -2.772588722239781,
+        "intercept_standard_error": 1.0,
+        "boundary": true,
+        "converged": true
+      },
+      "unsupported": [
+        "multiple/nested/crossed random factors and random slopes",
+        "summarized binomial trials,probit,other response distributions",
+        "offset/exposure,weights,overdispersion,repeated residual covariance",
+        "REML/PQL/pseudo-likelihood/JMP default-estimator equivalence",
+        "variance-component Wald tests,likelihood-ratio boundary mixture tests,small-sample df corrections",
+        "global optimizer guarantee; local optima and finite quadrature remain diagnostic"
+      ],
+      "sql_example": "chem_glmm_binomial([[0.0,0.0],[1.0,0.0],[0.0,1.0],[1.0,1.0]], [])"
+    },
+    {
+      "source": "crates/analytics/src/glmm.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/generalized-linear-mixed-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-generalized-linear-mixed-model-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-linear-mixed-model-personality.shtml"
+      ],
+      "reference": "https://lme4.github.io/lme4/reference/glmer.html",
+      "evidence": "tasks/evidence/jmp-glmm-reference.json",
+      "operation": "glmm_poisson",
+      "symbol": "GlmmPoisson",
+      "sql_name": "chem_glmm_poisson",
+      "description": "Poisson log Gaussian random-intercept integrated ML: [fixed features...,y,group]; [maxiter=200,tol=1e-6,odd quadrature order=15,variance_upper=100].",
+      "data": "0..16 numeric fixed features then response and exact integer group ID; n>features+2,n<=2000,2..200 groups including >=2 repeated groups; full-rank fixed design. Binary0/1, or Poisson integer0..1e9. All rows fit.",
+      "args": [
+        "max_iterations integer1..1000,default200",
+        "tolerance1e-10..1e-3,default1e-6",
+        "odd quadrature_order3..31,default15; final validation uses q+4",
+        "variance_upper positive<=1000,default100"
+      ],
+      "estimator": "Actual Gaussian-random-intercept integrated maximum likelihood. Per-group safeguarded posterior mode/curvature and adaptive Gauss-Hermite quadrature; finite-difference projected BFGS over centered/scaled coefficients and log1p variance. An explicit variance-zero GLM candidate and variance starts0.25,1,4 are compared. Full Poisson factorial constants are included. AIC counts the variance component even at boundary. Fixed covariance is the fixed block of the inverse joint observed Hessian in the interior; exact fixed-only GLM information at variance zero.",
+      "fixture": {
+        "data": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            3.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            3.0,
+            1.0
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "intercept": 0.6931471805599453,
+        "random_intercept_variance": 0.0,
+        "log_likelihood": -6.038341493976548,
+        "intercept_standard_error": 0.35355339059327373,
+        "boundary": true,
+        "converged": true
+      },
+      "unsupported": [
+        "multiple/nested/crossed random factors and random slopes",
+        "summarized binomial trials,probit,other response distributions",
+        "offset/exposure,weights,overdispersion,repeated residual covariance",
+        "REML/PQL/pseudo-likelihood/JMP default-estimator equivalence",
+        "variance-component Wald tests,likelihood-ratio boundary mixture tests,small-sample df corrections",
+        "global optimizer guarantee; local optima and finite quadrature remain diagnostic"
+      ],
+      "sql_example": "chem_glmm_poisson([[1.0,0.0],[3.0,0.0],[1.0,1.0],[3.0,1.0]], [])"
+    },
+    {
+      "source": "crates/analytics/src/glmm.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/generalized-linear-mixed-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-generalized-linear-mixed-model-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-linear-mixed-model-personality.shtml"
+      ],
+      "reference": "https://lme4.github.io/lme4/reference/glmer.html",
+      "evidence": "tasks/evidence/jmp-glmm-reference.json",
+      "operation": "glmm_predict",
+      "symbol": "GlmmPredict",
+      "sql_name": "chem_glmm_predict",
+      "description": "Saved Gaussian random-intercept GLMM prediction: [features...,group] and unchanged predict_parameters; separate conditional,posterior and population means.",
+      "data": "Same feature order as training then exact integer group ID; known or new IDs. <=10000 rows,<=1Mcells.",
+      "args": [
+        "Unchanged version1 predict_parameters from either GLMM fit; full layout in common_contract"
+      ],
+      "estimator": "Known-group conditional prediction uses inverse link at saved posterior mean random effect; new-group conditional uses zero. Posterior prediction integrates saved discrete posterior for known groups and Gaussian prior for new groups. Population prediction integrates the Gaussian prior for every group. Poisson prior mean is exact exp(eta+variance/2); Bernoulli prior uses31/35-point Gaussian quadrature with order-difference diagnostic. Near-unit posterior weights are normalized; Poisson weighted means are accumulated in log space.",
+      "fixture": {
+        "data": [
+          [
+            7.0
+          ],
+          [
+            99.0
+          ]
+        ],
+        "args": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          3.0,
+          0.5,
+          0.6931471805599453,
+          7.0,
+          0.2,
+          0.2,
+          0.1,
+          -0.34772255750516606,
+          0.2,
+          0.747722557505166,
+          0.16666666666666666,
+          0.6666666666666666,
+          0.16666666666666666
+        ]
+      },
+      "known_value": {
+        "conditional_predictions": [
+          2.4428055163203397,
+          2.0
+        ],
+        "posterior_predictions": [
+          2.568029998227948,
+          2.568050833375483
+        ],
+        "population_predictions": [
+          2.568050833375483,
+          2.568050833375483
+        ],
+        "known_groups": [
+          true,
+          false
+        ]
+      },
+      "unsupported": [
+        "new-group posterior estimation",
+        "prediction intervals or parameter uncertainty propagation",
+        "posterior integration beyond the saved finite quadrature",
+        "automatic extrapolation/overflow repair; unrepresentable means return error"
+      ],
+      "sql_example": "chem_glmm_predict([[7.0],[99.0]], [1.0,1.0,0.0,1.0,3.0,0.5,0.6931471805599453,7.0,0.2,0.2,0.1,-0.34772255750516606,0.2,0.747722557505166,0.16666666666666666,0.6666666666666666,0.16666666666666666])"
+    }
+  ],
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/generalized-linear-mixed-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-generalized-linear-mixed-model-personality.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-linear-mixed-model-personality.shtml"
+  ],
+  "additional_primary_references": [
+    "https://lme4.github.io/lme4/reference/glmer.html",
+    "https://lme4.github.io/lme4/reference/GHrule.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.quad.html",
+    "https://doi.org/10.1093/biomet/71.1.1",
+    "https://personal.lse.ac.uk/TENREYRO/poissonpml.pdf",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linprog.html"
+  ],
+  "evidence": "tasks/evidence/jmp-glmm-reference.json",
+  "native_sql_validation": {
+    "status": "PASS matching current209-function checkpoint",
+    "evidence": "tasks/evidence/jmp-models-validation.json",
+    "overall_jmp_parity": false
+  }
+}

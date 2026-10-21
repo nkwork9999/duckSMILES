@@ -1,0 +1,52 @@
+# name: test/sql/jmp_specialized.test
+# description: Genomic variance, item-response and specialized model contracts
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+query I
+SELECT abs(json_extract(chem_kinship_model([[0.,1.,1.,0.,0.,0.,0.],[2.,1.,1.,0.,0.,0.,0.],[4.,0.,0.,1.,1.,0.,0.],[6.,0.,0.,1.,1.,0.,0.],[8.,0.,0.,0.,0.,1.,1.],[10.,0.,0.,0.,0.,1.,1.]], [0.,1.]),'$.genetic_variance')::DOUBLE-15.)<1e-3;
+----
+true
+
+query II
+SELECT abs(json_extract(chem_irt_predict([[0.]], [1.,1.,1.,0.,41.,1.,0.,0.]),'$.probabilities[0][0]')::DOUBLE-0.5)<1e-12,
+       abs(json_extract(chem_irt_predict([[0.]], [1.,1.,1.,0.,41.,1.,0.,0.]),'$.item_information[0][0]')::DOUBLE-0.25)<1e-12;
+----
+true	true
+
+query II
+SELECT json_extract(chem_irt_score([[-1.,-1.]], [1.,1.,2.,2.,41.,1.,0.,0.,1.,0.,0.]),'$.posterior_means[0]')::DOUBLE=0.,
+       json_extract(chem_irt_score([[-1.,-1.]], [1.,1.,2.,2.,41.,1.,0.,0.,1.,0.,0.]),'$.posterior_variances[0]')::DOUBLE=1.;
+----
+true	true
+
+query III
+SELECT chem_kinship_predict([[1.]],[]::DOUBLE[]) IS NULL,
+       chem_irt_score([[2.,0.]], [1.,1.,2.,0.,41.,1.,0.,0.,1.,0.,0.]) IS NULL,
+       chem_irt_predict([[0.]], [1.,1.,1.,0.,41.,0.,0.,0.]) IS NULL;
+----
+true	true	true
+
+# A zero fitted random component must not overflow when cross-kernel values
+# are normalized against a subnormal training kernel scale.
+query I
+WITH model AS (
+ SELECT chem_kinship_model([[0.,1e-320,1e-320,0.,0.,0.,0.],[2.,1e-320,1e-320,0.,0.,0.,0.],[0.,0.,0.,1e-320,1e-320,0.,0.],[2.,0.,0.,1e-320,1e-320,0.,0.],[0.,0.,0.,0.,0.,1e-320,1e-320],[2.,0.,0.,0.,0.,1e-320,1e-320]], [0.,1.]) AS value
+)
+SELECT json_extract(chem_kinship_predict([[1.,1.,1.,1.,1.,1.]],json_extract(value,'$.predict_parameters')::DOUBLE[]),'$.predictions[0]')::DOUBLE=1. FROM model;
+----
+true
+
+# A small nonzero standardized slope with a subnormal feature scale can still
+# imply a finite original-unit prediction; intermediate normalization must not
+# turn that into SQL NULL.
+query I
+WITH model AS (
+ SELECT chem_kinship_model([[0.,0.,1.,1.,0.,0.,0.,0.],[2.,1e-320,1.,1.,0.,0.,0.,0.],[2.,0.,0.,0.,1.,1.,0.,0.],[0.,1e-320,0.,0.,1.,1.,0.,0.],[1.,0.,0.,0.,0.,0.,1.,1.],[1.00000000000001,1e-320,0.,0.,0.,0.,1.,1.]], [1.,1.]) AS value
+)
+SELECT abs(json_extract(chem_kinship_predict([[1.,0.,0.,0.,0.,0.,0.]],json_extract(value,'$.predict_parameters')::DOUBLE[]),'$.predictions[0]')::DOUBLE/json_extract(value,'$.coefficients[0]')::DOUBLE-1.)<1e-10 FROM model;
+----
+true

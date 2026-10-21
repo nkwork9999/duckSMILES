@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "seed": 2026102207,
+  "layer": "isolated exact production degradation.rs compiled to review C ABI; parent public execute/DuckDB integration pending",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "cases": {
+    "path_fit_and_saved_predict": 360,
+    "stability": 100,
+    "destructive_independent_hessian": 45,
+    "destructive_censored_fit_and_saved_predict": 240,
+    "nonconverged_inference_suppressed": 11,
+    "cumulative_independent_hessian": 24,
+    "cumulative_censored_fit_and_saved_predict": 120
+  },
+  "convergence": {
+    "destructive": {
+      "True": 231,
+      "False": 9
+    },
+    "cumulative": {
+      "True": 118,
+      "False": 2
+    }
+  },
+  "checks": {
+    "path_sse_df": {
+      "assertions": 720,
+      "max_absolute_error": 1.2212453270876722e-15
+    },
+    "path_coefficients": {
+      "assertions": 2160,
+      "max_absolute_error": 8.576472865229334e-15
+    },
+    "path_covariance": {
+      "assertions": 3240,
+      "max_absolute_error": 1.0835776720341528e-13
+    },
+    "path_fitted": {
+      "assertions": 1080,
+      "max_absolute_error": 4.547473508864641e-13
+    },
+    "path_mean_lower": {
+      "assertions": 756,
+      "max_absolute_error": 3.979039320256561e-13
+    },
+    "path_mean_upper": {
+      "assertions": 756,
+      "max_absolute_error": 2.7711166694643907e-13
+    },
+    "inverse_set_membership": {
+      "assertions": 48600,
+      "max_absolute_error": 0.0
+    },
+    "stability_pooling_tests": {
+      "assertions": 400,
+      "max_absolute_error": 1.0913936421275139e-11
+    },
+    "stability_shelf_lives": {
+      "assertions": 300,
+      "max_absolute_error": 2.362554596402333e-13
+    },
+    "inference_validity_flags": {
+      "assertions": 720,
+      "max_absolute_error": 0.0
+    },
+    "valid_fit_aic": {
+      "assertions": 349,
+      "max_absolute_error": 0.0
+    },
+    "destructive_log_likelihood": {
+      "assertions": 240,
+      "max_absolute_error": 7.815970093361102e-14
+    },
+    "destructive_coefficients": {
+      "assertions": 840,
+      "max_absolute_error": 1.491725392099852e-07
+    },
+    "destructive_sigma": {
+      "assertions": 240,
+      "max_absolute_error": 4.343386261762561e-09
+    },
+    "destructive_observed_covariance": {
+      "assertions": 933,
+      "max_absolute_error": 8.041620151999496e-07
+    },
+    "destructive_saved_median": {
+      "assertions": 1200,
+      "max_absolute_error": 1.5758344318328454e-07
+    },
+    "destructive_saved_mean": {
+      "assertions": 1200,
+      "max_absolute_error": 1.65746286029389e-07
+    },
+    "destructive_saved_failure_probability": {
+      "assertions": 1200,
+      "max_absolute_error": 9.280972546044097e-09
+    },
+    "nonconverged_inference_suppression": {
+      "assertions": 22,
+      "max_absolute_error": 0.0
+    },
+    "damage_log_likelihood": {
+      "assertions": 120,
+      "max_absolute_error": 4.263256414560601e-14
+    },
+    "damage_coefficients": {
+      "assertions": 240,
+      "max_absolute_error": 2.5750407894875593e-07
+    },
+    "damage_sigma": {
+      "assertions": 120,
+      "max_absolute_error": 8.707960241771673e-09
+    },
+    "damage_observed_covariance": {
+      "assertions": 176,
+      "max_absolute_error": 2.2123160664522246e-09
+    },
+    "damage_saved_age": {
+      "assertions": 240,
+      "max_absolute_error": 1.7763568394002505e-15
+    },
+    "damage_saved_survival": {
+      "assertions": 240,
+      "max_absolute_error": 4.579669976578771e-16
+    },
+    "damage_saved_density": {
+      "assertions": 240,
+      "max_absolute_error": 1.942890293094024e-16
+    },
+    "damage_saved_hazard": {
+      "assertions": 240,
+      "max_absolute_error": 4.6629367034256575e-15
+    },
+    "damage_saved_quantile": {
+      "assertions": 240,
+      "max_absolute_error": 2.433608869978343e-13
+    }
+  },
+  "library_sha256": "a98b1898ef3d8741e536ed449bbe7f7eb038f6f39a744cc5d4e5b8e13b968251",
+  "source_sha256": {
+    "crates/analytics/src/degradation.rs": "3f24da8a21c6dfcd27779fafbe7073279f80e57392638e5c5b6f331ed64f03c7",
+    "crates/analytics/tests/candidates/degradation.rs": "a4dfc2091f961b1e3e93b0017b5bd774662490f7096ff6277de034367b61d039"
+  },
+  "replay": {
+    "wrapper_source": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/degradation.rs\"]\nmod degradation;\nuse std::ffi::{CStr,CString};\nuse std::os::raw::c_char;\n#[no_mangle]\npub unsafe extern \"C\" fn review_execute(op:*const c_char,values:*const f64,n:usize,w:usize,parameters:*const f64,k:usize)->*mut c_char{\n    let result=std::panic::catch_unwind(||{\n        let operation=CStr::from_ptr(op).to_str().unwrap();\n        let flat=std::slice::from_raw_parts(values,n*w);\n        let rows=flat.chunks_exact(w).map(|r|r.to_vec()).collect::<Vec<_>>();\n        let args=std::slice::from_raw_parts(parameters,k);\n        degradation::run(operation,&rows,args)\n    });\n    CString::new(match result{Ok(Ok(j))=>j,Ok(Err(e))=>format!(\"{{\\\"error\\\":{:?}}}\",e),Err(_)=>\"{\\\"error\\\":\\\"panic\\\"}\".into()}).unwrap().into_raw()\n}\n#[no_mangle]\npub unsafe extern \"C\" fn review_free(p:*mut c_char){drop(CString::from_raw(p));}\n",
+    "python_source": "import ctypes,json,math,hashlib,platform,sys,time\nfrom collections import defaultdict\nfrom pathlib import Path\nimport numpy as np,scipy\nfrom scipy import stats,optimize,special\nROOT=Path('/Users/nk/Desktop/ducksmiles-analytics-20261021')\nBUILD=Path('/private/tmp/rusta-ducksmiles-jmp-target')\nlib=ctypes.CDLL(str(BUILD/'degradation-abi.dylib'))\nlib.review_execute.argtypes=[ctypes.c_char_p,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t]\nlib.review_execute.restype=ctypes.c_void_p\nlib.review_free.argtypes=[ctypes.c_void_p]\nrng=np.random.default_rng(2026102207)\nchecks=defaultdict(lambda:{'assertions':0,'max_absolute_error':0.0})\ncases=defaultdict(int);convergence=defaultdict(lambda:defaultdict(int))\ndef run(op,data,args):\n d=np.ascontiguousarray(data,dtype=np.float64);a=np.ascontiguousarray(args,dtype=np.float64)\n p=lib.review_execute(op.encode(),d.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),*d.shape,a.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),len(a))\n try:r=json.loads(ctypes.string_at(p),parse_constant=lambda v:(_ for _ in()).throw(ValueError(v)))\n finally:lib.review_free(p)\n if 'error'in r:raise AssertionError((op,r,data,args))\n return r\n\ndef eq(name,a,b,atol=1e-8,rtol=1e-8):\n a=np.asarray(a,dtype=float);b=np.asarray(b,dtype=float)\n assert a.shape==b.shape,(name,a.shape,b.shape)\n assert np.all(np.isfinite(a)),(name,'nonfinite',a)\n diff=np.max(np.abs(a-b),initial=0.0)\n checks[name]['assertions']+=a.size;checks[name]['max_absolute_error']=max(checks[name]['max_absolute_error'],float(diff))\n assert np.allclose(a,b,atol=atol,rtol=rtol),(name,float(diff),a,b)\n\ndef validate_inference(j,covariance_field):\n expected=j['optimizer_converged']and not j['parameter_guard_bound']and j['information_identified']\n eq('inference_validity_flags',[int(j['inference_valid']),int(j['converged'])],[int(expected),int(expected)],0,0)\n if expected:\n  assert j[covariance_field]is not None and j['aic']is not None\n  eq('valid_fit_aic',j['aic'],-2*j['log_likelihood']+2*len(j[covariance_field]),1e-8,1e-8)\n else:\n  assert j[covariance_field]is None and j['aic']is None,(j['algorithm'],'invalid inference was exposed')\n  checks['nonconverged_inference_suppression']['assertions']+=2\n  cases['nonconverged_inference_suppressed']+=1\n\ndef tx(t,k):return t if k==0 else np.log(t) if k==1 else np.sqrt(t)\ndef iy(y,k):return y if k==0 else np.exp(y)\ndef design(t,ids,im,sm):\n g=len(np.unique(ids));na=g if im==0 else 1 if im==1 else 0;nb=g if sm==0 else 1\n x=np.zeros((len(t),na+nb))\n for i,(u,group)in enumerate(zip(t,ids)):\n  if na:x[i,group if im==0 else 0]=1\n  x[i,na+(group if sm==0 else 0)]=u\n return x,na\n\ndef ols(x,y):\n b=np.linalg.lstsq(x,y,rcond=None)[0];res=y-x@b;sse=res@res;df=len(y)-x.shape[1]\n return b,np.linalg.inv(x.T@x)*(sse/df),sse,df\n\ndef raw_hessian(fun,theta,step):\n theta=np.array(theta,dtype=float);d=len(theta);h=step*(1+np.abs(theta));out=np.zeros((d,d));f=fun(theta)\n for i in range(d):\n  ei=np.eye(d)[i]*h[i];out[i,i]=(fun(theta+ei)-2*f+fun(theta-ei))/h[i]**2\n  for j in range(i):\n   ej=np.eye(d)[j]*h[j];out[i,j]=out[j,i]=(fun(theta+ei+ej)-fun(theta+ei-ej)-fun(theta-ei+ej)+fun(theta-ei-ej))/(4*h[i]*h[j])\n return out\n\ndef numerical_hessian(fun,theta):\n return (4*raw_hessian(fun,theta,5e-4)-raw_hessian(fun,theta,1e-3))/3\n\nfor rep in range(10):\n for im in range(3):\n  for sm in range(2):\n   for response in range(2):\n    for tm in range(3):\n     ids=np.repeat(np.arange(3),6);t=rng.uniform(.2,4,len(ids));u=tx(t,tm);x,na=design(u,ids,im,sm)\n     truth=rng.normal(size=x.shape[1]);y=x@truth+rng.normal(scale=.15,size=len(t));data=np.column_stack([t,iy(y,response),ids+10])\n     j=run('degradation_path',data,[im,sm,response,tm]);b,c,sse,df=ols(x,y)\n     eq('path_sse_df',[j['sse'],j['residual_df']],[sse,df],1e-9,1e-9)\n     aa=[];bb=[];cc=[]\n     for g in range(3):\n      la=np.zeros(len(b));lb=la.copy()\n      if na:la[g if im==0 else 0]=1\n      lb[na+(g if sm==0 else 0)]=1\n      aa.append(la@b);bb.append(lb@b);cc.append([la@c@la,la@c@lb,lb@c@lb])\n     eq('path_coefficients',j['intercepts']+j['slopes'],aa+bb,1e-9,1e-9)\n     model=np.asarray(j['predict_parameters']);car=model[4:].reshape(3,8);eq('path_covariance',car[:,3:6],cc,1e-9,1e-9)\n     side=rep%3;conf=.93;target=iy(.5,response);query=np.column_stack([np.full(3,2.3),np.arange(3)+10,np.full(3,target)])\n     pred=run('degradation_predict',query,[conf,side,*model]);uq=tx(2.3,tm)\n     for g in range(3):\n      q=stats.t.ppf((1+conf)/2 if side==0 else conf,df);m=aa[g]+bb[g]*uq;v=cc[g][0]+2*cc[g][1]*uq+cc[g][2]*uq*uq\n      eq('path_fitted',pred['fitted'][g],iy(m,response),1e-8,1e-8)\n      if side!=2:eq('path_mean_lower',pred['mean_lower'][g],iy(m-q*np.sqrt(max(v,0)),response),1e-8,1e-8)\n      if side!=1:eq('path_mean_upper',pred['mean_upper'][g],iy(m+q*np.sqrt(max(v,0)),response),1e-8,1e-8)\n      for tv in np.geomspace(.001,100,45):\n       uv=tx(tv,tm);difference=aa[g]+bb[g]*uv-.5;se=q*np.sqrt(max(0,cc[g][0]+2*cc[g][1]*uv+cc[g][2]*uv*uv))\n       expected=abs(difference)<=se if side==0 else difference<=se if side==1 else difference>=-se\n       actual=any((iv['lower'] is None or tv>=iv['lower'])and(iv['upper']is None or tv<=iv['upper']) for iv in pred['inverse_confidence_sets'][g])\n       eq('inverse_set_membership',int(actual),int(expected),0,0)\n     cases['path_fit_and_saved_predict']+=1\nprint('path',dict(cases),flush=True)\n\nfor rep in range(100):\n groups=3;ids=np.repeat(np.arange(groups),8);t=np.tile(np.linspace(0,6,8),groups);a=100+np.arange(groups)*(0 if rep%3==0 else 3);slopes=-np.ones(groups)*(1+rep%4*.1)\n if rep%3==2:slopes-=np.arange(groups)*.6\n y=a[ids]+slopes[ids]*t+rng.normal(0,.35,len(t));data=np.column_stack([t,y,ids+4]);le=1;ue=rep%2;pool=rep%2;conf=.95;alpha=.25;horizon=40\n j=run('stability_analysis',data,[le,90,ue,115,alpha,conf,pool,horizon]);models=[]\n for im,sm in [(0,0),(0,1),(1,1)]:\n  x,na=design(t,ids,im,sm);b,c,sse,df=ols(x,y);paths=[]\n  for g in range(groups):\n   la=np.zeros(len(b));lb=la.copy();la[g if im==0 else 0]=1;lb[na+(g if sm==0 else 0)]=1\n   paths.append((la@b,lb@b,la@c@la,la@c@lb,lb@c@lb,df))\n  models.append((sse,df,x.shape[1],paths))\n def compare(r,u):\n  f=((r[0]-u[0])/(u[2]-r[2]))/(u[0]/u[1]);return f,stats.f.sf(f,u[2]-r[2],u[1])\n fs,ps=compare(models[1],models[0]);fi,pi=compare(models[2],models[1]);selected=0 if ps<alpha else 1 if pi<alpha else 2\n eq('stability_pooling_tests',[j['slope_pooling_f'],j['slope_pooling_p'],j['intercept_pooling_f'],j['intercept_pooling_p']],[fs,ps,fi,pi],1e-7,1e-7)\n assert j['selected_model']==['separate_intercepts_separate_slopes','separate_intercepts_common_slope','common_intercept_common_slope'][selected]\n shelves=[]\n for k,(_,_,_,paths)in enumerate(models):\n  first=np.inf\n  for g,path in enumerate(paths):\n   if k==0 and not pool:\n    mask=ids==g;x=np.column_stack([np.ones(mask.sum()),t[mask]]);b,c,sse,df=ols(x,y[mask]);path=(b[0],b[1],c[0,0],c[0,1],c[1,1],df)\n   aa,bb,caa,cab,cbb,df=path;q=stats.t.ppf((1+conf)/2 if le+ue==2 else conf,df)\n   def margin(tv):\n    m=aa+bb*tv;e=q*np.sqrt(max(0,caa+2*cab*tv+cbb*tv*tv));return min(m-e-90,115-(m+e)) if ue else m-e-90\n   if margin(0)<0:first=0\n   elif margin(horizon)<0:first=min(first,optimize.brentq(margin,0,horizon,xtol=1e-12))\n  shelves.append(first)\n eq('stability_shelf_lives',j['model_shelf_lives'],shelves,2e-8,1e-8);cases['stability']+=1\nprint('stability',dict(cases),flush=True)\n\ndef features(t,s,tm,mode):\n u=tx(t,tm)\n if not mode:return np.asarray([u]).T\n z=s if mode==1 else 11604.5181215503/(s+273.15) if mode==2 else np.log(s)\n return np.asarray([u,z,u*z]).T\n\nfor rep in range(10):\n for family in range(2):\n  for tm in range(3):\n   for mode in range(4):\n    n=40;t=rng.uniform(.3,5,n);st=rng.uniform(30,90,n) if mode==2 else rng.uniform(.5,3,n);raw=features(t,st,tm,mode);origin=raw[0];offset=(raw-origin).mean(0);scale=raw.std(0);x=np.column_stack([np.ones(n),(raw-origin-offset)/scale]);d=x.shape[1]\n    truth=np.r_[2. if family else 10.,rng.normal(0,.3,d-1)];sigma=.4;mu=x@truth;latent=mu+rng.normal(0,sigma,n);kind=np.zeros(n,dtype=int);kind[25:30]=1;kind[30:35]=2;kind[35:]=3\n    lower=latent.copy();upper=latent.copy();lower[kind==1]=0;upper[kind==1]=mu[kind==1]+.2*sigma;lower[kind==2]=mu[kind==2]-.2*sigma;upper[kind==2]=0;lower[kind==3]=mu[kind==3]-.5*sigma;upper[kind==3]=mu[kind==3]+.5*sigma\n    lo=lower.copy();hi=upper.copy()\n    if family:\n     lower=np.where(kind==1,0,np.exp(lower));upper=np.where(kind==2,0,np.exp(upper))\n    data=np.column_stack([t,st,lower,upper,kind]);j=run('destructive_degradation',data,[family,tm,mode,500,1e-8]);validate_inference(j,'standardized_parameter_covariance')\n    def fun(b):\n     m=x@b[:d];s=np.exp(b[d]);ll=np.empty(n);ex=kind==0;left=kind==1;right=kind==2;interval=kind==3\n     ll[ex]=stats.norm.logpdf(lo[ex],m[ex],s)-(np.log(lower[ex]) if family else 0)\n     ll[left]=stats.norm.logcdf(hi[left],m[left],s);ll[right]=stats.norm.logsf(lo[right],m[right],s)\n     aa=(lo[interval]-m[interval])/s;bb=(hi[interval]-m[interval])/s;positive=aa>0;la=np.where(positive,stats.norm.logsf(aa),stats.norm.logcdf(bb));lb=np.where(positive,stats.norm.logsf(bb),stats.norm.logcdf(aa));ll[interval]=la+np.log(-np.expm1(lb-la))\n     return -ll.sum()\n    opt=optimize.minimize(fun,np.r_[truth,np.log(sigma)],method='BFGS',jac='3-point',options={'gtol':1e-7,'maxiter':1000})\n    b=opt.x[:d];slopes=b[1:]/scale;coeff=np.r_[b[0]-slopes@(origin+offset),slopes]\n    eq('destructive_log_likelihood',j['log_likelihood'],-opt.fun,2e-6,1e-8);eq('destructive_coefficients',j['coefficients'],coeff,4e-5,3e-5);eq('destructive_sigma',j['sigma'],np.exp(opt.x[d]),2e-6,2e-6)\n    if rep%5==0 and j['standardized_parameter_covariance']is not None:\n     rawb=np.asarray(j['coefficients']);at=np.r_[rawb[0]+rawb[1:]@(origin+offset),rawb[1:]*scale,np.log(j['sigma'])]\n     reference=np.linalg.inv(numerical_hessian(fun,at));eq('destructive_observed_covariance',j['standardized_parameter_covariance'],reference,2e-5,3e-4);cases['destructive_independent_hessian']+=1\n\n    pred=run('destructive_predict',np.column_stack([t[:5],st[:5],iy(mu[:5],family)]),j['predict_parameters']);qraw=features(t[:5],st[:5],tm,mode);m=coeff[0]+qraw@coeff[1:];sg=j['sigma']\n    eq('destructive_saved_median',pred['medians'],iy(m,family),1e-7,1e-7);eq('destructive_saved_mean',pred['means'],m if not family else np.exp(m+sg*sg/2),1e-7,1e-7);eq('destructive_saved_failure_probability',pred['lower_failure_probabilities'],stats.norm.cdf((mu[:5]-m)/sg),1e-7,1e-7)\n    cases['destructive_censored_fit_and_saved_predict']+=1;convergence['destructive'][str(j['converged'])]+=1\nprint('destructive',dict(cases),dict(convergence['destructive']),flush=True)\n\ndef stress(s,r):return s if r==0 else np.log(s) if r==1 else 11604.5181215503/(s+273.15) if r==2 else 1/s\n\ndef exposure(pattern,t,b,relation,continuation,center=0.,scale=1.):\n total=sum(dt for dt,s in pattern);age=0.;current=pattern[-1][1]\n if continuation==0:assert t<=total+1e-10\n if continuation==2:\n  cycles=int(t//total);age=cycles*sum(dt*np.exp(-b[0]-b[1]*(stress(s,relation)-center)/scale)for dt,s in pattern);t=t%total\n for dt,s in pattern:\n  if t<dt:current=s\n  used=min(dt,t);age+=used*np.exp(-b[0]-b[1]*(stress(s,relation)-center)/scale);t=max(0,t-dt)\n  if used<dt:break\n if t>0:age+=t*np.exp(-b[0]-b[1]*(stress(current,relation)-center)/scale)\n return age,np.exp(-b[0]-b[1]*(stress(current,relation)-center)/scale)\n\ndef distribution(dist,sigma):return stats.expon() if dist==0 else stats.weibull_min(c=1/sigma)if dist==1 else stats.lognorm(s=sigma)\n\nfor rep in range(10):\n for dist in range(3):\n  for relation in range(4):\n   continuation=rep%3;levels=np.array([30.,55.,80.])if relation==2 else np.array([.7,1.3,2.1]);patterns=[[(2.,levels[0]),(3.,levels[1]),(5.,levels[2])],[(3.,levels[1]),(2.,levels[0]),(5.,levels[2])]]\n   zz=np.array([stress(s,relation)for pattern in patterns for _,s in pattern]);center=zz.mean();scale=np.max(np.abs(zz-center));truth=np.array([1.0,.25]);sigma=.8 if dist else 1.;base=distribution(dist,sigma);n=36;ids=np.arange(n)%2;rows=[]\n   for g in ids:\n    latent=base.ppf(rng.uniform(.03,.97));hi=10.\n    if continuation and exposure(patterns[g],hi,truth,relation,continuation,center,scale)[0]<latent:\n     while exposure(patterns[g],hi,truth,relation,continuation,center,scale)[0]<latent:hi*=2\n    if exposure(patterns[g],hi,truth,relation,continuation,center,scale)[0]<latent:tt=hi+1\n    else:tt=optimize.brentq(lambda t:exposure(patterns[g],t,truth,relation,continuation,center,scale)[0]-latent,0,hi)\n    if tt>8:rows.append([8.,0.,2.,g+1])\n    elif tt<.4:rows.append([0.,.4,1.,g+1])\n    elif rng.uniform()<.2:rows.append([math.floor(tt*2)/2,math.floor(tt*2)/2+.5,3.,g+1])\n    else:rows.append([tt,tt,0.,g+1])\n   args=[dist,relation,continuation,500,1e-8,2]\n   for i,pattern in enumerate(patterns):args +=[i+1,len(pattern),*sum(([dt,s]for dt,s in pattern),[])]\n   j=run('cumulative_damage_fit',rows,args);validate_inference(j,'centered_parameter_covariance')\n   def fun(b):\n    bs=distribution(dist,np.exp(b[2])if dist else 1.);ll=0.\n    for l,h,k,g in rows:\n     age,rate=exposure(patterns[int(g)-1],l,b,relation,continuation,center,scale)\n     if k==0:ll+=bs.logpdf(age)+np.log(rate)\n     elif k==2:ll+=bs.logsf(age)\n     else:\n      upper=exposure(patterns[int(g)-1],h,b,relation,continuation,center,scale)[0]\n      if k==1:ll+=bs.logcdf(upper)\n      elif bs.cdf(age)>.5:ll+=np.log(bs.sf(age)-bs.sf(upper))\n      else:ll+=np.log(bs.cdf(upper)-bs.cdf(age))\n    return -ll\n   init=np.r_[truth,np.log(sigma)]if dist else truth\n   opt=optimize.minimize(fun,init,method='BFGS',jac='3-point',options={'gtol':1e-7,'maxiter':1000})\n   if not opt.success:opt2=optimize.minimize(fun,opt.x,method='Nelder-Mead',options={'xatol':1e-9,'fatol':1e-9,'maxiter':3000});opt=opt2 if opt2.fun<opt.fun else opt\n   coeff=[opt.x[0]-opt.x[1]*center/scale,opt.x[1]/scale]\n   eq('damage_log_likelihood',j['log_likelihood'],-opt.fun,1e-6,1e-8);eq('damage_coefficients',j['coefficients'],coeff,3e-5,3e-5);eq('damage_sigma',j['sigma'],np.exp(opt.x[2])if dist else 1.,3e-6,3e-6)\n   if rep%5==0 and j['centered_parameter_covariance']is not None:\n    at=np.r_[j['coefficients'][0]+j['coefficients'][1]*center,j['coefficients'][1]*scale]\n    if dist:at=np.r_[at,np.log(j['sigma'])]\n    reference=np.linalg.inv(numerical_hessian(fun,at));eq('damage_observed_covariance',j['centered_parameter_covariance'],reference,2e-5,3e-4);cases['cumulative_independent_hessian']+=1\n\n   query=[[4.,1.,.4],[7.,2.,.7]];pred=run('cumulative_damage_predict',query,j['predict_parameters']);base=distribution(dist,j['sigma']);bb=j['coefficients']\n   for idx,(t,g,prob)in enumerate(query):\n    pattern=patterns[int(g)-1];age,rate=exposure(pattern,t,bb,relation,continuation);eq('damage_saved_age',pred['effective_ages'][idx],age,1e-10,1e-10);eq('damage_saved_survival',pred['survivals'][idx],base.sf(age),1e-10,1e-10);eq('damage_saved_density',pred['densities'][idx],base.pdf(age)*rate,1e-10,1e-10);eq('damage_saved_hazard',pred['hazards'][idx],base.pdf(age)*rate/base.sf(age),1e-9,1e-9)\n    target=base.ppf(prob);hi=10.\n    if continuation==0 and exposure(pattern,hi,bb,relation,continuation)[0]<target:assert pred['quantiles'][idx]is None\n    else:\n     while exposure(pattern,hi,bb,relation,continuation)[0]<target:hi*=2\n     expected=optimize.brentq(lambda t:exposure(pattern,t,bb,relation,continuation)[0]-target,0,hi,xtol=1e-12)\n     eq('damage_saved_quantile',pred['quantiles'][idx],expected,1e-9,1e-9)\n   cases['cumulative_censored_fit_and_saved_predict']+=1;convergence['cumulative'][str(j['converged'])]+=1\n print('damage_rep',rep,dict(convergence['cumulative']),flush=True)\nprint('all_passed',dict(cases),sum(x['assertions']for x in checks.values()),flush=True)\nrecord={'schema_version':1,'seed':2026102207,'layer':'isolated exact production degradation.rs compiled to review C ABI; parent public execute/DuckDB integration pending','environment':{'python':sys.version.split()[0],'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'cases':dict(cases),'convergence':{k:dict(v)for k,v in convergence.items()},'checks':dict(checks),'library_sha256':hashlib.sha256((BUILD/'degradation-abi.dylib').read_bytes()).hexdigest(),'source_sha256':{str(p):hashlib.sha256((ROOT/p).read_bytes()).hexdigest()for p in ['crates/analytics/src/degradation.rs','crates/analytics/tests/candidates/degradation.rs']},'replay':{'wrapper_source':(BUILD/'degradation-abi.rs').read_text(),'python_source':Path(__file__).read_text(),'compile_command':'rustc --edition=2021 --crate-type cdylib /private/tmp/rusta-ducksmiles-jmp-target/degradation-abi.rs -o /private/tmp/rusta-ducksmiles-jmp-target/degradation-abi.dylib'},'limitations':['No actual JMP oracle; documented method-contract coverage only.','Native SQL and public execute integration pending parent stage freeze.','Bayesian repeated-measures degradation, nonlinear paths and continuous stress schedules unsupported.']}\n(ROOT/'tasks/evidence/jmp-degradation-reference.json').write_text(json.dumps(record,indent=2)+'\\n')\n",
+    "compile_command": "rustc --edition=2021 --crate-type cdylib /private/tmp/rusta-ducksmiles-jmp-target/degradation-abi.rs -o /private/tmp/rusta-ducksmiles-jmp-target/degradation-abi.dylib",
+    "candidate_test_command": "rustc --edition=2021 --test crates/analytics/tests/candidates/degradation.rs -o /private/tmp/rusta-ducksmiles-jmp-target/degradation-candidate && /private/tmp/rusta-ducksmiles-jmp-target/degradation-candidate",
+    "run_command": "python3 /private/tmp/rusta-ducksmiles-jmp-target/check-degradation-reference.py"
+  },
+  "limitations": [
+    "No actual JMP oracle; documented method-contract coverage only.",
+    "Native SQL and public execute integration pending parent stage freeze.",
+    "Bayesian repeated-measures degradation, nonlinear paths and continuous stress schedules unsupported."
+  ],
+  "timestamp_utc": "2026-10-21T16:12:22.727710+00:00",
+  "candidate_tests": {
+    "passed": 24,
+    "failed": 0,
+    "path": "crates/analytics/tests/candidates/degradation.rs",
+    "boundary": "direct exact production module; not yet public execute",
+    "command": "rustc --edition=2021 --test crates/analytics/tests/candidates/degradation.rs -o /private/tmp/rusta-ducksmiles-jmp-target/degradation-candidate && /private/tmp/rusta-ducksmiles-jmp-target/degradation-candidate"
+  },
+  "strict_lint": {
+    "module_clippy": "pass",
+    "candidate_clippy": "pass",
+    "rustfmt": "pass",
+    "git_diff_check": "pass",
+    "commands": [
+      "clippy-driver --edition=2021 --crate-type lib crates/analytics/src/degradation.rs -o /private/tmp/rusta-ducksmiles-jmp-target/degradation-review.rlib -D warnings",
+      "clippy-driver --edition=2021 --test crates/analytics/tests/candidates/degradation.rs -o /private/tmp/rusta-ducksmiles-jmp-target/degradation-candidate-lint -D warnings",
+      "rustfmt --edition 2021 --check crates/analytics/src/degradation.rs crates/analytics/tests/candidates/degradation.rs"
+    ]
+  },
+  "all_API_examples": [
+    {
+      "operation": "degradation_path",
+      "known_value": {
+        "intercepts.0": 10.0,
+        "intercepts.1": 12.0,
+        "slopes.0": -2.0,
+        "sse": 0.08,
+        "residual_df": 5
+      },
+      "strict_JSON": true,
+      "registry_API_match": true
+    },
+    {
+      "operation": "degradation_predict",
+      "known_value": {
+        "fitted.0": 6.0,
+        "threshold_times.0": 2.0
+      },
+      "strict_JSON": true,
+      "registry_API_match": true
+    },
+    {
+      "operation": "stability_analysis",
+      "known_value": {
+        "selected_model": "separate_intercepts_common_slope",
+        "test_order.0": "slopes",
+        "test_order.1": "intercepts",
+        "confidence_sides": 1
+      },
+      "strict_JSON": true,
+      "registry_API_match": true
+    },
+    {
+      "operation": "destructive_degradation",
+      "known_value": {
+        "coefficients.0": 10.0,
+        "coefficients.1": -2.0,
+        "sigma": 0.1,
+        "log_likelihood": 3.534586239157491,
+        "n_exact": 4
+      },
+      "strict_JSON": true,
+      "registry_API_match": true
+    },
+    {
+      "operation": "destructive_predict",
+      "known_value": {
+        "medians.0": 2.718281828459045,
+        "means.0": 3.080216848918031,
+        "lower_failure_probabilities.0": 0.5
+      },
+      "strict_JSON": true,
+      "registry_API_match": true
+    },
+    {
+      "operation": "cumulative_damage_fit",
+      "known_value": {
+        "coefficients.0": 0.6931471805599453,
+        "coefficients.1": 0.6931471805599453,
+        "sigma": 1.0,
+        "log_likelihood": -8.158883083359672,
+        "n_exact": 4
+      },
+      "strict_JSON": true,
+      "registry_API_match": true
+    },
+    {
+      "operation": "cumulative_damage_predict",
+      "known_value": {
+        "effective_ages.0": 3.0,
+        "survivals.0": 0.049787068367863944,
+        "hazards.0": 0.5,
+        "quantiles.0": 0.6931471805599453
+      },
+      "strict_JSON": true,
+      "registry_API_match": true
+    }
+  ],
+  "red_green_regressions": [
+    "Initial seven operation behavior tests all failed unknown-operation stub before implementation.",
+    "Inverse-confidence empty/disjoint/unbounded cases failed stub before implementation.",
+    "Common raw-time intercept with separate slopes: wrong centering caused SSE4.58 instead of0.08.",
+    "Weibull time-zero density shape limits returned zero for unit/subunit shape.",
+    "Unused distinct stress patterns could falsely permit converged unidentified damage fit.",
+    "Small cumulative time quantiles lost relative accuracy with ordinary-time bisection.",
+    "Stopped pattern quantile terminal exp(log(duration)) rounding crossed the valid horizon.",
+    "Tiny repeating pattern maximal bracket overflowed cycle count.",
+    "Saved unbounded residual df silently collapsed Student uncertainty.",
+    "Near-unit confidence rounded Student CDF target to1 and capped its critical value.",
+    "Both maxiter1 PD-curvature fits previously exposed covariance/AIC despite nonconvergence; now null with inference_valid=false while retaining fitted coefficients,loglikelihood and saved predictions.",
+    "Perfect destructive line reached log-sigma=-30 with projected gradient zero; active guard now explicitly invalidates covariance and AIC."
+  ],
+  "independent_Hessian_method": "Richardson extrapolation of central objective second differences at steps1e-3 and5e-4*(1+abs(theta)), inverted with NumPy;45destructive+24cumulative matrices. Initial non-extrapolated coarse stencil was numerically insufficient for ill-conditioned interaction design; no production source changed for that reference issue.",
+  "artifact_sha256": {
+    "tasks/jmp-degradation-api.json": "d99eac9830179473cea78985000b0d6b421c34e5f84bf8526c5f782c11399c0e",
+    "tasks/jmp-degradation-registry.inc": "938956a6ffbc9c58d99fb5395b36db9d1d083ecc312fccb2afb1911ef63dcba9",
+    "tasks/jmp-reliability-next-contracts.json": "d52f361320ee3bcc5c08669618d4b5d29c38540bfd7db50cf0f60ca02a4d5080"
+  }
+}

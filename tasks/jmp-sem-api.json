@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "module": "sem",
+  "module_path": "crates/analytics/src/sem.rs",
+  "source": "crates/analytics/src/sem.rs",
+  "scope": "Four bounded CPU Gaussian CFA/fit-index/scoring/RAM operations;partial JMP19.2 SEM numerical coverage,not a general SEM platform.",
+  "integration_status": "Public execute/formal Rust tests and matching native SQL PASS; bounded partial contracts only",
+  "common_contract": {
+    "input": "Finite nonempty rectangular numeric matrix<=100000rows,256columns,1000000cells;operation-specific tighter shape limits;<=4096finite args.",
+    "covariance": "ML covariance uses divisorN. N-1normalization conversion is explicitly caller responsibility. Covariances must be symmetric and SPD at relative Cholesky pivot1e-12.",
+    "CFA_identification": "One active loading per indicator;>=3indicators/factor;latentvariance1;first indicator loading positive. Factor covariance is SPD and unit diagonal. Local observed-information SPD diagnoses identification;no general algebraic identification or global optimum certificate.",
+    "CFA_parameter_order": "standard_errors/parameter_covariance order:active loading per indicator(p),uniqueness per indicator(p),free factor correlations lower triangle row-major if correlated. Manifest means are free parameters and count toward k;mean_covariance=implied covariance/N is reported separately. CFA k=3p+q(q-1)/2 when correlated,3p otherwise.",
+    "CFA_inference": "Optimizer convergence,identified,Heywood uniqueness boundary,latent boundary separate. SE/parameter covariance,overall fit p,RMSEA interval and information criteria null unless converged identified interior. Fitted means/covariance and discrepancy/indices remain descriptive candidate values. No parameterwise Wald p/CI.",
+    "CFA_limits": "<=20manifest variables,<=4factors,max1000iterations,100000likelihood/gradient evaluations or1e9nominal p^3work units. Line search<=50trials. Log anchor/uniqueness coordinates[-25,25],active normalized loadingsabs<=100,factor-correlation free coordinatesabs<=1000. Solver gradient threshold=sqrt(tolerance)clamped[1e-7,1e-5]. Heywood uniqueness<=1e-8 in standardized units;latent anchor<=1e-8,conditional factor covariance pivot<=1e-8,or coordinateabs>999boundary.",
+    "saved_model": "score_parameters=[p,q,means(p),Lambda row-major(pq),Phi row-major(q²),uniquenesses(p)]. Prefix method0/1when calling cfa_scores.",
+    "fit_indices": "df=p(p+3)/2-k includes means. Independence baseline mean=observedmean,cov=diag(S),df0=p(p-1)/2. Baseline discrepancy within64eps*p is treated as numerical zero. Undefined zero-df or baseline denominators returnnull. AICcnull whenN<=k+1.",
+    "RMSEA_convention": "Uses displayed official equation sqrt(max(chi2-df,0)/(N*df)),without arbitrary upper clipping. Help prose saysbounded0..1while its displayed formula lacks upper clipping;the unbounded formula choice is an explicit implementation interpretation,not a verified installed-JMP behavioral claim. CFI/TLI/NFI are clipped[0,1]as prose specifies;RNI is raw/unbounded.",
+    "RMSEA_CI": "Poisson mixture of central gamma CDFs,built around Poisson mode;normalizes retained weight mass. Max noncentrality1e7,max50000mixture offsets,gamma convergence<=200000iterations,bracket/bisection75steps. CentralCDF<=target gives zero noncentrality boundary;zero modeldf givesnull. Cap/no convergence givesnull interval plus explicit status.",
+    "RMR_SRMR": "Unique lower triangle covariance residuals plus all mean residuals,denominatorp(p+3)/2. SRMR covariance residuals divided bysqrt(Sii*Sjj),mean residuals bysqrt(Sii). No omission of nonzero mean terms.",
+    "RAM": "p<=16;linear-system inverses use elimination with pivot rejection. Static invertibility and discrete dynamic stability distinct. Stability solvesP-BPB^T=I by p^2-dimensional linear system;SPD P=>strictly stable,nonSPD=>not strictly stable,singular/numeric unresolved=>null. This extra algebraic diagnostic is not an SEM identification/causality claim.",
+    "unsupported": "No general SEM fitting,cross-loadings,residual correlations,FIML,multigroup/measurement invariance,robust correction,modification indices,or GUI."
+  },
+  "operations": [
+    {
+      "operation": "cfa_model",
+      "symbol": "CfaModel",
+      "sql_name": "chem_cfa_model",
+      "source": "crates/analytics/src/sem.rs",
+      "description": "Gaussian simple-structure CFA: rows[S_MLrow(p),mean]; [N,q,correlated,maxiter,tolerance,assignments(p)].",
+      "data": "p3..20summary rows,each p ML covariance entries followed by sample mean. N-divisor covariance is required;N-1conversion is caller responsibility.",
+      "args": [
+        "N exact integer>p,<=1e9",
+        "q integer1..4",
+        "correlated flag0/1(required)",
+        "max_iterations integer1..1000(required)",
+        "tolerance1e-12..1e-3(required)",
+        "p indicator assignments integer0..q-1;every factor>=3indicators"
+      ],
+      "estimator": "True Gaussian summary-data ML with freely estimated manifest means. Each indicator loads on its specified one factor;latent variances fixed1 and first indicator loading positive to identify scale/sign. Positive uniquenesses and SPD correlated factor matrix. Analytic Gaussian score with correlation-coordinate chain rule;BFGS local search and Richardson derivatives of analytic score provide observed information. Physical-parameter delta covariance accounts for sign/scale constraints. Heywood/latent boundary,optimizer convergence and local identification are separate. No global optimum guarantee.",
+      "sql_example": "chem_cfa_model([[1.0,0.7200000000000001,0.5599999999999999,0.23799999999999996,0.20999999999999996,0.242,10.0],[0.7200000000000001,1.0,0.63,0.26775,0.23625000000000002,0.20475000000000002,-2.0],[0.5599999999999999,0.63,1.0,0.20824999999999996,0.18374999999999997,0.15924999999999997,0.0],[0.238,0.26775,0.20825,1.0,0.6375,0.5525,5.0],[0.20999999999999996,0.23624999999999996,0.18374999999999997,0.6375,1.0,0.48750000000000004,1.0],[0.242,0.20475,0.15924999999999997,0.5525,0.48750000000000004,1.0,-3.0]], [300.0,2.0,1.0,500.0,1e-08,0.0,0.0,0.0,1.0,1.0,1.0])",
+      "known_value": {
+        "chi_square": 3.5494789987331465,
+        "degrees_of_freedom": 8,
+        "n_free_parameters": 19,
+        "loadings.0.0": 0.8021360052186588,
+        "standard_errors.0": 0.05222877233123071,
+        "srmr": 0.010956160855163733
+      },
+      "fixture": {
+        "data": [
+          [
+            1.0,
+            0.7200000000000001,
+            0.5599999999999999,
+            0.23799999999999996,
+            0.20999999999999996,
+            0.242,
+            10.0
+          ],
+          [
+            0.7200000000000001,
+            1.0,
+            0.63,
+            0.26775,
+            0.23625000000000002,
+            0.20475000000000002,
+            -2.0
+          ],
+          [
+            0.5599999999999999,
+            0.63,
+            1.0,
+            0.20824999999999996,
+            0.18374999999999997,
+            0.15924999999999997,
+            0.0
+          ],
+          [
+            0.238,
+            0.26775,
+            0.20825,
+            1.0,
+            0.6375,
+            0.5525,
+            5.0
+          ],
+          [
+            0.20999999999999996,
+            0.23624999999999996,
+            0.18374999999999997,
+            0.6375,
+            1.0,
+            0.48750000000000004,
+            1.0
+          ],
+          [
+            0.242,
+            0.20475,
+            0.15924999999999997,
+            0.5525,
+            0.48750000000000004,
+            1.0,
+            -3.0
+          ]
+        ],
+        "args": [
+          300.0,
+          2.0,
+          1.0,
+          500.0,
+          1e-08,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "unsupported": [
+        "cross-loadings",
+        "correlated indicator residuals",
+        "general latent structural paths",
+        "FIML/missing data",
+        "multigroup/invariance",
+        "sandwich robust correction",
+        "parameterwise Wald tests/confidence intervals",
+        "globally certified ML optimum"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods-2.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-of-fit-measures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-model-fit-report.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-sem-reference.json"
+    },
+    {
+      "operation": "cfa_scores",
+      "symbol": "CfaScores",
+      "sql_name": "chem_cfa_scores",
+      "source": "crates/analytics/src/sem.rs",
+      "description": "Saved CFA factor scores: observation rows; [method0regression/1Bartlett,score_parameters...].",
+      "data": "Finite raw observed-variable rows,n×p;order matches stored means/loadings. <=100000rows/1000000cells.",
+      "args": [
+        "method0regression posterior mean/1Bartlett weighted least squares",
+        "exact returned score_parameters=[p,q,means(p),Lambda row-major(pq),Phi row-major(q²),uniquenesses(p)]"
+      ],
+      "estimator": "Regression scores Phi Lambda^T Sigma^-1(x-mu),with conditional latent posterior covariance. Bartlett scores solve Lambda^T Theta^-1 Lambda and return measurement-error covariance. Reuses supplied saved parameters;no refit or propagation of fitted parameter uncertainty.",
+      "sql_example": "chem_cfa_scores([[2.6,3.4,4.8]], [1.0,3.0,1.0,1.0,2.0,3.0,0.8,0.7,0.9,1.0,0.36,0.51,0.19])",
+      "known_value": {
+        "scores.0.0": 2.0,
+        "measurement_error_covariance.0.0": 0.14282204971995677
+      },
+      "fixture": {
+        "data": [
+          [
+            2.6,
+            3.4,
+            4.8
+          ]
+        ],
+        "args": [
+          1.0,
+          3.0,
+          1.0,
+          1.0,
+          2.0,
+          3.0,
+          0.8,
+          0.7,
+          0.9,
+          1.0,
+          0.36,
+          0.51,
+          0.19
+        ]
+      },
+      "unsupported": [
+        "factor-score parameter uncertainty",
+        "missing observations",
+        "posterior sampling",
+        "general structural latent variable prediction"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods-2.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-of-fit-measures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-model-fit-report.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-sem-reference.json"
+    },
+    {
+      "operation": "sem_fit_indices",
+      "symbol": "SemFitIndices",
+      "sql_name": "chem_sem_fit_indices",
+      "source": "crates/analytics/src/sem.rs",
+      "description": "Gaussian SEM fit indices: rows[S_MLrow(p),Sigma row(p),observedmean,modelmean]; [N,kfree].",
+      "data": "p1..20rows,each2p+2columns:observed ML covariance,model implied covariance,observed mean,model mean. Both covariances SPD.",
+      "args": [
+        "N exact integer>p,<=1e9",
+        "k_free exact integer0..p(p+3)/2,includes all free covariance and mean parameters"
+      ],
+      "estimator": "Evaluates supplied Gaussian mean/covariance model. Chi-square=N*[logdetSigma-logdetS+tr(Sigma^-1S)+(mean difference)^T Sigma^-1(mean difference)-p]. Degrees of freedom=p(p+3)/2-k. Independence baseline has observed means and diagonal S. Reports central chi-square p,CFI/RNI/TLI/NFI,RMSEA with90%noncentral chi-square interval,RMR/SRMR with explicit mean residuals,Gaussian loglikelihood,AIC/AICc/BIC/BICu. Caller supplies valid model parameter count and is responsible for ML estimation/model assumptions.",
+      "sql_example": "chem_sem_fit_indices([[1.0,0.3,1.2,0.2,1.0,1.1],[0.3,1.0,0.2,0.8,-2.0,-2.2]], [120.0,2.0])",
+      "known_value": {
+        "chi_square": 14.87670585516721,
+        "degrees_of_freedom": 3,
+        "srmr": 0.16733200530681513
+      },
+      "fixture": {
+        "data": [
+          [
+            1.0,
+            0.3,
+            1.2,
+            0.2,
+            1.0,
+            1.1
+          ],
+          [
+            0.3,
+            1.0,
+            0.2,
+            0.8,
+            -2.0,
+            -2.2
+          ]
+        ],
+        "args": [
+          120.0,
+          2.0
+        ]
+      },
+      "unsupported": [
+        "automatic model identification check",
+        "checking supplied model was estimated by ML",
+        "robust/scaled chi-square corrections",
+        "modification indices",
+        "noncentrality>1e7confidence bounds"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods-2.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-of-fit-measures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-model-fit-report.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-sem-reference.json"
+    },
+    {
+      "operation": "sem_ram",
+      "symbol": "SemRam",
+      "sql_name": "chem_sem_ram",
+      "source": "crates/analytics/src/sem.rs",
+      "description": "Supplied RAM mean/covariance: rows[Brow(p),Omega row(p),intercept]; no parameters.",
+      "data": "p1..16rows,2p+1columns:B path coefficient row,SPD disturbance covariance Omega row,intercept. B diagonal must be zero.",
+      "args": [],
+      "estimator": "Solves simultaneous linear system with A=I-B:mean=A^-1alpha,covariance=A^-1Omega A^-T,total=A^-1-I,indirect=total-B. Static invertibility is separate from strict discrete dynamic stability;the latter uses a discrete Lyapunov solution SPD diagnostic and may be null at a singular/numerically unresolved boundary. Positive Omega/invertibility do not establish model identification,fit or causality.",
+      "sql_example": "chem_sem_ram([[0.0,0.0,0.0,1.0,0.0,0.0,1.0],[0.5,0.0,0.0,0.0,0.8,0.0,2.0],[0.2,0.7,0.0,0.0,0.0,0.6,3.0]], [])",
+      "known_value": {
+        "means": [
+          1.0,
+          2.5,
+          4.95
+        ],
+        "covariance.2.2": 1.2945,
+        "indirect_effects.2.0": 0.35,
+        "dynamically_stable": true
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.8,
+            0.0,
+            2.0
+          ],
+          [
+            0.2,
+            0.7,
+            0.0,
+            0.0,
+            0.0,
+            0.6,
+            3.0
+          ]
+        ],
+        "args": []
+      },
+      "unsupported": [
+        "SEM parameter estimation",
+        "causal identification guarantee",
+        "dynamic stability from invertibility alone",
+        "nonsingular indefinite disturbance covariance",
+        "more than16variables"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods-2.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-of-fit-measures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-model-fit-report.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-sem-reference.json"
+    }
+  ],
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods-2.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-of-fit-measures.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-options.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-model-fit-report.shtml"
+  ],
+  "additional_primary_references": [
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_discrete_lyapunov.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ncx2.html"
+  ],
+  "evidence": "tasks/evidence/jmp-sem-reference.json",
+  "native_sql_validation": {
+    "status": "PASS matching225 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-specialized-validation.json",
+    "overall_jmp_parity": false
+  }
+}

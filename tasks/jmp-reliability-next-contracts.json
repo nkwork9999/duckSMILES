@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "approved_by_parent_and_implementation_in_candidate_stage",
+  "module": "crates/analytics/src/degradation.rs",
+  "operations": [
+    "degradation_path",
+    "degradation_predict",
+    "stability_analysis",
+    "destructive_degradation",
+    "destructive_predict",
+    "cumulative_damage_fit",
+    "cumulative_damage_predict"
+  ],
+  "contracts": "tasks/jmp-degradation-api.json",
+  "primary_sources": {
+    "path": "https://www.jmp.com/support/help/ja/19.2/jmp/simple-linear-path.shtml",
+    "stability": "https://www.jmp.com/support/help/ja/19.2/jmp/stability-analysis-in-the-degradation-platform.shtml",
+    "stability_math": "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-degradation-platform.shtml",
+    "destructive": "https://www.jmp.com/support/help/ja/19.2/jmp/destructive-degradation.shtml",
+    "destructive_math": "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-destructive-degradation-platform.shtml",
+    "destructive_censor": "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-destructive-degradation-plot-options-and-models.shtml",
+    "cumulative": "https://www.jmp.com/support/help/zh-cn/19.2/jmp/cumulative-damage.shtml",
+    "stress": "https://www.jmp.com/support/help/zh-cn/19.2/jmp/stress-pattern.shtml",
+    "relations": "https://www.jmp.com/support/help/zh-cn/19.2/jmp/time-to-event.shtml",
+    "cumulative_output": "https://www.jmp.com/support/help/zh-cn/19.2/jmp/the-cumulative-damage-report.shtml",
+    "bayesian": "https://www.jmp.com/support/help/ja/19.2/jmp/repeated-measures-degradation.shtml",
+    "bayesian_math": "https://www.jmp.com/support/help/ja/19.2/jmp/statistical-details-for-the-repeated-measures-degradation-platform.shtml"
+  },
+  "remaining_family_gaps": [
+    "Bayesian hierarchical repeated-measures degradation including prior/posterior/MCMC diagnostics",
+    "general nonlinear/custom degradation paths",
+    "JMP-specific exponential/kinetic Arrhenius destructive path families beyond bilinear location subset",
+    "continuous ramp/sinusoidal stress, Box-Cox/custom relationships, additional cumulative damage lifetime distributions",
+    "regulatory shelf-life extrapolation limits and model-selection uncertainty"
+  ],
+  "verification_plan": [
+    "Candidate direct Rust RED→GREEN before public integration; parent owns lib/formal-test promotion.",
+    "Independent NumPy regression/Student-t inverse-set membership and stability F/shelf-life checks.",
+    "Independent SciPy normal/lognormal exact/left/right/interval destructive likelihood fits and saved predictions.",
+    "Independent event-time likelihoods, piecewise stress integration, distribution density Jacobian and quantile inversion across exponential/Weibull/lognormal, four relationships and three continuations.",
+    "Parent public execute/native SQL/model round trips/NULL-selection gates after source freeze."
+  ]
+}

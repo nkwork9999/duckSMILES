@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "module": "design_classical",
+  "scope": "Six bounded classical plan constructors,partial JMP19.2 DOE numerical coverage. Complete factorial treatment structure is explicit only for split/strip;BIBDs and mixed orthogonal arrays are not mislabeled full factorial.",
+  "source_sha256": {
+    "crates/analytics/src/design_classical.rs": "661633185a2644f20ab1efed68ab10ac5e1a8d595328bc165b36ecb86be74fe7",
+    "crates/analytics/tests/design_classical.rs": "9ea40f711eccd335d7969985ef22fa2444f3b34bf41681d90fe3712cb910a15e",
+    "tasks/jmp-design-classical-api.json": "a2f08fb681957ef2c971e9223e602fae5775be2844d80cfb2e8e44ee75dd5926",
+    "tasks/jmp-design-classical-registry.inc": "475af38d03ef745b4dd653664fc21dbb3e78fc84a67d63eb43bc72bc4c2c9d36",
+    "scripts/check_jmp_design_classical.py": "e077ea8231640dea0f351e9d32062c516ea0625869d5f4920926fba3dbc7f558",
+    "test/sql/jmp_design_classical.test": "587b31950ae2bd344126307dd93fd9ad047b74d8b310b5d824f3e32d1fe41a48"
+  },
+  "verification_layers": {
+    "reference_oracle": "586 independent NumPy/SciPy comparisons against direct Rust module run (same final source);no SQL claims.",
+    "public_Rust": "Unknown execute operation RED before implementation;parent activated6routes;final11public execute tests GREEN.",
+    "native_SQL": "stdlib checker and SQLLogicTest both observed unknown-function RED on old181snapshot. New native binary GREEN is pending parent build/gate;do not interpret RED as numerical failure."
+  },
+  "baseline": {
+    "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo check -p ducksmiles_analytics",
+    "result": "GREEN"
+  },
+  "TDD": {
+    "public_red": "8/8 behavior tests failed unknown optimization operation before implementation.",
+    "direct_stub_red": "8/8 behavior tests failed classical design implementation pending after stub/direct-boundary switch.",
+    "initial_green": "8/8 passed on first valid implementation after correcting a slice/Vec signature compile mismatch.",
+    "regressions": [
+      {
+        "red": "v3,k2,lambda3 valid repeated-block design incorrectly rejected no_solution because distinct eligible candidate count was compared with pair multiplicity.",
+        "green": "Allow repeated use of a candidate when its remaining pair/replication constraints permit it;remove invalid distinct-candidate pruning. Test pair concurrence3 and replication6 passes."
+      },
+      {
+        "red": "v8/9,k4,lambda3 feasible designs reached the explicit5M candidate budget. SciPy MILP proved feasibility;test requiring concrete small-family construction failed.",
+        "green": "Add exact binary affine hyperplanes forv8 and2-base-block Z9cyclic difference family forv9. Independent pair counts verify them. Final586oracle has0capped cases."
+      }
+    ],
+    "stage_isolation": "Candidate tests temporarily moved under tests/candidates during parent native checkpoint. Once11direct tests GREEN,restored formal tests path. After parent activation switched import to public execute and11tests remained GREEN."
+  },
+  "oracle": {
+    "seed": 325171,
+    "comparisons": 586,
+    "families": {
+      "RCBD": 90,
+      "BIBD_exact_or_explicit_budget": 136,
+      "resolvable_affine": 80,
+      "split_plot": 90,
+      "strip_plot": 90,
+      "catalog_OA_contrasts_and_aliases": 100
+    },
+    "max_scaled_absolute_error": 3.31634231339622e-15,
+    "capped_cases": [],
+    "bibd_MILP_feasibility": [
+      [
+        3,
+        2,
+        1,
+        0
+      ],
+      [
+        3,
+        2,
+        2,
+        0
+      ],
+      [
+        3,
+        2,
+        3,
+        0
+      ],
+      [
+        4,
+        2,
+        1,
+        0
+      ],
+      [
+        4,
+        2,
+        2,
+        0
+      ],
+      [
+        4,
+        2,
+        3,
+        0
+      ],
+      [
+        4,
+        3,
+        2,
+        0
+      ],
+      [
+        5,
+        2,
+        1,
+        0
+      ],
+      [
+        5,
+        2,
+        2,
+        0
+      ],
+      [
+        5,
+        2,
+        3,
+        0
+      ],
+      [
+        5,
+        3,
+        3,
+        0
+      ],
+      [
+        5,
+        4,
+        3,
+        0
+      ],
+      [
+        6,
+        2,
+        1,
+        0
+      ],
+      [
+        6,
+        2,
+        2,
+        0
+      ],
+      [
+        6,
+        2,
+        3,
+        0
+      ],
+      [
+        6,
+        3,
+        2,
+        0
+      ],
+      [
+        7,
+        2,
+        1,
+        0
+      ],
+      [
+        7,
+        2,
+        2,
+        0
+      ],
+      [
+        7,
+        2,
+        3,
+        0
+      ],
+      [
+        7,
+        3,
+        1,
+        0
+      ],
+      [
+        7,
+        3,
+        2,
+        0
+      ],
+      [
+        7,
+        3,
+        3,
+        0
+      ],
+      [
+        7,
+        4,
+        2,
+        0
+      ],
+      [
+        8,
+        2,
+        1,
+        0
+      ],
+      [
+        8,
+        2,
+        2,
+        0
+      ],
+      [
+        8,
+        2,
+        3,
+        0
+      ],
+      [
+        8,
+        4,
+        3,
+        0
+      ],
+      [
+        9,
+        2,
+        1,
+        0
+      ],
+      [
+        9,
+        2,
+        2,
+        0
+      ],
+      [
+        9,
+        2,
+        3,
+        0
+      ],
+      [
+        9,
+        3,
+        1,
+        0
+      ],
+      [
+        9,
+        3,
+        2,
+        0
+      ],
+      [
+        9,
+        3,
+        3,
+        0
+      ],
+      [
+        9,
+        4,
+        3,
+        0
+      ]
+    ],
+    "failures": 0,
+    "skipped": 0,
+    "python": "3.14.3 (main, Feb  3 2026, 15:32:20) [Clang 17.0.0 (clang-1700.6.3.2)]",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "layer": "direct Rust module run;public unknown-operation RED recorded separately;SQL/native not exercised"
+  },
+  "independence": "SciPy MILP certifies all34integer-eligible(v,k,lambda) parameter combinations in supported small BIBD scope (candidate block multiplicities,not production DFS). Independent NumPy incidence matrices,eigenvalues,permutation/Cartesian-product checks verify plans;SciPy Helmert basis independently checks main-effect Gram and main-vs-interaction alias matrices. No production helper reused in Python.",
+  "checks": [
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test design_classical",
+      "result": "11public execute tests GREEN"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy -p ducksmiles_analytics --test design_classical -- -D warnings",
+      "result": "GREEN"
+    },
+    {
+      "command": "rustfmt --check crates/analytics/src/design_classical.rs crates/analytics/tests/design_classical.rs",
+      "result": "GREEN"
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 python3 /private/tmp/rusta-ducksmiles-jmp-target/design-classical-check/verify.py",
+      "result": "586cases,0failures,0skips,0caps,maxscaled3.31634231339622e-15"
+    },
+    {
+      "command": "python3 scripts/check_jmp_design_classical.py --help",
+      "result": "GREEN;stdlib-only checker import/CLI validated"
+    },
+    {
+      "command": "Independent stdlib checker structural validators against all6direct Rust metadata results",
+      "result": "GREEN"
+    },
+    {
+      "command": "python3 scripts/check_jmp_design_classical.py --duckdb /private/tmp/rusta-ducksmiles-jmp-target/cpp/duckdb --extension /private/tmp/rusta-ducksmiles-jmp-target/cpp/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "result": "Expected RED on old181native:Catalog Error chem_rcbd_design does not exist"
+    },
+    {
+      "command": "LOCAL_EXTENSION_REPO=/private/tmp/rusta-ducksmiles-jmp-target/cpp/repository /private/tmp/rusta-ducksmiles-jmp-target/cpp/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test --autoloading available --require ducksmiles --reporter compact --settings extension_directory=/private/tmp/rusta-ducksmiles-jmp-target/cpp/test-extensions",
+      "result": "Expected RED old181native:1testcase/1assertion failed unknown chem_rcbd_design at first query"
+    }
+  ],
+  "native_red_log": "Traceback (most recent call last):\n  File \"/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_design_classical.py\", line 176, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_design_classical.py\", line 110, in main\n    results = runner.many([x[\"sql_example\"] for x in items])\n  File \"/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_continuation.py\", line 80, in many\n    rows = self.query(sql + \" ORDER BY id;\")\n  File \"/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_continuation.py\", line 76, in query\n    assert process.returncode == 0, f\"DuckDB failed ({process.returncode}):\\n{process.stderr}\"\n           ^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: DuckDB failed (1):\nCatalog Error: Scalar Function with name chem_rcbd_design does not exist!\nDid you mean \"chem_dbscan\"?\n\nLINE 1: SELECT 0 AS id, chem_rcbd_design([[0.0],[1.0],[2.0],[3.0]], [3.0,42.0])...\n                        ^\n\n",
+  "sqllogictest_red_log": "\n[0/1] (0%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test\n1. /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test:9\n================================================================================\nQuery unexpectedly failed (/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test:9)\n (/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test:9)!\n================================================================================\nWITH d AS (SELECT chem_rcbd_design([[0.],[1.],[2.]], [4.,42.]) AS j)\nSELECT json_extract(j,'$.n_blocks')::BIGINT,\n       json_array_length(json_extract(j,'$.treatment_ids')) FROM d;\n================================================================================\nActual result:\n================================================================================\nCatalog Error: Scalar Function with name chem_rcbd_design does not exist!\nDid you mean \"chem_dbscan\"?\n\nLINE 1: WITH d AS (SELECT chem_rcbd_design([[0.],[1.],[2.]], [4.,42.]) AS j)\n                          ^\n/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test:9: FAILED: explicitly with 1 message: '0'\n\n[1/1] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test\nFailed 1 test case, failed 1 assertion.\n\n",
+  "primary_references": [
+    {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml",
+      "version": "JMP19.2",
+      "retrieval": "web primary page;JMP BIBD and Taguchi pages also fetched through urllib HTMLParser after web tool reported inaccessible"
+    },
+    {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml",
+      "version": "JMP19.2",
+      "retrieval": "web primary page;JMP BIBD and Taguchi pages also fetched through urllib HTMLParser after web tool reported inaccessible"
+    },
+    {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml",
+      "version": "JMP19.2",
+      "retrieval": "web primary page;JMP BIBD and Taguchi pages also fetched through urllib HTMLParser after web tool reported inaccessible"
+    },
+    {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml",
+      "version": "JMP19.2",
+      "retrieval": "web primary page;JMP BIBD and Taguchi pages also fetched through urllib HTMLParser after web tool reported inaccessible"
+    },
+    {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml",
+      "version": "JMP19.2",
+      "retrieval": "web primary page;JMP BIBD and Taguchi pages also fetched through urllib HTMLParser after web tool reported inaccessible"
+    },
+    {
+      "url": "https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm",
+      "version": "NIST handbook",
+      "retrieval": "web primary page;JMP BIBD and Taguchi pages also fetched through urllib HTMLParser after web tool reported inaccessible"
+    }
+  ],
+  "method_limits": {
+    "input": "Finite rectangular nonempty data<=4096rows,64columns,1000000cells;operation-specific stricter bounds. Treatment plans require distinct treatment rows;IDs refer to input row positions.",
+    "output": "Design<=16384runs and1000000setting cells. IDs zero-based except run_order1based. Physical row order is execution order;blocks/whole plots remain contiguous.",
+    "randomization": "SplitMix64(seed) with rejection-sampled unbiased Fisher-Yates;seed exact0..2^53-1,including0. Repeat seed and inputs reproduce output. RNG is deterministic construction,not cryptographic.",
+    "block_information": "IncidenceN[treatment,block],pair_concurrence=N N^T (diagonal treatment replication),treatment_information=diag(replication)-N N^T/block_size. Connected complete/BIBD designs have rankv-1;contrast information is adjusted for block effects.",
+    "BIBD_limits": "v3..9,k2..4,k<v,lambda1..3,b<=128;backtracking nodes<=100000 andcandidate feasibility checks<=5000000. Errors distinguish unsupported parameter scope,no_solution (violated necessary equations or exhaustive search completed),search_limit (budget exhausted;existence undetermined). Repeated blocks allowed when lambda>1.",
+    "split_strip": "Hard-factor treatment combinations havea=2^(role0factor count),easy/column combinationsb=2^(role1factor count). Replicate labels are blocking strata. inference_ready only diagnoses positive classical replication error df;response inference is never performed.",
+    "OA": "L4<=3binary,L8<=7binary,L9<=4ternary,L18<=1binary+7ternary. Only catalog column subsets;coded levels0..L-1. Main effects orthogonal,interactions may be aliased. No robust-design response analysis.",
+    "limitations": "No general custom-optimal design search,no ANOVA/REML fitting in these constructors,no arbitrary mixed-level/IBD/resolvability claims."
+  },
+  "reproduction": {
+    "working_directory": "/Users/nk/Desktop/ducksmiles-analytics-20261021",
+    "artifact_directory": "/private/tmp/rusta-ducksmiles-jmp-target/design-classical-check",
+    "scripts": {
+      "runner.rs": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/design_classical.rs\"]\nmod design_classical;\nuse std::io::{self,BufRead};\nfn main(){for line in io::stdin().lock().lines(){let line=line.unwrap();let p=line.split('|').collect::<Vec<_>>();let a=p[1].split(',').filter(|s|!s.is_empty()).map(|s|s.parse().unwrap()).collect::<Vec<f64>>();let d=p[2].split(';').map(|r|r.split(',').map(|s|s.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();match design_classical::run(p[0],&d,&a){Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}}}\n",
+      "verify.py": "import json,sys,subprocess,itertools,math\nimport numpy as np\nfrom scipy import optimize,linalg\nSEED=325171\nrng=np.random.default_rng(SEED)\nproc=subprocess.Popen(['/private/tmp/rusta-ducksmiles-jmp-target/design-classical-check/runner'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)\nchecks=0;families={};maxerr=0.;capped=[];bibd_outcomes=[]\ndef run(op,data,args=[],allow_error=False):\n line=op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r)) for r in data)\n proc.stdin.write(line+'\\n');proc.stdin.flush();s=proc.stdout.readline().strip()\n if s.startswith('ERROR'):\n  if allow_error:return s\n  raise AssertionError((op,s))\n r=json.loads(s);assert r['version']==1;return r\ndef close(a,b):\n global maxerr\n a=np.array(a);b=np.array(b);assert a.shape==b.shape,(a.shape,b.shape)\n e=float(np.max(np.abs(a-b)/np.maximum(1,np.abs(b)))) if a.size else 0\n maxerr=max(maxerr,e);assert e<2e-12,(e,a,b)\ndef count(n):\n global checks\n checks+=1;families[n]=families.get(n,0)+1\ndef verify_blocks(r,v,k,rep,lam):\n ts=np.array(r['treatment_ids']);bs=np.array(r['block_ids']);b=r['n_blocks'];N=np.zeros((v,b))\n for t,bb in zip(ts,bs):N[t,bb]+=1\n assert np.all(N<=1) and np.all(N.sum(0)==k) and np.all(N.sum(1)==rep)\n expected=np.full((v,v),lam);np.fill_diagonal(expected,rep)\n close(N@N.T,expected);close(r['pair_concurrence'],expected)\n info=np.diag(N.sum(1))-N@N.T/k;close(r['treatment_information'],info)\n close(np.linalg.eigvalsh(info),[0]+[lam*v/k]*(v-1))\n close(r['design'],ts[:,None]);assert list(r['run_order'])==list(range(1,len(ts)+1))\n return N\nfor i in range(90):\n v=int(rng.integers(2,17));b=int(rng.integers(1,9));r=run('rcbd_design',[[j] for j in range(v)],[b,i])\n verify_blocks(r,v,v,b,b)\n assert all(len(set(r['block_ids'][j:j+v]))==1 for j in range(0,v*b,v))\n assert r==run('rcbd_design',[[j] for j in range(v)],[b,i]);count('RCBD')\nfor v in range(3,10):\n for k in range(2,min(v,5)):\n  for lam in range(1,4):\n   if lam*(v-1)%(k-1) or lam*v*(v-1)%(k*(k-1)):continue\n   candidates=list(itertools.combinations(range(v),k));pairs=list(itertools.combinations(range(v),2))\n   A=np.array([[int(a in c and b in c) for c in candidates] for a,b in pairs])\n   # Independent integer feasibility proof in candidate multiplicities.\n   res=optimize.milp(np.ones(len(candidates)),integrality=np.ones(len(candidates)),bounds=optimize.Bounds(0,lam),constraints=optimize.LinearConstraint(A,lam,lam),options={'time_limit':10})\n   assert res.status in [0,2],(v,k,lam,res.message)\n   for seed in range(4):\n    r=run('balanced_incomplete_block',[[j] for j in range(v)],[k,lam,seed],True)\n    if isinstance(r,str):\n     if 'search_limit:' in r:capped.append([v,k,lam,seed,res.status])\n     else:assert 'no_solution:' in r and res.status==2,(v,k,lam,r,res.status)\n    else:\n     assert res.status==0\n     verify_blocks(r,v,k,lam*(v-1)//(k-1),lam)\n    count('BIBD_exact_or_explicit_budget')\n   bibd_outcomes.append([v,k,lam,res.status])\nfor q in [2,3,5,7]:\n for seed in range(20):\n  v=q*q;r=run('resolvable_incomplete_block',[[i] for i in range(v)],[seed])\n  verify_blocks(r,v,q,q+1,1)\n  ts=np.array(r['treatment_ids']);cl=np.array(r['parallel_class_ids'])\n  assert len(set(cl))==q+1\n  for c in set(cl):assert sorted(ts[cl==c])==list(range(v))\n  count('resolvable_affine')\nfor strip in [False,True]:\n for seed in range(90):\n  p=int(rng.integers(2,8));roles=rng.integers(0,2,p);roles[0]=0;roles[-1]=1\n  reps=int(rng.integers(1,5));data=np.c_[np.arange(p)*2,np.arange(p)*2+1,roles]\n  op='strip_plot_design' if strip else 'split_plot_design';r=run(op,data,[reps,seed])\n  D=np.array(r['design']);rr=np.array(r['replicate_ids']);a=2**sum(roles==0);b=2**sum(roles==1)\n  expected=set(itertools.product(*[(2*j,2*j+1) for j in range(p)]))\n  for rep in range(reps):assert set(map(tuple,D[rr==rep]))==expected\n  assert r['inference_ready']==(reps>1)\n  if strip:\n   aid=np.array(r['row_strip_ids']);bid=np.array(r['column_strip_ids'])\n   assert len(set(zip(aid,bid)))==len(D)\n   for aa in set(aid):assert len(set(map(tuple,D[aid==aa][:,roles==0])))==1\n   for bb in set(bid):assert len(set(map(tuple,D[bid==bb][:,roles==1])))==1\n   order=r['stage2_order'];assert sorted(order)==list(range(len(D)))\n   for j in range(0,len(D),a):assert len(set(bid[order[j:j+a]]))==1\n   close(r['replication_error_df'],[(reps-1)*(a-1),(reps-1)*(b-1),(reps-1)*(a-1)*(b-1)])\n  else:\n   aid=np.array(r['whole_plot_ids'])\n   for j in range(0,len(D),b):\n    assert len(set(aid[j:j+b]))==1\n    assert len(set(map(tuple,D[j:j+b][:,roles==0])))==1\n   close(r['replication_error_df'],[(reps-1)*(a-1),a*(reps-1)*(b-1)])\n  count('strip_plot' if strip else 'split_plot')\nfor seed in range(100):\n n=[4,8,9,18][seed%4]\n available={4:[2]*3,8:[2]*7,9:[3]*4,18:[2]+[3]*7}[n]\n ix=rng.choice(len(available),size=int(rng.integers(1,len(available)+1)),replace=False)\n levels=np.array(available)[ix].tolist()\n r=run('taguchi_orthogonal_array',[[l] for l in levels],[n,seed]);D=np.array(r['design'],int)\n X=[np.ones(n)];terms=[]\n for j,l in enumerate(levels):\n  H=linalg.helmert(l,full=False)*np.sqrt(l)\n  for c in range(l-1):X.append(H[c,D[:,j]]);terms.append((j,c))\n  assert np.all(np.bincount(D[:,j],minlength=l)==n//l)\n for j,l in enumerate(levels):\n  for k in range(j):\n   C=np.zeros((l,levels[k]),int);np.add.at(C,(D[:,j],D[:,k]),1);assert np.all(C==n//(l*levels[k]))\n X=np.array(X).T;close(r['main_effect_gram'],X.T@X/n)\n alias=[]\n for i,(a,c) in enumerate(terms):\n  for j,(b,d) in enumerate(terms[:i]):\n   if a!=b:alias.append(X[:,i+1]*X[:,j+1])\n A=np.array(alias).T if alias else np.zeros((n,0))\n close(r['main_interaction_alias'],X[:,1:].T@A/n)\n count('catalog_OA_contrasts_and_aliases')\nproc.stdin.close();proc.wait()\nout=dict(seed=SEED,comparisons=checks,families=families,max_scaled_absolute_error=maxerr,capped_cases=capped,bibd_MILP_feasibility=bibd_outcomes,failures=0,skipped=0,python=sys.version,numpy=np.__version__,scipy=__import__('scipy').__version__,layer='direct Rust module run;public unknown-operation RED recorded separately;SQL/native not exercised')\njson.dump(out,open('/private/tmp/rusta-ducksmiles-jmp-target/design-classical-check/oracle-summary.json','w'),indent=2);print(json.dumps(out,indent=2))\n",
+      "write_api.py": "import json,subprocess\nfrom pathlib import Path\nR=Path('/Users/nk/Desktop/ducksmiles-analytics-20261021');D=Path('/private/tmp/rusta-ducksmiles-jmp-target/design-classical-check')\nrefs=[\n'https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-balanced-incomplete-block-designs.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/splitplot-experiment.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/twoway-splitplot-experiment.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/overview-of-taguchi-designs.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/choose-taguchi-inner-and-outer-array-designs.shtml',\n'https://www.itl.nist.gov/div898/handbook/pri/section3/pri33a.htm']\nT=lambda n:[[float(i)] for i in range(n)]\nspecs=[\n('rcbd_design','RcbdDesign','Randomized complete blocks: distinct treatment rows; [blocks,seed=0].',T(4),[3.,42.],\n'2..256distinct treatment-setting rows,1..16numeric columns. Each input row is one treatment.',\n['blocks integer1..1024(required)','seed exact nonnegative integer<=2^53-1,default0'],\n'Each block contains every input treatment once. Fisher-Yates randomizes treatment order within each complete block;blocks remain contiguous. Returns treatment/block/run IDs,replications,pair concurrence and block-adjusted treatment information.',\n{'n_blocks':3,'block_size':4,'replication':[3]*4},\n['arbitrary optimal blocking','response-model fitting','BIBD incomplete blocks']),\n('balanced_incomplete_block','BalancedIncompleteBlock','Exact balanced incomplete blocks: distinct treatments<=9; [block_size,lambda=1,seed=0].',T(7),[3.,1.,7.],\n'3..9distinct treatment-setting rows,1..16numeric columns.',\n['block_size integer2..4,strictly less than treatment count','lambda integer1..3,default1','seed exact nonnegative integer<=2^53-1,default0'],\n'Exact pair/replication-constrained BIBD. Integer equations determine r=lambda(v-1)/(k-1),b=vr/k. Search may use repeated blocks and fixes first block by treatment-label symmetry;certified binary affine construction handles(v,k,lambda)=(8,4,3),cyclic Z9 difference-family handles(9,4,3). Randomized treatment relabeling,block order and within-block order preserve exact incidence. No solver dependency in Rust.',\n{'n_blocks':7,'block_size':3,'replication':[3]*7},\n['arbitrary unbalanced incomplete block optimization','v>9,k>4,lambda>3','guaranteed completion outside bounded work budget']),\n('resolvable_incomplete_block','ResolvableIncompleteBlock','Resolvable affine incomplete blocks: q^2 treatment rows,q=2/3/5/7; [seed=0].',T(9),[17.],\n'q^2distinct treatment-setting rows,prime q in{2,3,5,7};1..16numeric columns.',\n['seed exact nonnegative integer<=2^53-1,default0'],\n'Affine-plane lines over prime finite field Fq:vertical plus q slope classes. v=q^2,k=q,r=q+1,b=q(q+1),lambda1. Each parallel class partitions all treatments once. Seed randomizes treatment labels,class/block order and order within block;parallel_class_ids explicitly retain class structure. This is a resolvable BIBD family,not an arbitrary resolvable-design search.',\n{'n_blocks':12,'block_size':3,'replication':[4]*9},\n['composite finite fields such as q4','arbitrary resolvable BIBD parameters','generic meaning of RIBD as any randomized incomplete plan']),\n('split_plot_design','SplitPlotDesign','Classical two-level split plot: factor rows[low,high,role0whole/1subplot]; [replicates=1,seed=0].',[[0.,1.,0.],[2.,3.,1.],[4.,5.,1.]],[2.,31.],\n'2..12factor rows[finite low<high,role0whole-plot/1subplot];both roles required.',\n['replicates integer1..256,default1','seed exact nonnegative integer<=2^53-1,default0'],\n'Complete two-level factorial treatment structure crossed with replicate blocks. Whole treatment combinations are randomized per replicate and held constant over contiguous whole plots. All subplot combinations randomize independently inside each whole plot. Returns replicate/whole-plot/treatment IDs and aggregate classical replication error df[(r-1)(a-1),a(r-1)(b-1)]. Replicate1produces a plan with zero replication error df and inference_ready=false. No response inference performed.',\n{'replication_error_df':[1,6],'inference_ready':True},\n['arbitrary custom D/I-optimal split plots','more than2levels per factor','split-split plots','response-model inference']),\n('strip_plot_design','StripPlotDesign','Classical crossed strip plot: factor rows[low,high,role0row/1column]; [replicates=1,seed=0].',[[0.,1.,0.],[2.,3.,1.],[4.,5.,1.]],[2.,31.],\n'2..12factor rows[finite low<high,role0row-strip/1column-strip];both roles required.',\n['replicates integer1..256,default1','seed exact nonnegative integer<=2^53-1,default0'],\n'Complete crossed two-level row/column treatment combinations in each replicate. Row and column strips randomize independently. Membership crosses rather than nests:every row strip intersects every column strip once. Returned design rows follow stage1order;stage2_order is a zero-based permutation regrouping units by column strip,randomizing row subunits within each column strip. Replication error df[(r-1)(a-1),(r-1)(b-1),(r-1)(a-1)(b-1)]. Replicate1zero df explicitly;no response inference.',\n{'replication_error_df':[1,3,3],'inference_ready':True},\n['arbitrary custom optimal strip plots','nested split-split interpretation','additional third-stage easy factors','response-model inference']),\n('taguchi_orthogonal_array','TaguchiOrthogonalArray','Catalog orthogonal arrays: scalar factor levels2/3; [array4/8/9/18,seed=0].',[[2.],[3.],[3.],[3.],[3.],[3.],[3.],[3.]],[18.,11.],\n'1..8scalar factor level counts2or3. Output categorical level codes are zero-based.',\n['array required integer4/8/9/18','seed exact nonnegative integer<=2^53-1,default0'],\n'L4/L8 binary projective strength2arrays,L9 ternary finite-field array,NIST tabulated mixed L18(2^1 3^7). Requested factors map to first unused compatible catalog columns. Run order randomized. Runtime verifies pair balance. Normalized Helmert contrast main_effect_gram and main-vs-two-factor-interaction alias matrix expose confounding. Interaction terms use[factor,contrast,factor,contrast] zero-based;alias excludes intercept.',\n{'main_effect_rank':16,'strength2':True},\n['full Taguchi robust parameter-design platform','inner/outer array crossing','signal-to-noise response analysis','arbitrary mixed-level orthogonal array search','interaction-free claims'])\n]\nops=[];fragment=['// Classical complete/incomplete blocks,restricted randomization,and catalog arrays.']\nfor op,symbol,desc,data,args,datadoc,argdoc,method,known,unsupported in specs:\n line=op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r)) for r in data)+'\\n'\n out=subprocess.run([str(D/'runner')],input=line,text=True,capture_output=True,check=True).stdout\n assert not out.startswith('ERROR'),out\n value=json.loads(out);assert value['version']==1\n sql='chem_'+op+'('+json.dumps(data,separators=(',',':'))+', '+json.dumps(args,separators=(',',':'))+')'\n ops.append(dict(operation=op,symbol=symbol,sql_name='chem_'+op,source='crates/analytics/src/design_classical.rs',description=desc,data=datadoc,args=argdoc,estimator=method,sql_example=sql,known_value=known,fixture=dict(data=data,args=args),unsupported=unsupported,official_references=refs[:5],reference=refs[-1],evidence='tasks/evidence/jmp-design-classical-reference.json'))\n fragment.append('ANALYTICS_METHOD('+symbol+','+','.join(json.dumps(x) for x in ['chem_'+op,op,desc,sql])+')')\napi=dict(schema_version=1,module='design_classical',module_path='crates/analytics/src/design_classical.rs',source='crates/analytics/src/design_classical.rs',\n scope='Six bounded classical plan constructors,partial JMP19.2 DOE numerical coverage. Complete factorial treatment structure is explicit only for split/strip;BIBDs and mixed orthogonal arrays are not mislabeled full factorial.',\n integration_status='Parent pubmod/public execute6routes enabled;11public execute tests GREEN. NativeSQL unknown-function RED observed on old181snapshot;updated native GREEN pending parent gate.',\n common_contract=dict(input='Finite rectangular nonempty data<=4096rows,64columns,1000000cells;operation-specific stricter bounds. Treatment plans require distinct treatment rows;IDs refer to input row positions.',\n output='Design<=16384runs and1000000setting cells. IDs zero-based except run_order1based. Physical row order is execution order;blocks/whole plots remain contiguous.',\n randomization='SplitMix64(seed) with rejection-sampled unbiased Fisher-Yates;seed exact0..2^53-1,including0. Repeat seed and inputs reproduce output. RNG is deterministic construction,not cryptographic.',\n block_information='IncidenceN[treatment,block],pair_concurrence=N N^T (diagonal treatment replication),treatment_information=diag(replication)-N N^T/block_size. Connected complete/BIBD designs have rankv-1;contrast information is adjusted for block effects.',\n BIBD_limits='v3..9,k2..4,k<v,lambda1..3,b<=128;backtracking nodes<=100000 andcandidate feasibility checks<=5000000. Errors distinguish unsupported parameter scope,no_solution (violated necessary equations or exhaustive search completed),search_limit (budget exhausted;existence undetermined). Repeated blocks allowed when lambda>1.',\n split_strip='Hard-factor treatment combinations havea=2^(role0factor count),easy/column combinationsb=2^(role1factor count). Replicate labels are blocking strata. inference_ready only diagnoses positive classical replication error df;response inference is never performed.',\n OA='L4<=3binary,L8<=7binary,L9<=4ternary,L18<=1binary+7ternary. Only catalog column subsets;coded levels0..L-1. Main effects orthogonal,interactions may be aliased. No robust-design response analysis.',\n limitations='No general custom-optimal design search,no ANOVA/REML fitting in these constructors,no arbitrary mixed-level/IBD/resolvability claims.'\n ),operations=ops,official_references=refs,evidence='tasks/evidence/jmp-design-classical-reference.json')\n(R/'tasks/jmp-design-classical-api.json').write_text(json.dumps(api,indent=2)+'\\n')\n(R/'tasks/jmp-design-classical-registry.inc').write_text('\\n'.join(fragment)+'\\n')\nprint('6 API examples validated through direct run;6registry entries')\n"
+    },
+    "build_command": "rustc --edition=2021 -O /private/tmp/rusta-ducksmiles-jmp-target/design-classical-check/runner.rs -o /private/tmp/rusta-ducksmiles-jmp-target/design-classical-check/runner",
+    "oracle_command": "OPENBLAS_NUM_THREADS=1 python3 /private/tmp/rusta-ducksmiles-jmp-target/design-classical-check/verify.py",
+    "native_checker": "#!/usr/bin/env python3\n\"\"\"Independent counting checks for six classical DOE SQL functions (stdlib only).\n\nRequires matching native CLI/extension. This verifies plan structure, incidence,\nrestricted randomization and catalog OA balance; it does not analyze responses.\n\"\"\"\nimport argparse\nfrom collections import Counter, defaultdict\nimport itertools\nimport json\nfrom pathlib import Path\n\nfrom check_jmp_continuation import Runner, equal, expression, strict_json\n\nROOT = Path(__file__).resolve().parents[1]\n\n\ndef blocks(result, values, k, replication, concurrence, resolvable=False):\n    \"\"\"Count directly from returned rows/IDs, not returned summary fields.\"\"\"\n    n = len(result[\"design\"])\n    assert n == len(result[\"treatment_ids\"]) == len(result[\"block_ids\"])\n    actual = defaultdict(list)\n    for row, treatment, block in zip(result[\"design\"], result[\"treatment_ids\"], result[\"block_ids\"]):\n        assert row == values[treatment]\n        actual[block].append(treatment)\n    assert len(actual) == result[\"n_blocks\"]\n    visits = Counter()\n    pair = Counter()\n    for treatments in actual.values():\n        assert len(treatments) == len(set(treatments)) == k\n        visits.update(treatments)\n        pair.update(itertools.combinations(sorted(treatments), 2))\n    v = len(values)\n    assert visits == Counter({i: replication for i in range(v)}), visits\n    assert all(pair[a, b] == concurrence for a, b in itertools.combinations(range(v), 2)), pair\n    equal(result[\"replication\"], [replication]*v, \"reported replications\")\n    expected = [[replication if i == j else concurrence for j in range(v)] for i in range(v)]\n    equal(result[\"pair_concurrence\"], expected, \"reported concurrence\")\n    equal(result[\"treatment_information\"],\n          [[(replication if i == j else 0)-expected[i][j]/k for j in range(v)] for i in range(v)],\n          \"block adjusted information\")\n    assert result[\"run_order\"] == list(range(1, n+1))\n    if resolvable:\n        classes = defaultdict(list)\n        for cls, treatment in zip(result[\"parallel_class_ids\"], result[\"treatment_ids\"]):\n            classes[cls].append(treatment)\n        assert len(classes) == replication\n        assert all(sorted(x) == list(range(v)) for x in classes.values())\n\n\ndef restricted(result, factors, replicas, strip):\n    p = len(factors)\n    roles = [int(f[2]) for f in factors]\n    a = 2**roles.count(0)\n    b = 2**roles.count(1)\n    expected = set(itertools.product(*[(f[0], f[1]) for f in factors]))\n    rows = result[\"design\"]\n    by_replica = defaultdict(list)\n    for rep, row in zip(result[\"replicate_ids\"], rows):\n        by_replica[rep].append(tuple(row))\n    assert len(rows) == replicas*a*b and len(by_replica) == replicas\n    assert all(len(x) == len(expected) and set(x) == expected for x in by_replica.values())\n    assert result[\"inference_ready\"] == (replicas > 1)\n    if strip:\n        row_ids, col_ids = result[\"row_strip_ids\"], result[\"column_strip_ids\"]\n        assert len(set(zip(row_ids, col_ids))) == len(rows), \"strips must cross\"\n        for ids, role in [(row_ids, 0), (col_ids, 1)]:\n            settings = defaultdict(set)\n            for ident, row in zip(ids, rows):\n                settings[ident].add(tuple(x for x, r in zip(row, roles) if r == role))\n            assert all(len(x) == 1 for x in settings.values()), \"strip settings changed\"\n        for key, ids, length in [(\"stage1_order\", row_ids, b), (\"stage2_order\", col_ids, a)]:\n            order = result[key]\n            assert sorted(order) == list(range(len(rows)))\n            for j in range(0, len(order), length):\n                assert len({ids[i] for i in order[j:j+length]}) == 1, key\n        equal(result[\"replication_error_df\"],\n              [(replicas-1)*(a-1), (replicas-1)*(b-1), (replicas-1)*(a-1)*(b-1)], \"strip df\")\n    else:\n        ids = result[\"whole_plot_ids\"]\n        for j in range(0, len(rows), b):\n            assert len(set(ids[j:j+b])) == 1\n            assert len({tuple(x for x, role in zip(row, roles) if role == 0) for row in rows[j:j+b]}) == 1\n        equal(result[\"replication_error_df\"], [(replicas-1)*(a-1), a*(replicas-1)*(b-1)], \"split df\")\n\n\ndef oa(result, levels):\n    rows = result[\"design\"]\n    n = len(rows)\n    for j, level_count in enumerate(levels):\n        assert Counter(row[j] for row in rows) == Counter({i: n//level_count for i in range(level_count)})\n        for k in range(j):\n            counts = Counter((row[j], row[k]) for row in rows)\n            assert counts == Counter({(a, b): n//(level_count*levels[k])\n                                      for a in range(level_count) for b in range(levels[k])})\n    assert result[\"strength2\"] and result[\"main_effect_rank\"] == 1+sum(l-1 for l in levels)\n    gram = result[\"main_effect_gram\"]\n    equal(gram, [[int(i == j) for j in range(len(gram))] for i in range(len(gram))], \"OA main contrast Gram\")\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--duckdb\", required=True)\n    parser.add_argument(\"--extension\", type=Path, required=True)\n    args = parser.parse_args()\n    runner = Runner(args.duckdb, args.extension)\n    api = json.loads((ROOT/\"tasks/jmp-design-classical-api.json\").read_text())\n    items = api[\"operations\"]\n    assert len(items) == len({x[\"operation\"] for x in items}) == 6\n    results = runner.many([x[\"sql_example\"] for x in items])\n    for item, result in zip(items, results):\n        for key, value in item[\"known_value\"].items():\n            equal(result[key], value, item[\"operation\"]+\".\"+key)\n    by_op = {item[\"operation\"]: result for item, result in zip(items, results)}\n    blocks(by_op[\"rcbd_design\"], items[0][\"fixture\"][\"data\"], 4, 3, 3)\n    blocks(by_op[\"balanced_incomplete_block\"], items[1][\"fixture\"][\"data\"], 3, 3, 1)\n    blocks(by_op[\"resolvable_incomplete_block\"], items[2][\"fixture\"][\"data\"], 3, 4, 1, True)\n    restricted(by_op[\"split_plot_design\"], items[3][\"fixture\"][\"data\"], 2, False)\n    restricted(by_op[\"strip_plot_design\"], items[4][\"fixture\"][\"data\"], 2, True)\n    oa(by_op[\"taguchi_orthogonal_array\"], [2]+[3]*7)\n    structural = 6\n    for v, k, lam in [(3, 2, 3), (6, 3, 2), (8, 4, 3), (9, 4, 3)]:\n        data = [[i] for i in range(v)]\n        blocks(runner.one(expression(\"balanced_incomplete_block\", data, [k, lam, 42])),\n               data, k, lam*(v-1)//(k-1), lam)\n        structural += 1\n    for strip in [False, True]:\n        op = \"strip_plot_design\" if strip else \"split_plot_design\"\n        factors = [[-1, 1, 0], [3, 5, 1]]\n        restricted(runner.one(expression(op, factors, [1, 19])), factors, 1, strip)\n        structural += 1\n    array = runner.one(expression(\"taguchi_orthogonal_array\", [[2]]*3, [4, 7]))\n    oa(array, [2]*3)\n    equal(array[\"max_main_interaction_alias\"], 1, \"L4 known complete main/interaction alias\")\n    structural += 1\n    # Seed-dependent data comes through selected dictionary vectors; NULL rows\n    # are interleaved with non-NULL selected rows.\n    selected = runner.query(\"SELECT i,chem_rcbd_design([[i::DOUBLE],[i::DOUBLE+1]], [2.,i::DOUBLE]) AS result FROM range(5000) t(i) WHERE i%997=0 ORDER BY i;\")\n    for row in selected:\n        result = strict_json(row[\"result\"])\n        blocks(result, [[row[\"i\"]], [row[\"i\"]+1]], 2, 2, 2)\n        runner.decoded += 1\n    interleaved = runner.query(\"SELECT i,chem_rcbd_design(CASE WHEN i%3=0 THEN NULL ELSE [[0.],[1.]] END,[2.,i::DOUBLE]) AS result FROM range(9) t(i) WHERE i<>4 ORDER BY i;\")\n    for row in interleaved:\n        if row[\"i\"] % 3 == 0:\n            assert row[\"result\"] is None\n        else:\n            blocks(strict_json(row[\"result\"]), [[0], [1]], 2, 2, 2)\n            runner.decoded += 1\n    malformed = [\n        expression(\"rcbd_design\", [[0], [0]], [2]),\n        expression(\"rcbd_design\", [[0], [1]], [2, .5]),\n        expression(\"balanced_incomplete_block\", [[i] for i in range(6)], [3, 1]),\n        expression(\"balanced_incomplete_block\", [[i] for i in range(4)], [4, 1]),\n        expression(\"resolvable_incomplete_block\", [[i] for i in range(16)]),\n        expression(\"split_plot_design\", [[0, 1, 0]]),\n        expression(\"strip_plot_design\", [[0, 1, 0], [2, 1, 1]]),\n        expression(\"taguchi_orthogonal_array\", [[2], [2]], [18]),\n        \"chem_rcbd_design(NULL::DOUBLE[][],[2.])\",\n        \"chem_rcbd_design([[0.],[1.]],NULL::DOUBLE[])\",\n        \"chem_rcbd_design([[0.],[NULL]],[2.])\",\n        \"chem_rcbd_design([[0.],[1.,2.]],[2.])\",\n        \"chem_rcbd_design([NULL::DOUBLE[],[1.]],[2.])\",\n        \"chem_rcbd_design([[0.],[1.]],[2.,'NaN'::DOUBLE])\",\n    ]\n    invalid = runner.query(\" UNION ALL \".join(f\"SELECT {i} AS id,({e}) IS NULL AS valid\" for i, e in enumerate(malformed))+\" ORDER BY id;\")\n    assert len(invalid) == len(malformed) and all(r[\"valid\"] for r in invalid), invalid\n    print(json.dumps(dict(status=\"PASS\", layer=\"native DuckDB SQL -> C++ -> Rust\",\n                          catalog_examples=6, independent_structural_cases=structural,\n                          malformed_inputs_returning_null=len(malformed), selected_rows=len(selected),\n                          interleaved_rows=len(interleaved), native_sql_queries=runner.queries,\n                          strict_json_results=runner.decoded), indent=2))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "native_SQLLogicTest": "# name: test/sql/jmp_design_classical.test\n# description: Classical blocked and restricted-randomization designs\n# group: [sql]\n\nrequire ducksmiles\n\nrequire json\n\nquery II\nWITH d AS (SELECT chem_rcbd_design([[0.],[1.],[2.]], [4.,42.]) AS j)\nSELECT json_extract(j,'$.n_blocks')::BIGINT,\n       json_array_length(json_extract(j,'$.treatment_ids')) FROM d;\n----\n4\t12\n\nquery III\nWITH d AS (SELECT chem_balanced_incomplete_block([[0.],[1.],[2.],[3.],[4.],[5.],[6.]], [3.,1.,7.]) AS j)\nSELECT json_extract(j,'$.n_blocks')::BIGINT,\n       json_extract(j,'$.replication[0]')::BIGINT,\n       json_extract(j,'$.pair_concurrence[0][1]')::BIGINT FROM d;\n----\n7\t3\t1\n\nquery II\nWITH d AS (SELECT chem_resolvable_incomplete_block([[0.],[1.],[2.],[3.],[4.],[5.],[6.],[7.],[8.]], [17.]) AS j)\nSELECT json_extract(j,'$.n_blocks')::BIGINT,\n       json_array_length(json_extract(j,'$.parallel_class_ids')) FROM d;\n----\n12\t36\n\nquery II\nWITH d AS (SELECT chem_split_plot_design([[0.,1.,0.],[2.,3.,1.]], [1.,31.]) AS j)\nSELECT json_extract(j,'$.inference_ready')::BOOLEAN=false,\n       json_extract(j,'$.replication_error_df[0]')::BIGINT=0 FROM d;\n----\ntrue\ttrue\n\nquery II\nWITH d AS (SELECT chem_strip_plot_design([[0.,1.,0.],[2.,3.,1.],[4.,5.,1.]], [2.,31.]) AS j)\nSELECT json_array_length(json_extract(j,'$.stage2_order')),\n       json_extract(j,'$.replication_error_df[2]')::BIGINT FROM d;\n----\n16\t3\n\nquery II\nWITH d AS (SELECT chem_taguchi_orthogonal_array([[2.],[3.],[3.],[3.],[3.],[3.],[3.],[3.]], [18.,11.]) AS j)\nSELECT json_extract(j,'$.main_effect_rank')::BIGINT,\n       json_array_length(json_extract(j,'$.design')) FROM d;\n----\n16\t18\n\nquery III\nSELECT chem_balanced_incomplete_block([[0.],[1.],[2.],[3.],[4.],[5.]], [3.,1.]) IS NULL,\n       chem_rcbd_design([[0.],[NULL]], [2.]) IS NULL,\n       chem_taguchi_orthogonal_array([[2.],[2.]], [18.]) IS NULL;\n----\ntrue\ttrue\ttrue\n\nquery I\nSELECT count(*) FROM (\n SELECT chem_rcbd_design([[i::DOUBLE],[i::DOUBLE+1.]], [2.,i::DOUBLE]) AS result\n FROM range(5000) t(i) WHERE i%997=0\n) WHERE json_valid(result);\n----\n6\n"
+  },
+  "toolchain": {
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)"
+  },
+  "unsupported": "No installed JMP executable comparison,no full Taguchi inner/outer/SN platform,no arbitrary D/Ioptimal split/strip/no response inference."
+}

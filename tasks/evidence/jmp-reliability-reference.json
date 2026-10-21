@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-21",
+  "source": "crates/analytics/src/reliability.rs",
+  "scope": "Seven bounded CPU parametric-reliability operations,partial JMP19.2 numerical coverage; not full parametric survival/reliability growth/RBD equivalence.",
+  "layer": "Independent oracle through isolated rustc module wrapper; focusedRusttests separately exercise actualpublicexecute. NativeSQLvalidation parent-owned.",
+  "versions": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1"
+  },
+  "seed": 615891,
+  "reference": {
+    "cases": 780,
+    "oracle_skipped": 0,
+    "max_scaled_absolute_error": [
+      1.0749985901448156e-09,
+      [
+        "aft_exponential",
+        "coefficients"
+      ]
+    ],
+    "failure_count": 0,
+    "breakdown": {
+      "right_censored_aft_fits_and_information": 120,
+      "survival_and_quantile_predictions": 240,
+      "nhpp_fit_and_predict": 120,
+      "block_all_states_reference": 300
+    },
+    "ridge_cases": 30
+  },
+  "oracle_independence": "SciPy roots of complex-step derivatives of scalar density/survival likelihoods; observed Hessian by Richardson differentiation of complex-step scores. No production score/Hessian reused. NHPP direct point-process formulas,normal quantiles/survival viaSciPy,andblock reliability by enumeration of all component states.",
+  "tdd": {
+    "baseline": "cargo check -p ducksmiles_analytics passed",
+    "public_execute_red": {
+      "failed": 10,
+      "passed_validation_only": 1,
+      "expected_error": "unknown optimization operation"
+    },
+    "focused_tests_final": 11,
+    "strict_clippy": "cargo clippy -p ducksmiles_analytics --test reliability -- -D warnings passed",
+    "format": "scopedrustfmtcheck passed",
+    "important_behaviors": [
+      "failure densities plus correct right-censor survival likelihood",
+      "common shape fitted jointly with AFT slopes",
+      "full observed information including location-scale cross terms",
+      "exact exponential exposure per event",
+      "saved prediction has no query-driven centering",
+      "feature/time unit invariance with proper likelihood Jacobian",
+      "iteration exhaustion never reports convergence",
+      "penalized curvature suppresses calibrated inference",
+      "NHPP time truncation and shape standarderror",
+      "nonidentical k-of-n exact independent probability"
+    ]
+  },
+  "api_example_validation": [
+    {
+      "operation": "aft_exponential",
+      "version1_json": true
+    },
+    {
+      "operation": "aft_weibull",
+      "version1_json": true
+    },
+    {
+      "operation": "aft_lognormal",
+      "version1_json": true
+    },
+    {
+      "operation": "aft_predict",
+      "version1_json": true
+    },
+    {
+      "operation": "nhpp_powerlaw",
+      "version1_json": true
+    },
+    {
+      "operation": "nhpp_predict",
+      "version1_json": true
+    },
+    {
+      "operation": "reliability_blocks",
+      "version1_json": true
+    }
+  ],
+  "primary_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/documentation-pdf-addin.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/exponential-weibull-and-lognormal-plots-and-fits.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/fit-model.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/fit-parametric-survival.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-fit-parametric-survival-platform.shtml",
+    "https://www.jmp.com/support/help/ja/18.2/jmp/overview-of-the-reliability-block-diagram-platform.shtml"
+  ],
+  "source_note": "JMP19.2 parametric-survival loss/recurrence pages read directly. JMP19.2 documentation book listing confirmsRBD; direct19.2RBD overview unavailable throughweb tool,so18.2officialJapanese overview documents series/parallel/k-of-n scope.",
+  "source_sha256": {
+    "crates/analytics/src/reliability.rs": "ae174973d3f53dd0c62334857e02ea772ed9e7b902c4c2c9c22c306bfe501b1b",
+    "crates/analytics/tests/reliability.rs": "48550d2c05f0ea90f49ddceca6998c56a0543a973ac086c49d1a6be4c1662b6b",
+    "tasks/jmp-reliability-api.json": "76d39482875afc32e69dcc6094cb7921ce8f84bfc1b1c74a193247799ab32143",
+    "tasks/jmp-reliability-registry.inc": "ae4a1190bf2e89b760c93df9d31b29f97875ff906c14a561b743e840bfa8a3c3"
+  },
+  "harness": {
+    "directory": "/private/tmp/rusta-ducksmiles-jmp-target/reliability-check",
+    "lib_rs": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/reliability.rs\"]\npub mod reliability;\npub fn execute(op:&str,data:&[Vec<f64>],args:&[f64])->Result<String,String>{reliability::run(op,data,args)}\n",
+    "runner_rs": "use std::io::{self,BufRead};\nfn main(){for line in io::stdin().lock().lines(){let line=line.unwrap();let p=line.split('|').collect::<Vec<_>>();let a=p[1].split(',').filter(|s|!s.is_empty()).map(|s|s.parse().unwrap()).collect::<Vec<f64>>();let d=p[2].split(';').map(|r|r.split(',').map(|s|s.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();match ducksmiles_analytics::execute(p[0],&d,&a){Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}}}\n",
+    "oracle_py": "import numpy as np,scipy.optimize as so,scipy.stats as stats,scipy.special as special,itertools,json,subprocess,warnings\nwarnings.filterwarnings('ignore',category=RuntimeWarning)\nrng=np.random.default_rng(615891);cases=[];skipped=[]\ndef add(op,data,args,expected):\n cases.append((op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r))for r in data),op,expected))\ndef grad(function,b):\n out=[]\n for j in range(len(b)):\n  z=np.array(b,dtype=complex);z[j]+=1e-20j;out.append(np.imag(function(z))/1e-20)\n return np.array(out)\ndef hessian(gradient,b):\n cols=[]\n for j in range(len(b)):\n  d=np.zeros(len(b));d[j]=1e-4\n  first=(gradient(b+d)-gradient(b-d))/(2e-4);second=(gradient(b+d/2)-gradient(b-d/2))/1e-4\n  cols.append((4*second-first)/3)\n return np.array(cols).T\nfor model in range(3):\n for iteration in range(40):\n  n=int(rng.integers(35,85));p=int(rng.integers(1,4));X=rng.normal(0,1,(n,p));D=np.c_[np.ones(n),X];truth=np.r_[1.3,rng.normal(0,.35,p)];mu=D@truth;sigma=float(rng.uniform(.35,.9))\n  if model==0:T=np.exp(mu)*rng.exponential(1,n)\n  elif model==1:T=np.exp(mu)*rng.exponential(1,n)**sigma\n  else:T=np.exp(mu+sigma*rng.normal(0,1,n))\n  C=np.exp(mu)*rng.exponential(4,n);t=np.minimum(T,C);e=(T<=C).astype(int);scales=X.std(0);penalty=.5 if iteration>=30 else 0.\n  def ll(b,penalty=penalty):\n   location=D@b[:p+1]\n   if model==0:likelihood=np.sum(-e*location-t*np.exp(-location))\n   else:\n    h=b[-1];z=(np.log(t)-location)/np.exp(h)\n    if model==1:likelihood=np.sum(e*(-np.log(t)-h+z)-np.exp(z))\n    else:likelihood=np.sum(e*(-np.log(t)-h-.5*z*z-.5*np.log(2*np.pi))+(1-e)*special.log_ndtr(-z))\n   return likelihood-penalty*np.sum((b[1:p+1]*scales)**2)/2\n  guess=np.r_[np.log(t).mean(),np.zeros(p),([]if model==0 else[np.log(np.log(t).std())])]\n  g=lambda b:grad(ll,b);optimized=so.minimize(lambda b:-ll(b),guess,jac=lambda b:-g(b),method='BFGS',options={'gtol':1e-9,'maxiter':1000})\n  root=so.root(g,optimized.x,tol=1e-10);b=root.x\n  if np.max(abs(g(b)))>1e-6 or not np.all(np.isfinite(b)):\n   skipped.append((model,iteration,'oracle score'));continue\n  info=-hessian(g,b)\n  if min(np.linalg.eigvalsh(info))<=0:skipped.append((model,iteration,'oracle information'));continue\n  covariance=np.linalg.inv(info);expected={'coefficients':b[:p+1],'log_likelihood':ll(b,penalty=0),'standard_errors':np.sqrt(covariance.diagonal())}\n  if model>0:expected['log_sigma']=b[-1]\n  add(['aft_exponential','aft_weibull','aft_lognormal'][model],np.c_[X,t,e],[penalty,500.,1e-9],expected)\nfor model in range(3):\n for _ in range(40):\n  mu=float(rng.uniform(-10,10));h=0. if model==0 else float(rng.uniform(-2,1));sigma=np.exp(h);modelvec=[model,0,0,h,mu]\n  z=float(rng.choice([-40,-20,-8,-2,0,2,8,20,40]));time=np.exp(mu+sigma*z);q=float(rng.choice([1e-250,1e-20,.001,.1,.5,.9,.9999999999999999]))\n  expectedS=np.exp(-np.exp(z)) if model<2 else stats.norm.sf(z)\n  add('aft_predict',[[time]],[0,*modelvec],{'survival_probabilities':[expectedS]})\n  quantilelog=mu+sigma*np.log(-np.log1p(-q))if model<2 else mu+sigma*stats.norm.ppf(q)\n  add('aft_predict',[[q]],[1,*modelvec],{'log_time_quantiles':[quantilelog]})\nfor _ in range(60):\n n=int(rng.integers(3,40));end=float(np.exp(rng.uniform(-30,30)));times=np.sort(rng.uniform(.001,.999,n))*end;shape=n/np.log(end/times).sum();logeta=np.log(end)-np.log(n)/shape;ll=np.log(shape/end)+shape*(np.log(end)-logeta)+(shape-1)*np.log(times/end)\n add('nhpp_powerlaw',times[:,None],[end],{'shape':shape,'log_eta':logeta,'log_likelihood':ll.sum()-n,'shape_standard_error':shape/np.sqrt(n)})\n query=np.array([0,end/2,end,2*end]);cumulative=np.r_[0,np.exp(shape*(np.log(query[1:])-logeta))]\n add('nhpp_predict',query[:,None],[shape,logeta],{'expected_cumulative_events':cumulative})\nfor _ in range(100):\n n=int(rng.integers(1,9));p=rng.uniform(.01,.99,n);k=int(rng.integers(1,n+1));total=0\n for mask in itertools.product([0,1],repeat=n):\n  if sum(mask)>=k:total+=np.prod([p[j]if mask[j]else 1-p[j]for j in range(n)])\n add('reliability_blocks',[p],[2,k],{'reliabilities':[total]})\n add('reliability_blocks',[p],[0],{'reliabilities':[np.prod(p)]})\n add('reliability_blocks',[p],[1],{'reliabilities':[1-np.prod(1-p)]})\nproc=subprocess.run(['/private/tmp/rusta-ducksmiles-jmp-target/reliability-check/runner'],input='\\n'.join(c[0]for c in cases)+'\\n',text=True,capture_output=True,check=True)\nerrors=[];maximum=(0,None)\nfor (_,op,expected),out in zip(cases,proc.stdout.splitlines()):\n if out.startswith('ERROR'):errors.append((op,out));continue\n actual=json.loads(out)\n for key,ee in expected.items():\n  a=np.asarray(actual[key]);b=np.asarray(ee);error=float(np.max(abs(a-b)/np.maximum(1,abs(b))))\n  if error>maximum[0]:maximum=error,(op,key)\n  if error>2e-5:errors.append((op,key,error))\nprint(json.dumps({'cases':len(cases),'oracle_skipped':skipped,'max_scaled_absolute_error':maximum,'failure_count':len(errors),'errors':errors[:20]}))\n",
+    "fixed_fixtures_py": "import numpy as np, scipy.optimize as so, scipy.stats as stats, scipy.special as special\nx=np.array([-1,-1,-1,-.5,-.5,0,0,.5,.5,1,1,1.]);t=np.array([1.2,2.1,1.6,3.5,2.7,3.2,5.5,4.8,7.1,6.2,8.4,9.]);e=np.array([1,1,0,1,0,1,1,0,1,1,0,1])\ndef numerical_gradient(function,b):\n out=[]\n for j in range(len(b)):\n  z=np.array(b,dtype=complex);z[j]+=1e-20j;out.append(np.imag(function(z))/1e-20)\n return np.array(out)\ndef numerical_hessian(gradient,b):\n cols=[]\n for j in range(len(b)):\n  d=np.zeros(len(b));d[j]=1e-4\n  first=(gradient(b+d)-gradient(b-d))/(2e-4)\n  second=(gradient(b+d/2)-gradient(b-d/2))/(1e-4)\n  cols.append((4*second-first)/3)\n return np.array(cols).T\nfor model in ['exponential','weibull','lognormal']:\n def ll(b):\n  mu=b[0]+b[1]*x\n  if model=='exponential':return np.sum(-e*mu-t*np.exp(-mu))\n  sigma=np.exp(b[2]);z=(np.log(t)-mu)/sigma\n  if model=='weibull':return np.sum(e*(-np.log(t)-b[2]+z)-np.exp(z))\n  return np.sum(e*(-np.log(t)-b[2]-.5*z*z-.5*np.log(2*np.pi))+(1-e)*special.log_ndtr(-z))\n guess=np.array([np.log(t).mean(),.8]+([]if model=='exponential'else[-1.]))\n gradient=lambda b:numerical_gradient(ll,b)\n opt=so.root(gradient,guess,tol=1e-11)\n b=opt.x;covariance=np.linalg.inv(-numerical_hessian(gradient,b))\n print(model,'success',opt.success,'score',gradient(b).tolist(),'parameters',b.tolist(),'SE',np.sqrt(np.diag(covariance)).tolist(),'LL',ll(b),'covariance',covariance.tolist())\nn=4;times=np.array([1.,2.,4.,7.]);T=10.;shape=n/np.log(T/times).sum();logeta=np.log(T)-np.log(n)/shape\nll=n*np.log(n)+n*np.log(shape)-n*np.log(T)+(shape-1)*np.log(times/T).sum()-n\nprint('NHPP',shape,logeta,np.exp(logeta),ll,'SEshape',shape/np.sqrt(n))\n",
+    "reproduction": "Restore embeddedlib.rs/runner.rs/verify.py under directory. rustc --edition2021 must be spelled as two arguments: --edition 2021. Compile lib.rs with --crate-name ducksmiles_analytics --crate-type rlib -o libducksmiles_analytics.rlib; compile runner.rs with --extern ducksmiles_analytics=<directory>/libducksmiles_analytics.rlib -o runner; python3 verify.py. No productiondependencies added."
+  }
+}

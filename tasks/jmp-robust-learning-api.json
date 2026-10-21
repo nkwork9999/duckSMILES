@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "source": "crates/analytics/src/robust_learning.rs",
+  "module_path": "ducksmiles_analytics::robust_learning::run",
+  "scope": "Binary linear/RBF C-SVC, convex quantile regression and fixed-scale Huber regression; partial JMP method coverage only.",
+  "official_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-launch-control-panel-3.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-summary.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/estimation-method-options.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/robust-fit-reports.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/example-of-the-fit-robust-option.shtml"
+  ],
+  "common_contract": {
+    "shape": "Finite nonempty rectangular rows <=10000, <=33 columns and <=1000000 cells. <=16384 argument doubles.",
+    "work": "Nominal n*iterations or n*p*iterations / n*p*p*iterations <=200000000 depending on method. SVM <=512 training rows and <=16 features.",
+    "error": "Malformed, nonfinite, rank-deficient regression and invalid domains return Rust error / adapter SQL NULL. Nonconverged admissible iterates retain explicit convergence:false.",
+    "stability": "Stable first-row origins and mean offsets stored separately; do not reconstruct portable models from rounded display intercepts."
+  },
+  "operations": [
+    {
+      "operation": "svm_fit",
+      "symbol": "SvmFit",
+      "sql_name": "chem_svm_fit",
+      "description": "Binary soft-margin C-SVC with dual KKT diagnostics: [features...,label0/1]; [n_train,kernel0linear/1RBF=1,C=1,gamma=1/p,tolerance=1e-6,max_iterations=100000].",
+      "data": "[features...,binary_label]; prefix n_train fits, suffix labels ignored",
+      "args": [
+        "n_train: 2..min(n,512)",
+        "kernel: 0 linear, 1 RBF (default)",
+        "C: 1e-8..1e6, default 1",
+        "gamma: (0,1e6], default 1/n_features, ignored for linear",
+        "tolerance: 1e-12..1e-2, default 1e-6",
+        "max_iterations: 1..200000, default 100000"
+      ],
+      "contract": "Minimizes .5||w||^2+C*sum(max(0,1-y*f)) over binary labels represented internally as -1/+1. Dual pair-coordinate SMO preserves 0<=alpha<=C and sum(alpha*y)=0. RBF exp(-gamma*||standardized x-z||^2). Feature population means/scales fitted on training prefix only, with constant features using scale 1. Report exact dual and primal objectives, duality gap, equality/box residuals and KKT up/low gap. KKT working-set bound tolerance is 32*machine_epsilon*C. Convergence requires the final recomputed KKT gap <= requested tolerance. Tie decisions classify as 1.",
+      "module_path": "ducksmiles_analytics::robust_learning::run",
+      "sql_example": "chem_svm_fit([[-2.0,0.0],[-1.0,0.0],[1.0,1.0],[2.0,1.0]], [4.0,0.0,10.0])",
+      "layers": {
+        "Rust_public_execute": "implemented; focused tests passed",
+        "direct_C_ABI": "independent oracle and runnable catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Multiclass classification",
+        "Support vector regression",
+        "Polynomial/sigmoid kernels",
+        "Probability calibration",
+        "Class/sample weights",
+        "Automatic hyperparameter tuning"
+      ]
+    },
+    {
+      "operation": "svm_predict",
+      "symbol": "SvmPredict",
+      "sql_name": "chem_svm_predict",
+      "description": "Saved binary C-SVC prediction with fixed training preprocessing: feature rows; svm_fit.predict_parameters.",
+      "data": "[features...]",
+      "args": [
+        "fit.predict_parameters: [p,kernel,gamma,bias,n_support,origins[p],mean_offsets[p],scales[p],signed_alphas[n_support],standardized_support_rows[n_support*p]]"
+      ],
+      "contract": "Scores saved support vectors and training population scaling. Query rows never refit preprocessing. Returns decision_values and binary predictions.",
+      "module_path": "ducksmiles_analytics::robust_learning::run",
+      "sql_example": "chem_svm_predict([[-2.0],[2.0]], [1.0,0.0,1.0,0.0,2.0,0.0,0.0,1.0,-0.5,0.5,-1.0,1.0])",
+      "layers": {
+        "Rust_public_execute": "implemented; focused tests passed",
+        "direct_C_ABI": "independent oracle and runnable catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Probability calibration",
+        "Prediction confidence intervals"
+      ]
+    },
+    {
+      "operation": "quantile_regression",
+      "symbol": "QuantileRegression",
+      "sql_name": "chem_quantile_regression",
+      "description": "Convex check-loss regression with ADMM residual convergence: [features...,target]; [quantile=.5,rho=1,max_iterations=10000,tolerance=1e-7].",
+      "data": "[features...,target]; scalar rows fit an intercept only",
+      "args": [
+        "quantile: (0,1), default .5",
+        "rho: 1e-4..1e4, default 1",
+        "max_iterations: 1..50000, default 10000",
+        "tolerance: 1e-12..1e-2, default 1e-7"
+      ],
+      "contract": "Unpenalized minimum sum of tau*r for r>=0 and (tau-1)*r otherwise. ADMM splits y=X*beta+r; least-squares beta solve and exact asymmetric soft threshold residual proximal step. Full-rank standardized design and n>parameter count required. Convergence requires both Euclidean primal residual and rho*X-transpose residual-change dual residual below their absolute+relative tolerances. Residual diagnostics are in standardized response/design units; objective is in original response units. Iteration exhaustion returns converged:false and actual residual criteria. Quantile solutions can be nonunique; compare objective and KKT/constraints rather than arbitrary coefficients in that case.",
+      "module_path": "ducksmiles_analytics::robust_learning::run",
+      "sql_example": "chem_quantile_regression([[0.0,0.0],[1.0,1.0],[2.0,4.0],[3.0,3.0],[4.0,4.0]], [0.5,1.0,20000.0,1e-7])",
+      "layers": {
+        "Rust_public_execute": "implemented; focused tests passed",
+        "direct_C_ABI": "independent oracle and runnable catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Penalized quantile regression",
+        "Censoring",
+        "Categorical formula expansion",
+        "Calibrated quantile coefficient standard errors or confidence intervals"
+      ]
+    },
+    {
+      "operation": "huber_regression",
+      "symbol": "HuberRegression",
+      "sql_name": "chem_huber_regression",
+      "description": "Fixed-scale Huber M-regression by IRLS: [features...,target]; [delta=1.345,scale=0OLS_MAD,max_iterations=200,tolerance=1e-8].",
+      "data": "[features...,target]; scalar rows fit an intercept only",
+      "args": [
+        "delta: (0,100], default 1.345",
+        "scale: positive fixed response-unit scale; 0 estimates OLS residual MAD once, default 0",
+        "max_iterations: 1..5000, default 200",
+        "tolerance: 1e-12..1e-2, default 1e-8"
+      ],
+      "contract": "Minimizes sum Huber_delta((y-X*beta)/fixed_scale). Optional initial scale is median absolute deviation about median OLS residual / .6744897501960817 and remains fixed through all IRLS iterations. Zero estimated MAD is rejected unless OLS fit is numerically exact; supply positive scale for degenerate residual distributions. Returns residuals, final robust weights, standardized Huber-score norm and fixed-scale HC0 score-sandwich covariance when the inlier derivative information is full rank. standardized_covariance refers to fitted standardized design/response coefficients; coefficient_standard_errors are converted to original slope units. No JMP robust-scale algorithm or inferential equivalence claimed.",
+      "module_path": "ducksmiles_analytics::robust_learning::run",
+      "sql_example": "chem_huber_regression([[0.0,1.0],[1.0,3.0],[2.0,5.0],[3.0,27.0],[4.0,9.0],[5.0,11.0],[6.0,13.0]], [1.345,1.0])",
+      "layers": {
+        "Rust_public_execute": "implemented; focused tests passed",
+        "direct_C_ABI": "independent oracle and runnable catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Simultaneous scale M-estimation",
+        "High-breakdown S/MM estimators",
+        "Cauchy regression",
+        "High-leverage robust design estimator",
+        "Calibrated JMP robust test statistics"
+      ]
+    },
+    {
+      "operation": "robust_predict",
+      "symbol": "RobustPredict",
+      "sql_name": "chem_robust_predict",
+      "description": "Saved Huber/quantile linear prediction with stable origin offsets: feature rows; fit.predict_parameters.",
+      "data": "[features...]; for intercept-only fits, use a scalar dummy per row",
+      "args": [
+        "fit.predict_parameters: [p,response_origin,response_mean_offset,response_scale,standardized_intercept,feature_origins[p],feature_mean_offsets[p],feature_scales[p],standardized_slopes[p]]"
+      ],
+      "contract": "Scores the saved training feature/response normalization with separately stored first-row origins and mean offsets. The dummy scalar is ignored for a zero-feature intercept-only model.",
+      "module_path": "ducksmiles_analytics::robust_learning::run",
+      "sql_example": "chem_robust_predict([[2.0],[3.0]], [1.0,0.0,0.0,1.0,1.0,0.0,0.0,1.0,2.0])",
+      "layers": {
+        "Rust_public_execute": "implemented; focused tests passed",
+        "direct_C_ABI": "independent oracle and runnable catalog example passed",
+        "DuckDB_SQL": "parent integration pending"
+      },
+      "unsupported": [
+        "Prediction confidence intervals"
+      ]
+    }
+  ],
+  "layers": {
+    "Rust_public_execute": "9 focused integration tests passed",
+    "direct_C_ABI": "2062 independent NumPy/SciPy scalar assertions passed over60fits; replay harness in tasks/evidence/jmp-robust-learning-reference.json",
+    "DuckDB_SQL": "parent validation pending",
+    "JMP_executable": "not available; no numerical equivalence claim"
+  }
+}

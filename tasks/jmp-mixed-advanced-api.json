@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "module": "mixed_advanced",
+  "module_path": "crates/analytics/src/mixed_advanced.rs",
+  "source": "crates/analytics/src/mixed_advanced.rs",
+  "scope": "Four bounded CPU Gaussian covariance/mixed-model operations covering nine repeated covariance families;partial JMP19.2 numerical coverage.",
+  "integration_status": "Parent public execute routes enabled;16focusedtests pass. NativeSQL validation is owned by parent.",
+  "common_contract": {
+    "matrix": "Finite nonempty rectangular numeric data<=100000rows,1024columns,1000000cells; fitting further capped256rows/16fixednumericfeatures. Exact signed subject IDs<=2^53-1.",
+    "covariance_codes": {
+      "0": "heterogeneous diagonal [variance_per_level...]",
+      "1": "unstructured [lower triangle covariance including diagonal,row-major]",
+      "2": "compound symmetry [variance,rho]",
+      "3": "heterogeneous compound symmetry [variances...,rho]",
+      "4": "AR1 [variance,rho]",
+      "5": "Toeplitz [variance,rho_lag1,...rho_lag(m-1)]",
+      "6": "heterogeneous Toeplitz [variances...,rho_lag1,...rho_lag(m-1)]",
+      "7": "antedependent [variances...,adjacent_rho0,...adjacent_rho(m-2)]",
+      "8": "equal-variance antedependent [variance,adjacent_rho0,...adjacent_rho(m-2)]"
+    },
+    "time_semantics": "Parameters refer to sorted global time levels. AR1 covariance=variance*rho^abs(actual_elapsed_time);negative rho requires integral gaps. Toeplitz requires uniform global grid and uses lag in grid increments;missing visits retain global lag. Antedependence multiplies all intervening global adjacent correlations,including omitted visits. Other heterogeneity parameters are categorical by ordered level.",
+    "SPD": "Variances>0;correlations strictly(-1,1);CS rho>-1/(m-1);all matrices SPD at relative per-diagonal Cholesky pivot1e-12. No pseudoinverse. Full-rank whitened design relative QR threshold1e-11.",
+    "likelihood": "Exact Gaussian conditional/profile likelihood;REML includes original-design determinant,so response and feature rescaling affects restricted likelihood by the mathematically required constants. AIC/BIC counts fixed coefficients plus covariance parameters;REML comparisons require identical fixed designs. Known-covariance method2 AIC/BIC=null.",
+    "uncertainty": "coefficient_covariance/SE conditional on covariance estimate only;covariance parameter SE/CI/tests not supplied. Local profile Hessian is an identification diagnostic only. covariance_parameters_identified=false or boundary causes converged=false. optimizer_converged separately reports solver result.",
+    "covariance_boundary": "Search coordinate abs>24.9 (repeated coordinate cap25),relative variance<=1e-12,relative conditional pivot<=1e-8,or random G determinant/diagonal<=1e-8 criteria. These numerical boundary diagnostics do not provide boundary-mixture tests.",
+    "fit_limits": "Max30000likelihood evaluations and1000000000nominal blockdense work units;line search<=40trials;max1000iterations. Repeated covariance<=8levels,unstructured<=36covariance parameters. Numerical failure/invalid input/work exhaustion errors explicitly.",
+    "saved_model": "[p,response_origin,response_mean_offset,response_population_scale,standardized_intercept,feature_origins(p),feature_mean_offsets(p),feature_population_scales(p),standardized_fixed_slopes(p),n_subjects,(subject_id,normalized_intercept_BLUP,normalized_slope_BLUP)*n_subjects]. Here p includes the auto fixed slope;last fixed feature is the random slope covariate.",
+    "outputs": "coefficients ordered intercept,other fixed slopes,auto slope;standard_errors same order. fitted_values are marginal fixed-effect means. conditional_fitted_values add BLUPs. blups columns are original-unit random intercept and raw-slope coefficient. covariance_parameters uses physical layouts above."
+  },
+  "operations": [
+    {
+      "operation": "repeated_covariance",
+      "symbol": "RepeatedCovariance",
+      "sql_name": "chem_repeated_covariance",
+      "source": "crates/analytics/src/mixed_advanced.rs",
+      "description": "Nine repeated covariance matrices: scalar increasing times; [structure_code, physical parameters...].",
+      "data": "2..64 scalar strictly increasing global time levels.",
+      "args": [
+        "structure_code integer0..8",
+        "complete physical covariance parameters for the selected code"
+      ],
+      "estimator": "Direct documented variance/correlation formulas; Cholesky verifies SPD with pivots relative to each original diagonal.",
+      "sql_example": "chem_repeated_covariance([[0.0],[1.0],[2.0]], [4.0,1.0,0.5])",
+      "known_value": {
+        "covariance": [
+          [
+            1.0,
+            0.5,
+            0.25
+          ],
+          [
+            0.5,
+            1.0,
+            0.5
+          ],
+          [
+            0.25,
+            0.5,
+            1.0
+          ]
+        ]
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0
+          ],
+          [
+            1.0
+          ],
+          [
+            2.0
+          ]
+        ],
+        "args": [
+          4.0,
+          1.0,
+          0.5
+        ]
+      },
+      "unsupported": [
+        "Covariance parameter estimation (use repeated_model)",
+        "spatial covariance families",
+        "nonuniform Toeplitz grids"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-random-coefficient-model.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-measures.shtml"
+      ],
+      "reference": "https://www.statsmodels.org/stable/_modules/statsmodels/regression/mixed_linear_model.html",
+      "evidence": "tasks/evidence/jmp-mixed-advanced-reference.json"
+    },
+    {
+      "operation": "repeated_model",
+      "symbol": "RepeatedModel",
+      "sql_name": "chem_repeated_model",
+      "source": "crates/analytics/src/mixed_advanced.rs",
+      "description": "Gaussian repeated measures: [features...,y,subject,time]; [structure,method=1,maxiter=300,tolerance=1e-8,known covariance if method2].",
+      "data": "0..16 numeric fixed features followed by response, exact integer subject id, actual time. Intercept is automatic. <=256 rows,2..8 global levels,unique subject/time,>=2 subjects and within-subject replication.",
+      "args": [
+        "structure_code integer0..8",
+        "method0ML/1REML(default)/2known-covariance GLS",
+        "max_iterations integer1..1000,default300",
+        "tolerance1e-12..1e-3,default1e-8; gradient norm convergence sqrt(tolerance) clamped[1e-7,1e-5]",
+        "method2 only: complete physical covariance parameters; method0/1 prohibit extra values"
+      ],
+      "estimator": "Independent-subject Gaussian likelihood. Subject-block Cholesky whitening and Householder QR compute GLS. ML profiles scale with n;REML with n-p and original-design determinant correction. Shape uses SPD Cholesky/PACF/partial-correlation coordinates and finite-difference BFGS. Method2 uses the supplied covariance without estimating a residual scale. Coefficient covariance conditions on estimated covariance parameters; no small-sample correction. Hessian of profile objective diagnoses local identification. Unconverged/boundary/unidentified solutions are explicit flags,never converged=true.",
+      "sql_example": "chem_repeated_model([[0.0,1.1,0.0,0.0],[1.0,1.8,0.0,1.0],[2.0,2.1,0.0,2.0],[0.0,0.8,1.0,0.0],[2.0,2.4,1.0,2.0],[0.0,1.4,2.0,0.0],[1.0,1.9,2.0,1.0],[2.0,2.8,2.0,2.0]], [4.0,2.0,300.0,1e-08,0.7,0.4])",
+      "known_value": {
+        "coefficients": [
+          1.1040760869565218,
+          0.6666666666666667
+        ]
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            1.1,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.8,
+            0.0,
+            1.0
+          ],
+          [
+            2.0,
+            2.1,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.8,
+            1.0,
+            0.0
+          ],
+          [
+            2.0,
+            2.4,
+            1.0,
+            2.0
+          ],
+          [
+            0.0,
+            1.4,
+            2.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.9,
+            2.0,
+            1.0
+          ],
+          [
+            2.0,
+            2.8,
+            2.0,
+            2.0
+          ]
+        ],
+        "args": [
+          4.0,
+          2.0,
+          300.0,
+          1e-08,
+          0.7,
+          0.4
+        ]
+      },
+      "unsupported": [
+        "simultaneous random G-side plus structured R-side model",
+        "Kenward-Roger/Satterthwaite or covariance-parameter SE/CI/tests",
+        "automatic covariance selection",
+        "repeated-model portable prediction",
+        "likelihood comparison of REML models with different fixed designs"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-random-coefficient-model.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-measures.shtml"
+      ],
+      "reference": "https://www.statsmodels.org/stable/_modules/statsmodels/regression/mixed_linear_model.html",
+      "evidence": "tasks/evidence/jmp-mixed-advanced-reference.json"
+    },
+    {
+      "operation": "random_slope_model",
+      "symbol": "RandomSlopeModel",
+      "sql_name": "chem_random_slope_model",
+      "source": "crates/analytics/src/mixed_advanced.rs",
+      "description": "Correlated Gaussian random slopes: [other_features...,slope,y,subject]; [method=1,maxiter=300,tolerance=1e-8].",
+      "data": "0..15 other numeric features followed by numeric slope covariate,response,exact integer subject id. Intercept and slope are included as fixed and correlated random effects. <=256 rows,<=16 total fixed numeric features,>=3 subjects,within-subject replication.",
+      "args": [
+        "method0ML/1REML(default)",
+        "max_iterations integer1..1000,default300",
+        "tolerance1e-12..1e-3,default1e-8; gradient norm convergence sqrt(tolerance) clamped[1e-7,1e-5]"
+      ],
+      "estimator": "Gaussian marginal covariance sigma2 I + Z G Z^T with positive-semidefinite 2x2 G from a free lower factor. True profile ML/REML,origin-relative numerical standardization,conditional GLS covariance,group BLUPs G Z^T V^-1 residual. Random covariance/BLUPs reported for original raw slope units; portable model retains normalized coordinates. Boundary singular G returns variance_boundary=true and converged=false,even if optimizer converged.",
+      "sql_example": "chem_random_slope_model([[-1.5,-0.3999999999999999,0.0],[0.0,2.447801055611894,0.0],[1.5,4.800852965387551,0.0],[-1.43,0.9940080946479155,1.0],[-0.43,2.5060530045266307,1.0],[0.5700000000000001,3.8449574698911446,1.0],[1.57,5.7784240293359295,1.0],[-1.3599999999999999,1.6975969779199587,2.0],[-0.61,2.2441774366691205,2.0],[0.14,2.9939728231014513,2.0],[0.89,4.078268384613996,2.0],[1.6400000000000001,4.508643726327658,2.0],[-1.29,1.3353075168384074,3.0],[0.21000000000000002,1.9584611958404785,3.0],[1.71,3.0969290109247303,3.0],[-1.22,0.7311967164783243,4.0],[-0.21999999999999997,1.053909607842823,4.0],[0.78,2.041094518889131,4.0],[1.78,2.641025660787466,4.0],[-1.15,0.7112645756966788,5.0],[-0.39999999999999997,1.3007179446757398,5.0],[0.35000000000000003,2.4936964602489375,5.0],[1.1,3.0659463709565546,5.0],[1.85,3.871040404872158,5.0],[-1.08,1.113206127673739,6.0],[0.42000000000000004,3.4749909802800594,6.0],[1.92,6.188520632109679,6.0],[-1.01,1.183904059437987,7.0],[-0.25999999999999995,2.6856177920234843,7.0],[0.49000000000000005,4.176074956963551,7.0],[1.24,5.179436461116708,7.0],[1.99,6.850366871258961,7.0]], [])",
+      "known_value": {
+        "coefficients": [
+          2.471342534219114,
+          1.2706739077161133
+        ]
+      },
+      "fixture": {
+        "data": [
+          [
+            -1.5,
+            -0.3999999999999999,
+            0.0
+          ],
+          [
+            0.0,
+            2.447801055611894,
+            0.0
+          ],
+          [
+            1.5,
+            4.800852965387551,
+            0.0
+          ],
+          [
+            -1.43,
+            0.9940080946479155,
+            1.0
+          ],
+          [
+            -0.43,
+            2.5060530045266307,
+            1.0
+          ],
+          [
+            0.5700000000000001,
+            3.8449574698911446,
+            1.0
+          ],
+          [
+            1.57,
+            5.7784240293359295,
+            1.0
+          ],
+          [
+            -1.3599999999999999,
+            1.6975969779199587,
+            2.0
+          ],
+          [
+            -0.61,
+            2.2441774366691205,
+            2.0
+          ],
+          [
+            0.14,
+            2.9939728231014513,
+            2.0
+          ],
+          [
+            0.89,
+            4.078268384613996,
+            2.0
+          ],
+          [
+            1.6400000000000001,
+            4.508643726327658,
+            2.0
+          ],
+          [
+            -1.29,
+            1.3353075168384074,
+            3.0
+          ],
+          [
+            0.21000000000000002,
+            1.9584611958404785,
+            3.0
+          ],
+          [
+            1.71,
+            3.0969290109247303,
+            3.0
+          ],
+          [
+            -1.22,
+            0.7311967164783243,
+            4.0
+          ],
+          [
+            -0.21999999999999997,
+            1.053909607842823,
+            4.0
+          ],
+          [
+            0.78,
+            2.041094518889131,
+            4.0
+          ],
+          [
+            1.78,
+            2.641025660787466,
+            4.0
+          ],
+          [
+            -1.15,
+            0.7112645756966788,
+            5.0
+          ],
+          [
+            -0.39999999999999997,
+            1.3007179446757398,
+            5.0
+          ],
+          [
+            0.35000000000000003,
+            2.4936964602489375,
+            5.0
+          ],
+          [
+            1.1,
+            3.0659463709565546,
+            5.0
+          ],
+          [
+            1.85,
+            3.871040404872158,
+            5.0
+          ],
+          [
+            -1.08,
+            1.113206127673739,
+            6.0
+          ],
+          [
+            0.42000000000000004,
+            3.4749909802800594,
+            6.0
+          ],
+          [
+            1.92,
+            6.188520632109679,
+            6.0
+          ],
+          [
+            -1.01,
+            1.183904059437987,
+            7.0
+          ],
+          [
+            -0.25999999999999995,
+            2.6856177920234843,
+            7.0
+          ],
+          [
+            0.49000000000000005,
+            4.176074956963551,
+            7.0
+          ],
+          [
+            1.24,
+            5.179436461116708,
+            7.0
+          ],
+          [
+            1.99,
+            6.850366871258961,
+            7.0
+          ]
+        ],
+        "args": []
+      },
+      "unsupported": [
+        "crossed/nested multiple grouping factors",
+        "multiple random slope covariates",
+        "structured residual covariance jointly with G",
+        "GLMM",
+        "covariance-parameter SE/CI/tests or small-sample df corrections"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-random-coefficient-model.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-measures.shtml"
+      ],
+      "reference": "https://www.statsmodels.org/stable/_modules/statsmodels/regression/mixed_linear_model.html",
+      "evidence": "tasks/evidence/jmp-mixed-advanced-reference.json"
+    },
+    {
+      "operation": "random_slope_predict",
+      "symbol": "RandomSlopePredict",
+      "sql_name": "chem_random_slope_predict",
+      "source": "crates/analytics/src/mixed_advanced.rs",
+      "description": "Saved random slope prediction: [other_features...,slope,subject]; exact returned predict_parameters.",
+      "data": "Same fixed features/slope order as training,followed by exact integer subject id. Finite rectangular matrix<=100000 rows/1000000 cells.",
+      "args": [
+        "exact predict_parameters from random_slope_model; layout in common_contract"
+      ],
+      "estimator": "Reuses training feature/response references. Known subjects receive stored normalized random intercept+slope BLUPs;unknown subjects receive zero random effects. Returns conditional predictions,marginal predictions,and known_subjects flags.",
+      "sql_example": "chem_random_slope_predict([[0.0,0.0],[0.5,999.0]], [1,-0.3999999999999999,3.2327332447796517,1.71320244537735,-0.021116948503145182,-1.5,1.7559375000000002,1.134468100518366,0.8414294635617765,8,0,-0.028735991416393714,0.286619733520204,1,0.4445314172359469,0.20056681303699997,2,0.23636025116999793,-0.16587080212282412,3,-0.3765353663119541,-0.43652515986998724,4,-0.6876694303430354,-0.3976689798479615,5,-0.348895922670813,-0.1327743040990701,6,0.3024791285476626,0.27195226638001857,7,0.4584659137885829,0.37370043300261346])",
+      "known_value": {
+        "known_subjects": [
+          true,
+          false
+        ]
+      },
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.5,
+            999.0
+          ]
+        ],
+        "args": [
+          1,
+          -0.3999999999999999,
+          3.2327332447796517,
+          1.71320244537735,
+          -0.021116948503145182,
+          -1.5,
+          1.7559375000000002,
+          1.134468100518366,
+          0.8414294635617765,
+          8,
+          0,
+          -0.028735991416393714,
+          0.286619733520204,
+          1,
+          0.4445314172359469,
+          0.20056681303699997,
+          2,
+          0.23636025116999793,
+          -0.16587080212282412,
+          3,
+          -0.3765353663119541,
+          -0.43652515986998724,
+          4,
+          -0.6876694303430354,
+          -0.3976689798479615,
+          5,
+          -0.348895922670813,
+          -0.1327743040990701,
+          6,
+          0.3024791285476626,
+          0.27195226638001857,
+          7,
+          0.4584659137885829,
+          0.37370043300261346
+        ]
+      },
+      "unsupported": [
+        "refitting new subject effects",
+        "prediction intervals",
+        "parameter-uncertainty propagation"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-random-coefficient-model.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-measures.shtml"
+      ],
+      "reference": "https://www.statsmodels.org/stable/_modules/statsmodels/regression/mixed_linear_model.html",
+      "evidence": "tasks/evidence/jmp-mixed-advanced-reference.json"
+    }
+  ],
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-random-coefficient-model.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-measures.shtml"
+  ],
+  "additional_primary_reference": "https://www.statsmodels.org/stable/_modules/statsmodels/regression/mixed_linear_model.html",
+  "evidence": "tasks/evidence/jmp-mixed-advanced-reference.json",
+  "native_sql_validation": {
+    "status": "PASS matching current209-function checkpoint",
+    "evidence": "tasks/evidence/jmp-models-validation.json",
+    "overall_jmp_parity": false
+  }
+}

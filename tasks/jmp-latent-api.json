@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "source": "crates/analytics/src/latent.rs",
+  "scope": "Six bounded CPU estimators and two saved-model prediction operations. This is partial JMP 19.2 method coverage, not family equivalence.",
+  "integration_status": "Actual public execute15tests and production exported C ABI4369checks pass. SQL registration fragment tasks/jmp-latent-registry.inc is ready; loaded native DuckDB SQL verification remains pending parent integration/build.",
+  "common_contract": {
+    "result": "JSON object with version 1; Rust Result error for unsupported/invalid/nonfinite/unidentified conditions; SQL NULL behavior belongs to existing parent adapter.",
+    "data_limits": "Finite nonempty rectangular matrix, <=10000 rows, <=128 columns, <=1000000 cells; per-method limits are tighter. <=16384 finite argument doubles.",
+    "work_limit": "Nominal bounded numerical work guard 200000000 units; individual eigensolver/SVD guards also apply. Large valid-shaped problems may be rejected before iteration.",
+    "stable_predictions": "Feature centering is represented as first-row origin plus a separate mean offset. Saved models retain this representation; rounded display component means/codebooks should not be substituted into portable parameters.",
+    "portable_limit": "Training rejects models whose portable vector would exceed 16384 parameters; GMM length 2+3p+k+kp+kp^2, SOM length 2+3p+kp.",
+    "convergence": "Finite iteration limits return converged:false when an admissible iterate exists; degeneracy, invalid domains and nonfinite arithmetic return errors. No unspecified convergence success is implied.",
+    "input_training": "Each unsupervised fit uses all supplied rows. Saved prediction methods and factor/CCA glm_predict scoring reuse fit-time preprocessing without query-driven centering/scaling.",
+    "axis_conventions": "Signs or bases of tied/null axes are not identifiable; compare distances, common covariance or subspaces rather than signs."
+  },
+  "operations": [
+    {
+      "operation": "mds",
+      "symbol": "Mds",
+      "data": "Either feature rows (2..128 observations, 1..64 features), or a square 2..128 dissimilarity matrix.",
+      "args": [
+        "dimensions: integer 1..min(n-1,32), default min(2,n-1)",
+        "input: 0 feature rows (default), 1 pairwise distances",
+        "standardize: 0 none (default), 1 population feature standard deviation; only for feature input"
+      ],
+      "estimator": "Classical metric MDS: eigendecomposition of the double-centered squared-distance Gower matrix. Positive eigenvalues are retained; missing requested positive axes are zero. Distance input must be symmetric, nonnegative and have zero diagonal.",
+      "outputs": [
+        "coordinates",
+        "all eigenvalues",
+        "normalized_raw_stress = sqrt(sum_{i<j}(fitted_distance-observed_distance)^2 / sum_{i<j}observed_distance^2)",
+        "negative_eigenvalue_mass",
+        "negative_eigenvalue_fraction",
+        "is_euclidean"
+      ],
+      "prediction": "No saved model or supplementary-point projection. All supplied observations are embedded jointly.",
+      "unsupported": [
+        "JMP quasi-Newton Stress1 minimization",
+        "nonmetric/ordinal monotone regression",
+        "user weights",
+        "missing distances",
+        "supplementary-point projection"
+      ],
+      "sql_example": "chem_mds([[0.0],[1.0],[2.0]], [1.0])",
+      "known_value": "eigenvalues [2,0,0]; pairwise distances 1,1,2; stress approximately zero",
+      "sql_name": "chem_mds",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/multidimensional-scaling.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-stress-function.shtml"
+      ]
+    },
+    {
+      "operation": "correspondence_analysis",
+      "symbol": "CorrespondenceAnalysis",
+      "data": "Nonnegative contingency table with 2..64 rows and 2..64 columns; every row and column margin must be positive.",
+      "args": [
+        "dimensions: integer 1..min(rows-1,columns-1), default min(2,rows-1,columns-1)",
+        "scaling: 0 principal (default), 1 symmetric square-root singular-value scaling"
+      ],
+      "estimator": "SVD of Dr^-1/2 (P-r*cT) Dc^-1/2, where P is table/total frequency. Principal row/column coordinates multiply singular vectors by singular values and divide by square-root masses; symmetric coordinates use square-root singular values.",
+      "outputs": [
+        "row_masses",
+        "column_masses",
+        "singular_values",
+        "inertias",
+        "inertia_proportions",
+        "total_inertia",
+        "chi_square = total_frequency*total_inertia",
+        "row_coordinates",
+        "column_coordinates"
+      ],
+      "prediction": "No supplementary categories or new-row projection. Empty categories must be removed explicitly.",
+      "unsupported": [
+        "multiple correspondence analysis",
+        "Burt/indicator construction",
+        "supplementary categories",
+        "alternative profile metrics",
+        "missing cells"
+      ],
+      "sql_example": "chem_correspondence_analysis([[20.0,10.0],[10.0,20.0]], [1.0])",
+      "known_value": "singular value 1/3; inertia 1/9; Pearson chi-square 20/3",
+      "sql_name": "chem_correspondence_analysis",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/correspondence-analysis-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-correspondence-analysis.shtml"
+      ]
+    },
+    {
+      "operation": "factor_analysis",
+      "symbol": "FactorAnalysis",
+      "data": "Numeric feature rows with >=2 observations and 2..64 variables, or a symmetric positive-definite correlation matrix with diagonal 1.",
+      "args": [
+        "factors: required integer 1..variables-1",
+        "rotation: 0 none, 1 Kaiser-normalized orthogonal varimax (default)",
+        "maxiter: integer 1..2000, default 200; each principal-axis and varimax phase has this limit",
+        "tolerance: 1e-12..1e-2, default 1e-8",
+        "prior: 0 ONE, 1 squared-multiple-correlation SMC (default)",
+        "input: 0 raw feature rows (default), 1 correlation matrix"
+      ],
+      "estimator": "Iterated principal-axis factoring replaces correlation diagonal with communalities and retains largest requested positive common-variance eigenvalues; SMC starts 1-1/diag(R^-1). Varimax uses cyclic analytic pair rotations after row communality normalization. Heywood cases are rejected.",
+      "outputs": [
+        "loadings",
+        "unrotated_loadings",
+        "rotation_matrix",
+        "communalities",
+        "uniquenesses",
+        "reproduced_correlation",
+        "off_diagonal_residual_rms",
+        "scores",
+        "score_predict_parameters",
+        "score_input",
+        "principal_axis_converged",
+        "rotation_converged",
+        "converged",
+        "iterations"
+      ],
+      "prediction": "Regression scores use standardized X * R^-1 * loadings. Each axis in score_predict_parameters is passed unchanged to chem_glm_predict. Raw input saves population centering/scales; correlation input produces no training scores and requires standardized variables when reusing the saved scoring vectors.",
+      "unsupported": [
+        "maximum-likelihood factor analysis",
+        "oblique rotations",
+        "orthomax variants beyond varimax",
+        "factor significance tests",
+        "ordinal/polychoric correlations",
+        "missing variables",
+        "Heywood regularization"
+      ],
+      "sql_example": "chem_factor_analysis([[1.0,0.64,0.64],[0.64,1.0,0.64],[0.64,0.64,1.0]], [1.0,0.0,500.0,1e-10,1.0,1.0])",
+      "known_value": "one common factor: loadings .8, communalities .64, uniquenesses .36, score weights .8/2.28",
+      "sql_name": "chem_factor_analysis",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-factor-analysis-platform.shtml"
+      ]
+    },
+    {
+      "operation": "canonical_correlation",
+      "symbol": "CanonicalCorrelation",
+      "data": "Numeric rows [X variables...,Y variables...], >=3 observations, <=32 variables per block and <=64 total.",
+      "args": [
+        "x_columns: required integer 1..total_columns-1",
+        "dimensions: integer 1..min(p,q), default min(p,q)",
+        "ridge: nonnegative diagonal regularization in population-standardized feature/sample-covariance units, default 0"
+      ],
+      "estimator": "Center and population-standardize each block, compute sample covariance with denominator n-1, add ridge to both diagonal blocks, and take SVD of inverse-square-root-whitened cross covariance. Scores have unit regularized sample-covariance variance. With ridge, canonical singular values and actual score correlations differ and are returned separately.",
+      "outputs": [
+        "canonical_correlations",
+        "score_correlations",
+        "x_scores",
+        "y_scores",
+        "x_score_predict_parameters",
+        "y_score_predict_parameters",
+        "normalization",
+        "inference"
+      ],
+      "prediction": "Pass each axis scoring vector unchanged to chem_glm_predict on its corresponding original-unit X or Y feature block. Numeric null canonical dimensions are completed orthonormally. Unregularized singular within-block covariance is rejected; constant score directions are rejected if actual correlation is undefined.",
+      "unsupported": [
+        "Wilks/Pillai/Hotelling/Roy inference",
+        "MANOVA hypotheses",
+        "categorical effects",
+        "partial canonical correlation",
+        "missing observations",
+        "automatic dimension selection"
+      ],
+      "sql_example": "chem_canonical_correlation([[-1.0,-2.0],[0.0,0.0],[1.0,2.0],[2.0,4.0]], [1.0])",
+      "known_value": "one canonical correlation 1; both score sample variances 1",
+      "sql_name": "chem_canonical_correlation",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/multivariate-response-reports.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-canonical-correlation-analysis.shtml"
+      ]
+    },
+    {
+      "operation": "gaussian_mixture",
+      "symbol": "GaussianMixture",
+      "data": "Numeric feature rows, >=2 observations, <=32 features. All supplied rows train the model.",
+      "args": [
+        "components: required integer 1..min(n,32)",
+        "maxiter: integer 1..2000, default 200",
+        "tolerance: 1e-12..1e-2, default 1e-6; relative observed log-likelihood change",
+        "covariance_floor: nonnegative minimum covariance eigenvalue in population-standardized units, default 1e-6",
+        "seed: exact integer 0..2^53-1, default 0; SplitMix64 deterministic starts",
+        "n_init: integer 1..16, default 1"
+      ],
+      "estimator": "Full-covariance Gaussian mixture EM with seeded kmeans++ mean initialization, global initial covariance, exact eigenvalue-constrained covariance M step and log-sum-exp responsibilities. The best observed-likelihood valid start is returned. Component order is lexicographic standardized means. This covariance constraint is not an additive diagonal ridge.",
+      "outputs": [
+        "weights",
+        "component_means (original units)",
+        "component_covariances_flat (one row-major p*p row per component, original units)",
+        "probabilities",
+        "labels (zero-based)",
+        "sample_log_likelihood (original density units)",
+        "log_likelihood",
+        "log_likelihood_history",
+        "aic",
+        "bic",
+        "converged",
+        "iterations",
+        "n_init",
+        "seed",
+        "predict_parameters"
+      ],
+      "prediction": "Use gaussian_mixture_predict with unchanged predict_parameters. Portable layout: [p,k,feature_origins(p),feature_mean_offsets(p),feature_scales(p),weights(k),standardized_means(k*p),standardized_covariances(k*p*p)]. Density includes the centering/scaling Jacobian.",
+      "unsupported": [
+        "automatic component count selection",
+        "shared/diagonal/spherical covariance options",
+        "noise/outlier component",
+        "missing observations",
+        "global optimum guarantee",
+        "external weights"
+      ],
+      "sql_example": "chem_gaussian_mixture([[-1.0],[0.0],[1.0]], [1.0])",
+      "known_value": "single component mean 0, variance 2/3, probabilities all 1",
+      "sql_name": "chem_gaussian_mixture",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/normal-mixtures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-platforms-for-clustering-observations.shtml"
+      ]
+    },
+    {
+      "operation": "gaussian_mixture_predict",
+      "symbol": "GaussianMixturePredict",
+      "data": "Numeric new feature rows with same width as saved model; 1..10000 rows.",
+      "args": [
+        "Unchanged predict_parameters returned by gaussian_mixture; <=16384 finite doubles. Header, scales, weights, symmetry and positive-definite covariance are checked."
+      ],
+      "estimator": "Saved full-covariance component density evaluation with log-sum-exp normalization. No re-centering or refitting on query rows.",
+      "outputs": [
+        "labels (zero-based; lowest index wins exact ties)",
+        "probabilities",
+        "sample_log_likelihood (original density units)"
+      ],
+      "prediction": "Models use explicit origin plus mean-offset representation, retaining feature spreads near large origins.",
+      "unsupported": [
+        "model refitting",
+        "outlier thresholds"
+      ],
+      "sql_example": "chem_gaussian_mixture_predict([[-1.0],[0.0],[1.0]], [1.0,1.0,0.0,0.0,1.0,1.0,0.0,1.0])",
+      "known_value": "saved N(0,1) model: log density at 0 is -.5*ln(2*pi)",
+      "sql_name": "chem_gaussian_mixture_predict",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/normal-mixtures.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-platforms-for-clustering-observations.shtml"
+      ]
+    },
+    {
+      "operation": "self_organizing_map",
+      "symbol": "SelfOrganizingMap",
+      "data": "Numeric feature rows, >=2 observations, <=64 features. All supplied rows train the model.",
+      "args": [
+        "grid_rows: required integer 1..32",
+        "grid_columns: required integer 1..32, product <=256",
+        "maxiter: integer 1..2000, default 100",
+        "bandwidth: positive Gaussian kernel bandwidth in normalized [-1,1] grid coordinates, default .5",
+        "standardize: 0 none, 1 population feature standard deviation (default)",
+        "tolerance: 1e-12..1e-2, default 1e-6; maximum codebook displacement relative to previous largest norm"
+      ],
+      "estimator": "Rectangular PCA grid initialization spanning +/-2.5 population principal-component SDs. Batch nearest-node assignments are smoothed by cluster-size-weighted Gaussian-kernel local linear regressions on active normalized grid axes. Singular local regression falls back explicitly to local weighted mean, counted in metadata. Bandwidth stays fixed.",
+      "outputs": [
+        "codebook (original units)",
+        "grid_coordinates",
+        "labels (zero-based row-major nodes)",
+        "quantization_error (mean Euclidean nearest-node distance in fit-preprocessed feature units)",
+        "topographic_error (fraction whose best and second-best nodes are not four-neighbor adjacent)",
+        "converged",
+        "iterations",
+        "local_linear_fallbacks",
+        "predict_parameters"
+      ],
+      "prediction": "Use som_predict with unchanged predict_parameters. Portable layout: [p,k,feature_origins(p),feature_mean_offsets(p),feature_scales(p),preprocessed_codebook(k*p)]. Grid metadata is not needed for nearest-node prediction.",
+      "unsupported": [
+        "hexagonal or toroidal topology",
+        "online SGD/neighborhood schedules",
+        "hierarchical SOM",
+        "missing observations",
+        "identical JMP codebooks/optimization settings guarantee"
+      ],
+      "sql_example": "chem_self_organizing_map([[-1.0],[0.0],[1.0]], [1.0,1.0])",
+      "known_value": "one node converges to sample mean 0; average standardized distance sqrt(2/3)",
+      "sql_name": "chem_self_organizing_map",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/self-organizing-map.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/description-of-som-algorithm.shtml"
+      ]
+    },
+    {
+      "operation": "som_predict",
+      "symbol": "SomPredict",
+      "data": "Numeric new feature rows with same width as saved model; 1..10000 rows.",
+      "args": [
+        "Unchanged predict_parameters returned by self_organizing_map; <=16384 finite doubles."
+      ],
+      "estimator": "Nearest preprocessed codebook vector with fit-time origins, offsets and scales. No refitting on query rows. Exact distance ties select the lowest node index.",
+      "outputs": [
+        "labels (zero-based)",
+        "distances (fit-preprocessed Euclidean units)",
+        "quantization_error (mean distance)"
+      ],
+      "prediction": "Portable layout is shared with self_organizing_map; grid shape is unnecessary for nearest-node labels.",
+      "unsupported": [
+        "topographic error without saved grid",
+        "online updates"
+      ],
+      "sql_example": "chem_som_predict([[-2.0],[0.0],[2.0]], [1.0,2.0,0.0,0.0,1.0,-1.0,1.0])",
+      "known_value": "labels [0,0,1]; distances [1,1,1]",
+      "sql_name": "chem_som_predict",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/self-organizing-map.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/description-of-som-algorithm.shtml"
+      ]
+    }
+  ],
+  "validation_evidence": "tasks/evidence/jmp-latent-reference.json"
+}

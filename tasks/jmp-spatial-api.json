@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "module": "spatial",
+  "source": "crates/analytics/src/spatial.rs",
+  "scope": "Four isotropic kernels and empirical semivariance plus supplied-covariance GLS/universal kriging; partial spatial mixed-model support only",
+  "integration_status": "Public execute/formal tests,production exported C ABI fixtures and matching native SQL PASS;bounded partial contracts only",
+  "common_contract": {
+    "input": "Finite nonempty rectangular data,abs<=1e100,at most1M cells; caller handles missing observations and coordinate units. Different methods have explicit row/dimension caps. All supplied parameter entries finite,<=16384.",
+    "kernels": "kind0 spherical(max(1-d/rho,0)^2*(1+d/(2rho)) for d<rho),1 exp(-d/rho),2 exp(-(d/rho)^2),3 rho^d. Euclidean isotropy in1..3 coordinates; partial sill1e-100..1e100,nugget0..1e100,rho>0<=1e100 and power rho<1. Four19.2 equation images individually inspected. Nugget is an absolute variance, unlike JMP displayed nugget/residual scaling.",
+    "measurement_errors": "Nugget belongs to an observation record,not merely a coordinate. Distinct collocated records covariance=partial sill; diagonal=partial sill+nugget. Pair semivariance0 on self diagonal and nugget at distinct collocated observations. Saved prediction targets an independent new measurement at query coordinates; latent cross covariance never includes query nugget.",
+    "GLS": "Fixed supplied absolute covariance only,not estimated from y. Exact fixed-response fits have finite likelihood under known V; no fictitious residual-variance estimate. Returned coefficient covariance includes intercept and known covariance only. Numerically singular covariance/design rejects at relative Cholesky diagonal1e-12; cov constructor may returnPSD/singular matrices with positive_definite_at_tolerance=false.",
+    "prediction": "Universal-kriging variance includes estimation of the fixed trend with covariance known; no covariance-parameter estimation uncertainty. Tiny relative-negative rounding at1e-9 of contributing terms clamps to0; material negative variance rejects. Saved triangular factors and positive G inverse are syntax/PD validated,not cryptographically authenticated or reconstructed to prove consistency.",
+    "saved_model": "[1,n,d,p,kind,sill,nugget,rho,feature_origins(p),feature_mean_offsets_scaled(p),feature_difference_scales(p),bstd(p+1),training_coords(n*d rowmajor),normalized_design(n*(p+1) rowmajor),R_inverse_residual_original_y_units(n),lower_Cholesky_R(n(n+1)/2 rowmajor),lower_symmetric_inverse_Gram((p+1)(p+2)/2 rowmajor)]. R=V/(sill+nugget),bstd is coefficient vector in original response units against normalized centered features. Length8+3p+(p+1)+n*(d+p+2)+n(n+1)/2+(p+1)(p+2)/2,<=10580.",
+    "variogram": "No response-trend removal,robust/Cressie estimator,minimum-pair threshold,spatial weights or variogram fitting. Default distance range uses observed minimum/maximum; exact collocated distances included; empty bins use JSON null. Width boundaries are the specified equal-width contract,not a claim to duplicate every JMP automatic bin adjustment.",
+    "limits": "Kernel parameters and GLS coefficients must have finite physical binary64 outputs; otherwise return error/SQL NULL with rescaling guidance. No installed-JMP or cross-platform numerical validation.",
+    "numerical_repairs": "Direct semivariance uses expm1/analytic correlation complements and physical small-distance products,retaining nugget and representable tiny process increments even when covariance entries round equal. GLS coefficient covariance applies sqrt(total_sill) to transformation factors before quadratic products. Material-negative predictive variance uses a normalized finite comparison,never an overflowing absolute tolerance sum. Zero-nugget queries exactly matching a training coordinate and normalized trend row have structural zero latent/observation variance after material-negative validation."
+  },
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+    "https://gaussianprocess.org/gpml/chapters/RW2.pdf"
+  ],
+  "operations": [
+    {
+      "operation": "spatial_covariance",
+      "symbol": "SpatialCovariance",
+      "sql_name": "chem_spatial_covariance",
+      "description": "Four isotropic JMP spatial kernels: locations in1..3 dimensions; [kind0spherical/1exponential/2Gaussian/3power,partial_sill,nugget,rho]. Independent record nugget; covariance and semivariance matrices.",
+      "sql_example": "chem_spatial_covariance([[0],[1],[0]], [0,4,1,2])",
+      "data": "1..256 rows of1..3 spatial coordinates",
+      "args": "Exactly[kind,sill>0,nugget>=0,rho>0]; power0<rho<1",
+      "estimator": "Direct four published correlation functions; nugget added only on diagonal observation records",
+      "fixture": {
+        "data": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            0
+          ]
+        ],
+        "args": [
+          0,
+          4,
+          1,
+          2
+        ]
+      },
+      "known_value": {
+        "covariance.0": [
+          5,
+          1.25,
+          4
+        ],
+        "semivariance.0": [
+          0,
+          3.75,
+          1
+        ]
+      },
+      "unsupported": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ]
+    },
+    {
+      "operation": "spatial_variogram",
+      "symbol": "SpatialVariogram",
+      "sql_name": "chem_spatial_variogram",
+      "description": "Empirical isotropic Matheron semivariogram: rows[coordinates1..3,response]; [bins=10,lower=min_pair_distance,upper=max_pair_distance]. Pair counts,mean distance and half mean squared differences; empty classes null.",
+      "sql_example": "chem_spatial_variogram([[0,0],[1,2],[2,4]], [2])",
+      "data": "2..512 rows[coordinates1..3,response]",
+      "args": "0..3 values: bins1..100=10,lower>=0=minimum observed distance,upper>=lower=maximum observed distance",
+      "estimator": "All unordered i<j pairs in inclusive bounds; equal-width classes left-closed/right-open except final inclusive right edge; identical bounds collapse to one bin",
+      "fixture": {
+        "data": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "args": [
+          2
+        ]
+      },
+      "known_value": {
+        "pair_counts": [
+          2,
+          1
+        ],
+        "semivariances": [
+          2,
+          8
+        ]
+      },
+      "unsupported": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ]
+    },
+    {
+      "operation": "spatial_gls",
+      "symbol": "SpatialGLS",
+      "sql_name": "chem_spatial_gls",
+      "description": "Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+      "sql_example": "chem_spatial_gls([[0,1],[1,2],[2,6]], [1,0,0,2,1,1])",
+      "data": "n>p+1,n<=128 rows[d coordinates,p features,response],intercept automatic",
+      "args": "Exactly[d,p,kind,sill,nugget,rho]; covariance parameters physically supplied and fixed",
+      "estimator": "Cholesky normalized by total sill; origin/difference-scaled feature and response GLS; standardized whitened Gram Cholesky(relative diagonal tolerance1e-12); known absolute V, no residual-scale fit",
+      "fixture": {
+        "data": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            6
+          ]
+        ],
+        "args": [
+          1,
+          0,
+          0,
+          2,
+          1,
+          1
+        ]
+      },
+      "known_value": {
+        "intercept": 3,
+        "coefficient_covariance": [
+          [
+            1
+          ]
+        ],
+        "mahalanobis_sse": 4.666666666666667
+      },
+      "unsupported": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ]
+    },
+    {
+      "operation": "spatial_predict",
+      "symbol": "SpatialPredict",
+      "sql_name": "chem_spatial_predict",
+      "description": "Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance.",
+      "sql_example": "chem_spatial_predict([[0],[10]], [1,3,1,0,0,2,1,1,3,0,1,2,1,1,1,-2,-1.0000000000000002,3,1,0,1,0,0,1,0.33333333333333337])",
+      "data": "Query rows[d coordinates,p fixed features] in original units,exact width d+p",
+      "args": "Unchanged predict_parameters; never reads query outcomes or refits covariance",
+      "estimator": "x beta + c^T V^-1 residual; latent variance=sill-c^TV^-1c+delta^T(X^TV^-1X)^-1delta,delta=x-X^TV^-1c; observation variance adds independent query nugget",
+      "fixture": {
+        "data": [
+          [
+            0
+          ],
+          [
+            10
+          ]
+        ],
+        "args": [
+          1,
+          3,
+          1,
+          0,
+          0,
+          2,
+          1,
+          1,
+          3,
+          0,
+          1,
+          2,
+          1,
+          1,
+          1,
+          -2,
+          -1.0000000000000002,
+          3,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0.33333333333333337
+        ]
+      },
+      "known_value": {
+        "predictions": [
+          1.6666666666666667,
+          3
+        ],
+        "latent_variances": [
+          0.7777777777777778,
+          3
+        ],
+        "observation_variances": [
+          1.7777777777777777,
+          4
+        ]
+      },
+      "unsupported": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ]
+    }
+  ],
+  "native_sql_validation": {
+    "status": "PASS matching254 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-streams-validation.json",
+    "overall_jmp_parity": false
+  }
+}

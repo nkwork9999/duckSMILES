@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "module": "omics",
+  "source": "crates/analytics/src/omics.rs",
+  "scope": "Bounded row assay normalization, quantile maps and diploid ancestry EM; partial JMP Life Sciences coverage.",
+  "common_contract": {
+    "inputs": "Finite rectangular nonempty sample rows/feature columns,<=10000rows,<=1024columns,<=1Mcells; args<=16384. SQLNULL invalid; genotype missing=-1 explicitly.",
+    "normalization": "Method0 row sample/population z-score [0,ddof=1] with ddof0/1, abs<=1e150, nonconstant rows. Method1CPM [1]. Method2RPKM [2,lengthbp per feature...], Method3TPM [3,lengthbp...]. Method4CLR [4,explicit nonnegative pseudocount=0]. Method5relative abundance percent [5], Method6ratio [6]. Counts nonnegative, row totals positive; CLR x+pseudocount>0. No library-size offsets or joint batch correction.",
+    "quantiles": "Values abs<=1e150. Fit all supplied sample rows: sort each row, average per rank across rows, apply mean over ranks spanned by an equal input value. Reference sorted vector is portable. Prediction uses only supplied saved reference, no query refit.",
+    "likelihood": "Independent unrelated diploid genotypes, HWE within each population, binomial2 likelihood including heterozygote ln2. Missing calls skipped; at least one observation per row and marker during fit, per row during scoring. Joint ancestry Q and allele F via seeded multiple-start EM; K1 closed-form. Joint fit nonconvex, labels canonicalized lexicographically by F; possible nonunique Q/F and no SE/global guarantee.",
+    "fit_args": "[K1..min(n,16),maxiter1..10000=1000,tol1e-12..1e-3=1e-8,seed exact <=2^53-1=0,n_init1..8=3,frequency_floor1e-12...01=1e-8]. Maximum estimated n*p*K*(maxiter+K+1)*n_init work200M, K1 one iteration. Full parameter vector <=16384.",
+    "saved_model": "[K,p,maxiter,tolerance,frequency_floor,positive_initial_Q(K),row_major_F(K*p)]. Positive starting weights normalize to1. Scoring estimates only Q, fixed F; per-row iterations/converged and likelihood. No joint prediction batches used for refitting.",
+    "convergence": "Relative change in observed log likelihood <=tol*(1+abs(previousLL)); not a stationarity or global optimality certificate. Honest false on exhausted maxiter. Monotone finite joint likelihood guarded; fixed-frequency query objective concave but flat/nonunique ancestry weights possible.",
+    "verification": "11 focused Rust tests GREEN, strict whole analytics Clippy GREEN. Independent exported CABI 556 cases/22948 numeric fields PASS. Native SQL pending."
+  },
+  "operations": [
+    {
+      "operation": "assay_normalize",
+      "sql_name": "chem_assay_normalize",
+      "symbol": "AssayNormalize",
+      "description": "Seven assay row normalizations: [method0standardize/1CPM/2RPKM/3TPM/4CLR/5percent/6ratio,method-specific args]. Samples rows/features columns; lengths in base pairs.",
+      "sql_example": "chem_assay_normalize([[1.0,3.0],[2.0,6.0]], [3.0,1000.0,2000.0])",
+      "source": "crates/analytics/src/omics.rs",
+      "tests": "crates/analytics/tests/omics.rs",
+      "jmp_primary_sources": [
+        "https://jsl.jmp.com/All%20Categories/Objects/Normalization.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC2752134/"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-omics-reference.json",
+      "unsupported": [
+        "TMM/KDMM and other assay normalization estimators",
+        "polyploid/phased/linkage-aware admixture",
+        "admixture parameter uncertainty and automatic K selection",
+        "global optimum guarantee or same optimizer as JMP/ADMIXTURE"
+      ]
+    },
+    {
+      "operation": "quantile_normalize",
+      "sql_name": "chem_quantile_normalize",
+      "symbol": "QuantileNormalize",
+      "description": "Equal-rank across-sample mean quantiles; [] args. Equal input ties receive the mean over tied reference ranks. Saves reference_quantiles.",
+      "sql_example": "chem_quantile_normalize([[5.0,1.0,3.0],[4.0,2.0,6.0]], [])",
+      "source": "crates/analytics/src/omics.rs",
+      "tests": "crates/analytics/tests/omics.rs",
+      "jmp_primary_sources": [
+        "https://jsl.jmp.com/All%20Categories/Objects/Normalization.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC2752134/"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-omics-reference.json",
+      "unsupported": [
+        "TMM/KDMM and other assay normalization estimators",
+        "polyploid/phased/linkage-aware admixture",
+        "admixture parameter uncertainty and automatic K selection",
+        "global optimum guarantee or same optimizer as JMP/ADMIXTURE"
+      ]
+    },
+    {
+      "operation": "quantile_normalize_predict",
+      "sql_name": "chem_quantile_normalize_predict",
+      "symbol": "QuantileNormalizePredict",
+      "description": "New samples scored against saved sorted reference_quantiles matching row width, with tie averaging; no refitting.",
+      "sql_example": "chem_quantile_normalize_predict([[4.0,4.0,0.0]], [1.5,2.5,5.5])",
+      "source": "crates/analytics/src/omics.rs",
+      "tests": "crates/analytics/tests/omics.rs",
+      "jmp_primary_sources": [
+        "https://jsl.jmp.com/All%20Categories/Objects/Normalization.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC2752134/"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-omics-reference.json",
+      "unsupported": [
+        "TMM/KDMM and other assay normalization estimators",
+        "polyploid/phased/linkage-aware admixture",
+        "admixture parameter uncertainty and automatic K selection",
+        "global optimum guarantee or same optimizer as JMP/ADMIXTURE"
+      ]
+    },
+    {
+      "operation": "marker_admixture",
+      "sql_name": "chem_marker_admixture",
+      "symbol": "MarkerAdmixture",
+      "description": "Diploid independent-locus binomial admixture EM: [K,maxiter=1000,tolerance=1e-8,seed=0,n_init=3,frequency_floor=1e-8]. Genotypes0/1/2,-1missing. Joint Q/F local likelihood, convergence diagnostic, saved fixed-F inference.",
+      "sql_example": "chem_marker_admixture([[0.0,0.0],[1.0,2.0],[2.0,-1.0]], [1.0,1000.0,1e-9,42.0,1.0])",
+      "source": "crates/analytics/src/omics.rs",
+      "tests": "crates/analytics/tests/omics.rs",
+      "jmp_primary_sources": [
+        "https://jsl.jmp.com/All%20Categories/Objects/Normalization.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC2752134/"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-omics-reference.json",
+      "unsupported": [
+        "TMM/KDMM and other assay normalization estimators",
+        "polyploid/phased/linkage-aware admixture",
+        "admixture parameter uncertainty and automatic K selection",
+        "global optimum guarantee or same optimizer as JMP/ADMIXTURE"
+      ]
+    },
+    {
+      "operation": "admixture_predict",
+      "sql_name": "chem_admixture_predict",
+      "symbol": "AdmixturePredict",
+      "description": "Infer ancestry of new diploid rows with saved fixed allele frequencies; exact marker_admixture predict_parameters; each starting ancestry weight strictly positive.",
+      "sql_example": "chem_admixture_predict([[0.0,2.0],[1.0,1.0]], [2.0,2.0,10000.0,1e-10,1e-8,0.5,0.5,0.1,0.9,0.9,0.1])",
+      "source": "crates/analytics/src/omics.rs",
+      "tests": "crates/analytics/tests/omics.rs",
+      "jmp_primary_sources": [
+        "https://jsl.jmp.com/All%20Categories/Objects/Normalization.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC2752134/"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-omics-reference.json",
+      "unsupported": [
+        "TMM/KDMM and other assay normalization estimators",
+        "polyploid/phased/linkage-aware admixture",
+        "admixture parameter uncertainty and automatic K selection",
+        "global optimum guarantee or same optimizer as JMP/ADMIXTURE"
+      ]
+    }
+  ],
+  "native_sql_validation": {
+    "status": "PASS matching current209-function checkpoint",
+    "evidence": "tasks/evidence/jmp-models-validation.json",
+    "overall_jmp_parity": false
+  }
+}

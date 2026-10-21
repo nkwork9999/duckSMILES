@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-21T13:06:28.817675+00:00",
+  "repository": {
+    "base_revision": "985af99ee974a0abfe5f828c0719731ba9096756",
+    "branch": "feat/sql-analytics-20261021",
+    "changes": "uncommitted working-tree implementation; hashes identify the tested sources"
+  },
+  "environment": {
+    "os": "macOS-26.2-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)\nbinary: rustc\ncommit-hash: 4a4ef493e3a1488c6e321570238084b38948f6db\ncommit-date: 2026-03-02\nhost: aarch64-apple-darwin\nrelease: 1.94.0\nLLVM version: 21.1.8",
+    "duckdb_version": "v1.5.3",
+    "duckdb_revision": "90628df28564545e9f4716b9dbfc7bb5b292ad21",
+    "build_type": "Debug; C++ AddressSanitizer + UndefinedBehaviorSanitizer; Rust libraries not sanitizer-instrumented",
+    "extension_linkage": "dynamic DONT_LINK; JSON statically available in the CLI"
+  },
+  "source_sha256": {
+    "crates/analytics/src/advanced_design.rs": "054a3e17592a123babb908bdcec4d1f1a037ec22030ab2aa4518748ad1de32c1",
+    "crates/analytics/src/arima.rs": "114d03aa73b915498868c323d048c73529a41568417f0cae6f1f081e4b44a898",
+    "crates/analytics/src/design.rs": "ef321449399727e186fec5eb8c9b858443bb072b6be24030851959b8d7fd4415",
+    "crates/analytics/src/distributions.rs": "dbdb3e318ce81409f317ee7256b33312aa2f6f9fb4dee050fae8c35263b37a72",
+    "crates/analytics/src/explore.rs": "0861c7f15ad12ae7f83355a50909793be3407117c63a2eec0b0bdf4a11d25e53",
+    "crates/analytics/src/glm.rs": "6195fefd5e1e1e2c117ae54a1179b2607dff98539210f9492bf304a2f72218eb",
+    "crates/analytics/src/inference.rs": "2e54fd0fc06ea59283978e733af60b5050a30a5d294dbded56ef3e4519dc2595",
+    "crates/analytics/src/learning.rs": "1e73863a1da1cecaed61d253a6d25ad640eec33eefb9cfdb9b29e24258a91fe2",
+    "crates/analytics/src/lib.rs": "6c0e7cc2a9608a4a92e7c4d28a153d5fd7c8527d6f6f4d3ba9f759ec38d161bd",
+    "crates/analytics/src/mixed.rs": "f1fbc60df9d24ac0b95bd76076b48644c365f5a80db18997bf68e9c3d82a6a8e",
+    "crates/analytics/src/multivariate.rs": "75dd2b079e0b415583cc46227c534ea3c4a0ec51d3d36a747f70a9c63a397463",
+    "crates/analytics/src/optimize.rs": "58cabd7597f80b51c98d22c25a91087f939159ed239630e0b55fe5a360fdc720",
+    "crates/analytics/src/quality.rs": "2b7411de07bdef8b61ea1acd1c00608dd293ea604e5430dc5de78e55a2cbbf37",
+    "crates/analytics/src/regression.rs": "6aedd8e4cce2fa1c853d7c2eaee27857656b6a3b0c7cdc570bfb1fb784df9fad",
+    "crates/analytics/src/resampling.rs": "a2bb594fb0051a4a55465b8ddd8fa667ee9bd770e4fdb07fa2de744319204793",
+    "crates/analytics/src/statistics.rs": "9f27bb4d08ff08ef1517896d850e8559ecf0f568252a49d159aa10039365a1a6",
+    "crates/analytics/src/survival.rs": "be525094fa9b54b202cb1b3c85c0a9c1534808102aba141a5ce361c40b7e0bcc",
+    "crates/analytics/src/timeseries.rs": "dea89cfc83541102db5aedd5cc0492fae412972268bba9a9f0f8d9a19309af2d",
+    "crates/analytics/tests/advanced_design.rs": "66a6d0f2d05f50ee33c0dde09e2e8d0b4c1634001cb52ea422d31e9e977902d7",
+    "crates/analytics/tests/arima.rs": "7c67224b6cfa4070d72994408c5ab3cff83431e3f3b2b80a81f59dc778d81f33",
+    "crates/analytics/tests/design.rs": "bf7fe01f6595845c817145370dfd6670eb7b4ea0d9cd68479bbcb2da53db28f4",
+    "crates/analytics/tests/distributions.rs": "36ab4698d3381ee7b282f4a006bf18074491ea4f67c7b6fdee8b8473b23943ee",
+    "crates/analytics/tests/explore.rs": "27537c95ebdf04af4e736241cd0d9882c7f8932a040fc0593e1721e35aefa13f",
+    "crates/analytics/tests/ffi.rs": "65e0e14248c046515c703b755fd1f866e25d289423b0c11f9496eca54b712476",
+    "crates/analytics/tests/glm.rs": "ecaa2c7db70bcab3de8b2792b2509a041e13f00d4d306f42405388d13f0713ac",
+    "crates/analytics/tests/inference.rs": "0eaa091e43f16d8d81a08174091ecb4511b62da07700a72cd45fb03cdd66e107",
+    "crates/analytics/tests/learning.rs": "3e332be7deb1fc68868eed7e59f1f99f65ae1bf5fa0b08e05f4f3335c7073c4f",
+    "crates/analytics/tests/mixed.rs": "d91de8a08cae27c99cd744f2756dc1506bf21b6d9c33f8e0714420ab0ec53e0b",
+    "crates/analytics/tests/multivariate.rs": "5d653995789412a837f1cff142a005189cfe2e182a8d54b5c972ab0f7da45b3c",
+    "crates/analytics/tests/optimize.rs": "26941212c2e54f74ebd411499f973db4f6d718393a34a6c38d7ee9f97eed49b5",
+    "crates/analytics/tests/quality.rs": "e3ef2d9e09841ab18225ea045b57ea61793a5ee5a92080a718819939d7ed7f94",
+    "crates/analytics/tests/regression.rs": "00a3a643fc0a2be088aaea1053a1731cd4a5d3cf24044448a86582b09448c516",
+    "crates/analytics/tests/resampling.rs": "e0b1dcb7dde2e4487de9eecb0ccfce0806c0e1cdee1274948ea394b4f3bee01a",
+    "crates/analytics/tests/statistics.rs": "5adc3f59019592a138b71676e27c64f14c8c2deaaec4d7433cf78f7a3fb89d62",
+    "crates/analytics/tests/survival.rs": "4e38a3e9b0827369e5ec647fcc97f52bdc2a6bd610a18da24e306b20065476a2",
+    "crates/analytics/tests/timeseries.rs": "17ccc1e68fbbe9510cc17f5f0c411c94a39da49b2337689570bcfc9450f43833",
+    "CMakeLists.txt": "2f42b0b762410bcbdd1329df1283744a1316e5670689753a86c4b7130b4e55bd",
+    "Cargo.toml": "3a1842d261cc56b704fd2b052e35fd7ad75fc7d02ca844768a5f40393c7019e5",
+    "Cargo.lock": "b40085f7825b3402a7118e9ae910806fa8e050f5b792c32981977304b0522c5a",
+    "crates/analytics/Cargo.toml": "736c9e3ad578cf53e85fd3e3da697dcbfd5c5829ca3acd4e7cb6d4383c6bc205",
+    "src/analytics_functions.cpp": "4c8fa299f11bbac5d0adc1d760690b3eb2055d055d1d991dd9660525f159fbc3",
+    "src/include/analytics.h": "169e1a283b9d0556f22e78634c1b1b0b6d6fa899cab85023f9bfd9d67adccddb",
+    "src/include/analytics_registry.inc": "1f0ed87b4f4684d9627389eb8a992d5ff0efa72c06feeed9cfdcba835409dc3c",
+    "src/ducksmiles_extension.cpp": "937b25a35182fef9a0c4066726696b55da62ba82486c582ba3e70544e755e5f9",
+    "src/include/ducksmiles_compat.hpp": "946b55da78a5c545f8b7123a925043ac1e77e9d135e8bfda430a50f9281fc020",
+    "scripts/check_analytics.py": "5f340fa9bd49ee8dba6ce953d59b3c972a26173da93e90b676025ef64e382aa8",
+    "scripts/check_jmp_analytics.py": "a7b17ee4eb53ee25b4dbb6a97b2194120a79440190d24821532453c238957c99",
+    "scripts/check_function_catalog.py": "f785c41412b4b73ce315f06bc53a50be91a50696255cc2f005a821ea329ee659",
+    "test/sql/analytics.test": "d552e7e5c611cdd1a29cd5825aa059e7f578ad1366abb4c3add88e6084d49773",
+    "test/sql/jmp_analytics.test": "1877722c066dafd1b88c466fe75abe3ad625db3d7af149068230792d8c90e24b",
+    "test/sql/function_catalog.test": "bd4886fa2d13a87577457be9f11d987739f1365c569fbd769a20d0106ad442e8"
+  },
+  "artifact_sha256": {
+    "cpp/duckdb": "7607f76e445709b78836582c0e8d47917a0c8b96a7067372585d58cc6b2ac6fb",
+    "cpp/extension/ducksmiles/ducksmiles.duckdb_extension": "5df94c38ee57dfdcdb40615f29b96dab2265d9f8ebb73d50f0e9265d3652bce3"
+  },
+  "gates": [
+    {
+      "name": "rust_workspace",
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test --workspace",
+      "exit_code": 0,
+      "suites": 40,
+      "passed": 1006,
+      "failed": 0,
+      "ignored": 2,
+      "ignored_reason": "pre-existing tests requiring explicitly supplied external molecule datasets",
+      "result_lines": [
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s",
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s",
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+        "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s",
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+        "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+        "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 638 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 32.69s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.57s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.01s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.05s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.85s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.88s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.34s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.03s",
+        "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.98s",
+        "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.50s",
+        "test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 46.10s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ]
+    },
+    {
+      "name": "strict_clippy",
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy -p ducksmiles_analytics --all-targets -- -D warnings",
+      "exit_code": 0,
+      "stdout": "    Blocking waiting for file lock on build directory\n    Checking ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 19.02s\n"
+    },
+    {
+      "name": "format",
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo fmt -p ducksmiles_analytics -- --check",
+      "exit_code": 0
+    },
+    {
+      "name": "native_build",
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cmake --build /private/tmp/rusta-ducksmiles-jmp-target/cpp --target duckdb_local_extension_repo -j4",
+      "exit_code": 0,
+      "stdout": "[0/2] Re-checking globbed directories...\n[1/4] Building Rust workspace (duckSmiles crates)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s\n[2/4] Linking CXX shared library extension/ducksmiles/ducksmiles.duckdb_extension\n[3/4] repository\n"
+    },
+    {
+      "name": "all_sql_tests",
+      "command": "LOCAL_EXTENSION_REPO=/private/tmp/rusta-ducksmiles-jmp-target/cpp/repository /private/tmp/rusta-ducksmiles-jmp-target/cpp/test/unittest '/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*' --autoloading available --require ducksmiles --reporter compact --settings '[{'\"'\"'name'\"'\"':'\"'\"'extension_directory'\"'\"','\"'\"'value'\"'\"':'\"'\"'/private/tmp/rusta-ducksmiles-jmp-target/test-extensions'\"'\"'}]'",
+      "exit_code": 0,
+      "cases": 8,
+      "stdout": "\n[0/8] (0%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test\n[1/8] (12%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/fallibility.test\n[2/8] (25%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/mass_context.test\n[3/8] (37%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_analytics.test\n[4/8] (50%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/native_graph.test\n[5/8] (62%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/vector_compat.test\n[6/8] (75%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test\n[7/8] (87%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test\n[8/8] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test\nPassed all 8 test cases with 383 assertions.\n\n",
+      "notes": "Required ducksmiles and local extension repository; tests executed instead of being skipped. No assertion count is inferred from this reporter.",
+      "environment": {
+        "LOCAL_EXTENSION_REPO": "/private/tmp/rusta-ducksmiles-jmp-target/cpp/repository"
+      },
+      "argv": [
+        "/private/tmp/rusta-ducksmiles-jmp-target/cpp/test/unittest",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+        "--autoloading",
+        "available",
+        "--require",
+        "ducksmiles",
+        "--reporter",
+        "compact",
+        "--settings",
+        "[{'name':'extension_directory','value':'/private/tmp/rusta-ducksmiles-jmp-target/test-extensions'}]"
+      ]
+    },
+    {
+      "name": "catalog",
+      "command": "python3 scripts/check_function_catalog.py --duckdb /private/tmp/rusta-ducksmiles-jmp-target/cpp/duckdb --extension /private/tmp/rusta-ducksmiles-jmp-target/cpp/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "exit_code": 0,
+      "overloads": 270,
+      "examples_executed_nonnull": 270,
+      "stdout": "PASS: 270 overloads documented; 270 examples executed\n"
+    },
+    {
+      "name": "original_sql_analytics_regression",
+      "command": "python3 scripts/check_analytics.py --duckdb /private/tmp/rusta-ducksmiles-jmp-target/cpp/duckdb --extension /private/tmp/rusta-ducksmiles-jmp-target/cpp/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "exit_code": 0,
+      "numerical_model_checks": 25,
+      "invalid_inputs": 7,
+      "stdout": "PASS: 25 numerical/model SQL checks; 7 invalid inputs; selected-vector rows; molecule descriptor integration\n"
+    },
+    {
+      "name": "new_sql_analytics",
+      "command": "python3 scripts/check_jmp_analytics.py --duckdb /private/tmp/rusta-ducksmiles-jmp-target/cpp/duckdb --extension /private/tmp/rusta-ducksmiles-jmp-target/cpp/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "exit_code": 0,
+      "new_operations": 95,
+      "numeric_fields": 199,
+      "saved_model_sql_round_trips": 3,
+      "invalid_inputs": 14,
+      "query_suffix_labels_ignored_models": 7,
+      "numerical_regression_cases": 7,
+      "selected_dynamic_vector_rows": 12,
+      "sql_queries": 17,
+      "json_results": 212,
+      "executed_by": "collaborating model agent; exact CLI and extension paths matched this native build"
+    },
+    {
+      "name": "diff_whitespace",
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "public_api": {
+    "original_analytics_functions": 24,
+    "added_analytics_functions": 95,
+    "total_analytics_functions": 119,
+    "existing_molecular_overloads": 151,
+    "total_overloads": 270,
+    "json_version": 1,
+    "invalid_input_policy": "SQL NULL",
+    "gui_changes": false,
+    "gpu_required": false,
+    "new_runtime_dependencies": false
+  },
+  "direct_reference_evidence": [
+    "tasks/evidence/jmp-model-reference.json",
+    "tasks/evidence/jmp-inference-timeseries-reference.json",
+    "tasks/evidence/jmp-distribution-arima-reference.json",
+    "tasks/evidence/jmp-advanced-design-reference.json"
+  ],
+  "tdd_integration": {
+    "advanced_design_dispatch_red": "   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s\n     Running tests/advanced_design.rs (/private/tmp/rusta-ducksmiles-jmp-target/debug/deps/advanced_design-3eaf35fa87d9ea70)\n\nrunning 10 tests\ntest box_behnken_enumerates_every_two_factor_edge_and_requested_centers ... FAILED\ntest fractional_factorial_generators_are_products_of_selected_base_columns ... FAILED\ntest design_evaluation_retains_identifiability_and_leverage_under_feature_unit_changes ... FAILED\ntest mixture_lattice_enumerates_simplex_compositions_and_filters_upper_constraints ... FAILED\ntest design_evaluation_matches_independent_numpy_information_inverse_singular_values_and_leverage ... FAILED\ntest latin_hypercube_stratifies_each_factor_and_uses_reproducible_independent_permutations ... FAILED\ntest mixture_lattice_offsets_lower_bounds_before_distributing_remaining_total ... FAILED\ntest advanced_design_rejects_malformed_generators_infeasible_mixtures_and_work_explosions ... ok\ntest orthogonal_screening_uses_nonconstant_sylvester_hadamard_columns ... FAILED\ntest randomized_replicates_are_lossless_and_each_replicate_has_balanced_blocks ... FAILED\n\nfailures:\n\n---- box_behnken_enumerates_every_two_factor_edge_and_requested_centers stdout ----\n\nthread 'box_behnken_enumerates_every_two_factor_edge_and_requested_centers' (495926) panicked at crates/analytics/tests/advanced_design.rs:47:48:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n---- fractional_factorial_generators_are_products_of_selected_base_columns stdout ----\n\nthread 'fractional_factorial_generators_are_products_of_selected_base_columns' (495929) panicked at crates/analytics/tests/advanced_design.rs:135:68:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n---- design_evaluation_retains_identifiability_and_leverage_under_feature_unit_changes stdout ----\n\nthread 'design_evaluation_retains_identifiability_and_leverage_under_feature_unit_changes' (495928) panicked at crates/analytics/tests/advanced_design.rs:235:68:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n---- mixture_lattice_enumerates_simplex_compositions_and_filters_upper_constraints stdout ----\n\nthread 'mixture_lattice_enumerates_simplex_compositions_and_filters_upper_constraints' (495931) panicked at crates/analytics/tests/advanced_design.rs:96:6:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n---- design_evaluation_matches_independent_numpy_information_inverse_singular_values_and_leverage stdout ----\n\nthread 'design_evaluation_matches_independent_numpy_information_inverse_singular_values_and_leverage' (495927) panicked at crates/analytics/tests/advanced_design.rs:204:61:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n---- latin_hypercube_stratifies_each_factor_and_uses_reproducible_independent_permutations stdout ----\n\nthread 'latin_hypercube_stratifies_each_factor_and_uses_reproducible_independent_permutations' (495930) panicked at crates/analytics/tests/advanced_design.rs:71:58:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n---- mixture_lattice_offsets_lower_bounds_before_distributing_remaining_total stdout ----\n\nthread 'mixture_lattice_offsets_lower_bounds_before_distributing_remaining_total' (495932) panicked at crates/analytics/tests/advanced_design.rs:112:56:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n---- orthogonal_screening_uses_nonconstant_sylvester_hadamard_columns stdout ----\n\nthread 'orthogonal_screening_uses_nonconstant_sylvester_hadamard_columns' (495933) panicked at crates/analytics/tests/advanced_design.rs:152:58:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n---- randomized_replicates_are_lossless_and_each_replicate_has_balanced_blocks stdout ----\n\nthread 'randomized_replicates_are_lossless_and_each_replicate_has_balanced_blocks' (495934) panicked at crates/analytics/tests/advanced_design.rs:171:60:\ncalled `Result::unwrap()` on an `Err` value: \"unknown optimization operation\"\n\n\nfailures:\n    box_behnken_enumerates_every_two_factor_edge_and_requested_centers\n    design_evaluation_matches_independent_numpy_information_inverse_singular_values_and_leverage\n    design_evaluation_retains_identifiability_and_leverage_under_feature_unit_changes\n    fractional_factorial_generators_are_products_of_selected_base_columns\n    latin_hypercube_stratifies_each_factor_and_uses_reproducible_independent_permutations\n    mixture_lattice_enumerates_simplex_compositions_and_filters_upper_constraints\n    mixture_lattice_offsets_lower_bounds_before_distributing_remaining_total\n    orthogonal_screening_uses_nonconstant_sylvester_hadamard_columns\n    randomized_replicates_are_lossless_and_each_replicate_has_balanced_blocks\n\ntest result: FAILED. 1 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\nerror: test failed, to rerun pass `-p ducksmiles_analytics --test advanced_design`\n",
+    "advanced_design_dispatch_green": "   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s\n     Running tests/advanced_design.rs (/private/tmp/rusta-ducksmiles-jmp-target/debug/deps/advanced_design-3eaf35fa87d9ea70)\n\nrunning 10 tests\ntest mixture_lattice_offsets_lower_bounds_before_distributing_remaining_total ... ok\ntest design_evaluation_matches_independent_numpy_information_inverse_singular_values_and_leverage ... ok\ntest advanced_design_rejects_malformed_generators_infeasible_mixtures_and_work_explosions ... ok\ntest box_behnken_enumerates_every_two_factor_edge_and_requested_centers ... ok\ntest mixture_lattice_enumerates_simplex_compositions_and_filters_upper_constraints ... ok\ntest fractional_factorial_generators_are_products_of_selected_base_columns ... ok\ntest design_evaluation_retains_identifiability_and_leverage_under_feature_unit_changes ... ok\ntest randomized_replicates_are_lossless_and_each_replicate_has_balanced_blocks ... ok\ntest orthogonal_screening_uses_nonconstant_sylvester_hadamard_columns ... ok\ntest latin_hypercube_stratifies_each_factor_and_uses_reproducible_independent_permutations ... ok\n\ntest result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n"
+  },
+  "limits": [
+    "JMP itself was not installed or executed; no actual JMP numerical parity claim.",
+    "Official-feature inventory is a lower bound with heterogeneous granularity, not a completion percentage.",
+    "Only macOS arm64 native integration was exercised in this expansion. Windows, Linux and Wasm builds were not rerun for these new methods.",
+    "CSS ARIMA, bounded random-intercept mixed models, first-order boosting and single-hidden-layer neural models implement documented subsets.",
+    "Full standard/proprietary JMP platform options, JSL/GUI/reporting and many advanced numerical families remain absent or partial."
+  ],
+  "build_cleanup": {
+    "path": "/private/tmp/rusta-ducksmiles-jmp-target",
+    "removed": true,
+    "removed_at_utc": "2026-10-21T13:11:25.896588+00:00",
+    "notes": "Exact task-owned non-symlink directory removed after evidence and documentation checks; no unknown or user-created build directories touched."
+  },
+  "task_target_dir": "/private/tmp/rusta-ducksmiles-jmp-target",
+  "documentation_verification": {
+    "analytics_functions_with_individual_README_SELECT_examples": 119,
+    "missing_examples": [],
+    "local_reference_links_checked": 9,
+    "source_manifest_unchanged_after_tests": true
+  }
+}

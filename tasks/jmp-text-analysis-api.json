@@ -1,0 +1,503 @@
+{
+  "schema_version": 1,
+  "module": "text_analysis",
+  "source": "crates/analytics/src/text_analysis.rs",
+  "scope": "Eight numeric CPU Text Explorer kernels on externally tokenized term IDs and supplied DTM; restricted dense local models,not full language-aware JMP Text Explorer.",
+  "common_contract": {
+    "input": "Nonempty finite rectangular numeric data,abs<=1e12,<=131072cells,columns1..4096;<=16384finite args. JSONversion1. Missing/NaN/Infinity reject. All term/row ordering caller-owned and stable; empty documents represented by zero count rows or explicit n_documents in text_dtm. No empty-column SQL inputs.",
+    "tokenization": "No Unicode/string segmentation,normalization,language dictionaries,stemming,stopwords or synonym detection implemented. Caller supplies token IDs/counts and same fitted vocabulary for scoring; Japanese tokenization remains unsupported.",
+    "weighting": "Binary 1[x>0];ternary min(x,2);frequency x;log frequency log10(1+x);TF-IDF x*log10(N/df) without smoothing or document-length scaling. Training N includes empty documents. Terms selected by corpus count descending with original-index ties. Saved IDF never refits query documents.",
+    "svd_normalization": "Follow literal JMP19.2 LSA help: divide uncentered matrix by n;centered/scaled by n-1. Centered-scaled uses sample standard deviation,constant columns scale1. This states the numeric contract; it is not sqrt(n) or sqrt(n-1) normalization. The help also describes PCA equivalence; no installed-JMP singular-value scale comparison has been performed,so that prose is not treated as independent validation.",
+    "lsa_scores": "For transformed A,approximation U*S*V^T. document_vectors=U,document_scores=US,term_vectors=V. Saved projection V scores US. Sign anchor is maximum absolute term-vector entry positive,source index tie. Repeated singular values allow alternative bases; compare subspace/reconstruction. Relative reconstruction error uses actual normalized residual,not subtracting close energies.",
+    "topic_scores": "L=V*S;orthogonal R from varimax;topic_loadings=L*R,document_scores=U*R,so scores*loadings^T=U*S*V^T. Projection=V*S^-1*R. Objective=sum_j[sum_i Z_ij^4-(sum_i Z_ij^2)^2/p],Z=L/max_abs(L),then optional Kaiser unit row norms. varimax_loading_scale records max_abs(L). rotation convergence concerns local sweeps only. Positive topic energy underflow or unrepresentable projection coefficients rejects with rescale guidance.",
+    "latent_class": "P(x)=sum_c pi_c product_t theta_ct^presence(1-theta_ct)^absence. Exact logsumexp E step;M step weighted means clamped to supplied probability bounds. Stop requires relative LL change<=tol and maximum parameter step<=sqrt(tol). Component mass<=1e-12 errors. Components canonically sorted by mixture probability then lexicographic term probability.",
+    "diagnostics": "LCA separates optimizer_converged,components_distinct,necessary dimension bound(k*p+k-1 <= 2^p-1),and identification_verified=false. converged requires optimizer convergence and passes these necessary degeneracy checks; they do not prove statistical identification. AIC/BIC are descriptive conventional parameter penalties and null unless converged; no inference/calibration guarantee for singular mixtures. Varimax reports local rotation_converged separately.",
+    "resources": "DTM output dimensions<=4096,cells<=131072. LSA n<=1024,p<=128,k<=32,n*p*p<=1M,100Jacobi sweeps. Topic k<=16,p*k*k*sweeps<=50M,max2000sweeps. LCA n2..2048,p<=128,k<=16,n*p*k*maxiter<=100M,maxiter2000. Scoring outputcells<=131072. Derived nonfinite results error."
+  },
+  "saved_models": [
+    {
+      "operation": "text_weight",
+      "result_path": "weight_parameters",
+      "prediction_operation": "text_weight_predict",
+      "layout": "[version1,original_term_count p,selected_count k,weight_mode,training_n,selected_term_indices(k),training_IDF(k)],length5+2k; original ID universe retained"
+    },
+    {
+      "operation": "text_lsa",
+      "result_path": "projection_parameters",
+      "prediction_operation": "text_projection",
+      "layout": "[version1,input_terms p,output_dimensions k,training_divisor,training_means(p),training_scales(p),projection_matrix_row_major(p*k)],length4+2p+p*k; score=((query-mean)/scale/divisor)*projection"
+    },
+    {
+      "operation": "text_topic_svd",
+      "result_path": "projection_parameters",
+      "prediction_operation": "text_projection",
+      "layout": "[version1,input_terms p,output_dimensions k,training_divisor,training_means(p),training_scales(p),projection_matrix_row_major(p*k)],length4+2p+p*k; score=((query-mean)/scale/divisor)*projection"
+    },
+    {
+      "operation": "text_latent_class",
+      "result_path": "predict_parameters",
+      "prediction_operation": "text_latent_class_predict",
+      "layout": "[version1,nclasses k,nterms p,probability_floor,mixture_weights(k),Bernoulli_term_probabilities_class_major(k*p)],length4+k+kp"
+    }
+  ],
+  "operations": [
+    {
+      "operation": "text_dtm",
+      "symbol": "TextDtm",
+      "sql_name": "chem_text_dtm",
+      "description": "Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+      "data": "Long token-count records,duplicates summed; IDs nonnegative integers within supplied dimensions,count integer0..1e9; aggregate cell<=1e9. Zero-count records supported; explicit empty documents preserved.",
+      "args": [
+        "n_documents integer1..4096",
+        "n_terms integer1..4096"
+      ],
+      "sql_example": "chem_text_dtm([[0,2,1],[0,2,2],[2,0,4]], [4,3])",
+      "fixture": {
+        "data": [
+          [
+            0,
+            2,
+            1
+          ],
+          [
+            0,
+            2,
+            2
+          ],
+          [
+            2,
+            0,
+            4
+          ]
+        ],
+        "args": [
+          4,
+          3
+        ]
+      },
+      "known_value": {
+        "counts.0.2": 3,
+        "document_frequency": [
+          1,
+          0,
+          1
+        ]
+      },
+      "unsupported": [
+        "No string tokenization,Unicode normalization,Japanese dictionary,stemming,stopword or synonym fitting"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-text-explorer-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    },
+    {
+      "operation": "text_weight",
+      "symbol": "TextWeight",
+      "sql_name": "chem_text_weight",
+      "description": "Fit corpus dictionary/filter and exact JMP five DTM weightings; nonnegative integer count matrix; args[mode0binary/1ternary/2frequency/3log10/4TFIDF=4,min_corpus_count=1,max_terms=all].",
+      "data": "Dense count matrix in immutable source vocabulary order,count integer0..1e9. Training frequency filters and top-term ordering are corpus count descending,source-index ascending ties; empty documents count in N.",
+      "args": [
+        "mode integer0..4 default4",
+        "min_corpus_count integer1..1e12 default1",
+        "max_terms integer1..p defaultp"
+      ],
+      "sql_example": "chem_text_weight([[2,1,0],[0,1,3],[0,0,0]], [4,1,3])",
+      "fixture": {
+        "data": [
+          [
+            2,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            3
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "args": [
+          4,
+          1,
+          3
+        ]
+      },
+      "known_value": {
+        "selected_terms": [
+          2,
+          0,
+          1
+        ],
+        "matrix.0.1": 0.9542425094393249,
+        "inverse_document_frequency.2": 0.17609125905568124
+      },
+      "unsupported": [
+        "No smoothed IDF,document-length normalization,automatic language preprocessing or dictionary from query data"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    },
+    {
+      "operation": "text_weight_predict",
+      "symbol": "TextWeightPredict",
+      "sql_name": "chem_text_weight_predict",
+      "description": "Apply saved dictionary and training IDF to new count rows; args unchanged text_weight.weight_parameters; training vocabulary width/order required.",
+      "data": "Dense query counts in entire original p-term universe; absent terms0; unselected training terms ignored. Unknown external words must be excluded/mapped by caller; out-of-range numeric IDs/width reject.",
+      "args": [
+        "unchanged weight_parameters layout [version1,original_term_count p,selected_count k,weight_mode,training_n,selected_term_indices(k),training_IDF(k)],length5+2k; original ID universe retained"
+      ],
+      "sql_example": "chem_text_weight_predict([[0,4,2]], [1,3,3,4,3,2,0,1,0.47712125471966244,0.47712125471966244,0.17609125905568124])",
+      "fixture": {
+        "data": [
+          [
+            0,
+            4,
+            2
+          ]
+        ],
+        "args": [
+          1,
+          3,
+          3,
+          4,
+          3,
+          2,
+          0,
+          1,
+          0.47712125471966244,
+          0.47712125471966244,
+          0.17609125905568124
+        ]
+      },
+      "known_value": {
+        "matrix.0.0": 0.9542425094393249,
+        "matrix.0.2": 0.704365036222725,
+        "dictionary_refitted": false
+      },
+      "unsupported": [
+        "No query IDF refit or inferred new vocabulary; OOV words are not automatically tokenized"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    },
+    {
+      "operation": "text_lsa",
+      "symbol": "TextLsa",
+      "sql_name": "chem_text_lsa",
+      "description": "Partial SVD of supplied nonnegative weighted DTM; args[k,preprocess0uncentered/1centered/2centered_scaled=2]; returns U,S,V and scores US with saved transform.",
+      "data": "Supplied weighted DTM (use text_weight first if desired),n<=1024,p<=128,n*p*p<=1e6,k<=32 and numerical rank. Relative rank cutoff1e-10; one-sided Jacobi100sweeps; constant centered columns scale1.",
+      "args": [
+        "k integer1..min(n,p,32) required",
+        "preprocess integer0..2 default2"
+      ],
+      "sql_example": "chem_text_lsa([[3,0],[0,2],[0,0]], [2,0])",
+      "fixture": {
+        "data": [
+          [
+            3,
+            0
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "args": [
+          2,
+          0
+        ]
+      },
+      "known_value": {
+        "singular_values": [
+          1,
+          0.6666666666666666
+        ],
+        "numerical_rank": 2,
+        "document_scores.0.0": 1,
+        "divisor": 3
+      },
+      "unsupported": [
+        "No automatic TF-IDF fitting,model-rank selection,sparse unlimited corpus or installed-JMP equivalence of singular-value scale; repeated singular subspaces need not have unique vectors"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-semantic-analysis-svd.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/text-analysis-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    },
+    {
+      "operation": "text_projection",
+      "symbol": "TextProjection",
+      "sql_name": "chem_text_projection",
+      "description": "Score supplied weighted query DTM with saved LSA/topic projection; args unchanged projection_parameters. Training mean,scale,divisor and loadings reused.",
+      "data": "Nonnegative weighted query matrix in exact fitted term order. Input columns<=128,output dimensions<=32,output<=131072cells; finite derived binary64 outputs required. TF-IDF must use original training model separately.",
+      "args": [
+        "unchanged projection_parameters layout [version1,input_terms p,output_dimensions k,training_divisor,training_means(p),training_scales(p),projection_matrix_row_major(p*k)],length4+2p+p*k; score=((query-mean)/scale/divisor)*projection"
+      ],
+      "sql_example": "chem_text_projection([[1.5,1.5]], [1,2,2,3,0,0,1,1,1,0,0,1])",
+      "fixture": {
+        "data": [
+          [
+            1.5,
+            1.5
+          ]
+        ],
+        "args": [
+          1,
+          2,
+          2,
+          3,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1
+        ]
+      },
+      "known_value": {
+        "scores": [
+          [
+            0.5,
+            0.5
+          ]
+        ],
+        "preprocessing_refitted": false
+      },
+      "unsupported": [
+        "No query preprocessing refit,OOV inference,uncertainty or guaranteed finite result when derived binary64 terms overflow"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-semantic-analysis-svd.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/topic-analysis.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    },
+    {
+      "operation": "text_topic_svd",
+      "symbol": "TextTopicSvd",
+      "sql_name": "chem_text_topic_svd",
+      "description": "True orthogonal varimax of supplied-DTM SVD loadings VS; document topic vectors UR preserve reconstruction; args[k,preprocess=2,max_sweeps=200,tol=1e-8,kaiser0/1=1].",
+      "data": "Same supplied-DTM SVD bounds; k<=16. Loadings initially VS; common max-absolute loading scaling before optional Kaiser row normalization,then pairwise orthogonal Jacobi varimax. Final maximum absolute term-loading anchor positive.",
+      "args": [
+        "k integer1..16 and numerical rank required",
+        "preprocess integer0..2 default2",
+        "max_sweeps integer1..2000 default200",
+        "tolerance1e-12..1e-3 default1e-8",
+        "kaiser integer0/1 default1"
+      ],
+      "sql_example": "chem_text_topic_svd([[3,0],[0,2],[0,0]], [2,0,200,1e-10,1])",
+      "fixture": {
+        "data": [
+          [
+            3,
+            0
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "args": [
+          2,
+          0,
+          200,
+          1e-10,
+          1
+        ]
+      },
+      "known_value": {
+        "rotation": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "document_scores.0.0": 1,
+        "topic_energy": [
+          1,
+          0.4444444444444444
+        ],
+        "rotation_converged": true
+      },
+      "unsupported": [
+        "No NMF/LDA/probabilistic-topic claim,global rotation maximum,automatic topic naming,GUI wordcloud or installed-JMP exact rotation reproduction"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/topic-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-semantic-analysis-svd.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    },
+    {
+      "operation": "text_latent_class",
+      "symbol": "TextLatentClass",
+      "sql_name": "chem_text_latent_class",
+      "description": "Conditional-independence Bernoulli mixture EM on supplied count presence; args[k,seed=0,max_iter=200,tol=1e-8,probability_floor=1e-9]. Reports genuine likelihood,mixture/term probabilities and saved posterior model.",
+      "data": "Count matrix binarized by presence,training n2..2048,p<=128,k<=16 and<=n,n*p*k*iterations<=100M. Deterministic SplitMix64 seeded shuffled distinct document indices initialize .75/.25 conditional probabilities.",
+      "args": [
+        "k integer1..min(n,16) required",
+        "seed integer0..2^53-1 default0",
+        "max_iterations integer1..2000 default200",
+        "tolerance1e-12..1e-3 default1e-8",
+        "probability_floor1e-12..0.1 default1e-9"
+      ],
+      "sql_example": "chem_text_latent_class([[2,1,0],[0,1,3],[0,0,0]], [1,0,200,1e-10,1e-08])",
+      "fixture": {
+        "data": [
+          [
+            2,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            3
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "args": [
+          1,
+          0,
+          200,
+          1e-10,
+          1e-08
+        ]
+      },
+      "known_value": {
+        "mixture_probabilities": [
+          1
+        ],
+        "term_probabilities": [
+          [
+            0.3333333333333333,
+            0.6666666666666666,
+            0.3333333333333333
+          ]
+        ],
+        "converged": true,
+        "parameters": 3
+      },
+      "unsupported": [
+        "No global optimum or verified statistical identification,SE/CI,LDA/NMF,sparse JMP Text Explorer implementation identity,term-selection regression or sentiment dictionary"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-class-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/text-analysis-options.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    },
+    {
+      "operation": "text_latent_class_predict",
+      "symbol": "TextLatentClassPredict",
+      "sql_name": "chem_text_latent_class_predict",
+      "description": "Score saved Bernoulli mixture using presence and absence of each fitted term; args unchanged text_latent_class.predict_parameters; returns posterior membership and log probability.",
+      "data": "Dense query count matrix in fixed p-term order,counts converted to presence; saved probabilities/mixing weights validated. Output<=131072cells.",
+      "args": [
+        "unchanged predict_parameters layout [version1,nclasses k,nterms p,probability_floor,mixture_weights(k),Bernoulli_term_probabilities_class_major(k*p)],length4+k+kp"
+      ],
+      "sql_example": "chem_text_latent_class_predict([[1,0],[0,1],[0,0]], [1,2,2,1e-08,0.5,0.5,0.9,0.1,0.1,0.9])",
+      "fixture": {
+        "data": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "args": [
+          1,
+          2,
+          2,
+          1e-08,
+          0.5,
+          0.5,
+          0.9,
+          0.1,
+          0.1,
+          0.9
+        ]
+      },
+      "known_value": {
+        "probabilities.0.0": 0.9878048780487805,
+        "probabilities.1.1": 0.9878048780487805,
+        "probabilities.2.0": 0.5
+      },
+      "unsupported": [
+        "No refitting,term-map inference,classification calibration or guarantee supplied arbitrary parameter vectors represent identified fitted models"
+      ],
+      "source": "crates/analytics/src/text_analysis.rs",
+      "tests": "crates/analytics/tests/candidates/text_analysis.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-class-analysis.shtml"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+    }
+  ],
+  "primary_sources": {
+    "overview": "https://www.jmp.com/support/help/en/19.2/jmp/text-explorer.shtml",
+    "tokenization": "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-text-explorer-platform.shtml",
+    "weighting": "https://www.jmp.com/support/help/en/19.2/jmp/save-options.shtml",
+    "lsa": "https://www.jmp.com/support/help/en/19.2/jmp/latent-semantic-analysis-svd.shtml",
+    "topic": "https://www.jmp.com/support/help/en/19.2/jmp/topic-analysis.shtml",
+    "class": "https://www.jmp.com/support/help/en/19.2/jmp/latent-class-analysis.shtml",
+    "analysis": "https://www.jmp.com/support/help/en/19.2/jmp/text-analysis-options.shtml"
+  },
+  "validation_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+  "integration_status": "Public execute/formal tests,production exported C ABI fixtures and matching native SQL PASS;bounded partial contracts only",
+  "native_sql_validation": {
+    "status": "PASS matching254 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-streams-validation.json",
+    "overall_jmp_parity": false
+  }
+}

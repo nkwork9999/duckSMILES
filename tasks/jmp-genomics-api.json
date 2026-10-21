@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "module": "genomics",
+  "source": "crates/analytics/src/genomics.rs",
+  "scope": "Bounded diploid quantitative-genetics primitives plus numeric distance matrices. Partial JMP Life Sciences/GBLUP method coverage; no polyploid or phased linked breeding workflow.",
+  "common_contract": {
+    "inputs": "Finite rectangular nonempty matrix,<=100000rows,<=1024columns,<=1Mcells; method limits tighter. Genotypes encode allele dosage0,1,2,missing -1; dosage-capable methods accept continuous[0,2].",
+    "missing": "SQL NULL remains invalid by common FFI contract; explicit -1 is genotype missing code. Unsupervised imputation/relatedness fit all supplied rows. GBLUP fits prefix only and ignores suffix outcomes.",
+    "portable": "Only mean/mode marker imputation saves query-only replacement values. LD-kNN and stochastic imputation are transductive, not deployable inductive models. GBLUP saves stable origin/offset markers and effects.",
+    "statistics": "HWE Pearson df1 is asymptotic, not exact; all-missing and monomorphic loci have null inferential quantities; BH adjusts only identifiable loci.",
+    "verification": "Public Rust behavior tests GREEN; production exported C ABI independent references PASS: 853 cases/137076 numerical fields; native SQL gate pending."
+  },
+  "operations": [
+    {
+      "operation": "marker_statistics",
+      "sql_name": "chem_marker_statistics",
+      "symbol": "MarkerStatistics",
+      "description": "Diploid genotype call rows (individuals x markers); 0/1/2,missing=-1; []. Call rates, allele/MAF/heterozygosity/PIC, asymptotic Pearson HWE df1 and BH p-values; monomorphic/all-missing HWE null.",
+      "sql_example": "chem_marker_statistics([[0.0,0.0],[1.0,1.0],[1.0,2.0],[2.0,-1.0]], [])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "marker_impute",
+      "sql_name": "chem_marker_impute",
+      "symbol": "MarkerImpute",
+      "description": "Diploid 0/1/2/-1 matrix; [method0mean/1mode/2LDknn/3HWE/4observed/5uniform/6specified=0,nearest_markers=10,nearest_samples=5,seed=0,specified=0]. All-missing loci rejected; mean/mode save values. LD-kNN squared dosage correlation, mean taxicab, majority call; no valid neighbors falls back mode.",
+      "sql_example": "chem_marker_impute([[0.0,0.0],[1.0,1.0],[2.0,2.0],[-1.0,2.0]], [2.0,1.0,1.0])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "marker_impute_predict",
+      "sql_name": "chem_marker_impute_predict",
+      "symbol": "MarkerImputePredict",
+      "description": "New dosage rows in [0,2] or missing=-1; saved mean/mode predict_parameters (one per marker). No query-driven fitting.",
+      "sql_example": "chem_marker_impute_predict([[-1.0,-1.0],[2.0,0.0]], [0.5,1.5])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "marker_relatedness",
+      "sql_name": "chem_marker_relatedness",
+      "symbol": "MarkerRelatedness",
+      "description": "Dosages in [0,2] or missing=-1; [method0VanRaden1/1VanRaden2/2diploidDominance=0]. <=1000individuals and100Mpairfeaturework. Additive missing mean-imputed; dominance requires discrete calls and missing centered effect0; monomorphic markers omitted.",
+      "sql_example": "chem_marker_relatedness([[0.0,0.0],[1.0,1.0],[2.0,2.0]], [0.0])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "distance_matrix",
+      "sql_name": "chem_distance_matrix",
+      "symbol": "DistanceMatrix",
+      "description": "Numeric row vectors,abs<=1e150; [method0Euclidean/1booleanJaccard/2nonnegativeBrayCurtis/3numericGower/4Hamming=0,optional_missing_code]. <=1000rows,100Mpairfeaturework; pairwise available coordinates, no-common errors; Gower constant columns contribute zero.",
+      "sql_example": "chem_distance_matrix([[0.0,1.0],[2.0,1.0]], [0.0])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "marker_simulate",
+      "sql_name": "chem_marker_simulate",
+      "symbol": "MarkerSimulate",
+      "description": "Scalar rows of allele frequencies in [0,1]; [samples,seed,inbreeding0..1=0]. Independent diploid loci with P(0)=q^2+Fpq,P(1)=2pq(1-F),P(2)=p^2+Fpq; <=1Moutputcells and1024markers.",
+      "sql_example": "chem_marker_simulate([[0.25],[0.5]], [3.0,42.0,0.0])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "marker_cross",
+      "sql_name": "chem_marker_cross",
+      "symbol": "MarkerCross",
+      "description": "Complete parental genotype rows0/1/2; [parent0_index,parent1_index,offspring_count,seed]. Single-generation unlinked diploid meiosis, independent loci; <=1Moutputcells.",
+      "sql_example": "chem_marker_cross([[0.0,2.0,1.0],[2.0,0.0,1.0]], [0.0,1.0,3.0,42.0])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "genomic_blup",
+      "sql_name": "chem_genomic_blup",
+      "symbol": "GenomicBlup",
+      "description": "Rows[dosages...,phenotype], query suffix phenotype ignored; [n_train>=2,lambda1e-8..1e12=1,method0VanRaden1/1VanRaden2=0]. <=64markers,10000rows. Fixed residual/genetic variance ratio, intercept + ridge-equivalent marker effects; training-prefix means, no REML/GWAS inference.",
+      "sql_example": "chem_genomic_blup([[0.0,1.0],[1.0,2.0],[2.0,5.0],[1.0,999.0]], [3.0,1.0])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    },
+    {
+      "operation": "genomic_blup_predict",
+      "sql_name": "chem_genomic_blup_predict",
+      "symbol": "GenomicBlupPredict",
+      "description": "New dosage rows[0,2] or missing=-1; saved genomic_blup predict_parameters=[p,y_origin,y_mean_offset,training_marker_means(p),marker_effects(p)]. Fixed training preprocessing and missing mean substitution.",
+      "sql_example": "chem_genomic_blup_predict([[0.0],[1.0],[2.0]], [1.0,1.0,1.6666666666666667,1.0,1.6])",
+      "source": "crates/analytics/src/genomics.rs",
+      "tests": "crates/analytics/tests/genomics.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/life-sciences.pdf",
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling"
+      ],
+      "formula_reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354961/",
+      "validation_evidence": "tasks/evidence/jmp-genomics-reference.json",
+      "unsupported": [
+        "polyploid markers",
+        "phased linkage and recombination maps",
+        "admixture estimation",
+        "REML variance-component fitting and GWAS tests",
+        "identical JMP imputation random streams or LD-kNN tie/fallback conventions"
+      ]
+    }
+  ]
+}

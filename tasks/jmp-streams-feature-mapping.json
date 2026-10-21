@@ -1,0 +1,3321 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-21T16:58:54.934011+00:00",
+  "purpose": "Proposed bounded partial mapping for the current29-operation streams integration only;auxiliary artifact,not applied to README/matrix.",
+  "scope": {
+    "operations": 29,
+    "modules": {
+      "state-space": 9,
+      "functional-preprocess": 8,
+      "text-analysis": 8,
+      "spatial": 4
+    },
+    "excluded": [
+      "GUI",
+      "GPU"
+    ],
+    "new_choice_stage_included": false,
+    "new_feature_rows": 0,
+    "full_JMP_equivalence_claim": false
+  },
+  "inputs": {
+    "matrix_path": "tasks/jmp-feature-matrix.json",
+    "matrix_sha256": "76ee61ab6b665464d63dbeed5f6f6fe74b4f00c0c8e811f027e4ab10863dbdff",
+    "api_sha256": {
+      "tasks/jmp-state-space-api.json": "e6272dc3721e837285107d96a6d9c6696fe786452e31f6ae87ce488c08e9f3af",
+      "tasks/jmp-functional-preprocess-api.json": "baa5d6fd31d0fa58bf4c2e025556d726bfcd2f944ee312e3084b9fc123f2c0b7",
+      "tasks/jmp-text-analysis-api.json": "6f778b5cb63bea97f3aefcf1129b6c8003e2aa3bbd68c8d73b4be74772a22f79",
+      "tasks/jmp-spatial-api.json": "d7891601bba79da07ab90075727f963461d2546aaf0264a21bca82b6db98a817"
+    },
+    "matrix_feature_rows": 552
+  },
+  "counting": {
+    "operation_count": 29,
+    "unique_existing_feature_ids_affected": 26,
+    "absent_to_partial_count": 19,
+    "absent_to_partial_feature_ids": [
+      "arima_prewhitening",
+      "arwls_baseline_correction",
+      "cross_correlation",
+      "cycle_removal",
+      "functional_bin_reduction",
+      "functional_common_grid_interpolation",
+      "functional_dtw_distance_matrix",
+      "functional_thinning",
+      "golden_curve_matching",
+      "irregular_axis_functional_preprocessing",
+      "latent_semantic_analysis",
+      "linear_trend_removal",
+      "snip_baseline_correction",
+      "spatial_covariance_models",
+      "state_space_smoothing",
+      "supplied_baseline_subtraction",
+      "text_latent_class_analysis",
+      "time_series_forecast_intervals",
+      "transfer_function_model"
+    ],
+    "absent_to_partial_by_stream": {
+      "state-space": 7,
+      "functional-preprocess": 9,
+      "text-analysis": 2,
+      "spatial": 1
+    },
+    "existing_partial_rows_preserved_count": 7,
+    "existing_partial_feature_ids": [
+      "arima",
+      "baseline_correction",
+      "dynamic_time_warping",
+      "exponential_smoothing_forecast",
+      "gaussian_process_model",
+      "seasonality",
+      "time_series_forecast"
+    ],
+    "implemented_verified_promotions": 0,
+    "status_counts_before": {
+      "partial": 235,
+      "database_existing": 37,
+      "absent": 205,
+      "external_plugin": 4,
+      "clarification_pending": 44,
+      "implemented_verified": 6,
+      "excluded_gui": 17,
+      "separate_product": 4
+    },
+    "proposed_status_counts_after_only_this_mapping": {
+      "partial": 254,
+      "database_existing": 37,
+      "absent": 186,
+      "external_plugin": 4,
+      "clarification_pending": 44,
+      "implemented_verified": 6,
+      "excluded_gui": 17,
+      "separate_product": 4
+    },
+    "warning": "Operations, umbrella features, and atomic features have unequal granularity. Do not convert these counts into a JMP parity percentage or equate partial feature count with SQL operation count."
+  },
+  "merge_policy": {
+    "apply_status_only_after_parent_gate": true,
+    "status_target": "partial only;no implemented_verified promotion",
+    "preserve_existing": "Append scoped implementations/tests/evidence and retain all earlier implementation/current_implementation entries. Preserve IDs,labels,domain,catalog occurrences,edition/source andGUI scope. Existing_partial_rows_preserved contains exact prior snapshots.",
+    "remaining_contract": "Use explicit remaining_contract_proposed to replace stale generic 未実装 text only for affected IDs; retain unsupported specifics from each API. No changes to protected features or unrelated rows.",
+    "parent_owns": [
+      "README.md",
+      "tasks/jmp-feature-matrix.json",
+      "registry/nativeSQL/sourcegraph verification"
+    ],
+    "verification": "This artifact checks29API operationcontracts andexisting featureIDs only. Existing linked independent evidence is referenced; native/sourcegraph gates are not rerun or certified here."
+  },
+  "operations": [
+    {
+      "operation": "kalman_smoother",
+      "sql_name": "chem_kalman_smoother",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/state_space.rs",
+      "primary_feature_id": "state_space_smoothing",
+      "feature_ids": [
+        "state_space_smoothing",
+        "time_series_forecast",
+        "time_series_forecast_intervals"
+      ],
+      "mapping_basis": "既知の線形Gaussian行列によるfilter/RTS/conditional forecastを限定state-space契約へ追加。ETS推定やexactARIMA推定を実装したとは数えない。",
+      "bounded_contract": "Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+      "data_contract": "1..5000 rows [finite response, observed flag0/1]. Flag0 ignores response placeholder but retains elapsed time; SQL NULL is invalid.",
+      "ordered_args": [
+        "k integer1..8",
+        "horizon integer0..500",
+        "confidence .5..0.9999",
+        "m0: k entries",
+        "P0: k*k proper positive-definite covariance row-major",
+        "F: k*k transition row-major",
+        "Q: k*k positive-semidefinite process covariance row-major",
+        "H: k observation loadings",
+        "R: positive measurement variance"
+      ],
+      "unsupported_preserved": [
+        "parameter estimation/diffuse initialization",
+        "multivariate responses,time-varying matrices/non-Gaussian models",
+        "RTS with singular predicted covariance",
+        "parameter-estimation uncertainty",
+        "This general independent-noise Gaussian model is distinct from JMP ETS."
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "state_space_smoothing",
+      "sql_name": "chem_state_space_smoothing",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/state_space.rs",
+      "primary_feature_id": "state_space_smoothing",
+      "feature_ids": [
+        "state_space_smoothing",
+        "exponential_smoothing_forecast",
+        "time_series_forecast",
+        "seasonality",
+        "time_series_forecast_intervals"
+      ],
+      "mapping_basis": "6つの加法innovations ETS、推定initial state、局所MLと条件付き予測区間。seasonalityへの寄与はANA/AAA/AAdAの指定periodのみ。",
+      "bounded_contract": "Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+      "data_contract": "8..5000 complete finite scalar rows; n>=2*k+4 with k=1+trend+seasonal_period. Nonconstant data and nondegenerate residual variance required.",
+      "ordered_args": [
+        "family0 ANN/1 AAN/2 AAdN/3 ANA/4 AAA/5 AAdA;default0",
+        "period2..24 if seasonal,else unused0..24;default4 seasonal/0 otherwise",
+        "horizon1..500;default10",
+        "confidence .5..0.9999;default.95",
+        "maxiter1..5000 per start;default1000",
+        "tolerance1e-10..1e-3;default1e-8"
+      ],
+      "unsupported_preserved": [
+        "multiplicative error/trend/seasonality",
+        "automatic ETS model selection/full admissibility region or exact JMP optimizer defaults",
+        "parameter SE/Wald/CI",
+        "missing/diffuse estimates,parameter estimation uncertainty",
+        "bounds are an explicit partial ETS contract;no full JMP family equivalence"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "state_space_predict",
+      "sql_name": "chem_state_space_predict",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/state_space.rs",
+      "primary_feature_id": "state_space_smoothing",
+      "feature_ids": [
+        "state_space_smoothing",
+        "time_series_forecast",
+        "time_series_forecast_intervals"
+      ],
+      "mapping_basis": "既存Gaussian/ETS保存stateと不確実性規約を再利用する補助操作。同じfeatureを新規行として二重計上しない。",
+      "bounded_contract": "Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+      "data_contract": "Exactly one finite scalar placeholder row [[0.]] for SQL/native use,ignored. Empty data accepted only at direct module layer.",
+      "ordered_args": [
+        "horizon1..500",
+        "confidence .5..0.9999",
+        "unchanged prediction_model from kalman_smoother or state_space_smoothing; portable layouts in common_contract"
+      ],
+      "unsupported_preserved": [
+        "refitting/future-label learning",
+        "parameter uncertainty",
+        "saved transfer-function reuse is not provided by this operation"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "arima_forecast_intervals",
+      "sql_name": "chem_arima_forecast_intervals",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/dynamic_series.rs",
+      "primary_feature_id": "time_series_forecast_intervals",
+      "feature_ids": [
+        "time_series_forecast_intervals",
+        "arima",
+        "time_series_forecast"
+      ],
+      "mapping_basis": "供給point forecast・AR/MA/差分polynomialと既知sigma2から条件付き正規区間を追加。既存CSS ARIMA estimatorは変更されずexactARIMA MLに昇格しない。",
+      "bounded_contract": "Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+      "data_contract": "1..1000 finite scalar point-forecast rows.",
+      "ordered_args": [
+        "confidence .5..0.9999",
+        "known innovation sigma2>=0",
+        "AR polynomial degree0..200",
+        "MA polynomial degree0..200",
+        "difference factors0..4",
+        "AR coefficients A0..degree,A0=1",
+        "MA coefficients C0..degree,C0=1",
+        "one integer lag1..100 per factor;combined denominator length<=500"
+      ],
+      "unsupported_preserved": [
+        "parameter/innovation-variance estimation uncertainty",
+        "Box-Cox/backtransform/non-Gaussian intervals",
+        "future-exogenous input uncertainty",
+        "changing existing CSS ARIMA estimator"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "cross_correlation",
+      "sql_name": "chem_cross_correlation",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/dynamic_series.rs",
+      "primary_feature_id": "cross_correlation",
+      "feature_ids": [
+        "cross_correlation"
+      ],
+      "mapping_basis": "正lag=input leads outputという明示CCFと2つの正規化を専用既存featureへ。ACFとの取り違えなし。",
+      "bounded_contract": "CCF for complete input/output rows: [maxlag<=500,normalization0global/1overlapPearson]; positive lag means input leads output; +/-2 white-noise SE bands.",
+      "data_contract": "3..10000 finite [input,output] rows;both nonconstant;overlap Pearson mode also rejects constant overlaps.",
+      "ordered_args": [
+        "maxlag0..min(500,n-2)",
+        "normalization0centered global-energy(default)/1overlap Pearson"
+      ],
+      "unsupported_preserved": [
+        "missing/unequal spacing",
+        "multiplicity-adjusted lag significance",
+        "exact JMP finite-sample normalization equivalence is unverified"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "arima_prewhitening",
+      "sql_name": "chem_arima_prewhitening",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/dynamic_series.rs",
+      "primary_feature_id": "arima_prewhitening",
+      "feature_ids": [
+        "arima_prewhitening"
+      ],
+      "mapping_basis": "input training prefixだけでfitした小次数stationary ARMA innovations演算子を両系列に適用する限定契約。",
+      "bounded_contract": "Input-only exact stationary ARMA prewhitening: [X,Y] rows; [n_train,p<=2,q<=2,maxlag,maxiter,tol]. Apply the same innovations operator to both series; suffix ignored.",
+      "data_contract": "Finite [input,output] rows<=10000,n_train12..min(2000,n). Both parameter estimation and output centering use training prefix only. Constant input rejects;constant output allowed with null CCF.",
+      "ordered_args": [
+        "n_train12..min(2000,n)",
+        "AR order0..2",
+        "MA order0..2",
+        "CCF maxlag0..min(500,n_train-2);default10",
+        "maxiter1..5000;default1000",
+        "tolerance1e-10..1e-3;default1e-8"
+      ],
+      "unsupported_preserved": [
+        "integrated/seasonal/full-order ARIMA prewhitening",
+        "missing observations",
+        "output-specific filter estimation",
+        "automatic order selection,whiteness proofs or complete model diagnostics"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "transfer_function_model",
+      "sql_name": "chem_transfer_function_model",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/dynamic_series.rs",
+      "primary_feature_id": "transfer_function_model",
+      "feature_ids": [
+        "transfer_function_model",
+        "time_series_forecast",
+        "time_series_forecast_intervals"
+      ],
+      "mapping_basis": "単一inputの有理omega/deltaと小次数stationary ARMA noise、既知future input pathに条件付けたfit/forecast。",
+      "bounded_contract": "Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol].",
+      "data_contract": "Exactly n_train+horizon finite [input,output] rows,n_train20..2000,horizon1..500. Training input/output must be nonconstant with nondegenerate fitted residual variance. Future input path required;future output values are ignored. No automatic lag/order selection.",
+      "ordered_args": [
+        "n_train20..2000",
+        "input delay0..24",
+        "numerator degree0..2",
+        "denominator degree0..2",
+        "stationary-noise AR order0..2",
+        "invertible-noise MA order0..2",
+        "horizon1..500",
+        "confidence .5..0.9999;default.95",
+        "maxiter1..5000;default1000",
+        "tolerance1e-10..1e-3;default1e-8"
+      ],
+      "unsupported_preserved": [
+        "multiple inputs,seasonal/differenced noise or missing data",
+        "automatic lag/order selection or exact JMP numerator convention/default optimizer equivalence",
+        "parameter SE/Wald/LR/CI and nonidentification proofs",
+        "future input or parameter-estimation uncertainty",
+        "portable transfer prediction carrier is not yet exposed"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "remove_linear_trend",
+      "sql_name": "chem_remove_linear_trend",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/dynamic_series.rs",
+      "primary_feature_id": "linear_trend_removal",
+      "feature_ids": [
+        "linear_trend_removal"
+      ],
+      "mapping_basis": "training prefixのOLS直線を等間隔系列から除去し、以後へ外挿する限定契約。",
+      "bounded_contract": "Remove least-squares intercept+slope from equally spaced scalar series: [n_train=all],training-only stable centering/scaling and extrapolated trend.",
+      "data_contract": "3..10000 finite scalar rows;zero-based implicit time index0..n-1.",
+      "ordered_args": [
+        "n_train3..n;defaultall"
+      ],
+      "unsupported_preserved": [
+        "automatic differencing/nonlinear trend",
+        "iid slope inference in autocorrelated errors",
+        "calendar/irregular time indices"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "remove_cycle",
+      "sql_name": "chem_remove_cycle",
+      "api_source": "tasks/jmp-state-space-api.json",
+      "implementation_source": "crates/analytics/src/dynamic_series.rs",
+      "primary_feature_id": "cycle_removal",
+      "feature_ids": [
+        "cycle_removal",
+        "seasonality"
+      ],
+      "mapping_basis": "指定した単一periodのsin/cosを除去する限定cycle機能。一般季節調整やX11への代替計上はしない。",
+      "bounded_contract": "Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle.",
+      "data_contract": "4..10000 finite scalar rows;zero-based implicit equally spaced time index.",
+      "ordered_args": [
+        "period>2 and<=1e6",
+        "include_constant0/1;default1",
+        "n_train4..n;defaultall"
+      ],
+      "unsupported_preserved": [
+        "automatic period discovery,full spectral selection",
+        "general seasonal/X11 decomposition",
+        "irregular time/calendar effects or iid inference"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_grid",
+      "sql_name": "chem_functional_grid",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "functional_common_grid_interpolation",
+      "feature_ids": [
+        "functional_common_grid_interpolation",
+        "irregular_axis_functional_preprocessing"
+      ],
+      "mapping_basis": "不規則long観測から共通gridへの線形補間なので、専用interpolation rowと広いirregular-axis rowをともにpartialへ。欠測imputation全体は閉じない。",
+      "bounded_contract": "Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy].",
+      "data_contract": "Long function observations,>=2 distinct x per ID; internally sorted. Auto/size-only grid estimates use only role0 functions. Explicit bounds/size requires no training rows.",
+      "ordered_args": [
+        "[]:size=min(4096,longest training function),domain=intersection of training supports,outside null",
+        "[size]:integer2..min(4096,longest training function); training-domain intersection",
+        "[size,lower,upper,outside_policy]:size2..4096,lower<upper; all quantities supplied, so validation-only replay and size larger than query sample count are supported",
+        "outside_policy:0=null beyond support,1=constant endpoint extension,2=reject; required in full layout"
+      ],
+      "unsupported_preserved": [
+        "cubic/spline interpolation",
+        "duplicate-x aggregation",
+        "automatic extrapolation",
+        "implicit missing-data imputation",
+        "exact JMP domain/default interpolation equivalence"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_bin",
+      "sql_name": "chem_functional_bin",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "functional_bin_reduction",
+      "feature_ids": [
+        "functional_bin_reduction"
+      ],
+      "mapping_basis": "明示した等幅binと観測平均によるcurve reduction。DuckDB既存の一般binning_data statusは変更しない。",
+      "bounded_contract": "Explicit equal-width function bins: [x,y,id,optional role]; [number,lower,upper,outside0reject/1drop=1].",
+      "data_contract": "Long observations; repeated x accepted and all observations counted, including multiplicities. Same explicit bin edges for training and validation.",
+      "ordered_args": [
+        "number:required integer1..4096",
+        "lower,upper:required finite lower<upper",
+        "outside_policy:0=reject any out-of-range value,1=drop/report count;default1"
+      ],
+      "unsupported_preserved": [
+        "quantile/variable-width bins",
+        "interval-integral means",
+        "automatic training-domain estimation",
+        "silent empty-bin imputation"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_thin",
+      "sql_name": "chem_functional_thin",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "functional_thinning",
+      "feature_ids": [
+        "functional_thinning"
+      ],
+      "mapping_basis": "曲線内でx順にstride/offsetを適用する限定thinning。GUI選択状態とは別。",
+      "bounded_contract": "Sorted per-function stride selection: [x,y,id,optional role]; [stride=2,offset=0,keep_last=0].",
+      "data_contract": "Long observations; each ID sorted by x and original row index for ties; repeated x allowed.",
+      "ordered_args": [
+        "stride:integer1..10000,default2",
+        "offset:integer0..stride-1,default0",
+        "keep_last:0/1,default0; union final point with stride selection without duplicate"
+      ],
+      "unsupported_preserved": [
+        "random/importance thinning",
+        "automatic anti-alias filtering",
+        "screen row selection state"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_snip",
+      "sql_name": "chem_functional_snip",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "snip_baseline_correction",
+      "feature_ids": [
+        "snip_baseline_correction",
+        "baseline_correction"
+      ],
+      "mapping_basis": "明示window/圧縮規約でのSNIP span clippingをbaseline familyへ追加。既存polynomial detrendを保存する。",
+      "bounded_contract": "SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0].",
+      "data_contract": "Training IDs require an evenly spaced strictly increasing x grid and n>=2*max_halfwindow+1. Validation IDs pass unchanged without fitting; their baseline arrays are zero placeholders with baseline_applied=false. Log-log input Y>=0; raw transform allows signed Y.",
+      "ordered_args": [
+        "max_halfwindow:required integer1..4999,also <=(n-1)/2 for every training ID",
+        "transform:0=identity,1=G(y)=ln(ln(1+y)+1);default1; original Ryan log-log transform has no square root",
+        "direction:0=widths1..max,1=max..1;default0; each pass reads the previous entire vector synchronously"
+      ],
+      "unsupported_preserved": [
+        "original FWHM-dependent low-statistics filter",
+        "implicit irregular-grid interpolation",
+        "LLS square-root transform",
+        "automatic peak-width choice",
+        "JMP-default numerical equivalence",
+        "validation baseline estimation"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/baseline-correction-reports.shtml",
+        "https://doi.org/10.1016/0168-583X(88)90063-8",
+        "https://www.scribd.com/document/653527159/SNIP-A-STATISTICS-SENSITIVE-BACKGROUND-TREATMENT-FOR-THE-QUANTITATIVE"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_arwls",
+      "sql_name": "chem_functional_arwls",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "arwls_baseline_correction",
+      "feature_ids": [
+        "arwls_baseline_correction",
+        "baseline_correction"
+      ],
+      "mapping_basis": "Baek2015のasymmetrically reweighted penalized LS baselineを追加。Spline族全体や自動lambda選択とは数えない。",
+      "bounded_contract": "Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0].",
+      "data_contract": "Training IDs require >=3 uniformly spaced distinct x values. Validation rows remain unchanged with zero placeholder baseline/weights, convergence null, baseline_applied=false.",
+      "ordered_args": [
+        "lambda:1e-8..1e10,default1e5; penalty on index-based second differences",
+        "weight_tolerance:1e-12..1e-2,default1e-6; L2 relative proposed-versus-used weight change",
+        "maxiter:integer1..1000,default100",
+        "negative_std_ddof:0=population,1=sample;default0; explicit convention because exact software defaults are not assumed"
+      ],
+      "unsupported_preserved": [
+        "airPLS/AsLS substitution",
+        "moving-average substitution",
+        "implicit ridge/weight floor",
+        "nonuniform physical-spacing penalty",
+        "automatic lambda choice",
+        "baseline parameter confidence intervals",
+        "JMP-default numerical equivalence"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/baseline-correction-reports.shtml",
+        "https://doi.org/10.1039/C4AN01061B",
+        "https://repository.hanyang.ac.kr/bitstream/20.500.11754/21508/1/Baseline%20correction%20using%20asymmetrically%20reweighted%20penalized%20least%20squares%20smoothing.pdf"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_baseline",
+      "sql_name": "chem_functional_baseline",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "supplied_baseline_subtraction",
+      "feature_ids": [
+        "supplied_baseline_subtraction",
+        "baseline_correction"
+      ],
+      "mapping_basis": "利用者が指定したbaseline curveを補間して減算する限定前処理。parametric baseline fitではない。",
+      "bounded_contract": "Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2].",
+      "data_contract": "Baseline ID must exist with role0,>=2 distinct x; its observations are a supplied reference and excluded from corrected IDs. Other training IDs may be irregular. Validation IDs pass unchanged.",
+      "ordered_args": [
+        "baseline_id:required exact ID of supplied reference function",
+        "outside_policy:0=null,1=constant endpoint extension,2=reject;default2"
+      ],
+      "unsupported_preserved": [
+        "parametric baseline fitting/anchor regions",
+        "implicit validation correction",
+        "baseline extrapolation beyond selected policy",
+        "baseline uncertainty propagation"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/baseline-correction-reports.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_dtw_matrix",
+      "sql_name": "chem_functional_dtw_matrix",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "functional_dtw_distance_matrix",
+      "feature_ids": [
+        "functional_dtw_distance_matrix",
+        "dynamic_time_warping"
+      ],
+      "mapping_basis": "既存pairwise DTWにall-pairs距離matrixを追加。warping transformを推定して曲線をregistrationする機能とは区別。",
+      "bounded_contract": "All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0].",
+      "data_contract": ">=2 functions in within-ID sorted x order; unequal lengths permitted. Each ID has at least1 point. X determines sequence order, not a physical-time cost.",
+      "ordered_args": [
+        "window:-1=unconstrained,otherwise integer0..longest length; must reach every pair endpoint",
+        "normalize:0=original intensities,1=per-curve mean/population-standard-deviation standardization;default0; constant curves reject under1",
+        "cost:0=squared local amplitude difference and square root of summed path cost,1=absolute local difference and summed cost;default0"
+      ],
+      "unsupported_preserved": [
+        "physical-x/time penalization",
+        "multivariate local costs",
+        "warping-path/warping-function export",
+        "soft DTW",
+        "automatic registration",
+        "triangle-inequality guarantees"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "functional_golden_match",
+      "sql_name": "chem_functional_golden_match",
+      "api_source": "tasks/jmp-functional-preprocess-api.json",
+      "implementation_source": "crates/analytics/src/functional_preprocess.rs",
+      "primary_feature_id": "golden_curve_matching",
+      "feature_ids": [
+        "golden_curve_matching"
+      ],
+      "mapping_basis": "供給target curveとのRMSE/MAE/DTW距離順位だけを限定golden matchingとして追加。FPC profiler最適化とは区別。",
+      "bounded_contract": "Supplied golden/reference curve distance ranking: [x,y,id,optional role]; [target_id,metric0RMSE/1MAE/2DTW=0,window=-1,normalize=0].",
+      "data_contract": ">=2 functions; explicit target ID excluded from candidate scores/ranking. RMSE/MAE require identical ordered x grids; DTW allows unequal lengths. Curve roles retained for candidate provenance.",
+      "ordered_args": [
+        "target_id:required exact ID of pre-specified reference/golden curve",
+        "metric:0=RMSE,1=MAE,2=squared-cost square-root DTW;default0",
+        "window:-1=unconstrained,otherwise valid DTW radius;default-1",
+        "normalize:0=original intensities,1=independent per-curve population standardization;default0"
+      ],
+      "unsupported_preserved": [
+        "FPC profiler/desirability optimizer",
+        "automatic golden-target selection",
+        "affine amplitude calibration",
+        "counterfactual process outcomes",
+        "statistical match p-values/confidence intervals"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-functional-preprocess-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_dtm",
+      "sql_name": "chem_text_dtm",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "latent_semantic_analysis",
+      "feature_ids": [
+        "latent_semantic_analysis",
+        "text_latent_class_analysis"
+      ],
+      "mapping_basis": "語彙対応済みnumeric term IDsの集計はLSA/LCAの共有前処理。独立のtokenizer実装・新featureIDには数えない。",
+      "bounded_contract": "Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+      "data_contract": "Long token-count records,duplicates summed; IDs nonnegative integers within supplied dimensions,count integer0..1e9; aggregate cell<=1e9. Zero-count records supported; explicit empty documents preserved.",
+      "ordered_args": [
+        "n_documents integer1..4096",
+        "n_terms integer1..4096"
+      ],
+      "unsupported_preserved": [
+        "No string tokenization,Unicode normalization,Japanese dictionary,stemming,stopword or synonym fitting"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-text-explorer-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_weight",
+      "sql_name": "chem_text_weight",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "latent_semantic_analysis",
+      "feature_ids": [
+        "latent_semantic_analysis"
+      ],
+      "mapping_basis": "供給count matrixの5weightings/filterと保存IDFをLSA pipelineへ追加。言語parserやresponse-based term selectionではない。",
+      "bounded_contract": "Fit corpus dictionary/filter and exact JMP five DTM weightings; nonnegative integer count matrix; args[mode0binary/1ternary/2frequency/3log10/4TFIDF=4,min_corpus_count=1,max_terms=all].",
+      "data_contract": "Dense count matrix in immutable source vocabulary order,count integer0..1e9. Training frequency filters and top-term ordering are corpus count descending,source-index ascending ties; empty documents count in N.",
+      "ordered_args": [
+        "mode integer0..4 default4",
+        "min_corpus_count integer1..1e12 default1",
+        "max_terms integer1..p defaultp"
+      ],
+      "unsupported_preserved": [
+        "No smoothed IDF,document-length normalization,automatic language preprocessing or dictionary from query data"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_weight_predict",
+      "sql_name": "chem_text_weight_predict",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "latent_semantic_analysis",
+      "feature_ids": [
+        "latent_semantic_analysis"
+      ],
+      "mapping_basis": "training語彙/IDFをqueryへ固定再利用するLSA前処理の保存契約。",
+      "bounded_contract": "Apply saved dictionary and training IDF to new count rows; args unchanged text_weight.weight_parameters; training vocabulary width/order required.",
+      "data_contract": "Dense query counts in entire original p-term universe; absent terms0; unselected training terms ignored. Unknown external words must be excluded/mapped by caller; out-of-range numeric IDs/width reject.",
+      "ordered_args": [
+        "unchanged weight_parameters layout [version1,original_term_count p,selected_count k,weight_mode,training_n,selected_term_indices(k),training_IDF(k)],length5+2k; original ID universe retained"
+      ],
+      "unsupported_preserved": [
+        "No query IDF refit or inferred new vocabulary; OOV words are not automatically tokenized"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_lsa",
+      "sql_name": "chem_text_lsa",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "latent_semantic_analysis",
+      "feature_ids": [
+        "latent_semantic_analysis"
+      ],
+      "mapping_basis": "供給weighted DTMのpartial SVDと固定次元scores/保存projectionがLSA本体の限定実装。",
+      "bounded_contract": "Partial SVD of supplied nonnegative weighted DTM; args[k,preprocess0uncentered/1centered/2centered_scaled=2]; returns U,S,V and scores US with saved transform.",
+      "data_contract": "Supplied weighted DTM (use text_weight first if desired),n<=1024,p<=128,n*p*p<=1e6,k<=32 and numerical rank. Relative rank cutoff1e-10; one-sided Jacobi100sweeps; constant centered columns scale1.",
+      "ordered_args": [
+        "k integer1..min(n,p,32) required",
+        "preprocess integer0..2 default2"
+      ],
+      "unsupported_preserved": [
+        "No automatic TF-IDF fitting,model-rank selection,sparse unlimited corpus or installed-JMP equivalence of singular-value scale; repeated singular subspaces need not have unique vectors"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-semantic-analysis-svd.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/text-analysis-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_projection",
+      "sql_name": "chem_text_projection",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "latent_semantic_analysis",
+      "feature_ids": [
+        "latent_semantic_analysis"
+      ],
+      "mapping_basis": "LSA/rotated-SVDのtraining transformを固定再利用する補助操作。",
+      "bounded_contract": "Score supplied weighted query DTM with saved LSA/topic projection; args unchanged projection_parameters. Training mean,scale,divisor and loadings reused.",
+      "data_contract": "Nonnegative weighted query matrix in exact fitted term order. Input columns<=128,output dimensions<=32,output<=131072cells; finite derived binary64 outputs required. TF-IDF must use original training model separately.",
+      "ordered_args": [
+        "unchanged projection_parameters layout [version1,input_terms p,output_dimensions k,training_divisor,training_means(p),training_scales(p),projection_matrix_row_major(p*k)],length4+2p+p*k; score=((query-mean)/scale/divisor)*projection"
+      ],
+      "unsupported_preserved": [
+        "No query preprocessing refit,OOV inference,uncertainty or guaranteed finite result when derived binary64 terms overflow"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-semantic-analysis-svd.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/topic-analysis.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_topic_svd",
+      "sql_name": "chem_text_topic_svd",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "latent_semantic_analysis",
+      "feature_ids": [
+        "latent_semantic_analysis"
+      ],
+      "mapping_basis": "SVD loadingsへのtrue orthogonal varimaxをLSA下位契約へ追加。台帳に独立topic rowがないため新IDを作らず、NMF/LDAとも呼ばない。",
+      "bounded_contract": "True orthogonal varimax of supplied-DTM SVD loadings VS; document topic vectors UR preserve reconstruction; args[k,preprocess=2,max_sweeps=200,tol=1e-8,kaiser0/1=1].",
+      "data_contract": "Same supplied-DTM SVD bounds; k<=16. Loadings initially VS; common max-absolute loading scaling before optional Kaiser row normalization,then pairwise orthogonal Jacobi varimax. Final maximum absolute term-loading anchor positive.",
+      "ordered_args": [
+        "k integer1..16 and numerical rank required",
+        "preprocess integer0..2 default2",
+        "max_sweeps integer1..2000 default200",
+        "tolerance1e-12..1e-3 default1e-8",
+        "kaiser integer0/1 default1"
+      ],
+      "unsupported_preserved": [
+        "No NMF/LDA/probabilistic-topic claim,global rotation maximum,automatic topic naming,GUI wordcloud or installed-JMP exact rotation reproduction"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/topic-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-semantic-analysis-svd.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_latent_class",
+      "sql_name": "chem_text_latent_class",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "text_latent_class_analysis",
+      "feature_ids": [
+        "text_latent_class_analysis"
+      ],
+      "mapping_basis": "供給count presenceに対するbounded conditional-independence Bernoulli mixture localEM。JMP sparse実装や識別性との完全一致ではない。",
+      "bounded_contract": "Conditional-independence Bernoulli mixture EM on supplied count presence; args[k,seed=0,max_iter=200,tol=1e-8,probability_floor=1e-9]. Reports genuine likelihood,mixture/term probabilities and saved posterior model.",
+      "data_contract": "Count matrix binarized by presence,training n2..2048,p<=128,k<=16 and<=n,n*p*k*iterations<=100M. Deterministic SplitMix64 seeded shuffled distinct document indices initialize .75/.25 conditional probabilities.",
+      "ordered_args": [
+        "k integer1..min(n,16) required",
+        "seed integer0..2^53-1 default0",
+        "max_iterations integer1..2000 default200",
+        "tolerance1e-12..1e-3 default1e-8",
+        "probability_floor1e-12..0.1 default1e-9"
+      ],
+      "unsupported_preserved": [
+        "No global optimum or verified statistical identification,SE/CI,LDA/NMF,sparse JMP Text Explorer implementation identity,term-selection regression or sentiment dictionary"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-class-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/text-analysis-options.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "text_latent_class_predict",
+      "sql_name": "chem_text_latent_class_predict",
+      "api_source": "tasks/jmp-text-analysis-api.json",
+      "implementation_source": "crates/analytics/src/text_analysis.rs",
+      "primary_feature_id": "text_latent_class_analysis",
+      "feature_ids": [
+        "text_latent_class_analysis"
+      ],
+      "mapping_basis": "保存Bernoulli probabilitiesでmembership posteriorを再利用するLCA下位契約。",
+      "bounded_contract": "Score saved Bernoulli mixture using presence and absence of each fitted term; args unchanged text_latent_class.predict_parameters; returns posterior membership and log probability.",
+      "data_contract": "Dense query count matrix in fixed p-term order,counts converted to presence; saved probabilities/mixing weights validated. Output<=131072cells.",
+      "ordered_args": [
+        "unchanged predict_parameters layout [version1,nclasses k,nterms p,probability_floor,mixture_weights(k),Bernoulli_term_probabilities_class_major(k*p)],length4+k+kp"
+      ],
+      "unsupported_preserved": [
+        "No refitting,term-map inference,classification calibration or guarantee supplied arbitrary parameter vectors represent identified fitted models"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/latent-class-analysis.shtml"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-text-analysis-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "spatial_covariance",
+      "sql_name": "chem_spatial_covariance",
+      "api_source": "tasks/jmp-spatial-api.json",
+      "implementation_source": "crates/analytics/src/spatial.rs",
+      "primary_feature_id": "spatial_covariance_models",
+      "feature_ids": [
+        "spatial_covariance_models"
+      ],
+      "mapping_basis": "供給したrange/sill/nuggetによる4isotropic kernelの直接構成。共分散パラメータを推定したとは数えない。",
+      "bounded_contract": "Four isotropic JMP spatial kernels: locations in1..3 dimensions; [kind0spherical/1exponential/2Gaussian/3power,partial_sill,nugget,rho]. Independent record nugget; covariance and semivariance matrices.",
+      "data_contract": "1..256 rows of1..3 spatial coordinates",
+      "ordered_args": "Exactly[kind,sill>0,nugget>=0,rho>0]; power0<rho<1",
+      "unsupported_preserved": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+        "https://gaussianprocess.org/gpml/chapters/RW2.pdf"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-spatial-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "spatial_variogram",
+      "sql_name": "chem_spatial_variogram",
+      "api_source": "tasks/jmp-spatial-api.json",
+      "implementation_source": "crates/analytics/src/spatial.rs",
+      "primary_feature_id": "spatial_covariance_models",
+      "feature_ids": [
+        "spatial_covariance_models"
+      ],
+      "mapping_basis": "empirical isotropic Matheron bin summaryだけ。model variogramのNLS/ML/REML fitとは区別。",
+      "bounded_contract": "Empirical isotropic Matheron semivariogram: rows[coordinates1..3,response]; [bins=10,lower=min_pair_distance,upper=max_pair_distance]. Pair counts,mean distance and half mean squared differences; empty classes null.",
+      "data_contract": "2..512 rows[coordinates1..3,response]",
+      "ordered_args": "0..3 values: bins1..100=10,lower>=0=minimum observed distance,upper>=lower=maximum observed distance",
+      "unsupported_preserved": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+        "https://gaussianprocess.org/gpml/chapters/RW2.pdf"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-spatial-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "spatial_gls",
+      "sql_name": "chem_spatial_gls",
+      "api_source": "tasks/jmp-spatial-api.json",
+      "implementation_source": "crates/analytics/src/spatial.rs",
+      "primary_feature_id": "spatial_covariance_models",
+      "feature_ids": [
+        "spatial_covariance_models",
+        "gaussian_process_model"
+      ],
+      "mapping_basis": "既知の絶対covarianceによるGLS固定効果推定。Gaussian_process_modelへの追加はknown-covariance universal-krigingという限定拡張のみ。",
+      "bounded_contract": "Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+      "data_contract": "n>p+1,n<=128 rows[d coordinates,p features,response],intercept automatic",
+      "ordered_args": "Exactly[d,p,kind,sill,nugget,rho]; covariance parameters physically supplied and fixed",
+      "unsupported_preserved": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+        "https://gaussianprocess.org/gpml/chapters/RW2.pdf"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-spatial-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    },
+    {
+      "operation": "spatial_predict",
+      "sql_name": "chem_spatial_predict",
+      "api_source": "tasks/jmp-spatial-api.json",
+      "implementation_source": "crates/analytics/src/spatial.rs",
+      "primary_feature_id": "spatial_covariance_models",
+      "feature_ids": [
+        "spatial_covariance_models",
+        "gaussian_process_model"
+      ],
+      "mapping_basis": "既知covariance下のtrend uncertainty込みuniversal-krigingを保存再利用。GP/spatial hyperparameter fittingは依然未対応。",
+      "bounded_contract": "Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance.",
+      "data_contract": "Query rows[d coordinates,p fixed features] in original units,exact width d+p",
+      "ordered_args": "Unchanged predict_parameters; never reads query outcomes or refits covariance",
+      "unsupported_preserved": [
+        "Covariance range/sill/nugget ML/REML or variogram-NLS estimation",
+        "Anisotropic/directional parameter fitting and random-effects G-side combinations",
+        "Covariance-parameter uncertainty,spatial F/df corrections and automated model selection",
+        "No installed-JMP numerical comparison"
+      ],
+      "official_source_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+        "https://gaussianprocess.org/gpml/chapters/RW2.pdf"
+      ],
+      "numeric_evidence": "tasks/evidence/jmp-spatial-reference.json",
+      "proposed_status": "partial",
+      "full_equivalence_claim": false
+    }
+  ],
+  "feature_updates": [
+    {
+      "feature_id": "arima",
+      "label": "ARIMA",
+      "status_before": "partial",
+      "proposed_status": "partial",
+      "provider_before": "ducksmiles_extension",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "arima_forecast_intervals"
+      ],
+      "existing_implementation_preserved": [
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0]."
+      ],
+      "append_implementation": [
+        "chem_arima_forecast_intervals: Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+        "chem_arima_forecast_intervals: Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000."
+      ],
+      "existing_current_implementation_preserved": [
+        {
+          "sql_function": "chem_arima",
+          "operation": "arima",
+          "bounded_scope": "Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+          "source": "crates/analytics/src/arima.rs",
+          "tests": "crates/analytics/tests/arima.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-distribution-arima-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_arima_forecast_intervals",
+          "operation": "arima_forecast_intervals",
+          "bounded_scope": "Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既存小次数seasonal CSS ARIMA estimatorを保持。新操作は供給AR/MA/差分polynomialとinnovation varianceを使う条件付き区間であり、estimatorのexact state-space ML化ではない。",
+        "自動次数選択、ARIMA推定parameter/innovation-variance estimation uncertainty、一般外生/伝達関数統合は残る。単一transferの別契約を一般ARIMAとの完全統合と呼ばない。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "ARIMA",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Time series",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "jmp_catalog_unrestricted",
+          "edition_evidence": "official_catalog_no_pro_badge"
+        }
+      ]
+    },
+    {
+      "feature_id": "arima_prewhitening",
+      "label": "ARIMA prewhitening",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "arima_prewhitening"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_arima_prewhitening: Input-only exact stationary ARMA prewhitening: [X,Y] rows; [n_train,p<=2,q<=2,maxlag,maxiter,tol]. Apply the same innovations operator to both series; suffix ignored."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_arima_prewhitening: Input-only exact stationary ARMA prewhitening: [X,Y] rows; [n_train,p<=2,q<=2,maxlag,maxiter,tol]. Apply the same innovations operator to both series; suffix ignored."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_arima_prewhitening",
+          "operation": "arima_prewhitening",
+          "bounded_scope": "Input-only exact stationary ARMA prewhitening: [X,Y] rows; [n_train,p<=2,q<=2,maxlag,maxiter,tol]. Apply the same innovations operator to both series; suffix ignored.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "input-only training prefixでfitするp/q<=2 stationary ARMAのみ。integrated/seasonal/full-order ARIMA・欠測・自動次数選択は未対応。",
+        "同一filterを両系列へ適用する契約であり、output-specific fitやwhiteness証明・全diagnosticsは含まない。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "ARIMA prewhitening",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:decomposition",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "arwls_baseline_correction",
+      "label": "ARWLS baseline correction",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_arwls"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_arwls: Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_arwls: Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_arwls",
+          "operation": "functional_arwls",
+          "bounded_scope": "Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "指定lambdaのBaek2015 arWLS/arPLS iterationのみ。自動lambda、非一様physical-spacing penalty、baseline parameter区間とJMP-default一致は未対応。",
+        "非収束診断を保持し、validation curvesにbaselineをfitしない。AsLS/airPLSやmoving averageへの置換とは数えない。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "ARWLS baseline correction",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "baseline_correction",
+      "label": "Baseline Correction",
+      "status_before": "partial",
+      "proposed_status": "partial",
+      "provider_before": "ducksmiles_extension",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_snip",
+        "functional_arwls",
+        "functional_baseline"
+      ],
+      "existing_implementation_preserved": [
+        "chem_spectral_detrend: Global polynomial baseline removal: curve rows; [degree=1] on a normalized equally spaced grid."
+      ],
+      "append_implementation": [
+        "chem_functional_snip: SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0].",
+        "chem_functional_arwls: Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0].",
+        "chem_functional_baseline: Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_spectral_detrend: Global polynomial baseline removal: curve rows; [degree=1] on a normalized equally spaced grid.",
+        "chem_functional_snip: SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0].",
+        "chem_functional_arwls: Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0].",
+        "chem_functional_baseline: Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2]."
+      ],
+      "existing_current_implementation_preserved": [
+        {
+          "sql_function": "chem_spectral_detrend",
+          "operation": "spectral_detrend",
+          "bounded_scope": "Global polynomial baseline removal: curve rows; [degree=1] on a normalized equally spaced grid.",
+          "source": "crates/analytics/src/spectral.rs",
+          "tests": "crates/analytics/tests/spectral.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-spectral-reference.json"
+          ],
+          "verification_boundary": "Restricted source/focused tests, linked independent references and matching loaded-extension macOS arm64 SQL gate passed. No whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-continuation-validation.json",
+          "batch": "continuation62"
+        }
+      ],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_snip",
+          "operation": "functional_snip",
+          "bounded_scope": "SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        },
+        {
+          "sql_function": "chem_functional_arwls",
+          "operation": "functional_arwls",
+          "bounded_scope": "Baek2015 arPLS/arWLS baseline: [x,y,id,optional role]; [lambda=1e5,weight_tolerance=1e-6,maxiter=100,negative_std_ddof=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        },
+        {
+          "sql_function": "chem_functional_baseline",
+          "operation": "functional_baseline",
+          "bounded_scope": "Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既存global polynomial detrendを保持し、SNIP span clipping/arWLS/供給baseline減算を追加。全parametric/anchor/自動baseline選択・全JMP default同等性は残る。",
+        "新baseline transformはrole0だけ。role1は未適用placeholderを明示し、validation baselineを推定したとは数えない。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Baseline Correction",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Functional data analysis",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        }
+      ]
+    },
+    {
+      "feature_id": "cross_correlation",
+      "label": "Cross correlation",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "cross_correlation"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_cross_correlation: CCF for complete input/output rows: [maxlag<=500,normalization0global/1overlapPearson]; positive lag means input leads output; +/-2 white-noise SE bands."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_cross_correlation: CCF for complete input/output rows: [maxlag<=500,normalization0global/1overlapPearson]; positive lag means input leads output; +/-2 white-noise SE bands."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_cross_correlation",
+          "operation": "cross_correlation",
+          "bounded_scope": "CCF for complete input/output rows: [maxlag<=500,normalization0global/1overlapPearson]; positive lag means input leads output; +/-2 white-noise SE bands.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "complete equally-spaced2系列、global-energy/overlap-Pearsonの明示規約のみ。欠測/不規則軸・multiplicity調整・lag自動選択は未対応。",
+        "JMPのfinite-sample CCF normalization/defaultとの同一性は未検証。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Cross correlation",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:decomposition",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "cycle_removal",
+      "label": "Cycle removal",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "remove_cycle"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_remove_cycle: Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_remove_cycle: Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_remove_cycle",
+          "operation": "remove_cycle",
+          "bounded_scope": "Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "供給period>2の単一cos/sin cycleとoptional constantのみ。自動period探索、複数cycle/一般seasonality、X11、暦/不規則時間は未対応。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Cycle removal",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:decomposition",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "dynamic_time_warping",
+      "label": "Dynamic time warping",
+      "status_before": "partial",
+      "proposed_status": "partial",
+      "provider_before": "ducksmiles_extension",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_dtw_matrix"
+      ],
+      "existing_implementation_preserved": [
+        "chem_dynamic_time_warping: Pairwise DTW distance and path: [value,series_id0or1] rows; [window_radius=unbounded]."
+      ],
+      "append_implementation": [
+        "chem_functional_dtw_matrix: All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_dynamic_time_warping: Pairwise DTW distance and path: [value,series_id0or1] rows; [window_radius=unbounded].",
+        "chem_functional_dtw_matrix: All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0]."
+      ],
+      "existing_current_implementation_preserved": [
+        {
+          "sql_function": "chem_dynamic_time_warping",
+          "operation": "dynamic_time_warping",
+          "bounded_scope": "Pairwise DTW distance and path: [value,series_id0or1] rows; [window_radius=unbounded].",
+          "source": "crates/analytics/src/spectral.rs",
+          "tests": "crates/analytics/tests/spectral.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-spectral-reference.json"
+          ],
+          "verification_boundary": "Restricted source/focused tests, linked independent references and matching loaded-extension macOS arm64 SQL gate passed. No whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-continuation-validation.json",
+          "batch": "continuation62"
+        }
+      ],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_dtw_matrix",
+          "operation": "functional_dtw_matrix",
+          "bounded_scope": "All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既存2系列distance/pathを保持し、新all-pairs curve distance matrixを追加。general registration transform、soft/multivariate DTW、physical-axis制約、全JMP規約は残る。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Dynamic time warping",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "exponential_smoothing_forecast",
+      "label": "Exponential smoothing forecast",
+      "status_before": "partial",
+      "proposed_status": "partial",
+      "provider_before": "ducksmiles_extension",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "state_space_smoothing"
+      ],
+      "existing_implementation_preserved": [
+        "chem_exponential_smoothing: Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+        "chem_holt: Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1]."
+      ],
+      "append_implementation": [
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_exponential_smoothing: Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+        "chem_holt: Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS."
+      ],
+      "existing_current_implementation_preserved": [
+        {
+          "sql_function": "chem_exponential_smoothing",
+          "operation": "exponential_smoothing",
+          "bounded_scope": "Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_holt",
+          "operation": "holt",
+          "bounded_scope": "Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_state_space_smoothing",
+          "operation": "state_space_smoothing",
+          "bounded_scope": "Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既存SES/Holtに6加法innovations ETSを追加した限定契約。multiplicative ETS、automatic ETS selection、全admissibility条件、JMP optimizer/default一致は未達。",
+        "推定parameterのSE/CIと推定不確実性を含む予測区間は未対応。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Exponential smoothing forecast",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:forecast",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "functional_bin_reduction",
+      "label": "Functional bin reduction",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_bin"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_bin: Explicit equal-width function bins: [x,y,id,optional role]; [number,lower,upper,outside0reject/1drop=1]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_bin: Explicit equal-width function bins: [x,y,id,optional role]; [number,lower,upper,outside0reject/1drop=1]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_bin",
+          "operation": "functional_bin",
+          "bounded_scope": "Explicit equal-width function bins: [x,y,id,optional role]; [number,lower,upper,outside0reject/1drop=1].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "明示等幅bin内の観測平均/countだけ。quantile/可変幅bin、区間積分平均、自動domain、empty-bin補完は未対応。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Functional bin reduction",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "functional_common_grid_interpolation",
+      "label": "Functional common grid interpolation",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_grid"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_grid: Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_grid: Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_grid",
+          "operation": "functional_grid",
+          "bounded_scope": "Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "各curve内のstrictly distinct xに対するpiecewise linear共通gridのみ。cubic/spline、duplicate-x aggregation、一般imputationは未対応。",
+        "training-only自動intersectionまたは明示grid replay。外挿はnull/endpoint/reject規約に限り、JMP全domain/defaultの一致は未検証。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Functional common grid interpolation",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "functional_dtw_distance_matrix",
+      "label": "Functional DTW distance matrix",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_dtw_matrix"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_dtw_matrix: All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_dtw_matrix: All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_dtw_matrix",
+          "operation": "functional_dtw_matrix",
+          "bounded_scope": "All-pairs function DTW matrix: [x,y,id,optional role]; [window=-1,normalize0none/1population=0,cost0squared/1absolute=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "二乗cost平方根/絶対cost、明示window、optional per-curve標準化のall-pairs距離だけ。physical-time penalty、multivariate/softDTW、path/warping function出力、triangle inequality保証は未対応。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Functional DTW distance matrix",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "functional_thinning",
+      "label": "Functional thinning",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_thin"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_thin: Sorted per-function stride selection: [x,y,id,optional role]; [stride=2,offset=0,keep_last=0]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_thin: Sorted per-function stride selection: [x,y,id,optional role]; [stride=2,offset=0,keep_last=0]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_thin",
+          "operation": "functional_thin",
+          "bounded_scope": "Sorted per-function stride selection: [x,y,id,optional role]; [stride=2,offset=0,keep_last=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "x順stride/offsetとoptional keep_lastだけ。random/importance thinning、anti-alias filter、GUI row-selection stateは未対応/GUI範囲外。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Functional thinning",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "gaussian_process_model",
+      "label": "Gaussian process model",
+      "status_before": "partial",
+      "proposed_status": "partial",
+      "provider_before": "ducksmiles_extension",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "spatial_gls",
+        "spatial_predict"
+      ],
+      "existing_implementation_preserved": [
+        "chem_gp_predict; fixed isotropic RBF hyperparameters; finite candidate suffix"
+      ],
+      "append_implementation": [
+        "chem_spatial_gls: Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+        "chem_spatial_predict: Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_gp_predict; fixed isotropic RBF hyperparameters; finite candidate suffix",
+        "chem_spatial_gls: Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+        "chem_spatial_predict: Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_spatial_gls",
+          "operation": "spatial_gls",
+          "bounded_scope": "Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+          "source": "crates/analytics/src/spatial.rs",
+          "api": "tasks/jmp-spatial-api.json",
+          "evidence": "tasks/evidence/jmp-spatial-reference.json"
+        },
+        {
+          "sql_function": "chem_spatial_predict",
+          "operation": "spatial_predict",
+          "bounded_scope": "Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance.",
+          "source": "crates/analytics/src/spatial.rs",
+          "api": "tasks/jmp-spatial-api.json",
+          "evidence": "tasks/evidence/jmp-spatial-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既存fixed isotropic RBF gp_predictを保持し、4isotropic supplied-covariance下のGLS trend/universal-krigingを限定追加。",
+        "hyperparameter/covariance familyの自動選択やML/REML/NLS推定、anisotropy、一般noise/多変量・大規模sparse近似は依然未対応。",
+        "interval/varianceは既知covariance条件付きのfixed-trend uncertaintyだけ。covariance parameter estimation uncertaintyやJMP実機同等性を含まない。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-spatial-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Gaussian process model",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Nonlinear modeling",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        }
+      ]
+    },
+    {
+      "feature_id": "golden_curve_matching",
+      "label": "Golden curve matching",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_golden_match"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_golden_match: Supplied golden/reference curve distance ranking: [x,y,id,optional role]; [target_id,metric0RMSE/1MAE/2DTW=0,window=-1,normalize=0]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_golden_match: Supplied golden/reference curve distance ranking: [x,y,id,optional role]; [target_id,metric0RMSE/1MAE/2DTW=0,window=-1,normalize=0]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_golden_match",
+          "operation": "functional_golden_match",
+          "bounded_scope": "Supplied golden/reference curve distance ranking: [x,y,id,optional role]; [target_id,metric0RMSE/1MAE/2DTW=0,window=-1,normalize=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "供給したtarget curveとのRMSE/MAE/DTW距離rankingのみ。自動golden-target選択、FPC profiler/desirability最適化、amplitude calibration、統計的match p/CIは未対応。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Golden curve matching",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "irregular_axis_functional_preprocessing",
+      "label": "Irregular-axis functional preprocessing",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_grid"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_grid: Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_grid: Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_grid",
+          "operation": "functional_grid",
+          "bounded_scope": "Per-function irregular common-grid interpolation: [x,y,id,optional role0train/1validation]; [],[size],or[size,lower,upper,outside_policy].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "long irregular観測の共通linear-grid補間を追加した限定前処理。全FDE irregular/sparse smoothing・basis fitting・FPCA推定・uncertaintyは未対応。",
+        "baseline methodsはuniform gridを要求し、暗黙に補間しない。重複x処理と外挿の全規約は未対応。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Irregular-axis functional preprocessing",
+          "catalog": "official_reference_expansion",
+          "section": "functional:FDE",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "latent_semantic_analysis",
+      "label": "Latent semantic analysis",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "text_dtm",
+        "text_weight",
+        "text_weight_predict",
+        "text_lsa",
+        "text_projection",
+        "text_topic_svd"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_text_dtm: Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+        "chem_text_weight: Fit corpus dictionary/filter and exact JMP five DTM weightings; nonnegative integer count matrix; args[mode0binary/1ternary/2frequency/3log10/4TFIDF=4,min_corpus_count=1,max_terms=all].",
+        "chem_text_weight_predict: Apply saved dictionary and training IDF to new count rows; args unchanged text_weight.weight_parameters; training vocabulary width/order required.",
+        "chem_text_lsa: Partial SVD of supplied nonnegative weighted DTM; args[k,preprocess0uncentered/1centered/2centered_scaled=2]; returns U,S,V and scores US with saved transform.",
+        "chem_text_projection: Score supplied weighted query DTM with saved LSA/topic projection; args unchanged projection_parameters. Training mean,scale,divisor and loadings reused.",
+        "chem_text_topic_svd: True orthogonal varimax of supplied-DTM SVD loadings VS; document topic vectors UR preserve reconstruction; args[k,preprocess=2,max_sweeps=200,tol=1e-8,kaiser0/1=1]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_text_dtm: Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+        "chem_text_weight: Fit corpus dictionary/filter and exact JMP five DTM weightings; nonnegative integer count matrix; args[mode0binary/1ternary/2frequency/3log10/4TFIDF=4,min_corpus_count=1,max_terms=all].",
+        "chem_text_weight_predict: Apply saved dictionary and training IDF to new count rows; args unchanged text_weight.weight_parameters; training vocabulary width/order required.",
+        "chem_text_lsa: Partial SVD of supplied nonnegative weighted DTM; args[k,preprocess0uncentered/1centered/2centered_scaled=2]; returns U,S,V and scores US with saved transform.",
+        "chem_text_projection: Score supplied weighted query DTM with saved LSA/topic projection; args unchanged projection_parameters. Training mean,scale,divisor and loadings reused.",
+        "chem_text_topic_svd: True orthogonal varimax of supplied-DTM SVD loadings VS; document topic vectors UR preserve reconstruction; args[k,preprocess=2,max_sweeps=200,tol=1e-8,kaiser0/1=1]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_text_dtm",
+          "operation": "text_dtm",
+          "bounded_scope": "Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        },
+        {
+          "sql_function": "chem_text_weight",
+          "operation": "text_weight",
+          "bounded_scope": "Fit corpus dictionary/filter and exact JMP five DTM weightings; nonnegative integer count matrix; args[mode0binary/1ternary/2frequency/3log10/4TFIDF=4,min_corpus_count=1,max_terms=all].",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        },
+        {
+          "sql_function": "chem_text_weight_predict",
+          "operation": "text_weight_predict",
+          "bounded_scope": "Apply saved dictionary and training IDF to new count rows; args unchanged text_weight.weight_parameters; training vocabulary width/order required.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        },
+        {
+          "sql_function": "chem_text_lsa",
+          "operation": "text_lsa",
+          "bounded_scope": "Partial SVD of supplied nonnegative weighted DTM; args[k,preprocess0uncentered/1centered/2centered_scaled=2]; returns U,S,V and scores US with saved transform.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        },
+        {
+          "sql_function": "chem_text_projection",
+          "operation": "text_projection",
+          "bounded_scope": "Score supplied weighted query DTM with saved LSA/topic projection; args unchanged projection_parameters. Training mean,scale,divisor and loadings reused.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        },
+        {
+          "sql_function": "chem_text_topic_svd",
+          "operation": "text_topic_svd",
+          "bounded_scope": "True orthogonal varimax of supplied-DTM SVD loadings VS; document topic vectors UR preserve reconstruction; args[k,preprocess=2,max_sweeps=200,tol=1e-8,kaiser0/1=1].",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "numeric term IDs/供給DTMに対する5weightings、partialSVD、orthogonal-varimaxと保存projectionのみ。Unicode/string tokenizer、Japanese dictionary、stemming/stopword/synonym、OOV自動辞書fitは未対応。",
+        "dense resource cap/明示rankに限定。自動rank選択、巨大sparse corpus、NMF/LDA、topic自動命名は未対応。",
+        "literal n/(n-1)除算とUS/UR score規約をAPIに固定。sqrt(n)正規化やJMP実機singular-value/rotation一致は未確認。sentiment・response-based term-selection regressionは閉じない。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/text_analysis.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-text-analysis-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Latent semantic analysis",
+          "catalog": "predictive-modeling-and-machine-learning",
+          "section": "Text mining (text analysis)",
+          "source": "https://www.jmp.com/en/fragments/capabilities/predictive-modeling-and-machine-learning",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        },
+        {
+          "label": "Latent semantic analysis",
+          "catalog": "consumer-and-market-research",
+          "section": "Text mining (text analysis)",
+          "source": "https://www.jmp.com/en/fragments/capabilities/consumer-and-market-research",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        }
+      ]
+    },
+    {
+      "feature_id": "linear_trend_removal",
+      "label": "Linear trend removal",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "remove_linear_trend"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_remove_linear_trend: Remove least-squares intercept+slope from equally spaced scalar series: [n_train=all],training-only stable centering/scaling and extrapolated trend."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_remove_linear_trend: Remove least-squares intercept+slope from equally spaced scalar series: [n_train=all],training-only stable centering/scaling and extrapolated trend."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_remove_linear_trend",
+          "operation": "remove_linear_trend",
+          "bounded_scope": "Remove least-squares intercept+slope from equally spaced scalar series: [n_train=all],training-only stable centering/scaling and extrapolated trend.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "等間隔implicit indexのtraining-only OLS intercept+slope除去のみ。nonlinear trend・自動differencing・不規則/暦indexは未対応。",
+        "autocorrelated errorsのiid slope推論は提供しない。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Linear trend removal",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:decomposition",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "seasonality",
+      "label": "Seasonality",
+      "status_before": "partial",
+      "proposed_status": "partial",
+      "provider_before": "ducksmiles_extension",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "state_space_smoothing",
+        "remove_cycle"
+      ],
+      "existing_implementation_preserved": [
+        "chem_seasonal_decompose: Classical additive centered-moving-average seasonal decomposition: ordered scalar rows; [period2..floor(n/2)]; unidentified edge terms are null.",
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0]."
+      ],
+      "append_implementation": [
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_remove_cycle: Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_seasonal_decompose: Classical additive centered-moving-average seasonal decomposition: ordered scalar rows; [period2..floor(n/2)]; unidentified edge terms are null.",
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_remove_cycle: Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle."
+      ],
+      "existing_current_implementation_preserved": [
+        {
+          "sql_function": "chem_seasonal_decompose",
+          "operation": "seasonal_decompose",
+          "bounded_scope": "Classical additive centered-moving-average seasonal decomposition: ordered scalar rows; [period2..floor(n/2)]; unidentified edge terms are null.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_arima",
+          "operation": "arima",
+          "bounded_scope": "Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+          "source": "crates/analytics/src/arima.rs",
+          "tests": "crates/analytics/tests/arima.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-distribution-arima-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_state_space_smoothing",
+          "operation": "state_space_smoothing",
+          "bounded_scope": "Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_remove_cycle",
+          "operation": "remove_cycle",
+          "bounded_scope": "Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既存additive moving-average decomposition/季節CSS-ARIMAを保持。追加は6ETS中の加法季節族と指定単一sin/cos cycleのみ。",
+        "X11加法/乗法、一般calendar/holiday効果、自動seasonality/cycle検出、全周期族・乗法ETSは未対応。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Seasonality",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Time series",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "jmp_catalog_unrestricted",
+          "edition_evidence": "official_catalog_no_pro_badge"
+        }
+      ]
+    },
+    {
+      "feature_id": "snip_baseline_correction",
+      "label": "SNIP baseline correction",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_snip"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_snip: SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_snip: SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_snip",
+          "operation": "functional_snip",
+          "bounded_scope": "SNIP peak clipping on uniform grids: [x,y,id,optional role]; [max_halfwindow,transform0raw/1Ryan-loglog=1,direction0increasing/1decreasing=0].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "明示halfwindowのsynchronous span clippingとraw/Ryan log-log圧縮のみ。FWHM依存low-statistics filter、自動peak width、JMP-default同一性は未対応。",
+        "uniform grid必須。validation curvesは未補正pass-throughでありbaselineを推定したと解釈しない。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "SNIP baseline correction",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "spatial_covariance_models",
+      "label": "Spatial covariance models",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "spatial_covariance",
+        "spatial_variogram",
+        "spatial_gls",
+        "spatial_predict"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_spatial_covariance: Four isotropic JMP spatial kernels: locations in1..3 dimensions; [kind0spherical/1exponential/2Gaussian/3power,partial_sill,nugget,rho]. Independent record nugget; covariance and semivariance matrices.",
+        "chem_spatial_variogram: Empirical isotropic Matheron semivariogram: rows[coordinates1..3,response]; [bins=10,lower=min_pair_distance,upper=max_pair_distance]. Pair counts,mean distance and half mean squared differences; empty classes null.",
+        "chem_spatial_gls: Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+        "chem_spatial_predict: Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_spatial_covariance: Four isotropic JMP spatial kernels: locations in1..3 dimensions; [kind0spherical/1exponential/2Gaussian/3power,partial_sill,nugget,rho]. Independent record nugget; covariance and semivariance matrices.",
+        "chem_spatial_variogram: Empirical isotropic Matheron semivariogram: rows[coordinates1..3,response]; [bins=10,lower=min_pair_distance,upper=max_pair_distance]. Pair counts,mean distance and half mean squared differences; empty classes null.",
+        "chem_spatial_gls: Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+        "chem_spatial_predict: Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_spatial_covariance",
+          "operation": "spatial_covariance",
+          "bounded_scope": "Four isotropic JMP spatial kernels: locations in1..3 dimensions; [kind0spherical/1exponential/2Gaussian/3power,partial_sill,nugget,rho]. Independent record nugget; covariance and semivariance matrices.",
+          "source": "crates/analytics/src/spatial.rs",
+          "api": "tasks/jmp-spatial-api.json",
+          "evidence": "tasks/evidence/jmp-spatial-reference.json"
+        },
+        {
+          "sql_function": "chem_spatial_variogram",
+          "operation": "spatial_variogram",
+          "bounded_scope": "Empirical isotropic Matheron semivariogram: rows[coordinates1..3,response]; [bins=10,lower=min_pair_distance,upper=max_pair_distance]. Pair counts,mean distance and half mean squared differences; empty classes null.",
+          "source": "crates/analytics/src/spatial.rs",
+          "api": "tasks/jmp-spatial-api.json",
+          "evidence": "tasks/evidence/jmp-spatial-reference.json"
+        },
+        {
+          "sql_function": "chem_spatial_gls",
+          "operation": "spatial_gls",
+          "bounded_scope": "Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
+          "source": "crates/analytics/src/spatial.rs",
+          "api": "tasks/jmp-spatial-api.json",
+          "evidence": "tasks/evidence/jmp-spatial-reference.json"
+        },
+        {
+          "sql_function": "chem_spatial_predict",
+          "operation": "spatial_predict",
+          "bounded_scope": "Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance.",
+          "source": "crates/analytics/src/spatial.rs",
+          "api": "tasks/jmp-spatial-api.json",
+          "evidence": "tasks/evidence/jmp-spatial-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "供給absolute sill/nugget/rangeの4isotropic kernel、empirical Matheron variogram、known-covariance GLS/universal-krigingのみ。",
+        "range/sill/nuggetのML/REML/NLS推定、anisotropic/directional fit、G-side random-effects統合、covariance parameter uncertainty・spatialF/df補正・自動選択は未対応。",
+        "nuggetはobservation recordに属する明示規約。JMP表示nugget/residual scalingや全自動bin調整・JMP実機結果との同一性は未確認。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-spatial-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Spatial covariance models",
+          "catalog": "official_reference_expansion",
+          "section": "regression:mixed",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/mixed-models.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "state_space_smoothing",
+      "label": "State space smoothing",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "kalman_smoother",
+        "state_space_smoothing",
+        "state_space_predict"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_kalman_smoother: Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_state_space_predict: Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_kalman_smoother: Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_state_space_predict: Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_kalman_smoother",
+          "operation": "kalman_smoother",
+          "bounded_scope": "Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_state_space_smoothing",
+          "operation": "state_space_smoothing",
+          "bounded_scope": "Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_state_space_predict",
+          "operation": "state_space_predict",
+          "bounded_scope": "Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既知Gaussian filter/RTSと6加法innovations ETSのみ。multiplicative error/trend/seasonality、automatic model search、full admissibility、diffuse initialization、time-varying/non-Gaussian/多変量観測は未対応。",
+        "ETS局所optimizer/curvature診断はglobal optimum・global identificationの証明ではない。parameter SE/CIとparameter-estimation uncertaintyは未対応。",
+        "既知Gaussian行列のfilterをexactARIMA推定やJMP ETS全体との同等として数えない。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "State space smoothing",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:forecast",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "supplied_baseline_subtraction",
+      "label": "Supplied baseline subtraction",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "functional_baseline"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_functional_baseline: Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_functional_baseline: Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_functional_baseline",
+          "operation": "functional_baseline",
+          "bounded_scope": "Subtract an explicit baseline function: [x,y,id,optional role]; [baseline_id,outside0null/1constant/2reject=2].",
+          "source": "crates/analytics/src/functional_preprocess.rs",
+          "api": "tasks/jmp-functional-preprocess-api.json",
+          "evidence": "tasks/evidence/jmp-functional-preprocess-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "供給baseline curveの線形補間/減算だけ。parametric baseline fitting、anchor region推定、validation correction、baseline uncertainty propagationは未対応。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/functional_preprocess.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-functional-preprocess-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Supplied baseline subtraction",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ]
+    },
+    {
+      "feature_id": "text_latent_class_analysis",
+      "label": "Latent class analysis",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "text_dtm",
+        "text_latent_class",
+        "text_latent_class_predict"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_text_dtm: Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+        "chem_text_latent_class: Conditional-independence Bernoulli mixture EM on supplied count presence; args[k,seed=0,max_iter=200,tol=1e-8,probability_floor=1e-9]. Reports genuine likelihood,mixture/term probabilities and saved posterior model.",
+        "chem_text_latent_class_predict: Score saved Bernoulli mixture using presence and absence of each fitted term; args unchanged text_latent_class.predict_parameters; returns posterior membership and log probability."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_text_dtm: Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+        "chem_text_latent_class: Conditional-independence Bernoulli mixture EM on supplied count presence; args[k,seed=0,max_iter=200,tol=1e-8,probability_floor=1e-9]. Reports genuine likelihood,mixture/term probabilities and saved posterior model.",
+        "chem_text_latent_class_predict: Score saved Bernoulli mixture using presence and absence of each fitted term; args unchanged text_latent_class.predict_parameters; returns posterior membership and log probability."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_text_dtm",
+          "operation": "text_dtm",
+          "bounded_scope": "Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        },
+        {
+          "sql_function": "chem_text_latent_class",
+          "operation": "text_latent_class",
+          "bounded_scope": "Conditional-independence Bernoulli mixture EM on supplied count presence; args[k,seed=0,max_iter=200,tol=1e-8,probability_floor=1e-9]. Reports genuine likelihood,mixture/term probabilities and saved posterior model.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        },
+        {
+          "sql_function": "chem_text_latent_class_predict",
+          "operation": "text_latent_class_predict",
+          "bounded_scope": "Score saved Bernoulli mixture using presence and absence of each fitted term; args unchanged text_latent_class.predict_parameters; returns posterior membership and log probability.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "evidence": "tasks/evidence/jmp-text-analysis-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "供給count presenceのbounded conditional-independence Bernoulli mixture localEMと保存posteriorのみ。言語tokenizer/Japanese辞書・missing/weight規約・巨大sparse実装は未対応。",
+        "components_distinct/necessary dimension boundは識別性証明ではなく、identification_verified=falseを保持。global optimum・SE/CI、JMP Text Explorer sparse algorithmとの完全一致は未対応。",
+        "未収束/必要条件不成立時のAIC/BICはnull。sentiment辞書・term-selection/text regression・NMF/LDAは未実装のまま。"
+      ],
+      "append_tests": [
+        "crates/analytics/tests/candidates/text_analysis.rs"
+      ],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-text-analysis-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Latent class analysis",
+          "catalog": "predictive-modeling-and-machine-learning",
+          "section": "Text mining (text analysis)",
+          "source": "https://www.jmp.com/en/fragments/capabilities/predictive-modeling-and-machine-learning",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        },
+        {
+          "label": "Latent class analysis",
+          "catalog": "consumer-and-market-research",
+          "section": "Text mining (text analysis)",
+          "source": "https://www.jmp.com/en/fragments/capabilities/consumer-and-market-research",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        }
+      ]
+    },
+    {
+      "feature_id": "time_series_forecast",
+      "label": "Time Series Forecast",
+      "status_before": "partial",
+      "proposed_status": "partial",
+      "provider_before": "ducksmiles_extension",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "kalman_smoother",
+        "state_space_smoothing",
+        "state_space_predict",
+        "arima_forecast_intervals",
+        "transfer_function_model"
+      ],
+      "existing_implementation_preserved": [
+        "chem_exponential_smoothing: Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+        "chem_holt: Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+        "chem_ar_model: Conditional Gaussian autoregression via QR with intercept: ordered scalar rows; [order1..32,horizon1..10000]; requires identifiable residual variance.",
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0]."
+      ],
+      "append_implementation": [
+        "chem_kalman_smoother: Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_state_space_predict: Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+        "chem_arima_forecast_intervals: Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+        "chem_transfer_function_model: Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_exponential_smoothing: Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+        "chem_holt: Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+        "chem_ar_model: Conditional Gaussian autoregression via QR with intercept: ordered scalar rows; [order1..32,horizon1..10000]; requires identifiable residual variance.",
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+        "chem_kalman_smoother: Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_state_space_predict: Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+        "chem_arima_forecast_intervals: Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+        "chem_transfer_function_model: Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol]."
+      ],
+      "existing_current_implementation_preserved": [
+        {
+          "sql_function": "chem_exponential_smoothing",
+          "operation": "exponential_smoothing",
+          "bounded_scope": "Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_holt",
+          "operation": "holt",
+          "bounded_scope": "Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_ar_model",
+          "operation": "ar_model",
+          "bounded_scope": "Conditional Gaussian autoregression via QR with intercept: ordered scalar rows; [order1..32,horizon1..10000]; requires identifiable residual variance.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_arima",
+          "operation": "arima",
+          "bounded_scope": "Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+          "source": "crates/analytics/src/arima.rs",
+          "tests": "crates/analytics/tests/arima.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-distribution-arima-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_kalman_smoother",
+          "operation": "kalman_smoother",
+          "bounded_scope": "Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_state_space_smoothing",
+          "operation": "state_space_smoothing",
+          "bounded_scope": "Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_state_space_predict",
+          "operation": "state_space_predict",
+          "bounded_scope": "Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_arima_forecast_intervals",
+          "operation": "arima_forecast_intervals",
+          "bounded_scope": "Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_transfer_function_model",
+          "operation": "transfer_function_model",
+          "bounded_scope": "Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol].",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既存SES/Holt/AR/CSS-ARIMAを保持し、限定Gaussian/加法ETS/単一transfer予測を追加。自動family/order選択、一般missing/不規則時間、multiplicative ETS、多入力/季節/積分transferは残る。",
+        "区間は供給/推定したprocessモデルと既知future入力に条件付けた不確実性のみ。parameter・variance-estimation・future input uncertaintyは未対応。",
+        "既存rolling_originは保持されるが今回の各fitの自動holdback/model selectionを実装したとはしない。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Time Series Forecast",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Time series",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "jmp_catalog_unrestricted",
+          "edition_evidence": "official_catalog_no_pro_badge"
+        }
+      ]
+    },
+    {
+      "feature_id": "time_series_forecast_intervals",
+      "label": "Time-series forecast intervals",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "kalman_smoother",
+        "state_space_smoothing",
+        "state_space_predict",
+        "arima_forecast_intervals",
+        "transfer_function_model"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_kalman_smoother: Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_state_space_predict: Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+        "chem_arima_forecast_intervals: Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+        "chem_transfer_function_model: Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_kalman_smoother: Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+        "chem_state_space_smoothing: Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+        "chem_state_space_predict: Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+        "chem_arima_forecast_intervals: Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+        "chem_transfer_function_model: Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_kalman_smoother",
+          "operation": "kalman_smoother",
+          "bounded_scope": "Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_state_space_smoothing",
+          "operation": "state_space_smoothing",
+          "bounded_scope": "Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_state_space_predict",
+          "operation": "state_space_predict",
+          "bounded_scope": "Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+          "source": "crates/analytics/src/state_space.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_arima_forecast_intervals",
+          "operation": "arima_forecast_intervals",
+          "bounded_scope": "Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        },
+        {
+          "sql_function": "chem_transfer_function_model",
+          "operation": "transfer_function_model",
+          "bounded_scope": "Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol].",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "既知Gaussian、加法ETS、供給ARIMA polynomial/innovation variance、限定単一transferのconditional normal intervalsのみ。",
+        "parameter/covariance/innovation-variance estimation uncertainty、future-exogenous path uncertainty、非Gaussian/Box-Cox逆変換区間、全method familyの校正は未対応。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Time-series forecast intervals",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:forecast",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    },
+    {
+      "feature_id": "transfer_function_model",
+      "label": "Transfer function model",
+      "status_before": "absent",
+      "proposed_status": "partial",
+      "provider_before": "extension_required",
+      "proposed_provider": "ducksmiles_extension",
+      "preserve_catalog_domain_edition_and_scope": true,
+      "operations": [
+        "transfer_function_model"
+      ],
+      "existing_implementation_preserved": [],
+      "append_implementation": [
+        "chem_transfer_function_model: Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol]."
+      ],
+      "proposed_implementation_preserving_previous": [
+        "chem_transfer_function_model: Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol]."
+      ],
+      "existing_current_implementation_preserved": [],
+      "append_current_implementation": [
+        {
+          "sql_function": "chem_transfer_function_model",
+          "operation": "transfer_function_model",
+          "bounded_scope": "Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol].",
+          "source": "crates/analytics/src/dynamic_series.rs",
+          "api": "tasks/jmp-state-space-api.json",
+          "evidence": "tasks/evidence/jmp-state-space-reference.json"
+        }
+      ],
+      "remaining_contract_proposed": [
+        "単一入力、指定delay、numerator/denominator各<=2、stationary/invertible ARMA noise各<=2の局所fitのみ。",
+        "多入力、seasonal/differenced noise、自動lag/order選択、parameter SE/Wald/LR/CI、global identification・global optimum証明は未対応。",
+        "future入力を供給する条件付き区間。future入力/parameter推定不確実性とportable transfer prediction carrierは未対応。"
+      ],
+      "append_tests": [],
+      "test_references_policy": "Only explicit API tests paths are copied; unspecified state/spatial test paths are left to parent sourcegraph/native integration,not guessed",
+      "append_evidence": [
+        "tasks/evidence/jmp-state-space-reference.json"
+      ],
+      "catalog_basis_preserved": [
+        {
+          "label": "Transfer function model",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:forecast",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ]
+    }
+  ],
+  "existing_partial_rows_preserved": {
+    "arima": {
+      "id": "arima",
+      "label": "ARIMA",
+      "catalog_occurrences": [
+        {
+          "label": "ARIMA",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Time series",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "jmp_catalog_unrestricted",
+          "edition_evidence": "official_catalog_no_pro_badge"
+        }
+      ],
+      "jmp_edition": "jmp",
+      "edition_evidence": [
+        {
+          "edition": "jmp_catalog_unrestricted",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "basis": "official_catalog_no_pro_badge"
+        }
+      ],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "in_scope",
+      "implementation": [
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0]."
+      ],
+      "tests": [
+        "crates/analytics/tests/arima.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-distribution-arima-reference.json",
+        "tasks/evidence/jmp-sql-validation.json"
+      ],
+      "remaining_contract": [
+        "小次数の乗法的季節ARIMAをCSSでfit。条件付き初期値・burnを明記し、反射係数で定常/可逆性を制約。exact state-space likelihood、パラメータ/予測区間、自動次数選択、外生/伝達関数は未対応。"
+      ],
+      "domain": "advanced-statistical-modeling:Time series",
+      "acceptance_contract": "timeseries",
+      "current_implementation": [
+        {
+          "sql_function": "chem_arima",
+          "operation": "arima",
+          "bounded_scope": "Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+          "source": "crates/analytics/src/arima.rs",
+          "tests": "crates/analytics/tests/arima.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-distribution-arima-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "verification": {
+        "rust_layer": "final workspace passed; restricted behavior tests and linked direct oracles",
+        "native_sql": "passed final macOS arm64 loaded-extension gate; see tasks/evidence/jmp-sql-validation.json",
+        "jmp_head_to_head": "not performed"
+      }
+    },
+    "baseline_correction": {
+      "id": "baseline_correction",
+      "label": "Baseline Correction",
+      "catalog_occurrences": [
+        {
+          "label": "Baseline Correction",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Functional data analysis",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        }
+      ],
+      "jmp_edition": "pro",
+      "edition_evidence": [
+        {
+          "edition": "pro",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "basis": "official_pro_badge"
+        }
+      ],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "in_scope",
+      "implementation": [
+        "chem_spectral_detrend: Global polynomial baseline removal: curve rows; [degree=1] on a normalized equally spaced grid."
+      ],
+      "tests": [
+        "crates/analytics/tests/spectral.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-spectral-reference.json",
+        "tasks/evidence/jmp-continuation-validation.json"
+      ],
+      "remaining_contract": [
+        "追加した限定数値契約は current_implementation と API の unsupported を参照。公式19.2の全方法/推定・前処理・重み/欠損・推論/保存規約の同等性は未達。"
+      ],
+      "domain": "advanced-statistical-modeling:Functional data analysis",
+      "acceptance_contract": "functional",
+      "current_implementation": [
+        {
+          "sql_function": "chem_spectral_detrend",
+          "operation": "spectral_detrend",
+          "bounded_scope": "Global polynomial baseline removal: curve rows; [degree=1] on a normalized equally spaced grid.",
+          "source": "crates/analytics/src/spectral.rs",
+          "tests": "crates/analytics/tests/spectral.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-spectral-reference.json"
+          ],
+          "verification_boundary": "Restricted source/focused tests, linked independent references and matching loaded-extension macOS arm64 SQL gate passed. No whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-continuation-validation.json",
+          "batch": "continuation62"
+        }
+      ],
+      "verification": {
+        "rust_layer": "current workspace1099tests passed; per-operation focused tests and linked independent references",
+        "native_sql": "passed matching macOS arm64 continuation62 loaded-extension gate; prior operations retain their own earlier evidence",
+        "jmp_head_to_head": "not performed"
+      }
+    },
+    "dynamic_time_warping": {
+      "id": "dynamic_time_warping",
+      "label": "Dynamic time warping",
+      "domain": "functional:preprocessing",
+      "catalog_occurrences": [
+        {
+          "label": "Dynamic time warping",
+          "catalog": "official_reference_expansion",
+          "section": "functional:preprocessing",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "edition": "pro",
+          "edition_evidence": "reference_pro_platform"
+        }
+      ],
+      "jmp_edition": "pro",
+      "edition_evidence": [
+        {
+          "edition": "pro",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml",
+          "basis": "reference_pro_platform"
+        }
+      ],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "in_scope",
+      "implementation": [
+        "chem_dynamic_time_warping: Pairwise DTW distance and path: [value,series_id0or1] rows; [window_radius=unbounded]."
+      ],
+      "tests": [
+        "crates/analytics/tests/spectral.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-spectral-reference.json",
+        "tasks/evidence/jmp-continuation-validation.json"
+      ],
+      "remaining_contract": [
+        "2つのscalar系列の二乗cost DTW距離/単調pathのみ。dataset全距離行列・全registration制約/規約は未対応。"
+      ],
+      "acceptance_contract": "functional",
+      "current_implementation": [
+        {
+          "sql_function": "chem_dynamic_time_warping",
+          "operation": "dynamic_time_warping",
+          "bounded_scope": "Pairwise DTW distance and path: [value,series_id0or1] rows; [window_radius=unbounded].",
+          "source": "crates/analytics/src/spectral.rs",
+          "tests": "crates/analytics/tests/spectral.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-spectral-reference.json"
+          ],
+          "verification_boundary": "Restricted source/focused tests, linked independent references and matching loaded-extension macOS arm64 SQL gate passed. No whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-continuation-validation.json",
+          "batch": "continuation62"
+        }
+      ],
+      "verification": {
+        "rust_layer": "current workspace1099tests passed; per-operation focused tests and linked independent references",
+        "native_sql": "passed matching macOS arm64 continuation62 loaded-extension gate; prior operations retain their own earlier evidence",
+        "jmp_head_to_head": "not performed"
+      }
+    },
+    "exponential_smoothing_forecast": {
+      "id": "exponential_smoothing_forecast",
+      "label": "Exponential smoothing forecast",
+      "domain": "timeseries:forecast",
+      "catalog_occurrences": [
+        {
+          "label": "Exponential smoothing forecast",
+          "catalog": "official_reference_expansion",
+          "section": "timeseries:forecast",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+          "edition": "unknown",
+          "edition_evidence": "reference_text"
+        }
+      ],
+      "jmp_edition": "unknown",
+      "edition_evidence": [
+        {
+          "edition": "unknown",
+          "source": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+          "basis": "reference_text"
+        }
+      ],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "in_scope",
+      "implementation": [
+        "chem_exponential_smoothing: Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+        "chem_holt: Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1]."
+      ],
+      "tests": [
+        "crates/analytics/tests/timeseries.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-inference-timeseries-reference.json",
+        "tasks/evidence/jmp-sql-validation.json"
+      ],
+      "remaining_contract": [
+        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      ],
+      "acceptance_contract": "timeseries",
+      "current_implementation": [
+        {
+          "sql_function": "chem_exponential_smoothing",
+          "operation": "exponential_smoothing",
+          "bounded_scope": "Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_holt",
+          "operation": "holt",
+          "bounded_scope": "Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "verification": {
+        "rust_layer": "final workspace passed; restricted behavior tests and linked direct oracles",
+        "native_sql": "passed final macOS arm64 loaded-extension gate; see tasks/evidence/jmp-sql-validation.json",
+        "jmp_head_to_head": "not performed"
+      }
+    },
+    "gaussian_process_model": {
+      "id": "gaussian_process_model",
+      "label": "Gaussian process model",
+      "catalog_occurrences": [
+        {
+          "label": "Gaussian process model",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Nonlinear modeling",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "pro",
+          "edition_evidence": "official_pro_badge"
+        }
+      ],
+      "jmp_edition": "pro",
+      "edition_evidence": [
+        {
+          "edition": "pro",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "basis": "official_pro_badge"
+        }
+      ],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "in_scope",
+      "implementation": [
+        "chem_gp_predict; fixed isotropic RBF hyperparameters; finite candidate suffix"
+      ],
+      "tests": [
+        "crates/analytics/tests/optimize.rs:gp_posterior_uses_noise_variance_and_returns_candidate_indices"
+      ],
+      "evidence": [
+        "tasks/evidence/sql-analytics-validation.json",
+        "tasks/evidence/sql-analytics-reference.json"
+      ],
+      "remaining_contract": [
+        "カーネル選択・ハイパーパラメータ推定、傾向項、一般ノイズ、スケーラビリティは未対応。"
+      ],
+      "domain": "advanced-statistical-modeling:Nonlinear modeling",
+      "acceptance_contract": "regression"
+    },
+    "seasonality": {
+      "id": "seasonality",
+      "label": "Seasonality",
+      "catalog_occurrences": [
+        {
+          "label": "Seasonality",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Time series",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "jmp_catalog_unrestricted",
+          "edition_evidence": "official_catalog_no_pro_badge"
+        }
+      ],
+      "jmp_edition": "jmp",
+      "edition_evidence": [
+        {
+          "edition": "jmp_catalog_unrestricted",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "basis": "official_catalog_no_pro_badge"
+        }
+      ],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "in_scope",
+      "implementation": [
+        "chem_seasonal_decompose: Classical additive centered-moving-average seasonal decomposition: ordered scalar rows; [period2..floor(n/2)]; unidentified edge terms are null.",
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0]."
+      ],
+      "tests": [
+        "crates/analytics/tests/timeseries.rs",
+        "crates/analytics/tests/arima.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-inference-timeseries-reference.json",
+        "tasks/evidence/jmp-distribution-arima-reference.json",
+        "tasks/evidence/jmp-sql-validation.json"
+      ],
+      "remaining_contract": [
+        "登録した限定契約を current_implementation に記載。公式方法群の残る下位オプション、全推定/前処理/推論規約とJMP本体との一致は未達。"
+      ],
+      "domain": "advanced-statistical-modeling:Time series",
+      "acceptance_contract": "timeseries",
+      "current_implementation": [
+        {
+          "sql_function": "chem_seasonal_decompose",
+          "operation": "seasonal_decompose",
+          "bounded_scope": "Classical additive centered-moving-average seasonal decomposition: ordered scalar rows; [period2..floor(n/2)]; unidentified edge terms are null.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_arima",
+          "operation": "arima",
+          "bounded_scope": "Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+          "source": "crates/analytics/src/arima.rs",
+          "tests": "crates/analytics/tests/arima.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-distribution-arima-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "verification": {
+        "rust_layer": "final workspace passed; restricted behavior tests and linked direct oracles",
+        "native_sql": "passed final macOS arm64 loaded-extension gate; see tasks/evidence/jmp-sql-validation.json",
+        "jmp_head_to_head": "not performed"
+      }
+    },
+    "time_series_forecast": {
+      "id": "time_series_forecast",
+      "label": "Time Series Forecast",
+      "catalog_occurrences": [
+        {
+          "label": "Time Series Forecast",
+          "catalog": "advanced-statistical-modeling",
+          "section": "Time series",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "edition": "jmp_catalog_unrestricted",
+          "edition_evidence": "official_catalog_no_pro_badge"
+        }
+      ],
+      "jmp_edition": "jmp",
+      "edition_evidence": [
+        {
+          "edition": "jmp_catalog_unrestricted",
+          "source": "https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling",
+          "basis": "official_catalog_no_pro_badge"
+        }
+      ],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "in_scope",
+      "implementation": [
+        "chem_exponential_smoothing: Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+        "chem_holt: Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+        "chem_ar_model: Conditional Gaussian autoregression via QR with intercept: ordered scalar rows; [order1..32,horizon1..10000]; requires identifiable residual variance.",
+        "chem_arima: Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0]."
+      ],
+      "tests": [
+        "crates/analytics/tests/timeseries.rs",
+        "crates/analytics/tests/arima.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-inference-timeseries-reference.json",
+        "tasks/evidence/jmp-distribution-arima-reference.json",
+        "tasks/evidence/jmp-sql-validation.json"
+      ],
+      "remaining_contract": [
+        "AR/ARIMA/Holt/SESの限定予測。時間順検証、exact/state-space推定、全予測区間/diagnostics、伝達関数は未達。"
+      ],
+      "domain": "advanced-statistical-modeling:Time series",
+      "acceptance_contract": "timeseries",
+      "current_implementation": [
+        {
+          "sql_function": "chem_exponential_smoothing",
+          "operation": "exponential_smoothing",
+          "bounded_scope": "Simple exponential smoothing: ordered scalar rows; [alpha0..1,horizon1..10000], first-observation initialization.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_holt",
+          "operation": "holt",
+          "bounded_scope": "Holt linear/damped trend smoothing: >=2 ordered scalar rows; [alpha0..1,beta0..1,horizon1..10000,phi in (0,1]=1].",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_ar_model",
+          "operation": "ar_model",
+          "bounded_scope": "Conditional Gaussian autoregression via QR with intercept: ordered scalar rows; [order1..32,horizon1..10000]; requires identifiable residual variance.",
+          "source": "crates/analytics/src/timeseries.rs",
+          "tests": "crates/analytics/tests/timeseries.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-inference-timeseries-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_arima",
+          "operation": "arima",
+          "bounded_scope": "Conditional-sum-of-squares seasonal ARIMA: ordered scalar rows; [p0..3,d0..2,q0..3,horizon0..1000,constant=1,maxiter=1000,tolerance=1e-8,P0..1=0,D0..2=0,Q0..1=0,season0or2..52=0].",
+          "source": "crates/analytics/src/arima.rs",
+          "tests": "crates/analytics/tests/arima.rs",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-distribution-arima-reference.json"
+          ],
+          "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
+          "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        }
+      ],
+      "verification": {
+        "rust_layer": "final workspace passed; restricted behavior tests and linked direct oracles",
+        "native_sql": "passed final macOS arm64 loaded-extension gate; see tasks/evidence/jmp-sql-validation.json",
+        "jmp_head_to_head": "not performed"
+      }
+    }
+  },
+  "protected_unchanged_features": [
+    {
+      "feature_id": "x11_additive_decomposition",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "x11_multiplicative_decomposition",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "sentiment_analysis",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "term_selection",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "text_regression",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "functional_doe",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "direct_fpca",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "functional_basis_selection",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "imputation",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "informative_missing",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "missing_data_pattern",
+      "status_before": "absent",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "curve_alignment_registration",
+      "status_before": "partial",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    },
+    {
+      "feature_id": "binning_data",
+      "status_before": "database_existing",
+      "proposed_status": "unchanged",
+      "reason": "No new implementation for this distinct contract; do not infer coverage from related stream operations."
+    }
+  ],
+  "critical_non_closures": [
+    "X11 additive and multiplicative decomposition remain absent. A fixed sin/cos cycle or seasonal ETS smoothing does not implement X11.",
+    "The CSS ARIMA estimator is unchanged. Supplied polynomial forecast intervals and a known Gaussian Kalman filter do not implement exact ARIMA parameter MLE.",
+    "No Japanese/Unicode tokenizer, stemming, stopword/synonym parser, or new query vocabulary; numeric term IDs/supplied DTM only.",
+    "Sentiment, term_selection, and text_regression remain absent. LSA/LCA/TF-IDF do not implement response-based term selection.",
+    "Spatial covariance hyperparameters are supplied and never estimated. GLS/kriging with known covariance does not implement covariance ML/REML fitting.",
+    "Functional preprocessing does not fit FPCA, functional DOE, basis-selection models, or FPC golden-curve optimization.",
+    "GUI/GPU remain excluded. No full parity or installed-JMP numerical identity is claimed."
+  ],
+  "application": {
+    "status": "Applied to final254-function checkpoint after matching native verification",
+    "evidence": "tasks/evidence/jmp-streams-validation.json",
+    "notes": "Original inputs hashes are the proposed mapping snapshot; final API metadata and numerical guard notes are captured in checkpoint source hashes. Existing implementations/catalog/scope preserved;no whole-family promotions."
+  }
+}

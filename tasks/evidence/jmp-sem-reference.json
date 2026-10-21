@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "module": "sem",
+  "scope": "Four bounded CPU Gaussian CFA/fit-index/scoring/RAM operations;partial JMP19.2 SEM numerical coverage,not a general SEM platform.",
+  "source_sha256": {
+    "crates/analytics/src/sem.rs": "dbbced0129ede7c93e24396cd3a799ab5a8ad1417718c91b778e408b3611125c",
+    "crates/analytics/tests/candidates/sem.rs": "824b0184e09e5288b559a91272931cbd7951e47883cb56384dd49642c8ed7010",
+    "tasks/jmp-sem-api.json": "7004221bf5c25327226a55f5570c91a9ebae8025e83456df2a2d56fbdde091cd",
+    "tasks/jmp-sem-registry.inc": "04d83c6933a5e197305a3cc01700de445e1887adeb67fd79d597b39fd1ea136d"
+  },
+  "verification_layer": "Final reference oracle and15candidate tests use direct Rust module run. Public execute unknown-operation RED recorded before implementation. Parent owns activation/nativeSQL verification;no new SEM SQL GREEN claim in this evidence.",
+  "baseline": {
+    "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo build -p ducksmiles_analytics",
+    "result": "GREEN before SEM implementation"
+  },
+  "TDD": {
+    "public_red": "9behavior tests failed unknown optimization operation;1invalid-input test passed. A test fixture flattening compile error was fixed before this behavioral RED.",
+    "direct_stub_red": "Same9behavior failures/1validation pass using candidate #[path]stub;candidate path excluded from Cargo autodiscovery to protect parent checkpoint.",
+    "first_green": "10candidate tests passed.",
+    "regression_red_green": [
+      {
+        "red": "Unconverged CFA candidate reported calibrated overall fit p/NC RMSEA interval despite solver not reaching ML.",
+        "green": "New behavior test failed then passed after making SE,overall p,RMSEA CI andinformation criteria null unless converged identified interior."
+      },
+      {
+        "red": "One observed variable has independence df0;positive roundoff in baseline discrepancy incorrectly produced CFI0instead of undefined.",
+        "green": "20scale values regression test;baseline discrepancy within64eps*p treated as numerical zero;undefined incremental indices returnnull."
+      },
+      {
+        "red": "Independent random oracle found a legitimate3indicator exactly identified CFA stuck at finite-difference objective-gradient norm1.2742e-5. Closed-form loading regression failed convergence.",
+        "green": "Replaced objective differencing with analytic Gaussian score including normalized factor-correlation chain rule;observed information from Richardson differentiation of that score. Closed-form test passes without loosening gradient threshold."
+      },
+      {
+        "red": "Existing Heywood test caught observed-Hessian perturbation crossing the log-uniqueness coordinate cap.",
+        "green": "Boundary models explicitly skip interior information inference;Heywood and latent boundary flags distinct;SE/p/CI/information criteria null."
+      }
+    ],
+    "final": "15candidate tests GREEN,strict clippy-driver -Dwarnings GREEN;source/test remain candidate until parent activation."
+  },
+  "oracle": {
+    "seed": 750891,
+    "comparisons": 543,
+    "families": {
+      "mean_covariance_fit_indices": 180,
+      "noncentral_chi_square_CI": 100,
+      "zero_df_boundary": 1,
+      "noncentrality_cap_boundary": 1,
+      "CFA_ML_observed_information": 36,
+      "saved_regression_scores": 36,
+      "saved_Bartlett_scores": 36,
+      "RAM_covariance_and_independent_eigen_stability": 140,
+      "central_chi_square_relative_tails": 9,
+      "large_noncentrality_CI": 4
+    },
+    "max_scaled_absolute_error": 2.4433634898837818e-08,
+    "worst_label": "CFA_cov",
+    "failures": 0,
+    "skipped": 0,
+    "python": "3.14.3 (main, Feb  3 2026, 15:32:20) [Clang 17.0.0 (clang-1700.6.3.2)]",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "layer": "direct Rust module run;public RED recorded,activation pending"
+  },
+  "independence": "NumPy/SciPy CFA oracle uses dense covariance linear solves and complex-step scalar ML derivatives,then Richardson Hessian. Factor correlations use hyperspherical partial-correlation coordinates rather than production normalized lower-factor coordinates. Physical SE uses an independent complex-step delta Jacobian. Score oracle uses dense solve and weighted NumPy least squares. Fit indices/NC chi-square intervals use SciPy stats andBrent roots,including no-root/cap/large-noncentrality cases. RAM stability is checked with independent complex eigenvalues,not production Lyapunov criterion.",
+  "checks": [
+    {
+      "command": "clippy-driver --edition=2021 --test crates/analytics/tests/candidates/sem.rs -D warnings -o /private/tmp/rusta-ducksmiles-jmp-target/sem-check/lint",
+      "result": "GREEN;compiled executable then15tests passed"
+    },
+    {
+      "command": "rustfmt --check crates/analytics/src/sem.rs crates/analytics/tests/candidates/sem.rs",
+      "result": "GREEN"
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 python3 /private/tmp/rusta-ducksmiles-jmp-target/sem-check/verify.py",
+      "result": "543cases GREEN,0failures/0skips;maxscaled2.4433634898837818e-8"
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 python3 /private/tmp/rusta-ducksmiles-jmp-target/sem-check/write_api.py",
+      "result": "all4metadata examples valid version1JSON;each independent dotted known_value literal checked"
+    }
+  ],
+  "parameter_conventions": {
+    "input": "Finite nonempty rectangular numeric matrix<=100000rows,256columns,1000000cells;operation-specific tighter shape limits;<=4096finite args.",
+    "covariance": "ML covariance uses divisorN. N-1normalization conversion is explicitly caller responsibility. Covariances must be symmetric and SPD at relative Cholesky pivot1e-12.",
+    "CFA_identification": "One active loading per indicator;>=3indicators/factor;latentvariance1;first indicator loading positive. Factor covariance is SPD and unit diagonal. Local observed-information SPD diagnoses identification;no general algebraic identification or global optimum certificate.",
+    "CFA_parameter_order": "standard_errors/parameter_covariance order:active loading per indicator(p),uniqueness per indicator(p),free factor correlations lower triangle row-major if correlated. Manifest means are free parameters and count toward k;mean_covariance=implied covariance/N is reported separately. CFA k=3p+q(q-1)/2 when correlated,3p otherwise.",
+    "CFA_inference": "Optimizer convergence,identified,Heywood uniqueness boundary,latent boundary separate. SE/parameter covariance,overall fit p,RMSEA interval and information criteria null unless converged identified interior. Fitted means/covariance and discrepancy/indices remain descriptive candidate values. No parameterwise Wald p/CI.",
+    "CFA_limits": "<=20manifest variables,<=4factors,max1000iterations,100000likelihood/gradient evaluations or1e9nominal p^3work units. Line search<=50trials. Log anchor/uniqueness coordinates[-25,25],active normalized loadingsabs<=100,factor-correlation free coordinatesabs<=1000. Solver gradient threshold=sqrt(tolerance)clamped[1e-7,1e-5]. Heywood uniqueness<=1e-8 in standardized units;latent anchor<=1e-8,conditional factor covariance pivot<=1e-8,or coordinateabs>999boundary.",
+    "saved_model": "score_parameters=[p,q,means(p),Lambda row-major(pq),Phi row-major(q\u00b2),uniquenesses(p)]. Prefix method0/1when calling cfa_scores.",
+    "fit_indices": "df=p(p+3)/2-k includes means. Independence baseline mean=observedmean,cov=diag(S),df0=p(p-1)/2. Baseline discrepancy within64eps*p is treated as numerical zero. Undefined zero-df or baseline denominators returnnull. AICcnull whenN<=k+1.",
+    "RMSEA_convention": "Uses displayed official equation sqrt(max(chi2-df,0)/(N*df)),without arbitrary upper clipping. Help prose saysbounded0..1while its displayed formula lacks upper clipping;the unbounded formula choice is an explicit implementation interpretation,not a verified installed-JMP behavioral claim. CFI/TLI/NFI are clipped[0,1]as prose specifies;RNI is raw/unbounded.",
+    "RMSEA_CI": "Poisson mixture of central gamma CDFs,built around Poisson mode;normalizes retained weight mass. Max noncentrality1e7,max50000mixture offsets,gamma convergence<=200000iterations,bracket/bisection75steps. CentralCDF<=target gives zero noncentrality boundary;zero modeldf givesnull. Cap/no convergence givesnull interval plus explicit status.",
+    "RMR_SRMR": "Unique lower triangle covariance residuals plus all mean residuals,denominatorp(p+3)/2. SRMR covariance residuals divided bysqrt(Sii*Sjj),mean residuals bysqrt(Sii). No omission of nonzero mean terms.",
+    "RAM": "p<=16;linear-system inverses use elimination with pivot rejection. Static invertibility and discrete dynamic stability distinct. Stability solvesP-BPB^T=I by p^2-dimensional linear system;SPD P=>strictly stable,nonSPD=>not strictly stable,singular/numeric unresolved=>null. This extra algebraic diagnostic is not an SEM identification/causality claim.",
+    "unsupported": "No general SEM fitting,cross-loadings,residual correlations,FIML,multigroup/measurement invariance,robust correction,modification indices,or GUI."
+  },
+  "primary_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods-2.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-of-fit-measures.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-options.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-model-fit-report.shtml"
+  ],
+  "additional_primary_references": [
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_discrete_lyapunov.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ncx2.html"
+  ],
+  "reference_interpretation": {
+    "JMP_estimation": "Official SEM-specific estimation link has suffix -2;it explicitly usesN rather thanN-1andobserved-information SE.",
+    "RMSEA": "The displayed equation gives sqrt(max(chi2-df,0)/(Ndf));help prose also saysbounded0..1. Our deliberate mathematical-formula convention has no arbitrary upper clipping;this interpretation is explicit andnot a verified installed-JMP behavioral claim.",
+    "RMR_SRMR": "Own formula expression includes unique lower-triangle covariance residuals andmean residuals,overp(p+3)/2;official equation images were viewed for reading only andnot copied into artifacts.",
+    "RAM_stability": "Discrete Lyapunov SPD criterion is an additional linear-system diagnostic,distinct from static invertibility;it does not establish SEM validity or causality."
+  },
+  "fixed_fixture": {
+    "N": 300,
+    "data": [
+      [
+        1.0,
+        0.7200000000000001,
+        0.5599999999999999,
+        0.23799999999999996,
+        0.20999999999999996,
+        0.242,
+        10.0
+      ],
+      [
+        0.7200000000000001,
+        1.0,
+        0.63,
+        0.26775,
+        0.23625000000000002,
+        0.20475000000000002,
+        -2.0
+      ],
+      [
+        0.5599999999999999,
+        0.63,
+        1.0,
+        0.20824999999999996,
+        0.18374999999999997,
+        0.15924999999999997,
+        0.0
+      ],
+      [
+        0.238,
+        0.26775,
+        0.20825,
+        1.0,
+        0.6375,
+        0.5525,
+        5.0
+      ],
+      [
+        0.20999999999999996,
+        0.23624999999999996,
+        0.18374999999999997,
+        0.6375,
+        1.0,
+        0.48750000000000004,
+        1.0
+      ],
+      [
+        0.242,
+        0.20475,
+        0.15924999999999997,
+        0.5525,
+        0.48750000000000004,
+        1.0,
+        -3.0
+      ]
+    ],
+    "loadings": [
+      [
+        0.8021360052186588,
+        0.0
+      ],
+      [
+        0.8978014708739563,
+        0.0
+      ],
+      [
+        0.7004290167124376,
+        0.0
+      ],
+      [
+        0.0,
+        0.8480539927098586
+      ],
+      [
+        0.0,
+        0.7503326427572304
+      ],
+      [
+        0.0,
+        0.6522928340594946
+      ]
+    ],
+    "phi": [
+      [
+        1.0,
+        0.3552701230451432
+      ],
+      [
+        0.3552701230451432,
+        1.0
+      ]
+    ],
+    "uniquenesses": [
+      0.356577829131852,
+      0.1939525188965607,
+      0.5093991925472479,
+      0.2808044254488666,
+      0.43700092521295053,
+      0.5745140586346326
+    ],
+    "standard_errors": [
+      0.05222877233123071,
+      0.050621115392614185,
+      0.05369741957663936,
+      0.05559019244087833,
+      0.056172406465734785,
+      0.05700979101389086,
+      0.04526874830157349,
+      0.045791692621829395,
+      0.0495134920230484,
+      0.057225119073992414,
+      0.05463890333676904,
+      0.057146599544223874,
+      0.061295083845967956
+    ],
+    "covariance": [
+      [
+        1.0000000000000002,
+        0.7201588853262714,
+        0.561839333404948,
+        0.24167415033766573,
+        0.21382601281025834,
+        0.18588712251557066
+      ],
+      [
+        0.7201588853262714,
+        1.0000000000000002,
+        0.6288462014472255,
+        0.27049703072014997,
+        0.2393276296827397,
+        0.20805665239464377
+      ],
+      [
+        0.561839333404948,
+        0.6288462014472255,
+        1.0,
+        0.21103103013020996,
+        0.18671390253751755,
+        0.1623175291920644
+      ],
+      [
+        0.24167415033766573,
+        0.27049703072015,
+        0.21103103013020996,
+        0.9999999999999996,
+        0.6363225935508092,
+        0.5531795423401836
+      ],
+      [
+        0.21382601281025834,
+        0.23932762968273974,
+        0.18671390253751757,
+        0.6363225935508092,
+        1.0,
+        0.4894366060314641
+      ],
+      [
+        0.18588712251557063,
+        0.20805665239464374,
+        0.16231752919206438,
+        0.5531795423401836,
+        0.4894366060314641,
+        0.9999999999999999
+      ]
+    ],
+    "chi_square": 3.5494789987331465,
+    "degrees_of_freedom": 8,
+    "baseline_chi_square": 694.1835909003001,
+    "CFI": 1,
+    "RMSEA": 0.0,
+    "RMSEA_CI": [
+      0.0,
+      0.030141488224064397
+    ],
+    "SRMR": 0.010956160855163733,
+    "log_likelihood": -2208.7723038176273,
+    "gradient_norm": 1.7188412665127677e-13,
+    "numpy": "2.4.2",
+    "scipy": "1.17.1"
+  },
+  "reproduction": {
+    "working_directory": "/Users/nk/Desktop/ducksmiles-analytics-20261021",
+    "artifact_directory": "/private/tmp/rusta-ducksmiles-jmp-target/sem-check",
+    "complete_scripts": {
+      "runner.rs": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/sem.rs\"]\nmod sem;\nuse std::io::{self,BufRead};\nfn main(){for line in io::stdin().lock().lines(){let line=line.unwrap();let p=line.split('|').collect::<Vec<_>>();let a=p[1].split(',').filter(|s|!s.is_empty()).map(|s|s.parse().unwrap()).collect::<Vec<f64>>();let d=p[2].split(';').map(|r|r.split(',').map(|s|s.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();match sem::run(p[0],&d,&a){Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}}}\n",
+      "reference.py": "import numpy as np,scipy,json,sys\nfrom scipy import optimize,stats\nfrom pathlib import Path\nN=300;p=6\nL=np.zeros((p,2));L[:3,0]=[.8,.9,.7];L[3:,1]=[.85,.75,.65]\nP=np.array([[1,.35],[.35,1]]);theta=1-np.sum(L*L,axis=1)\nS=L@P@L.T+np.diag(theta);S[0,5]+=.06;S[5,0]+=.06\nmeans=np.array([10.,-2.,0.,5.,1.,-3.])\ndef decode(t):\n l=np.zeros((6,2),dtype=np.result_type(t))\n vals=t[:6].copy();vals[0]=np.exp(vals[0]);vals[3]=np.exp(vals[3])\n l[:3,0]=vals[:3];l[3:,1]=vals[3:];u=np.exp(t[6:12]);rho=np.tanh(t[12])\n phi=np.array([[1,rho],[rho,1]])\n return l,phi,u\ndef fun(t):\n l,phi,u=decode(t);C=l@phi@l.T+np.diag(u)\n return .5*N*(np.log(np.linalg.det(C))-np.linalg.slogdet(S)[1]+np.trace(np.linalg.solve(C,S))-6)\ndef gradient(t):\n return np.array([np.imag(fun(np.asarray(t,dtype=complex)+1e-20j*np.eye(len(t))[i]))/1e-20 for i in range(len(t))])\ndef hessian(t):\n def calc(h):\n  return np.column_stack([(gradient(t+np.eye(len(t))[i]*h)-gradient(t-np.eye(len(t))[i]*h))/(2*h) for i in range(len(t))])\n H=(4*calc(5e-5)-calc(1e-4))/3;return (H+H.T)/2\nstart=np.r_[np.log(.8),.8,.8,np.log(.8),.8,.8,np.log(np.ones(6)*.4),np.arctanh(.2)]\nfit=optimize.minimize(fun,start,jac=gradient,method='BFGS',options={'gtol':1e-9,'maxiter':1000})\nroot=optimize.root(gradient,fit.x,jac=hessian,tol=1e-10)\nt=root.x;l,phi,u=decode(t);C=l@phi@l.T+np.diag(u);cov=np.linalg.inv(hessian(t))\n# Parameter output order: one active loading per indicator, uniquenesses,\n# lower-triangle factor correlations. Delta Jacobian is independent complex-step.\ndef physical(t):\n l,phi,u=decode(t);return np.r_[l[:3,0],l[3:,1],u,phi[1,0]]\nJ=np.column_stack([np.imag(physical(t.astype(complex)+1e-20j*np.eye(13)[i]))/1e-20 for i in range(13)])\npc=J@cov@J.T\ndf=8;chi=float(2*fun(t));base=N*(np.log(np.diag(S)).sum()-np.linalg.slogdet(S)[1]);df0=15\ndef ncp_ci(x,df):\n def endpoint(q):\n  if stats.chi2.cdf(x,df)<=q:return 0.\n  hi=max(x,1)\n  while stats.ncx2.cdf(x,df,hi)>q:hi*=2\n  return optimize.brentq(lambda a:stats.ncx2.cdf(x,df,a)-q,0,hi,xtol=1e-12)\n return [endpoint(.95),endpoint(.05)]\nrmci=np.sqrt(np.array(ncp_ci(chi,df))/(N*df))\nF=np.log(np.linalg.det(C))-np.log(np.linalg.det(S))+np.trace(np.linalg.solve(C,S))-p\nll=-N/2*(p*np.log(2*np.pi)+np.log(np.linalg.det(C))+np.trace(np.linalg.solve(C,S)))\nsrmr=np.sqrt(sum((S[i,j]-C[i,j])**2/(S[i,i]*S[j,j]) for i in range(p) for j in range(i+1))/(p*(p+3)/2))\nout=dict(N=N,data=np.c_[S,means].tolist(),loadings=l.tolist(),phi=phi.tolist(),uniquenesses=u.tolist(),standard_errors=np.sqrt(np.diag(pc)).tolist(),covariance=C.tolist(),chi_square=chi,degrees_of_freedom=df,baseline_chi_square=base,CFI=max(0,min(1,1-max(chi-df,0)/max(base-df0,0))),RMSEA=np.sqrt(max(chi-df,0)/(N*df)),RMSEA_CI=rmci.tolist(),SRMR=srmr,log_likelihood=ll,gradient_norm=float(np.linalg.norm(gradient(t))),numpy=np.__version__,scipy=scipy.__version__)\nPath('/private/tmp/rusta-ducksmiles-jmp-target/sem-check/fixture.json').write_text(json.dumps(out,indent=2))\nprint(json.dumps({k:out[k] for k in ['chi_square','CFI','RMSEA','RMSEA_CI','SRMR','gradient_norm']},indent=2))\n",
+      "verify.py": "import json,sys,subprocess,itertools,math\nimport numpy as np\nfrom scipy import optimize,stats\nSEED=750891\nrng=np.random.default_rng(SEED)\nproc=subprocess.Popen(['/private/tmp/rusta-ducksmiles-jmp-target/sem-check/runner'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)\nchecks=0;families={};worst=(0,None)\ndef run(op,data,args=[]):\n line=op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r)) for r in data)\n proc.stdin.write(line+'\\n');proc.stdin.flush();s=proc.stdout.readline().strip()\n if s.startswith('ERROR'):raise AssertionError((op,s))\n r=json.loads(s,parse_constant=lambda x:(_ for _ in ()).throw(AssertionError(x)))\n assert r['version']==1;return r\ndef count(n):\n global checks\n checks+=1;families[n]=families.get(n,0)+1\ndef close(a,b,label,rtol=3e-5,atol=1e-7):\n global worst\n a=np.asarray(a);b=np.asarray(b);assert a.shape==b.shape,(label,a.shape,b.shape)\n e=float(np.max(np.abs(a-b)/np.maximum(1,np.abs(b)))) if a.size else 0\n if e>worst[0]:worst=(e,label)\n assert np.allclose(a,b,rtol=rtol,atol=atol),(label,e,a,b)\ndef ci(x,df,N):\n if not df:return None\n out=[]\n for q in [.95,.05]:\n  if stats.chi2.cdf(x,df)<=q:z=0\n  else:\n   hi=max(x,1)\n   while stats.ncx2.cdf(x,df,hi)>q:hi*=2\n   z=optimize.brentq(lambda lam:stats.ncx2.cdf(x,df,lam)-q,0,hi,xtol=2e-11)\n  out.append(np.sqrt(z/(N*df)))\n return out\ndef indices(S,V,obs,mu,N,k):\n p=len(S);inv=np.linalg.inv(V);delta=obs-mu\n f=np.linalg.slogdet(V)[1]-np.linalg.slogdet(S)[1]+np.trace(inv@S)+delta@inv@delta-p\n x=max(0,N*f);df=p*(p+3)//2-k;df0=p*(p-1)//2;xb=max(0,N*(np.log(np.diag(S)).sum()-np.linalg.slogdet(S)[1]))\n denom=max(xb-df0,0);cfi=max(0,min(1,1-max(x-df,0)/denom)) if denom>0 else None\n ll=-N/2*(p*np.log(2*np.pi)+np.linalg.slogdet(V)[1]+np.trace(inv@S)+delta@inv@delta)\n residual=[S[i,j]-V[i,j] for i in range(p) for j in range(i+1)]+list(delta)\n standard=[(S[i,j]-V[i,j])/np.sqrt(S[i,i]*S[j,j]) for i in range(p) for j in range(i+1)]+list(delta/np.sqrt(np.diag(S)))\n return dict(chi_square=x,degrees_of_freedom=df,chi_square_p_value=stats.chi2.sf(x,df) if df else None,baseline_chi_square=xb,cfi=cfi,rmsea=np.sqrt(max(x-df,0)/(N*df)) if df else None,rmsea_confidence_interval=ci(x,df,N),rmr=np.linalg.norm(residual)/np.sqrt(p*(p+3)/2),srmr=np.linalg.norm(standard)/np.sqrt(p*(p+3)/2),log_likelihood=ll)\nfor case in range(180):\n p=int(rng.integers(1,7));N=int(rng.integers(max(50,p+1),1000));A=rng.normal(size=(p,p));S=A@A.T+np.eye(p);B=rng.normal(size=(p,p));V=B@B.T+np.eye(p)\n obs=rng.normal(size=p);mu=rng.normal(size=p);k=int(rng.integers(0,p*(p+3)//2+1))\n data=np.c_[S,V,obs,mu];r=run('sem_fit_indices',data,[N,k]);ref=indices(S,V,obs,mu,N,k)\n for key,val in ref.items():\n  if val is None:assert r[key] is None,(key,r[key])\n  else:close(r[key],val,key,1e-7,2e-8)\n count('mean_covariance_fit_indices')\nfor case in range(100):\n p=3;N=int(rng.integers(50,2000));c=np.exp(rng.uniform(-1.7,1.7));S=np.eye(p);V=np.eye(p)*c;k=int(rng.integers(0,9))\n r=run('sem_fit_indices',np.c_[S,V,np.zeros((p,2))],[N,k]);ref=indices(S,V,np.zeros(p),np.zeros(p),N,k)\n close(r['rmsea_confidence_interval'],ref['rmsea_confidence_interval'],'noncentral_CI',1e-7,2e-8)\n assert r['cfi'] is None\n count('noncentral_chi_square_CI')\n# Resource/no-root boundaries are explicit cases, not skipped comparisons.\nr=run('sem_fit_indices',[[1,1,0,0]],[100,2]);assert r['rmsea_confidence_interval'] is None and r['rmsea'] is None;count('zero_df_boundary')\nr=run('sem_fit_indices',[[1,100,0,0]],[1e9,0]);assert r['rmsea_confidence_interval'] is None and r['rmsea_ci_status']=='noncentrality_or_iteration_limit';count('noncentrality_cap_boundary')\n\ndef cfa_oracle(S,N,assign,q,correlated,scales):\n p=len(S);anchors=[list(assign).index(f) for f in range(q)];dim=2*p+(q*(q-1)//2 if correlated else 0)\n def decode(t):\n  vals=np.array(t[:p],dtype=np.result_type(t)).copy()\n  for a in anchors:vals[a]=np.exp(vals[a])\n  unique=np.exp(t[p:2*p]);L=np.zeros((p,q),dtype=np.result_type(t));L[np.arange(p),assign]=vals\n  # Independent hyperspherical partial-correlation coordinates.\n  C=np.eye(q,dtype=np.result_type(t));k=2*p\n  if correlated:\n   for i in range(1,q):\n    remain=1\n    for j in range(i):\n     rho=np.tanh(t[k]);k+=1;C[i,j]=rho*remain;remain*=np.sqrt(1-rho*rho)\n    C[i,i]=remain\n  Phi=C@C.T\n  return L,Phi,unique\n lds=np.linalg.slogdet(S)[1]\n def fun(t):\n  L,Phi,u=decode(t);V=L@Phi@L.T+np.diag(u)\n  return .5*N*(np.log(np.linalg.det(V))-lds+np.trace(np.linalg.solve(V,S))-p)\n def grad(t):\n  return np.array([np.imag(fun(t.astype(complex)+1e-20j*np.eye(dim)[i]))/1e-20 for i in range(dim)])\n def hess(t):\n  def h(step):return np.column_stack([(grad(t+np.eye(dim)[i]*step)-grad(t-np.eye(dim)[i]*step))/(2*step) for i in range(dim)])\n  H=(4*h(5e-5)-h(1e-4))/3;return (H+H.T)/2\n start=np.r_[np.repeat(.7,p),np.repeat(np.log(.51),p),np.zeros(dim-2*p)]\n for a in anchors:start[a]=np.log(.7)\n for j in range(p):\n  if j not in anchors:start[j]=np.copysign(.7,S[j,anchors[assign[j]]])\n fit=optimize.minimize(fun,start,jac=grad,method='BFGS',options={'gtol':1e-8,'maxiter':800})\n polished=optimize.root(grad,fit.x,jac=hess,tol=1e-9)\n assert np.linalg.norm(grad(polished.x))<1e-5,('oracle optimizer',fit.message,polished.message)\n t=polished.x;L,Phi,u=decode(t);V=L@Phi@L.T+np.diag(u)\n def physical(t):\n  L,Phi,u=decode(t);values=list(L[np.arange(p),assign]*scales)+list(u*scales**2)\n  if correlated:values+=list(Phi[np.tril_indices(q,-1)])\n  return np.array(values)\n J=np.column_stack([np.imag(physical(t.astype(complex)+1e-20j*np.eye(dim)[i]))/1e-20 for i in range(dim)])\n cov=J@np.linalg.inv(hess(t))@J.T\n return L*scales[:,None],Phi,u*scales**2,V*scales[:,None]*scales[None,:],np.sqrt(np.diag(cov)),2*fun(t)\nfor case in range(36):\n q=[1,2,3,4][case%4];size=3+(case%3==0);p=q*size;N=600;assign=np.repeat(np.arange(q),size)\n loading=rng.uniform(.65,.9,p);loading[[i for i in range(p) if i%size and rng.random()<.2]]*=-1\n L=np.zeros((p,q));L[np.arange(p),assign]=loading\n correlated=case%3!=0;Phi=np.full((q,q),.25 if correlated else 0.);np.fill_diagonal(Phi,1)\n unique=rng.uniform(.25,.5,p);population=L@Phi@L.T+np.diag(unique)\n Y=rng.multivariate_normal(np.zeros(p),population,N);mu=Y.mean(0);S=np.cov(Y,rowvar=False,bias=True)\n scales=np.exp(rng.uniform(-1.5,1.5,p));Sraw=S*scales[:,None]*scales[None,:];means=mu*scales+rng.uniform(-1e4,1e4,p)\n r=run('cfa_model',np.c_[Sraw,means],[N,q,int(correlated),800,1e-9,*assign])\n if not r['converged']:\n  json.dump(dict(data=np.c_[Sraw,means].tolist(),args=[N,q,int(correlated),800,1e-9,*map(int,assign)],result=r),open('/private/tmp/rusta-ducksmiles-jmp-target/sem-check/stalled-case.json','w'),indent=2)\n  raise AssertionError(('production CFA',case,r['iterations'],r['optimizer_converged'],r['gradient_norm'],r['identified'],r['heywood_boundary']))\n refL,refP,refU,refV,refSE,chi=cfa_oracle(S,N,assign,q,correlated,scales)\n close(r['loadings'],refL,'CFA_loadings',1e-4,2e-6);close(r['factor_covariance'],refP,'CFA_Phi',1e-4,2e-6);close(r['uniquenesses'],refU,'CFA_uniqueness',1e-4,2e-6);close(r['implied_covariance'],refV,'CFA_cov',1e-4,2e-6);close(r['standard_errors'],refSE,'CFA_observed_SE',3e-4,2e-6);close(r['chi_square'],chi,'CFA_chi',1e-7,2e-7)\n assert r['n_free_parameters']==3*p+(q*(q-1)//2 if correlated else 0)\n close(r['mean_covariance'],refV/N,'CFA_mean_cov',1e-4,2e-6)\n count('CFA_ML_observed_information')\n # Same fitted model portable score matrices; oracle independently solves raw\n # covariance or weighted least squares rather than consuming saved weights.\n X=rng.multivariate_normal(means,refV,7)\n saved=r['score_parameters'];P=np.array(r['factor_covariance']);L=np.array(r['loadings']);U=np.array(r['uniquenesses']);V=np.array(r['implied_covariance'])\n expected=(P@L.T@np.linalg.solve(V,(X-means).T)).T\n out=run('cfa_scores',X,[0,*saved]);close(out['scores'],expected,'regression_score',1e-10,1e-10)\n post=P-P@L.T@np.linalg.solve(V,L@P);close(out['conditional_factor_covariance'],post,'score_posterior_cov',1e-10,1e-10);count('saved_regression_scores')\n weighted=L/np.sqrt(U)[:,None];expected=np.linalg.lstsq(weighted,((X-means)/np.sqrt(U)).T,rcond=None)[0].T\n out=run('cfa_scores',X,[1,*saved]);close(out['scores'],expected,'Bartlett_score',1e-10,1e-10);count('saved_Bartlett_scores')\nfor case in range(140):\n p=int(rng.integers(2,9));B=rng.normal(0,.4,(p,p));np.fill_diagonal(B,0)\n radius=max(abs(np.linalg.eigvals(B)));B*=([.6,1.3][case%2]/radius)\n W=rng.normal(size=(p,p));Omega=W@W.T+np.eye(p);alpha=rng.normal(size=p);A=np.eye(p)-B;inv=np.linalg.inv(A)\n r=run('sem_ram',np.c_[B,Omega,alpha],[])\n close(r['means'],np.linalg.solve(A,alpha),'RAM_mean',1e-9,1e-9);close(r['covariance'],inv@Omega@inv.T,'RAM_cov',1e-8,1e-8)\n close(r['total_effects'],inv-np.eye(p),'RAM_total',1e-9,1e-9);close(r['indirect_effects'],inv-np.eye(p)-B,'RAM_indirect',1e-9,1e-9)\n assert r['dynamically_stable']==(case%2==0),(case,r['stability_status'],np.linalg.eigvals(B))\n count('RAM_covariance_and_independent_eigen_stability')\n# Relative tail checks do not hide tiny probabilities behind absolute tolerance.\nfor target in [.000001,.01,1.,5.,10.,50.,100.,500.,1000.]:\n N=1000\n c=optimize.brentq(lambda z:np.log(z)+1/z-1-target/N,1+1e-10,max(2,np.exp(target/N+1)))\n r=run('sem_fit_indices',[[1,c,0,0]],[N,1])\n wanted=stats.chi2.sf(r['chi_square'],1)\n assert np.isclose(r['chi_square_p_value'],wanted,rtol=3e-12,atol=0),(target,r['chi_square_p_value'],wanted)\n count('central_chi_square_relative_tails')\nfor target in [1e5,1e6,3e6,8e6]:\n N=1000000;p=3\n c=optimize.brentq(lambda z:3*(np.log(z)+1/z-1)-target/N,1+1e-10,np.exp(target/N/3+1))\n r=run('sem_fit_indices',np.c_[np.eye(3),np.eye(3)*c,np.zeros((3,2))],[N,2])\n wanted=ci(r['chi_square'],7,N)\n close(r['rmsea_confidence_interval'],wanted,'large_noncentral_CI',1e-7,2e-8)\n count('large_noncentrality_CI')\nproc.stdin.close();proc.wait()\nout=dict(seed=SEED,comparisons=checks,families=families,max_scaled_absolute_error=worst[0],worst_label=worst[1],failures=0,skipped=0,python=sys.version,numpy=np.__version__,scipy=__import__('scipy').__version__,layer='direct Rust module run;public RED recorded,activation pending')\njson.dump(out,open('/private/tmp/rusta-ducksmiles-jmp-target/sem-check/oracle-summary.json','w'),indent=2);print(json.dumps(out,indent=2))\n",
+      "write_api.py": "import json,subprocess,sys\nfrom pathlib import Path\nimport numpy as np\nfrom scipy import stats,optimize\nR=Path('/Users/nk/Desktop/ducksmiles-analytics-20261021');D=Path('/private/tmp/rusta-ducksmiles-jmp-target/sem-check')\nfixture=json.loads((D/'fixture.json').read_text())\nrefs=[\n'https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods-2.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-of-fit-measures.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/model-options.shtml',\n'https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-model-fit-report.shtml']\ndata=[[1.,.3,1.2,.2,1.,1.1],[.3,1.,.2,.8,-2.,-2.2]]\nS=np.array([[1,.3],[.3,1]]);V=np.array([[1.2,.2],[.2,.8]]);delta=np.array([-.1,.2])\nchi=float(120*(np.linalg.slogdet(V)[1]-np.linalg.slogdet(S)[1]+np.trace(np.linalg.solve(V,S))+delta@np.linalg.solve(V,delta)-2))\nscore_args=[1.,3.,1.,1.,2.,3.,.8,.7,.9,1.,.36,.51,.19]\nscore_var=1/(.8**2/.36+.7**2/.51+.9**2/.19)\nspecs=[\n('cfa_model','CfaModel','Gaussian simple-structure CFA: rows[S_MLrow(p),mean]; [N,q,correlated,maxiter,tolerance,assignments(p)].',\n fixture['data'],[300.,2.,1.,500.,1e-8,0.,0.,0.,1.,1.,1.],\n 'p3..20summary rows,each p ML covariance entries followed by sample mean. N-divisor covariance is required;N-1conversion is caller responsibility.',\n ['N exact integer>p,<=1e9','q integer1..4','correlated flag0/1(required)','max_iterations integer1..1000(required)','tolerance1e-12..1e-3(required)','p indicator assignments integer0..q-1;every factor>=3indicators'],\n 'True Gaussian summary-data ML with freely estimated manifest means. Each indicator loads on its specified one factor;latent variances fixed1 and first indicator loading positive to identify scale/sign. Positive uniquenesses and SPD correlated factor matrix. Analytic Gaussian score with correlation-coordinate chain rule;BFGS local search and Richardson derivatives of analytic score provide observed information. Physical-parameter delta covariance accounts for sign/scale constraints. Heywood/latent boundary,optimizer convergence and local identification are separate. No global optimum guarantee.',\n {'chi_square':fixture['chi_square'],'degrees_of_freedom':8,'n_free_parameters':19,'loadings.0.0':fixture['loadings'][0][0],'standard_errors.0':fixture['standard_errors'][0],'srmr':fixture['SRMR']},\n ['cross-loadings','correlated indicator residuals','general latent structural paths','FIML/missing data','multigroup/invariance','sandwich robust correction','parameterwise Wald tests/confidence intervals','globally certified ML optimum']),\n('cfa_scores','CfaScores','Saved CFA factor scores: observation rows; [method0regression/1Bartlett,score_parameters...].',\n [[2.6,3.4,4.8]],score_args,\n 'Finite raw observed-variable rows,n\u00d7p;order matches stored means/loadings. <=100000rows/1000000cells.',\n ['method0regression posterior mean/1Bartlett weighted least squares','exact returned score_parameters=[p,q,means(p),Lambda row-major(pq),Phi row-major(q\u00b2),uniquenesses(p)]'],\n 'Regression scores Phi Lambda^T Sigma^-1(x-mu),with conditional latent posterior covariance. Bartlett scores solve Lambda^T Theta^-1 Lambda and return measurement-error covariance. Reuses supplied saved parameters;no refit or propagation of fitted parameter uncertainty.',\n {'scores.0.0':2.,'measurement_error_covariance.0.0':score_var},\n ['factor-score parameter uncertainty','missing observations','posterior sampling','general structural latent variable prediction']),\n('sem_fit_indices','SemFitIndices','Gaussian SEM fit indices: rows[S_MLrow(p),Sigma row(p),observedmean,modelmean]; [N,kfree].',\n data,[120.,2.],\n 'p1..20rows,each2p+2columns:observed ML covariance,model implied covariance,observed mean,model mean. Both covariances SPD.',\n ['N exact integer>p,<=1e9','k_free exact integer0..p(p+3)/2,includes all free covariance and mean parameters'],\n 'Evaluates supplied Gaussian mean/covariance model. Chi-square=N*[logdetSigma-logdetS+tr(Sigma^-1S)+(mean difference)^T Sigma^-1(mean difference)-p]. Degrees of freedom=p(p+3)/2-k. Independence baseline has observed means and diagonal S. Reports central chi-square p,CFI/RNI/TLI/NFI,RMSEA with90%noncentral chi-square interval,RMR/SRMR with explicit mean residuals,Gaussian loglikelihood,AIC/AICc/BIC/BICu. Caller supplies valid model parameter count and is responsible for ML estimation/model assumptions.',\n {'chi_square':chi,'degrees_of_freedom':3,'srmr':float(np.sqrt(.14/5))},\n ['automatic model identification check','checking supplied model was estimated by ML','robust/scaled chi-square corrections','modification indices','noncentrality>1e7confidence bounds']),\n('sem_ram','SemRam','Supplied RAM mean/covariance: rows[Brow(p),Omega row(p),intercept]; no parameters.',\n [[0.,0.,0.,1.,0.,0.,1.],[.5,0.,0.,0.,.8,0.,2.],[.2,.7,0.,0.,0.,.6,3.]],[],\n 'p1..16rows,2p+1columns:B path coefficient row,SPD disturbance covariance Omega row,intercept. B diagonal must be zero.',\n [],\n 'Solves simultaneous linear system with A=I-B:mean=A^-1alpha,covariance=A^-1Omega A^-T,total=A^-1-I,indirect=total-B. Static invertibility is separate from strict discrete dynamic stability;the latter uses a discrete Lyapunov solution SPD diagnostic and may be null at a singular/numerically unresolved boundary. Positive Omega/invertibility do not establish model identification,fit or causality.',\n {'means':[1.,2.5,4.95],'covariance.2.2':1.2945,'indirect_effects.2.0':.35,'dynamically_stable':True},\n ['SEM parameter estimation','causal identification guarantee','dynamic stability from invertibility alone','nonsingular indefinite disturbance covariance','more than16variables'])\n]\nops=[];fragment=['// Gaussian CFA,factor scoring,mean/covariance fit indices,and supplied RAM algebra.']\nfor op,symbol,desc,data,args,datadoc,argdoc,method,known,unsupported in specs:\n line=op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r)) for r in data)+'\\n'\n result=subprocess.run([str(D/'runner')],input=line,text=True,capture_output=True,check=True).stdout\n assert not result.startswith('ERROR'),result\n value=json.loads(result);assert value['version']==1\n for key,target in known.items():\n  actual=value\n  for field in key.split('.'):actual=actual[int(field)] if field.isdigit() else actual[field]\n  assert np.allclose(actual,target,rtol=2e-5,atol=1e-7),(op,key,actual,target)\n sql='chem_'+op+'('+json.dumps(data,separators=(',',':'))+', '+json.dumps(args,separators=(',',':'))+')'\n ops.append(dict(operation=op,symbol=symbol,sql_name='chem_'+op,source='crates/analytics/src/sem.rs',description=desc,data=datadoc,args=argdoc,estimator=method,sql_example=sql,known_value=known,fixture=dict(data=data,args=args),unsupported=unsupported,official_references=refs,evidence='tasks/evidence/jmp-sem-reference.json'))\n fragment.append('ANALYTICS_METHOD('+symbol+','+','.join(json.dumps(x) for x in ['chem_'+op,op,desc,sql])+')')\napi=dict(schema_version=1,module='sem',module_path='crates/analytics/src/sem.rs',source='crates/analytics/src/sem.rs',\n scope='Four bounded CPU Gaussian CFA/fit-index/scoring/RAM operations;partial JMP19.2 SEM numerical coverage,not a general SEM platform.',\n integration_status='Public unknown-operation RED recorded;15candidate direct tests GREEN. Parent owns pubmod/public execute/SQL activation.',\n common_contract=dict(\n input='Finite nonempty rectangular numeric matrix<=100000rows,256columns,1000000cells;operation-specific tighter shape limits;<=4096finite args.',\n covariance='ML covariance uses divisorN. N-1normalization conversion is explicitly caller responsibility. Covariances must be symmetric and SPD at relative Cholesky pivot1e-12.',\n CFA_identification='One active loading per indicator;>=3indicators/factor;latentvariance1;first indicator loading positive. Factor covariance is SPD and unit diagonal. Local observed-information SPD diagnoses identification;no general algebraic identification or global optimum certificate.',\n CFA_parameter_order='standard_errors/parameter_covariance order:active loading per indicator(p),uniqueness per indicator(p),free factor correlations lower triangle row-major if correlated. Manifest means are free parameters and count toward k;mean_covariance=implied covariance/N is reported separately. CFA k=3p+q(q-1)/2 when correlated,3p otherwise.',\n CFA_inference='Optimizer convergence,identified,Heywood uniqueness boundary,latent boundary separate. SE/parameter covariance,overall fit p,RMSEA interval and information criteria null unless converged identified interior. Fitted means/covariance and discrepancy/indices remain descriptive candidate values. No parameterwise Wald p/CI.',\n CFA_limits='<=20manifest variables,<=4factors,max1000iterations,100000likelihood/gradient evaluations or1e9nominal p^3work units. Line search<=50trials. Log anchor/uniqueness coordinates[-25,25],active normalized loadingsabs<=100,factor-correlation free coordinatesabs<=1000. Solver gradient threshold=sqrt(tolerance)clamped[1e-7,1e-5]. Heywood uniqueness<=1e-8 in standardized units;latent anchor<=1e-8,conditional factor covariance pivot<=1e-8,or coordinateabs>999boundary.',\n saved_model='score_parameters=[p,q,means(p),Lambda row-major(pq),Phi row-major(q\u00b2),uniquenesses(p)]. Prefix method0/1when calling cfa_scores.',\n fit_indices='df=p(p+3)/2-k includes means. Independence baseline mean=observedmean,cov=diag(S),df0=p(p-1)/2. Baseline discrepancy within64eps*p is treated as numerical zero. Undefined zero-df or baseline denominators returnnull. AICcnull whenN<=k+1.',\n RMSEA_convention='Uses displayed official equation sqrt(max(chi2-df,0)/(N*df)),without arbitrary upper clipping. Help prose saysbounded0..1while its displayed formula lacks upper clipping;the unbounded formula choice is an explicit implementation interpretation,not a verified installed-JMP behavioral claim. CFI/TLI/NFI are clipped[0,1]as prose specifies;RNI is raw/unbounded.',\n RMSEA_CI='Poisson mixture of central gamma CDFs,built around Poisson mode;normalizes retained weight mass. Max noncentrality1e7,max50000mixture offsets,gamma convergence<=200000iterations,bracket/bisection75steps. CentralCDF<=target gives zero noncentrality boundary;zero modeldf givesnull. Cap/no convergence givesnull interval plus explicit status.',\n RMR_SRMR='Unique lower triangle covariance residuals plus all mean residuals,denominatorp(p+3)/2. SRMR covariance residuals divided bysqrt(Sii*Sjj),mean residuals bysqrt(Sii). No omission of nonzero mean terms.',\n RAM='p<=16;linear-system inverses use elimination with pivot rejection. Static invertibility and discrete dynamic stability distinct. Stability solvesP-BPB^T=I by p^2-dimensional linear system;SPD P=>strictly stable,nonSPD=>not strictly stable,singular/numeric unresolved=>null. This extra algebraic diagnostic is not an SEM identification/causality claim.',\n unsupported='No general SEM fitting,cross-loadings,residual correlations,FIML,multigroup/measurement invariance,robust correction,modification indices,or GUI.'\n ),operations=ops,official_references=refs,\n additional_primary_references=['https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_discrete_lyapunov.html','https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ncx2.html'],\n evidence='tasks/evidence/jmp-sem-reference.json')\n(R/'tasks/jmp-sem-api.json').write_text(json.dumps(api,indent=2)+'\\n')\n(R/'tasks/jmp-sem-registry.inc').write_text('\\n'.join(fragment)+'\\n')\nprint('all4examples direct validJSON and independent known_value literals GREEN')\n"
+    },
+    "build_command": "rustc --edition=2021 -O /private/tmp/rusta-ducksmiles-jmp-target/sem-check/runner.rs -o /private/tmp/rusta-ducksmiles-jmp-target/sem-check/runner",
+    "reference_command": "OPENBLAS_NUM_THREADS=1 python3 /private/tmp/rusta-ducksmiles-jmp-target/sem-check/verify.py",
+    "instructions": "Write embedded scripts into artifact_directory,compile runner,run verify.py. reference.py recreates fixed6indicator independent observed-information fixture. No project dependency added."
+  },
+  "toolchain": {
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)"
+  }
+}

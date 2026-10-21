@@ -1,0 +1,814 @@
+{
+  "schema_version": 1,
+  "module": "state_space_and_dynamic_series",
+  "module_paths": [
+    "crates/analytics/src/state_space.rs",
+    "crates/analytics/src/dynamic_series.rs"
+  ],
+  "scope": "Nine bounded CPU time-series operations;partial JMP19.2 numerical coverage. General Gaussian Kalman is separate from six additive innovations ETS families. True rational transfer and exact stationary small-order ARMA prewhitening are separate from existing CSS arima.rs.",
+  "integration_status": "Public execute/formal tests,production exported C ABI fixtures and matching native SQL PASS;bounded partial contracts only",
+  "common_contract": {
+    "finite_data": "Complete finite equally spaced numeric data;no SQL NULL/NaN missing sentinel except explicit Kalman observed0/1 flag. All matrix lengths and model versions checked;finite output failures reject.",
+    "normal_intervals": "Confidence .5..0.9999,normal quantile approximation;conditional process/measurement uncertainty only. No fitted parameter/variance-estimation or future-input uncertainty.",
+    "gaussian_portable_layout": "prediction_model=[1,0,k,last_filtered_mean(k),last_filtered_cov(k*k),F(k*k),Q(k*k),H(k),R],row-major,length4+2k+3k*k,k1..8. P may be PSD;Q PSD,R>0.",
+    "ets_portable_layout": "prediction_model=[1,1,k,y_origin,y_scale,standardized_sigma2,last_state(k),F(k*k),w(k),g(k)],row-major,length6+3k+k*k,k<=32. Positive scale/sigma2. Tag1 is shared additive innovations;tag0 independent Gaussian. F/w/g may represent a supplied linear additive innovations model;predict does not verify one of the six fitted ETS family structures.",
+    "optimizer": "Deterministic bounded Nelder-Mead with3startsETS/prewhite,4transfer. Stop requires maximum simplex coordinate spread<max(tol^.75,1e-8) and objective spread<.01*tol*(1+abs objective),then finite difference projected gradient<max(sqrt(tol),1e-7) in raw u coordinates. h=1e-5 score check. Objective is profile log(sigma2)+logdet/n (ETS logdet0). maxiter perstart;returned iterations is winning start. Local optimizer,not proof of global optimum.",
+    "identification": "Initial/GLS design reorthogonalized QR,relative column threshold1e-11. Local profile shape curvature central differencesh1e-4 on free face,Cholesky relative pivot threshold1e-14. Active legitimate faces condition the curvature;guards disqualify convergence. No SEs or global identification guarantee.",
+    "resource": "Gaussian k<=8,n<=5000,h<=500. ETS period<=24,n*k*k<=2000000,n*k*k*maxiter<=250000000. Prewhite n<=2000,n*maxiter*(1+p+q)<=40000000. Transfer n<=2000,n*maxiter*(1+den+p+q)<=60000000. These are nominal preflight work limits;multi-start/line-search/curvature evaluations add bounded work. Params<=16384 at native layer.",
+    "JMP_gaps": "X11 is NOT implemented or renamed from moving-average decomposition. Multiplicative ETS/automatic search/full admissibility,seasonal/integrated/multiple-input transfer and prewhitening,automatic lag selection,parameter uncertainty,and full report diagnostics remain. Existing CSS ARIMA module is untouched. Exact JMP CCF normalization/default optimizer/transfer numerator parameterization equivalence not asserted.",
+    "external_covariance_validation": "External initial/process/saved Gaussian covariances must be exactly symmetric in binary64. Scaled semidefinite Cholesky rejects any negative diagonal pivot or nonzero residual off-diagonal under a zero pivot; roundoff-ambiguous real-PSD matrices may reject, so callers must explicitly supply representable well-conditioned covariance. No near-PSD projection is performed. Initial covariance additionally needs scaled pivots>1e-14. Internal RTS rounding validation remains a separate tolerant numeric check."
+  },
+  "operations": [
+    {
+      "operation": "kalman_smoother",
+      "symbol": "KalmanSmoother",
+      "sql_name": "chem_kalman_smoother",
+      "source": "crates/analytics/src/state_space.rs",
+      "description": "Known scalar-observation Gaussian Kalman filtering/RTS smoothing: [y,observed0/1] rows; [k,horizon,confidence,m0,P0,F,Q,H,R] row-major; k<=8,n<=5000,h<=500.",
+      "data": "1..5000 rows [finite response, observed flag0/1]. Flag0 ignores response placeholder but retains elapsed time; SQL NULL is invalid.",
+      "args": [
+        "k integer1..8",
+        "horizon integer0..500",
+        "confidence .5..0.9999",
+        "m0: k entries",
+        "P0: k*k proper positive-definite covariance row-major",
+        "F: k*k transition row-major",
+        "Q: k*k positive-semidefinite process covariance row-major",
+        "H: k observation loadings",
+        "R: positive measurement variance"
+      ],
+      "estimator": "alpha0~N(m0,P0) is prior for observation0; alpha(t+1)=F alpha(t)+eta,Q; y(t)=H alpha(t)+epsilon,R. Independent process/measurement disturbances. Exact innovations Gaussian likelihood,Joseph filtering covariance,RTS smoothing via positive-definite solves. Singular predicted covariance needed by RTS rejects; no pseudoinverse. Future variance propagates final filtered covariance with Q; observation variance adds R. Output covariance matrices are flattened row-major inside one row per time.",
+      "fixture": {
+        "data": [
+          [
+            1.0,
+            1.0
+          ],
+          [
+            2.0,
+            1.0
+          ],
+          [
+            1.5,
+            1.0
+          ]
+        ],
+        "args": [
+          1.0,
+          2.0,
+          0.95,
+          0.0,
+          1.0,
+          1.0,
+          0.2,
+          1.0,
+          0.5
+        ]
+      },
+      "known_value": {
+        "smoothed_means": [
+          [
+            1.1212121212121213
+          ],
+          [
+            1.393939393939394
+          ],
+          [
+            1.4242424242424243
+          ]
+        ],
+        "forecast_means": [
+          1.4242424242424243,
+          1.4242424242424243
+        ],
+        "forecast_observation_variances": [
+          0.9390572390572391,
+          1.1390572390572393
+        ],
+        "log_likelihood": -4.159068440286804
+      },
+      "unsupported": [
+        "parameter estimation/diffuse initialization",
+        "multivariate responses,time-varying matrices/non-Gaussian models",
+        "RTS with singular predicted covariance",
+        "parameter-estimation uncertainty",
+        "This general independent-noise Gaussian model is distinct from JMP ETS."
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_kalman_smoother([[1.0,1.0],[2.0,1.0],[1.5,1.0]], [1.0,2.0,0.95,0.0,1.0,1.0,0.2,1.0,0.5])"
+    },
+    {
+      "operation": "state_space_smoothing",
+      "symbol": "StateSpaceSmoothing",
+      "sql_name": "chem_state_space_smoothing",
+      "source": "crates/analytics/src/state_space.rs",
+      "description": "Fit 6 additive innovations ETS families: scalar rows; [family0..5,period,horizon,confidence,maxiter,tol]. Estimated initial states,shared innovations ML and forecast intervals; bounded partial ETS.",
+      "data": "8..5000 complete finite scalar rows; n>=2*k+4 with k=1+trend+seasonal_period. Nonconstant data and nondegenerate residual variance required.",
+      "args": [
+        "family0 ANN/1 AAN/2 AAdN/3 ANA/4 AAA/5 AAdA;default0",
+        "period2..24 if seasonal,else unused0..24;default4 seasonal/0 otherwise",
+        "horizon1..500;default10",
+        "confidence .5..0.9999;default.95",
+        "maxiter1..5000 per start;default1000",
+        "tolerance1e-10..1e-3;default1e-8"
+      ],
+      "estimator": "y_t=w*x_(t-1)+e_t,x_t=F*x_(t-1)+g*e_t with shared e iidN(0,sigma2). For fixed smoothing parameters,rank-safe QR profiles all initial states with sum-zero initial seasonals. Conditional innovations Gaussian ML sigma2=SSE/n,three-start bounded Nelder-Mead plus independent projected-score check. alpha=.0001+.9998u,beta=alpha*u,gamma=(1-alpha)*u,phi=.8+.2u for damped. Alpha guard contact prevents combined convergence;beta/gamma0 and phi.8/1 are legitimate constrained faces. Local free-face profile curvature must be PD for combined convergence;no parameter SE is returned. Nominal parameter count includes smoothing parameters,independent initial states and sigma2,even on an active face. AIC/BIC null if nonconverged/guarded/unidentified. Future observation variance sigma2*(1+sum_(j=0..h-2)(w*F^j*g)^2),conditional on estimated initial state and point parameters.",
+      "fixture": {
+        "data": [
+          [
+            1.0
+          ],
+          [
+            2.0
+          ],
+          [
+            1.0
+          ],
+          [
+            2.0
+          ],
+          [
+            1.0
+          ],
+          [
+            2.0
+          ],
+          [
+            1.0
+          ],
+          [
+            2.0
+          ]
+        ],
+        "args": [
+          0.0,
+          0.0,
+          3.0,
+          0.95,
+          1000.0,
+          1e-08
+        ]
+      },
+      "known_value": {
+        "family": 0,
+        "parameter_count": 3,
+        "numerical_boundary_guard": true,
+        "converged": false
+      },
+      "unsupported": [
+        "multiplicative error/trend/seasonality",
+        "automatic ETS model selection/full admissibility region or exact JMP optimizer defaults",
+        "parameter SE/Wald/CI",
+        "missing/diffuse estimates,parameter estimation uncertainty",
+        "bounds are an explicit partial ETS contract;no full JMP family equivalence"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_state_space_smoothing([[1.0],[2.0],[1.0],[2.0],[1.0],[2.0],[1.0],[2.0]], [0.0,0.0,3.0,0.95,1000.0,1e-08])"
+    },
+    {
+      "operation": "state_space_predict",
+      "symbol": "StateSpacePredict",
+      "sql_name": "chem_state_space_predict",
+      "source": "crates/analytics/src/state_space.rs",
+      "description": "Reuse tagged Gaussian or additive-innovations ETS prediction_model: one ignored scalar placeholder row; [horizon,confidence,model...],h<=500. Models preserve final state and uncertainty convention.",
+      "data": "Exactly one finite scalar placeholder row [[0.]] for SQL/native use,ignored. Empty data accepted only at direct module layer.",
+      "args": [
+        "horizon1..500",
+        "confidence .5..0.9999",
+        "unchanged prediction_model from kalman_smoother or state_space_smoothing; portable layouts in common_contract"
+      ],
+      "estimator": "Gaussian forecasts transition final filtered state/covariance and add process Q each step,measurement R to observation variance. ETS forecasts deterministic final state plus shared-innovation convolution. Gaussian latent variance is conditional state measurement variance;ETS latent variance excludes the new observation innovation. Scaling uses standard deviations before squaring to avoid overflowing intermediate scale^2. Positive physical variance below representable range rejects.",
+      "fixture": {
+        "data": [
+          [
+            0.0
+          ]
+        ],
+        "args": [
+          2.0,
+          0.95,
+          1.0,
+          0.0,
+          1.0,
+          1.0,
+          0.25,
+          1.0,
+          0.2,
+          1.0,
+          0.5
+        ]
+      },
+      "known_value": {
+        "forecast_means": [
+          1.0,
+          1.0
+        ],
+        "forecast_latent_variances": [
+          0.45,
+          0.65
+        ],
+        "forecast_observation_variances": [
+          0.95,
+          1.15
+        ]
+      },
+      "unsupported": [
+        "refitting/future-label learning",
+        "parameter uncertainty",
+        "saved transfer-function reuse is not provided by this operation"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_state_space_predict([[0.0]], [2.0,0.95,1.0,0.0,1.0,1.0,0.25,1.0,0.2,1.0,0.5])"
+    },
+    {
+      "operation": "arima_forecast_intervals",
+      "symbol": "ArimaForecastIntervals",
+      "sql_name": "chem_arima_forecast_intervals",
+      "source": "crates/analytics/src/dynamic_series.rs",
+      "description": "Conditional normal ARIMA forecast intervals from supplied means and A/C/difference polynomials: [confidence,sigma2,degreeA,degreeC,nD,A...,C...,difference_lags...],h<=1000.",
+      "data": "1..1000 finite scalar point-forecast rows.",
+      "args": [
+        "confidence .5..0.9999",
+        "known innovation sigma2>=0",
+        "AR polynomial degree0..200",
+        "MA polynomial degree0..200",
+        "difference factors0..4",
+        "AR coefficients A0..degree,A0=1",
+        "MA coefficients C0..degree,C0=1",
+        "one integer lag1..100 per factor;combined denominator length<=500"
+      ],
+      "estimator": "D(B)=product(1-B^lag),psi(B)=C(B)/(A(B)D(B)),psi0=1. Conditional forecast error variance at h=sigma2*sum_(j=0..h-1)psi_j^2. Point means are supplied,not refitted. Existing arima.rs uses CSS;these extra intervals do not relabel its estimator exact ML. finite-horizon unstable polynomials allowed if representable.",
+      "fixture": {
+        "data": [
+          [
+            10.0
+          ],
+          [
+            10.0
+          ],
+          [
+            10.0
+          ]
+        ],
+        "args": [
+          0.95,
+          2.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "known_value": {
+        "forecast_variances": [
+          2.0,
+          4.0,
+          6.0
+        ],
+        "impulse_response": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "unsupported": [
+        "parameter/innovation-variance estimation uncertainty",
+        "Box-Cox/backtransform/non-Gaussian intervals",
+        "future-exogenous input uncertainty",
+        "changing existing CSS ARIMA estimator"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_arima_forecast_intervals([[10.0],[10.0],[10.0]], [0.95,2.0,0.0,0.0,1.0,1.0,1.0,1.0])"
+    },
+    {
+      "operation": "cross_correlation",
+      "symbol": "CrossCorrelation",
+      "sql_name": "chem_cross_correlation",
+      "source": "crates/analytics/src/dynamic_series.rs",
+      "description": "CCF for complete input/output rows: [maxlag<=500,normalization0global/1overlapPearson]; positive lag means input leads output; +/-2 white-noise SE bands.",
+      "data": "3..10000 finite [input,output] rows;both nonconstant;overlap Pearson mode also rejects constant overlaps.",
+      "args": [
+        "maxlag0..min(500,n-2)",
+        "normalization0centered global-energy(default)/1overlap Pearson"
+      ],
+      "estimator": "Positive lag k pairs X_t with Y_(t+k). Global mode uses full-series centered energies in denominator. Pearson mode re-centers each overlap. Returns n-|k|overlaps and white-noise SE1/sqrt(n-|k|),two-SE marginal bands;these do not adjust multiple lag selection or prove input whiteness. Stable origin/scale normalization.",
+      "fixture": {
+        "data": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0
+          ]
+        ],
+        "args": [
+          2.0,
+          0.0
+        ]
+      },
+      "known_value": {
+        "lags": [
+          -2,
+          -1,
+          0,
+          1,
+          2
+        ],
+        "correlations": [
+          0.0,
+          -0.5,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "overlaps": [
+          2,
+          3,
+          4,
+          3,
+          2
+        ]
+      },
+      "unsupported": [
+        "missing/unequal spacing",
+        "multiplicity-adjusted lag significance",
+        "exact JMP finite-sample normalization equivalence is unverified"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_cross_correlation([[1.0,0.0],[0.0,1.0],[-1.0,0.0],[0.0,-1.0]], [2.0,0.0])"
+    },
+    {
+      "operation": "arima_prewhitening",
+      "symbol": "ArimaPrewhitening",
+      "sql_name": "chem_arima_prewhitening",
+      "source": "crates/analytics/src/dynamic_series.rs",
+      "description": "Input-only exact stationary ARMA prewhitening: [X,Y] rows; [n_train,p<=2,q<=2,maxlag,maxiter,tol]. Apply the same innovations operator to both series; suffix ignored.",
+      "data": "Finite [input,output] rows<=10000,n_train12..min(2000,n). Both parameter estimation and output centering use training prefix only. Constant input rejects;constant output allowed with null CCF.",
+      "args": [
+        "n_train12..min(2000,n)",
+        "AR order0..2",
+        "MA order0..2",
+        "CCF maxlag0..min(500,n_train-2);default10",
+        "maxiter1..5000;default1000",
+        "tolerance1e-10..1e-3;default1e-8"
+      ],
+      "estimator": "Fit input mean,ARMA coefficients and innovation variance by exact stationary Gaussian likelihood. Small companion-state covariance solves the stationary Lyapunov series by doubling;shared Kalman startup gains whiten all columns. Input mean profiles by GLS;output centers by ordinary training mean,and applies the SAME input-estimated whitening matrix,not a separate output fit. Returned innovations are physical-unit innovations with unit-noise-covariance whitening,not divided by fitted innovation sigma. CCF is nested under ccf;constant output returns null. PACF coordinates ensure stationary/invertible factors with guards abs(kappa)<=.98;guard contact prevents combined convergence. Same local optimizer/free-face curvature criteria as transfer.",
+      "fixture": {
+        "data": [
+          [
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            -1.0,
+            2.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            -1.0,
+            4.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            -1.0,
+            6.0
+          ],
+          [
+            1.0,
+            7.0
+          ],
+          [
+            -1.0,
+            8.0
+          ],
+          [
+            1.0,
+            9.0
+          ],
+          [
+            -1.0,
+            10.0
+          ],
+          [
+            1.0,
+            11.0
+          ]
+        ],
+        "args": [
+          12.0,
+          0.0,
+          0.0,
+          2.0,
+          100.0,
+          1e-08
+        ]
+      },
+      "known_value": {
+        "mean": 0.0,
+        "sigma_squared": 1.0,
+        "log_likelihood": -17.027262398456074,
+        "ar": [],
+        "ma": []
+      },
+      "unsupported": [
+        "integrated/seasonal/full-order ARIMA prewhitening",
+        "missing observations",
+        "output-specific filter estimation",
+        "automatic order selection,whiteness proofs or complete model diagnostics"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_arima_prewhitening([[-1.0,0.0],[1.0,1.0],[-1.0,2.0],[1.0,3.0],[-1.0,4.0],[1.0,5.0],[-1.0,6.0],[1.0,7.0],[-1.0,8.0],[1.0,9.0],[-1.0,10.0],[1.0,11.0]], [12.0,0.0,0.0,2.0,100.0,1e-08])"
+    },
+    {
+      "operation": "transfer_function_model",
+      "symbol": "TransferFunctionModel",
+      "sql_name": "chem_transfer_function_model",
+      "source": "crates/analytics/src/dynamic_series.rs",
+      "description": "Single-input rational omega/delta transfer with exact stationary ARMA noise: [X,Y] rows inclfutureX; [n_train,delay,numdegree<=2,dendegree<=2,p<=2,q<=2,h,confidence,maxiter,tol].",
+      "data": "Exactly n_train+horizon finite [input,output] rows,n_train20..2000,horizon1..500. Training input/output must be nonconstant with nondegenerate fitted residual variance. Future input path required;future output values are ignored. No automatic lag/order selection.",
+      "args": [
+        "n_train20..2000",
+        "input delay0..24",
+        "numerator degree0..2",
+        "denominator degree0..2",
+        "stationary-noise AR order0..2",
+        "invertible-noise MA order0..2",
+        "horizon1..500",
+        "confidence .5..0.9999;default.95",
+        "maxiter1..5000;default1000",
+        "tolerance1e-10..1e-3;default1e-8"
+      ],
+      "estimator": "v_t=sum(delta_j*v_(t-j))+sum(omega_j*(X_(t-delay-j)-training_input_mean));Y_t=intercept+v_t+n_t;phi(B)n=theta(B)e. Zero centered-input presample transfer state is explicit;ARMA-noise initial covariance is stationary. For given stable delta and stationary/invertible ARMA,profile intercept/omega/sigma2 by exact Gaussian GLS QR;four-start bounded local optimization over shape PACFs. Returned delta and AR arrays use positive recurrence coefficients,MA array uses theta(B)=1+theta1B+...;numerator degree d has d+1 omega entries. Forecasts add conditional ARMA-noise mean to deterministic specified-input transfer. Exact stationary-noise Gaussian LL,not CSS/independent-error OLS. Parameter count=denorder+p+q+numerator_degree+3. AIC/BIC null when nonconverged/guarded/unidentified. Free profile-shape curvature is a local identification diagnostic,not full covariance or global optimality proof.",
+      "fixture": {
+        "data": [
+          [
+            -1.0,
+            1.7
+          ],
+          [
+            1.0,
+            2.7
+          ],
+          [
+            -1.0,
+            1.3
+          ],
+          [
+            1.0,
+            2.3
+          ],
+          [
+            -1.0,
+            1.7
+          ],
+          [
+            1.0,
+            2.7
+          ],
+          [
+            -1.0,
+            1.3
+          ],
+          [
+            1.0,
+            2.3
+          ],
+          [
+            -1.0,
+            1.7
+          ],
+          [
+            1.0,
+            2.7
+          ],
+          [
+            -1.0,
+            1.3
+          ],
+          [
+            1.0,
+            2.3
+          ],
+          [
+            -1.0,
+            1.7
+          ],
+          [
+            1.0,
+            2.7
+          ],
+          [
+            -1.0,
+            1.3
+          ],
+          [
+            1.0,
+            2.3
+          ],
+          [
+            -1.0,
+            1.7
+          ],
+          [
+            1.0,
+            2.7
+          ],
+          [
+            -1.0,
+            1.3
+          ],
+          [
+            1.0,
+            2.3
+          ],
+          [
+            2.0,
+            0.0
+          ],
+          [
+            -2.0,
+            0.0
+          ]
+        ],
+        "args": [
+          20.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          2.0,
+          0.95,
+          100.0,
+          1e-08
+        ]
+      },
+      "known_value": {
+        "intercept": 2.0,
+        "numerator": [
+          0.5
+        ],
+        "sigma_squared": 0.04,
+        "log_likelihood": 3.8099875845885522,
+        "forecasts": [
+          3.0,
+          1.0
+        ],
+        "forecast_variances": [
+          0.04,
+          0.04
+        ]
+      },
+      "unsupported": [
+        "multiple inputs,seasonal/differenced noise or missing data",
+        "automatic lag/order selection or exact JMP numerator convention/default optimizer equivalence",
+        "parameter SE/Wald/LR/CI and nonidentification proofs",
+        "future input or parameter-estimation uncertainty",
+        "portable transfer prediction carrier is not yet exposed"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_transfer_function_model([[-1.0,1.7],[1.0,2.7],[-1.0,1.3],[1.0,2.3],[-1.0,1.7],[1.0,2.7],[-1.0,1.3],[1.0,2.3],[-1.0,1.7],[1.0,2.7],[-1.0,1.3],[1.0,2.3],[-1.0,1.7],[1.0,2.7],[-1.0,1.3],[1.0,2.3],[-1.0,1.7],[1.0,2.7],[-1.0,1.3],[1.0,2.3],[2.0,0.0],[-2.0,0.0]], [20.0,0.0,0.0,0.0,0.0,0.0,2.0,0.95,100.0,1e-08])"
+    },
+    {
+      "operation": "remove_linear_trend",
+      "symbol": "RemoveLinearTrend",
+      "sql_name": "chem_remove_linear_trend",
+      "source": "crates/analytics/src/dynamic_series.rs",
+      "description": "Remove least-squares intercept+slope from equally spaced scalar series: [n_train=all],training-only stable centering/scaling and extrapolated trend.",
+      "data": "3..10000 finite scalar rows;zero-based implicit time index0..n-1.",
+      "args": [
+        "n_train3..n;defaultall"
+      ],
+      "estimator": "Rank-safe QR on centered/scaled time;fit uses prefix only,extrapolates all row indices. Returns intercept,slope,trend,residuals and stable coefficient representation prediction_model=[1,y_origin,y_scale,b0,b1,time_mid,time_scale];this carrier is metadata,not accepted by state_space_predict.",
+      "fixture": {
+        "data": [
+          [
+            4.0
+          ],
+          [
+            4.0
+          ],
+          [
+            6.0
+          ],
+          [
+            10.0
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "intercept": 3.0,
+        "slope": 2.0,
+        "trend": [
+          3.0,
+          5.0,
+          7.0,
+          9.0
+        ],
+        "residuals": [
+          1.0,
+          -1.0,
+          -1.0,
+          1.0
+        ]
+      },
+      "unsupported": [
+        "automatic differencing/nonlinear trend",
+        "iid slope inference in autocorrelated errors",
+        "calendar/irregular time indices"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_remove_linear_trend([[4.0],[4.0],[6.0],[10.0]], [])"
+    },
+    {
+      "operation": "remove_cycle",
+      "symbol": "RemoveCycle",
+      "sql_name": "chem_remove_cycle",
+      "source": "crates/analytics/src/dynamic_series.rs",
+      "description": "Remove one fixed-period cosine/sine cycle: scalar series; [period>2,include_constant=1,n_train=all]. Return amplitude/phase; phase null for numerical zero cycle.",
+      "data": "4..10000 finite scalar rows;zero-based implicit equally spaced time index.",
+      "args": [
+        "period>2 and<=1e6",
+        "include_constant0/1;default1",
+        "n_train4..n;defaultall"
+      ],
+      "estimator": "Rank-safe QR on cos(2*pi*t/period),sin(...),optionalconstant. Component includes fitted constant when requested. Amplitude=hypot(coscoef,sincoef),phase=atan2(-sincoef,coscoef),so component=intercept+amplitude*cos(wt+phase). Phase null when amplitude<=1e-12*training_scale. Prefix fit predicts all indices;no automatic frequency selection.",
+      "fixture": {
+        "data": [
+          [
+            5.0
+          ],
+          [
+            6.0
+          ],
+          [
+            -1.0
+          ],
+          [
+            -2.0
+          ],
+          [
+            5.0
+          ],
+          [
+            6.0
+          ],
+          [
+            -1.0
+          ],
+          [
+            -2.0
+          ]
+        ],
+        "args": [
+          4.0,
+          1.0
+        ]
+      },
+      "known_value": {
+        "amplitude": 5.0,
+        "phase": -0.9272952180016122,
+        "intercept": 2.0,
+        "residuals": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "unsupported": [
+        "automatic period discovery,full spectral selection",
+        "general seasonal/X11 decomposition",
+        "irregular time/calendar effects or iid inference"
+      ],
+      "reference": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-state-space-reference.json",
+      "sql_example": "chem_remove_cycle([[5.0],[6.0],[-1.0],[-2.0],[5.0],[6.0],[-1.0],[-2.0]], [4.0,1.0])"
+    }
+  ],
+  "official_references": {
+    "JMP_time_series": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml",
+    "JMP_ETS": "https://www.jmp.com/support/help/en/19.2/jmp/time-series-models.shtml",
+    "JMP_ETS_report": "https://www.jmp.com/support/help/en/19.2/jmp/state-space-smoothing-report.shtml",
+    "JMP_transfer": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-transfer-functions.shtml",
+    "JMP_prewhite_CCF_trend_cycle": "https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml",
+    "JMP_X11": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-x11-decomposition.shtml",
+    "Hyndman_Athanasopoulos": "https://otexts.com/fpp3/exponential-smoothing.html",
+    "State_space_primary_implementation": "https://www.statsmodels.org/stable/statespace.html",
+    "Census_original_X11": "https://www.census.gov/content/dam/Census/library/working-papers/1967/adrm/shiskinyoungmusgrave1967.pdf",
+    "Census_X13": "https://www2.census.gov/software/x-13arima-seats/x13as/unix-linux/documentation/docx13as.pdf"
+  },
+  "evidence": "tasks/evidence/jmp-state-space-reference.json",
+  "native_sql_validation": {
+    "status": "PASS matching254 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-streams-validation.json",
+    "overall_jmp_parity": false
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-21",
+  "layer": "Rust module run API through isolated rustc runner; SQL integration is verified separately by parent",
+  "dependencies_added": [],
+  "versions": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1"
+  },
+  "source_sha256": {
+    "crates/analytics/src/inference.rs": "2e54fd0fc06ea59283978e733af60b5050a30a5d294dbded56ef3e4519dc2595",
+    "crates/analytics/src/timeseries.rs": "dea89cfc83541102db5aedd5cc0492fae412972268bba9a9f0f8d9a19309af2d",
+    "crates/analytics/src/survival.rs": "be525094fa9b54b202cb1b3c85c0a9c1534808102aba141a5ce361c40b7e0bcc",
+    "crates/analytics/tests/inference.rs": "0eaa091e43f16d8d81a08174091ecb4511b62da07700a72cd45fb03cdd66e107",
+    "crates/analytics/tests/timeseries.rs": "17ccc1e68fbbe9510cc17f5f0c411c94a39da49b2337689570bcfc9450f43833",
+    "crates/analytics/tests/survival.rs": "4e38a3e9b0827369e5ec647fcc97f52bdc2a6bd610a18da24e306b20065476a2"
+  },
+  "inference": {
+    "seed": 2057,
+    "reference": {
+      "cases": 1343,
+      "max_scaled_absolute_error": [
+        2.7798865190205223e-11,
+        [
+          "one_sample_t",
+          "confidence_interval",
+          [
+            -14.768212058320787,
+            7.51106920117793
+          ],
+          [
+            -14.768212058320799,
+            7.511069200969131
+          ]
+        ]
+      ],
+      "failures": [],
+      "failure_count": 0
+    },
+    "focused_tests": 17,
+    "behavioral_red": {
+      "failed": 15,
+      "passed_validation_only": 1
+    },
+    "oracle": "SciPy 1.17.1 statistical tests, distributions, confidence intervals; no calls to production helpers"
+  },
+  "timeseries": {
+    "seed": 1984,
+    "reference": {
+      "cases": 840,
+      "max_scaled_absolute_error": [
+        1.8327561690512084e-12,
+        [
+          "ar_model",
+          "residuals"
+        ]
+      ],
+      "errors": [],
+      "failure_count": 0
+    },
+    "focused_tests": 14,
+    "behavioral_red": {
+      "failed": 12,
+      "passed_validation_only": 1
+    },
+    "oracle": "NumPy correlate, independent Toeplitz solves and lstsq, convolution; scipy.signal.periodogram; scipy.stats.chi2"
+  },
+  "cox": {
+    "seed": 82935,
+    "reference": {
+      "cases": 240,
+      "oracle_nonidentifiable_skipped": 0,
+      "max_scaled_absolute_error": [
+        2.76144637156861e-08,
+        "coefficients"
+      ],
+      "failure_count": 0
+    },
+    "focused_tests": 8,
+    "behavioral_red": {
+      "failed": 6,
+      "passed_validation_only": 2
+    },
+    "oracle": "SciPy analytic score roots using explicit per-event full risk sets, independent of production sorted cumulative risk sets"
+  },
+  "regression_red_green": [
+    {
+      "test": "exact_test_probabilities_sum_to_one_at_large_count_modes",
+      "red": "Fisher mode p=0.9999999921169002 instead of 1 at n=99998",
+      "fix": "Normalize complete enumerated probability masses with compensated summation",
+      "green": true
+    },
+    {
+      "test": "ar_forecasts_keep_sub_ulp_state_at_large_observation_origins",
+      "red": "forecast offsets [20,22,24,26,28,30] at origin1e16; expected [20,22,24,28,30,32]",
+      "fix": "Keep recursive forecasts and training reference means relative to observed origin without rounding back into original units each step",
+      "green": true
+    }
+  ],
+  "primary_method_sources": [
+    "https://www.jmp.com/support/help/ja/18.2/jmp/overview-of-the-fit-proportional-hazards-platform.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+    "https://lifelines.readthedocs.io/en/latest/fitters/regression/CoxPHFitter.html",
+    "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp161/fitting-linear-models.pdf"
+  ],
+  "harness": {
+    "build_directory": "/private/tmp/rusta-ducksmiles-jmp-target/inference-check",
+    "lib_rs": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/inference.rs\"]\npub mod inference;\n#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/timeseries.rs\"]\npub mod timeseries;\n#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/survival.rs\"]\npub mod survival;\n",
+    "runner_rs": "use std::io::{self, BufRead};\nfn main() {\n for line in io::stdin().lock().lines() {\n  let line=line.unwrap(); let parts=line.split('|').collect::<Vec<_>>();\n  let args=parts[1].split(',').filter(|x|!x.is_empty()).map(|x|x.parse().unwrap()).collect::<Vec<f64>>();\n  let rows=parts[2].split(';').map(|r|r.split(',').map(|x|x.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();\n  match ducksmiles_analytics::inference::run(parts[0],&rows,&args) {Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}\n }\n}\n",
+    "time_runner_rs": "use std::io::{self, BufRead};\nfn main() {\n for line in io::stdin().lock().lines() {\n  let line=line.unwrap(); let parts=line.split('|').collect::<Vec<_>>();\n  let args=parts[1].split(',').filter(|x|!x.is_empty()).map(|x|x.parse().unwrap()).collect::<Vec<f64>>();\n  let rows=parts[2].split(';').map(|r|r.split(',').map(|x|x.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();\n  match ducksmiles_analytics::timeseries::run(parts[0],&rows,&args) {Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}\n }\n}\n",
+    "cox_runner_rs": "use std::io::{self, BufRead};\nfn main() {\n for line in io::stdin().lock().lines() {\n  let line=line.unwrap(); let parts=line.split('|').collect::<Vec<_>>();\n  let args=parts[1].split(',').filter(|x|!x.is_empty()).map(|x|x.parse().unwrap()).collect::<Vec<f64>>();\n  let rows=parts[2].split(';').map(|r|r.split(',').map(|x|x.parse().unwrap()).collect::<Vec<f64>>()).collect::<Vec<_>>();\n  match ducksmiles_analytics::survival::run(parts[0],&rows,&args) {Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR {e}\")}\n }\n}\n",
+    "inference_verify_py": "import json, subprocess, numpy as np, scipy.stats as s\nrng=np.random.default_rng(2057)\ncases=[]\ndef add(op,rows,args,expect):\n    cases.append((op+'|'+','.join(map(str,args))+'|'+';'.join(','.join(map(str,r)) for r in rows),op,expect))\nfor _ in range(120):\n    n,m=rng.integers(3,60,2); a=np.round(rng.normal(rng.uniform(-10,10),rng.uniform(.1,10),n),2);b=np.round(rng.normal(rng.uniform(-10,10),rng.uniform(.1,10),m),2)\n    rows=[[v,0] for v in a]+[[v,1] for v in b]\n    mu=rng.uniform(-10,10); conf=float(rng.choice([.8,.9,.95,.99,.999999]));alpha=(1-conf)/2\n    r=s.ttest_1samp(a,mu);ci=r.confidence_interval(conf)\n    add('one_sample_t',[[v] for v in a],[mu,conf],{'p_value':r.pvalue,'confidence_interval':list(ci)})\n    r=s.ttest_ind(a,b,equal_var=True);ci=r.confidence_interval(conf)\n    add('pooled_t',rows,[0,conf],{'p_value':r.pvalue,'confidence_interval':list(ci)})\n    ratio=a.var(ddof=1)/b.var(ddof=1);f0,f1=n-1,m-1\n    add('variance_ratio_test',rows,[1,conf],{'p_value':min(1,2*min(s.f.cdf(ratio,f0,f1),s.f.sf(ratio,f0,f1))),'variance_ratio_confidence_interval':[ratio/s.f.isf(alpha,f0,f1),ratio/s.f.ppf(alpha,f0,f1)]})\n    add('variance_test',[[v] for v in a],[2,conf],{'p_value':min(1,2*min(s.chi2.cdf((n-1)*a.var(ddof=1)/4,n-1),s.chi2.sf((n-1)*a.var(ddof=1)/4,n-1))),'variance_confidence_interval':[(n-1)*a.var(ddof=1)/s.chi2.isf(alpha,n-1),(n-1)*a.var(ddof=1)/s.chi2.ppf(alpha,n-1)]})\n    add('mann_whitney',rows,[],{'p_value':s.mannwhitneyu(a,b,method='asymptotic',use_continuity=True).pvalue})\n    add('kruskal_wallis',rows,[],{'p_value':s.kruskal(a,b).pvalue})\n    add('levene_test',rows,[],{'p_value':s.levene(a,b).pvalue})\n    add('levene_test',rows,[0],{'p_value':s.levene(a,b,center='mean').pvalue})\n    bb=np.round(rng.normal(0,5,n),1)\n    add('wilcoxon_signed_rank',list(zip(a,bb)),[],{'p_value':s.wilcoxon(a,bb,method='approx',correction=True).pvalue})\nfor n in [1,2,10,100,1000,10000,100000]:\n for p in [.01,.2,.5,.9]:\n  for k in [0,1,int(n*p),min(n,int(n*p)+1),n]:\n   add('proportion_test',[[1]]*k+[[0]]*(n-k),[p],{'p_value':s.binomtest(k,n,p).pvalue})\nfor _ in range(120):\n    t=rng.integers(0,100,(2,2));add('fisher_exact',t,[],{'p_value':s.fisher_exact(t).pvalue})\nfor table in [[[25000,24999],[24999,25000]],[[49999,1],[1,49999]],[[25001,24999],[24999,25001]]]:\n add('fisher_exact',table,[],{'p_value':s.fisher_exact(table).pvalue})\nproc=subprocess.run(['/private/tmp/rusta-ducksmiles-jmp-target/inference-check/runner'],input='\\n'.join(r[0] for r in cases)+'\\n',text=True,capture_output=True,check=True)\nerrs=[];maximum=(0,None)\nfor (line,op,exp),out in zip(cases,proc.stdout.splitlines()):\n try:r=json.loads(out)\n except Exception: errs.append((op,out));continue\n for key,expected in exp.items():\n  actual=np.asarray(r[key]);expected=np.asarray(expected)\n  error=float(np.max(np.abs(actual-expected)/np.maximum(1,np.abs(expected))))\n  if error>maximum[0]:maximum=error,(op,key,r[key],expected.tolist())\n  if error>2e-8:errs.append((op,key,error,r[key],expected.tolist()))\nprint(json.dumps({'cases':len(cases),'max_scaled_absolute_error':maximum,'failures':errs[:20],'failure_count':len(errs)}))\n",
+    "timeseries_verify_py": "import json,subprocess,numpy as np,scipy.signal as signal,scipy.stats as stats\nrng=np.random.default_rng(1984);cases=[]\ndef add(op,x,args,expected):\n cases.append((op+'|'+','.join(map(str,args))+'|'+';'.join(map(str,x)),op,expected))\nfor _ in range(120):\n n=int(rng.integers(10,100));x=rng.normal(rng.uniform(-100,100),rng.uniform(.1,10),n);p=int(rng.integers(1,5));h=4;lag=5\n y=x-x.mean();acf=np.correlate(y,y,'full')[n-1:n+lag]/(y@y)\n add('acf',x,[lag],{'autocorrelations':acf})\n pacf=[1.]+[np.linalg.solve(acf[np.abs(np.arange(k)[:,None]-np.arange(k))],acf[1:k+1])[-1] for k in range(1,lag+1)]\n add('pacf',x,[lag],{'partial_autocorrelations':pacf})\n X=np.array([[1,*x[t-p:t][::-1]] for t in range(p,n)]);yy=x[p:];coef=np.linalg.lstsq(X,yy,rcond=None)[0];res=yy-X@coef;sse=res@res;v=sse/(n-p);ll=-.5*(n-p)*(np.log(2*np.pi)+1+np.log(v));hist=x.tolist();forecast=[]\n for i in range(h):f=coef[0]+coef[1:]@np.array(hist[-p:][::-1]);forecast.append(f);hist.append(f)\n add('ar_model',x,[p,h],{'coefficients':coef[1:],'intercept':coef[0],'residuals':res,'innovation_variance':v,'aic':-2*ll+2*(p+2),'bic':-2*ll+np.log(n-p)*(p+2),'forecasts':forecast})\n dt=float(rng.uniform(.2,3));freq,power=signal.periodogram(x,fs=1/dt,detrend='constant',scaling='density')\n add('periodogram',x,[dt],{'frequencies':freq,'power_spectral_density':power})\n q=n*(n+2)*sum(acf[k]**2/(n-k) for k in range(1,lag+1));add('ljung_box',x,[lag,2],{'q_statistic':q,'p_value':stats.chi2.sf(q,lag-2)})\n period=int(rng.integers(2,5));filt=np.ones(period)/period\n if period%2==0:filt=np.r_[.5,np.ones(period-1),.5]/period\n trend=np.convolve(x,filt,'valid');radius=len(filt)//2;d=x[radius:n-radius]-trend\n pattern=np.array([d[np.arange(radius,n-radius)%period==j].mean() for j in range(period)]);pattern-=pattern.mean()\n add('seasonal_decompose',x,[period],{'seasonal_pattern':pattern})\n alpha=float(rng.uniform(0,1));beta=float(rng.uniform(0,1));phi=float(rng.uniform(.3,1));l=x[0];b=x[1]-x[0]\n for xx in x[1:]:f=l+phi*b;old=l;l=alpha*xx+(1-alpha)*f;b=beta*(l-old)+(1-beta)*phi*b\n add('holt',x,[alpha,beta,h,phi],{'forecasts':[l+b*sum(phi**j for j in range(1,k+1)) for k in range(1,h+1)]})\nproc=subprocess.run(['/private/tmp/rusta-ducksmiles-jmp-target/inference-check/time_runner'],input='\\n'.join(c[0] for c in cases)+'\\n',text=True,capture_output=True,check=True)\nmaximum=(0,None);errors=[]\nfor (line,op,expected),out in zip(cases,proc.stdout.splitlines()):\n try:r=json.loads(out)\n except Exception:errors.append((op,out));continue\n for key,ee in expected.items():\n  actual=np.asarray(r[key]);ee=np.asarray(ee);error=float(np.max(np.abs(actual-ee)/np.maximum(1,np.abs(ee))))\n  if error>maximum[0]:maximum=(error,(op,key))\n  if error>2e-8:errors.append((op,key,error))\nprint(json.dumps({'cases':len(cases),'max_scaled_absolute_error':maximum,'errors':errors[:20],'failure_count':len(errors)}))\n",
+    "cox_verify_py": "import json,subprocess,numpy as np,scipy.optimize as so,scipy.stats as stats\nrng=np.random.default_rng(82935);cases=[];skipped=0\ndef evaluate(b,Z,t,e,efron,penalty):\n p=Z.shape[1];eta=Z@b;ll=0.;score=np.zeros(p);info=np.zeros((p,p))\n for time in np.unique(t[e==1]):\n  risk=t>=time;events=(t==time)&(e==1);d=events.sum()\n  shift=max(eta[risk]);w=np.exp(eta[risk]-shift);v=Z[risk];ew=np.exp(eta[events]-shift);ev=Z[events]\n  ll+=(eta[events]-shift).sum();score+=ev.sum(0)\n  for j in range(d):\n   fraction=j/d if efron else 0.\n   den=w.sum()-fraction*ew.sum();num=w@v-fraction*(ew@ev);second=np.einsum('n,ni,nj->ij',w,v,v)-fraction*np.einsum('n,ni,nj->ij',ew,ev,ev)\n   ll-=np.log(den);score-=num/den;info+=second/den-np.outer(num,num)/den**2\n return ll-penalty*(b@b)/2,score-penalty*b,info+penalty*np.eye(p)\nfor _ in range(60):\n n=int(rng.integers(20,90));p=int(rng.integers(1,4));X=rng.normal(0,1,(n,p))*rng.uniform(.3,2,p)+rng.uniform(-10,10,p);effect=rng.normal(0,.3,p);t=np.ceil(rng.exponential(np.exp(-(X-X.mean(0))@effect))*3);e=(rng.random(n)<.75).astype(int);Z=(X-X.mean(0))/X.std(0,ddof=1)\n for efron in [False,True]:\n  for penalty in [0.,.5]:\n   r=so.root(lambda b:evaluate(b,Z,t,e,efron,penalty)[1],np.zeros(p),jac=lambda b:-evaluate(b,Z,t,e,efron,penalty)[2],tol=1e-11)\n   if np.max(abs(evaluate(r.x,Z,t,e,efron,penalty)[1]))>1e-7:skipped+=1;continue\n   coef=r.x/X.std(0,ddof=1);cov=np.linalg.inv(evaluate(r.x,Z,t,e,efron,penalty)[2])/X.std(0,ddof=1)[:,None]/X.std(0,ddof=1)[None,:];se=np.sqrt(cov.diagonal());ll=evaluate(r.x,Z,t,e,efron,0.)[0]\n   times=sorted(np.unique(t[e==1]));hazards=np.cumsum([((t==tt)&(e==1)).sum()/np.exp((X[t>=tt]-X.mean(0))@coef).sum() for tt in times]);S=np.exp(-hazards)\n   rows=np.c_[X,t,e];inp='cox_ph|'+str(int(efron))+','+str(penalty)+'|'+';'.join(','.join(map(str,row)) for row in rows)\n   cases.append((inp,{'coefficients':coef,'standard_errors':se,'partial_log_likelihood':ll,'baseline_survival':S}))\nproc=subprocess.run(['/private/tmp/rusta-ducksmiles-jmp-target/inference-check/cox_runner'],input='\\n'.join(c[0] for c in cases)+'\\n',text=True,capture_output=True,check=True)\nerrors=[];maxerror=(0,None)\nfor (inp,expected),out in zip(cases,proc.stdout.splitlines()):\n try:actual=json.loads(out)\n except Exception:errors.append(('runtime',out));continue\n for key,ee in expected.items():\n  aa=np.asarray(actual[key]);ee=np.asarray(ee);error=float(np.max(np.abs(aa-ee)/np.maximum(1,np.abs(ee))))\n  if error>maxerror[0]:maxerror=(error,key)\n  if error>2e-7:errors.append((key,error))\nprint(json.dumps({'cases':len(cases),'oracle_nonidentifiable_skipped':skipped,'max_scaled_absolute_error':maxerror,'failure_count':len(errors),'errors':errors[:20]}))\n",
+    "cox_fixed_fixture_py": "import numpy as np, scipy.optimize as so, scipy.stats as s\nX=np.array([[0,1],[1,0],[0,0],[2,1],[1,2],[2,0],[0,2],[1,1],[2,2],[0,1],[2,0],[1,2.]],float)\nt=np.array([1,1,2,3,3,4,4,5,6,6,7,8.]);e=np.array([1,1,0,1,0,1,0,1,1,0,1,0])\nmean=X.mean(0);scale=X.std(0,ddof=1);Z=(X-mean)/scale\n\ndef eval(b,efron=False,penalty=0):\n eta=Z@b;ll=0;score=np.zeros(2);info=np.zeros((2,2))\n for time in np.unique(t[e==1]):\n  risk=t>=time;events=(t==time)&(e==1);d=events.sum();w=np.exp(eta[risk]);v=Z[risk];ew=np.exp(eta[events]);ev=Z[events]\n  ll+=eta[events].sum();score+=ev.sum(0)\n  for j in range(d):\n   frac=j/d if efron else 0\n   den=w.sum()-frac*ew.sum();num=w@v-frac*(ew@ev);sec=np.einsum('n,ni,nj->ij',w,v,v)-frac*np.einsum('n,ni,nj->ij',ew,ev,ev)\n   ll-=np.log(den);score-=num/den;info+=sec/den-np.outer(num,num)/den**2\n return ll-penalty*(b@b)/2,score-penalty*b,info+penalty*np.eye(2)\nfor ef in [False,True]:\n for penalty in [0,.5]:\n  r=so.minimize(lambda b:-eval(b,ef,penalty)[0],[0,0],jac=lambda b:-eval(b,ef,penalty)[1],hess=lambda b:eval(b,ef,penalty)[2],method='trust-exact',options={'gtol':1e-12})\n  b=r.x;v=np.linalg.inv(eval(b,ef,penalty)[2])/scale[:,None]/scale[None,:];se=np.sqrt(v.diagonal());coef=b/scale;ll=eval(b,ef,0)[0];null=eval(np.zeros(2),ef)[0];lr=2*(ll-null)\n  times=sorted(np.unique(t[e==1]));inc=[((t==tt)&(e==1)).sum()/np.exp((X[t>=tt]-mean)@coef).sum() for tt in times];cum=np.cumsum(inc)\n  print('efron',ef,'penalty',penalty,'success',r.success,'score',eval(b,ef,penalty)[1])\n  print('coefs',coef.tolist(),'se',se.tolist(),'cov',v.tolist(),'z',(coef/se).tolist(),'p',(2*s.norm.sf(abs(coef/se))).tolist())\n  print('ll',ll,'null',null,'LR',lr,'LRp',s.chi2.sf(lr,2))\n  print('times',times,'cum',cum.tolist(),'S',np.exp(-cum).tolist())\nprint('mean',mean,'scale',scale)\n",
+    "reproduction": "Restore embedded files under build_directory; compile lib.rs with rustc --edition2021 --crate-name ducksmiles_analytics --crate-type rlib -o libducksmiles_analytics.rlib; compile each runner with --extern ducksmiles_analytics=<rlib> and execute the corresponding Python oracle script. All Cargo runs use CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target."
+  },
+  "source_scope": "JMP18.2 overview supports standard-platform Breslow ties; JMP16.1 manual supports Generalized Regression Cox Efron ties; JMP19.2 Model Fit Options supports baseline/survival output capabilities, not the ties method."
+}

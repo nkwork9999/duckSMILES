@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-10-21T16:30:48.789202+00:00",
+  "seed": 20261024,
+  "layer": "actual exported production ds_analytics_run/free; native DuckDB SQL not covered",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "elapsed_seconds": 35.62556600570679,
+  "checks": {
+    "finite_version1_JSON": {
+      "assertions": 46,
+      "max_absolute_error": 0.0
+    },
+    "identified_optimizer_convergence": {
+      "assertions": 5,
+      "max_absolute_error": 0.0
+    },
+    "estimated_difficulties": {
+      "assertions": 22,
+      "max_absolute_error": 9.896168768896985e-07
+    },
+    "estimated_discriminations": {
+      "assertions": 22,
+      "max_absolute_error": 4.248450209409782e-07
+    },
+    "estimated_guessing": {
+      "assertions": 22,
+      "max_absolute_error": 3.5008021807142464e-07
+    },
+    "optimized_total_log_likelihood": {
+      "assertions": 5,
+      "max_absolute_error": 4.979199729859829e-06
+    },
+    "penalized_total_log_likelihood": {
+      "assertions": 5,
+      "max_absolute_error": 1.4551915228366852e-11
+    },
+    "independent_quad_Hessian_covariance": {
+      "assertions": 719,
+      "max_absolute_error": 1.9508108103916122e-07
+    },
+    "independent_quad_Hessian_SE": {
+      "assertions": 55,
+      "max_absolute_error": 3.29240900209804e-07
+    },
+    "pattern_posterior_EAP": {
+      "assertions": 120,
+      "max_absolute_error": 5.95523630408934e-13
+    },
+    "pattern_posterior_variance": {
+      "assertions": 120,
+      "max_absolute_error": 1.349309552978184e-12
+    },
+    "actual_parameters_real_line_likelihood": {
+      "assertions": 5,
+      "max_absolute_error": 1.1641532182693481e-10
+    },
+    "item_characteristic_curves": {
+      "assertions": 242,
+      "max_absolute_error": 2.220446049250313e-16
+    },
+    "item_information_curves": {
+      "assertions": 242,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "test_information": {
+      "assertions": 55,
+      "max_absolute_error": 3.3306690738754696e-16
+    },
+    "expected_score": {
+      "assertions": 55,
+      "max_absolute_error": 4.440892098500626e-16
+    },
+    "conditional_score_variance": {
+      "assertions": 55,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "saved_item_parameter_EAP": {
+      "assertions": 120,
+      "max_absolute_error": 8.537615059367454e-14
+    },
+    "saved_item_parameter_variance": {
+      "assertions": 120,
+      "max_absolute_error": 1.992850329202156e-13
+    },
+    "saved_item_parameter_log_probability": {
+      "assertions": 120,
+      "max_absolute_error": 3.9968028886505635e-14
+    },
+    "score_order_consistency": {
+      "assertions": 5,
+      "max_absolute_error": 0.0
+    },
+    "response_order_invariance": {
+      "assertions": 22,
+      "max_absolute_error": 0.0
+    },
+    "item_order_parameter_equivariance": {
+      "assertions": 66,
+      "max_absolute_error": 3.2005509353894013e-12
+    },
+    "item_order_likelihood_invariance": {
+      "assertions": 5,
+      "max_absolute_error": 1.1641532182693481e-10
+    },
+    "frequency_and_penalty_units": {
+      "assertions": 49,
+      "max_absolute_error": 0.0
+    },
+    "diagnostic_quadrature_orders": {
+      "assertions": 5,
+      "max_absolute_error": 0.0
+    },
+    "active_guessing_SE_NULL": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "active_free_information_identified": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "truthful_combined_convergence": {
+      "assertions": 5,
+      "max_absolute_error": 0.0
+    },
+    "coarse_quadrature_false": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "failed_fit_inference_NULL": {
+      "assertions": 2,
+      "max_absolute_error": 0.0
+    },
+    "iteration_limit_false": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "perfect_item_agreement_no_finite_guard_success": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "Rasch_extreme_EAP": {
+      "assertions": 4,
+      "max_absolute_error": 1.2212453270876722e-15
+    },
+    "Rasch_extreme_variance": {
+      "assertions": 4,
+      "max_absolute_error": 1.5543122344752192e-15
+    },
+    "omitted_item_posterior": {
+      "assertions": 3,
+      "max_absolute_error": 1.2212453270876722e-15
+    },
+    "all_missing_standard_normal": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "missing_as_incorrect": {
+      "assertions": 1,
+      "max_absolute_error": 6.94165367039123e-16
+    },
+    "all_missing_frequency_exclusion": {
+      "assertions": 4,
+      "max_absolute_error": 0.0
+    },
+    "candidate_invalid_NULL": {
+      "assertions": 18,
+      "max_absolute_error": 0.0
+    },
+    "sharp_tail_order_warning": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "PD_unfinished_inference_suppression": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "catalog_fixture_known_values": {
+      "assertions": 29,
+      "max_absolute_error": 2.842170943040401e-14
+    }
+  },
+  "assertions_total": 2385,
+  "diagnostics": [
+    {
+      "model": 1,
+      "items": 3,
+      "penalty": 0,
+      "converged": true,
+      "iterations": 13,
+      "projected_gradient": 2.4925389442030776e-09,
+      "q_orders": [
+        61,
+        69
+      ],
+      "LL_order_delta": 0,
+      "minimum_observed_information_eigenvalue": 237.14555477451367,
+      "scipy_success": true,
+      "scipy_gradient_max": 2.842170943040401e-17,
+      "scipy_projected_gradient_max": 2.842170943040401e-17
+    },
+    {
+      "model": 2,
+      "items": 4,
+      "penalty": 0,
+      "converged": true,
+      "iterations": 37,
+      "projected_gradient": 8.893907320065104e-10,
+      "q_orders": [
+        61,
+        69
+      ],
+      "LL_order_delta": 1.4551915228366852e-11,
+      "minimum_observed_information_eigenvalue": 648.7015613175272,
+      "scipy_success": true,
+      "scipy_gradient_max": 3.031649005909761e-17,
+      "scipy_projected_gradient_max": 3.031649005909761e-17
+    },
+    {
+      "model": 3,
+      "items": 5,
+      "penalty": 0,
+      "converged": true,
+      "iterations": 95,
+      "projected_gradient": 4.021328072134435e-09,
+      "q_orders": [
+        61,
+        69
+      ],
+      "LL_order_delta": 0,
+      "minimum_observed_information_eigenvalue": 9.388698453957046,
+      "scipy_success": true,
+      "scipy_gradient_max": 9.549598872627021e-17,
+      "scipy_projected_gradient_max": 9.549598872627021e-17
+    },
+    {
+      "model": 3,
+      "items": 5,
+      "penalty": 100,
+      "converged": true,
+      "iterations": 93,
+      "projected_gradient": 6.9019172033700244e-09,
+      "q_orders": [
+        61,
+        69
+      ],
+      "LL_order_delta": 1.1641532182693481e-10,
+      "minimum_observed_information_eigenvalue": 17.741799526209455,
+      "scipy_success": true,
+      "scipy_gradient_max": 1.648265028629206e-16,
+      "scipy_projected_gradient_max": 1.648265028629206e-16
+    },
+    {
+      "model": 3,
+      "items": 5,
+      "penalty": 1000.0,
+      "converged": true,
+      "iterations": 148,
+      "projected_gradient": 2.401387257208566e-09,
+      "q_orders": [
+        61,
+        69
+      ],
+      "LL_order_delta": 7.275957614183426e-12,
+      "minimum_observed_information_eigenvalue": 117.57947677936633,
+      "scipy_success": true,
+      "scipy_gradient_max": 1.2211158049254322e-06,
+      "scipy_projected_gradient_max": 6.121552917348616e-17
+    },
+    {
+      "3PL_order": 11,
+      "converged": false,
+      "quadrature_converged": false,
+      "LL_order_delta": 0.00041926978155970573,
+      "LL_error_from_quad_optimum": -0.00015618896577507257
+    },
+    {
+      "3PL_order": 21,
+      "converged": false,
+      "quadrature_converged": false,
+      "LL_order_delta": 1.076841726899147e-07,
+      "LL_error_from_quad_optimum": 3.14321368932724e-09
+    },
+    {
+      "3PL_order": 41,
+      "converged": true,
+      "quadrature_converged": true,
+      "LL_order_delta": 0,
+      "LL_error_from_quad_optimum": 1.1641532182693481e-10
+    },
+    {
+      "3PL_order": 61,
+      "converged": true,
+      "quadrature_converged": true,
+      "LL_order_delta": 0,
+      "LL_error_from_quad_optimum": 0.0
+    },
+    {
+      "3PL_order": 81,
+      "converged": true,
+      "quadrature_converged": true,
+      "LL_order_delta": 1.1641532182693481e-10,
+      "LL_error_from_quad_optimum": 0.0
+    },
+    {
+      "sharp_tail_score": true,
+      "candidate_posterior_mean": 8.393234860186638,
+      "independent_quad_mean": 8.415609381376067,
+      "candidate_posterior_variance": 0.04057944122329447,
+      "independent_quad_variance": 0.03432685567280513,
+      "order_delta": 0.07225243849300256,
+      "quadrature_converged": false,
+      "status": "diagnostic approximate values;do not claim converged precision"
+    }
+  ],
+  "library_sha256": "8d9491a25642b61409cdb5271c1623fd988e2e2ad9b1908d31fae7c89256ad0c",
+  "status": "PASS",
+  "source_snapshot": {
+    "crates/analytics/src/irt.rs": "d6cd1f1ea79445a97eb206089a0e49cf4ee16ee163d331f9a633fb67e86d2d17",
+    "crates/analytics/src/lib.rs": "fb615ddc098bd219d3e447d84529c7786d5f172ca702f82d34b2197e140de8dd"
+  },
+  "full_replay": {
+    "harness_python": "import argparse,ctypes,json,math,pathlib,hashlib,platform,time\nfrom datetime import datetime,timezone\nimport numpy as np\nimport scipy\nfrom scipy import integrate,optimize,special\np=argparse.ArgumentParser();p.add_argument('--library',default='/private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_irt_candidate.dylib');p.add_argument('--fixtures',default='/private/tmp/jmp-irt-all-fixtures.json');p.add_argument('--public',action='store_true');p.add_argument('--api',default='tasks/jmp-irt-api.json');p.add_argument('--output',default='/private/tmp/jmp-irt-candidate-result.json');args=p.parse_args();lib=ctypes.CDLL(args.library);call=(lib.ds_analytics_run if args.public else lib.candidate_irt_run);backend_free=(lib.ds_analytics_free if args.public else lib.candidate_irt_free);call.argtypes=[ctypes.c_char_p,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.POINTER(ctypes.c_size_t)];call.restype=ctypes.c_void_p;backend_free.argtypes=[ctypes.c_void_p,ctypes.c_size_t]\nchecks={};diagnostics=[];start_time=time.time()\ndef require(key,value):\n assert value,key\n checks.setdefault(key,{'assertions':0,'max_absolute_error':0.})['assertions']+=1\ndef check(key,a,b,rtol=3e-6,atol=2e-8):\n a=np.asarray(a,dtype=float);b=np.asarray(b,dtype=float);assert a.shape==b.shape,(key,a.shape,b.shape);assert np.all(np.isfinite(a)),key;np.testing.assert_allclose(a,b,rtol=rtol,atol=atol,err_msg=key);d=checks.setdefault(key,{'assertions':0,'max_absolute_error':0.});d['assertions']+=int(a.size);d['max_absolute_error']=max(d['max_absolute_error'],float(np.max(abs(a-b),initial=0)))\ndef run(op,data,params=(),reject=False):\n a=np.ascontiguousarray(data,dtype=float);b=np.ascontiguousarray(params,dtype=float);name=op.encode();length=ctypes.c_size_t(123);ptr=call(name,len(name),a.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),a.shape[0],a.shape[1],b.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),b.size,ctypes.byref(length))\n if not ptr:\n  if reject:require('candidate_invalid_NULL',length.value==0);return None\n  raise AssertionError((op,'candidate NULL',a.shape,list(params)))\n try:s=ctypes.string_at(ptr,length.value).decode()\n finally:backend_free(ptr,length.value)\n if reject:raise AssertionError((op,'expected candidate rejection',s))\n result=json.loads(s);require('finite_version1_JSON',result['version']==1 and 'NaN' not in s and 'Infinity' not in s);return result\n\ndef posterior(row,a,b,c):\n row=np.asarray(row);observed=row>=0\n if not np.any(observed):return 0.,0.,1.\n def logdensity(theta):\n  eta=a[observed]*(theta-b[observed]);cc=c[observed];log1c=np.log1p(-cc)\n  with np.errstate(divide='ignore'):logp=np.logaddexp(np.log(cc),log1c-np.logaddexp(0,-eta))\n  logq=log1c-np.logaddexp(0,eta);return float(np.sum(np.where(row[observed]==1,logp,logq))-theta*theta/2-.5*math.log(2*math.pi))\n anchor=max(logdensity(t) for t in np.linspace(-12,12,97))\n def f(theta):return math.exp(logdensity(theta)-anchor)\n denominator,error=integrate.quad(f,-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300);mean=integrate.quad(lambda t:t*f(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)[0]/denominator;variance=integrate.quad(lambda t:(t-mean)**2*f(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)[0]/denominator;return anchor+math.log(denominator),mean,variance\nfixtures=json.loads(pathlib.Path(args.fixtures).read_text());fits=[]\nfor fixture in fixtures['fixtures']:\n fit=run('irt_fit',fixture['data'],fixture['args']);fits.append(fit);k=fixture['items'];kind=fixture['model'];a=np.array(fit['discriminations']);b=np.array(fit['difficulties']);c=np.array(fit['guessing']);require('identified_optimizer_convergence',fit['inference_valid'] and fit['converged'] and fit['information_identified'] and fit['optimizer_converged'] and fit['quadrature_converged'])\n check('estimated_difficulties',b,fixture['difficulties'],rtol=5e-4,atol=2e-5);check('estimated_discriminations',a,fixture['discriminations'],rtol=5e-4,atol=2e-5);check('estimated_guessing',c,fixture['guessing'],rtol=5e-4,atol=4e-5);check('optimized_total_log_likelihood',fit['log_likelihood'],fixture['log_likelihood'],rtol=5e-10,atol=1e-5);check('penalized_total_log_likelihood',fit['penalized_log_likelihood'],fixture['penalized_log_likelihood'],rtol=5e-10,atol=1e-5)\n covariance=np.array(fit['parameter_covariance'],dtype=float);free=fixture['free_parameter_indices'];check('independent_quad_Hessian_covariance',covariance[np.ix_(free,free)],fixture['parameter_covariance_free'],rtol=6e-3,atol=5e-5);check('independent_quad_Hessian_SE',np.array(fit['parameter_standard_errors'])[free],np.sqrt(np.diag(fixture['parameter_covariance_free'])),rtol=3e-3,atol=3e-5)\n data=np.asarray(fixture['data']);patterns=np.asarray(fit['response_patterns']);moments=[posterior(row,a,b,c) for row in patterns];check('pattern_posterior_EAP',fit['pattern_posterior_means'],[r[1] for r in moments],rtol=3e-6,atol=4e-8);check('pattern_posterior_variance',fit['pattern_posterior_variances'],[r[2] for r in moments],rtol=3e-6,atol=4e-8);check('actual_parameters_real_line_likelihood',fit['log_likelihood'],np.array(fit['pattern_frequencies'])@np.array([r[0] for r in moments]),rtol=1e-10,atol=3e-6)\n query=np.linspace(-3,3,11)[:,None];pred=run('irt_predict',query,fit['model_parameters']);s=special.expit(a*(query-b));prob=c+(1-c)*s;derivative=a*(1-c)*s*(1-s);info=derivative**2/(prob*(1-prob));check('item_characteristic_curves',pred['probabilities'],prob);check('item_information_curves',pred['item_information'],info);check('test_information',pred['test_information'],info.sum(1));check('expected_score',pred['expected_total_score'],prob.sum(1));check('conditional_score_variance',pred['conditional_score_variance'],(prob*(1-prob)).sum(1))\n scored=run('irt_score',patterns,fit['model_parameters']);check('saved_item_parameter_EAP',scored['posterior_means'],[r[1] for r in moments],rtol=3e-6,atol=4e-8);check('saved_item_parameter_variance',scored['posterior_variances'],[r[2] for r in moments],rtol=3e-6,atol=4e-8);check('saved_item_parameter_log_probability',scored['marginal_log_probabilities'],[r[0] for r in moments],rtol=3e-6,atol=4e-8);require('score_order_consistency',scored['quadrature_converged'])\n\n if fixture.get('active_guessing_zero_indices'):\n  for j in fixture['active_guessing_zero_indices']:require('active_guessing_SE_NULL',fit['parameter_standard_errors'][2*k+j] is None)\n  require('active_free_information_identified',fit['information_identified'] and fit['converged'])\n # Input order and item permutations preserve likelihood and transform coefficients.\n perm=data[::-1].copy();reordered=run('irt_fit',perm,fixture['args']);check('response_order_invariance',reordered['difficulties'],b,rtol=1e-9,atol=1e-10);item_order=np.arange(k)[::-1];permuted=np.c_[data[:,item_order],data[:,-1]];other=run('irt_fit',permuted,fixture['args']);check('item_order_parameter_equivariance',other['difficulties'],b[item_order],rtol=3e-4,atol=2e-5);check('item_order_parameter_equivariance',other['discriminations'],a[item_order],rtol=3e-4,atol=2e-5);check('item_order_parameter_equivariance',other['guessing'],c[item_order],rtol=3e-4,atol=2e-5);check('item_order_likelihood_invariance',other['log_likelihood'],fit['log_likelihood'],rtol=1e-10,atol=2e-6)\n # Doubling sample frequencies and total-loglikelihood penalty preserves optimizer.\n doubled=data.copy();doubled[:,-1]*=2;params=list(fixture['args']);params[-1]*=2;replicated=run('irt_fit',doubled,params);check('frequency_and_penalty_units',replicated['difficulties'],b,rtol=1e-9,atol=1e-10);check('frequency_and_penalty_units',replicated['guessing'],c,rtol=1e-9,atol=1e-10);check('frequency_and_penalty_units',replicated['log_likelihood'],2*fit['log_likelihood'],rtol=1e-10,atol=1e-8)\n require('diagnostic_quadrature_orders',fit['optimizer_gradient_quadrature_order']==fixture['args'][5] and fit['reported_likelihood_quadrature_order']==fixture['args'][5]+8 and fit['information_quadrature_order']==fixture['args'][5]+8)\n diagnostics.append({'model':kind,'items':k,'penalty':fixture['penalty'],'converged':fit['converged'],'iterations':fit['iterations'],'projected_gradient':fit['projected_gradient_max'],'q_orders':fit['quadrature_orders'],'LL_order_delta':fit['log_likelihood_order_delta'],'minimum_observed_information_eigenvalue':fit['minimum_information_eigenvalue'],'scipy_success':fixture['optimizer_success'],'scipy_gradient_max':fixture['gradient_max'],'scipy_projected_gradient_max':fixture.get('projected_gradient_max',fixture['gradient_max'])})\n\n# Explicit coarse quadrature/iteration limits must not manufacture success.\nfor q in [11,21,41,61,81]:\n params=list(fixtures['fixtures'][2]['args']);params[5]=q;fit=run('irt_fit',fixtures['fixtures'][2]['data'],params);require('truthful_combined_convergence',fit['converged']==(fit['optimizer_converged'] and fit['quadrature_converged'] and fit['information_identified'] and not fit['numerical_guard_bound']));diagnostics.append({'3PL_order':q,'converged':fit['converged'],'quadrature_converged':fit['quadrature_converged'],'LL_order_delta':fit['log_likelihood_order_delta'],'LL_error_from_quad_optimum':fit['log_likelihood']-fixtures['fixtures'][2]['log_likelihood']})\n if q==11:require('coarse_quadrature_false',not fit['quadrature_converged'] and not fit['converged'])\n if not fit['converged']:require('failed_fit_inference_NULL',not fit['inference_valid'] and fit['parameter_covariance'] is None and fit['parameter_standard_errors'] is None and fit['aic'] is None and fit['bic'] is None)\nparams=list(fixtures['fixtures'][2]['args']);params[3]=1;fit=run('irt_fit',fixtures['fixtures'][2]['data'],params);require('iteration_limit_false',not fit['converged'])\nfit=run('irt_fit',[[0,0,0,100],[1,1,1,100]],[2,1,0,300,1e-6,41,.5,0]);require('perfect_item_agreement_no_finite_guard_success',not fit['converged'])\n\n# All-correct/all-incorrect posterior EAP remains proper, unlike person MLE.\nmodel=[1,1,2,0,61,1,0,0,1,0,0];rows=[[0,0],[0,1],[1,0],[1,1]];result=run('irt_score',rows,model);reference=fixtures['rasch_two_item_posterior'];check('Rasch_extreme_EAP',result['posterior_means'],[r['mean'] for r in reference]);check('Rasch_extreme_variance',result['posterior_variances'],[r['variance'] for r in reference]);model[3]=2;result=run('irt_score',[[-1,-1],[1,-1],[0,-1]],model);m=[posterior(row,np.ones(2),np.zeros(2),np.zeros(2)) for row in [[-1,-1],[1,-1],[0,-1]]];check('omitted_item_posterior',result['posterior_means'],[r[1] for r in m]);check('all_missing_standard_normal',result['posterior_variances'][0],1,rtol=1e-12,atol=1e-12)\nmodel[3]=1;result=run('irt_score',[[1,-1]],model);check('missing_as_incorrect',result['posterior_means'],[0],rtol=1e-10,atol=1e-10)\n\n# Frequency0 rows and completely omitted patterns cannot dilute convergence scaling.\noriginal=fixtures['fixtures'][0];rows=np.array(original['data']);empty=np.r_[np.repeat(-1,3),1e6];new=np.vstack([rows,empty]);params=list(original['args']);params[2]=2;missing=run('irt_fit',new,params);check('all_missing_frequency_exclusion',missing['difficulties'],fits[0]['difficulties'],rtol=1e-9,atol=1e-10);check('all_missing_frequency_exclusion',missing['effective_frequency'],fits[0]['effective_frequency'])\n\n# Rejections cover finite resource/shape/identification/portable contracts.\nfor data,params in [([[0,0],[0,1],[0,1]],[1]),([[0,1],[1,0]],[2]),([[0,1,.5],[1,0,1]],[1,1]),([[0,1,0],[1,0,0]],[1,1]),([[0,1,1e6],[1,0,1e6]]*6,[1,1]),([[0,1],[1,0]],[1,0,0,0]),([[0,1],[1,0]],[1,0,0,200,1e-8,12]),([[0,1],[1,0]],[1,0,0,200,1e-8,31,.5,1]),([[0,1],[1,0]],[1,0,3]),([[0,1],[1,float('nan')]],[1])]:run('irt_fit',data,params,reject=True)\nfor model in [[1,1,1,0,31,2,0,0],[1,2,1,0,31,1,0,.1],[1,3,1,0,31,0,0,.2],[1,3,1,0,31,1,0,1],[2,1,1,0,31,1,0,0],[1,1,1,0,31,1,0]]:run('irt_predict',[[0]],model,reject=True)\nrun('irt_score',[[1,-1]],[1,1,2,0,31,1,0,0,1,0,0],reject=True)\nrng=np.random.default_rng(20261024);large=rng.integers(0,2,size=(2000,12));run('irt_fit',large,[3,0,0,2000,1e-8,81,.5,0],reject=True)\n\n# A deliberately extreme sharp tail is finite but must expose order inconsistency.\nmodel=[1,2,12,0,81]+[5.,8.,0.]*12\nsharp=run('irt_score',[[1.]*12],model);truth=posterior([1.]*12,np.repeat(5.,12),np.repeat(8.,12),np.zeros(12));require('sharp_tail_order_warning',not sharp['quadrature_converged'] and sharp['quadrature_order_deltas'][0]>.01)\ndiagnostics.append({'sharp_tail_score':True,'candidate_posterior_mean':sharp['posterior_means'][0],'independent_quad_mean':truth[1],'candidate_posterior_variance':sharp['posterior_variances'][0],'independent_quad_variance':truth[2],'order_delta':sharp['quadrature_order_deltas'][0],'quadrature_converged':sharp['quadrature_converged'],'status':'diagnostic approximate values;do not claim converged precision'})\n\n\n# A positive-Hessian unfinished iterate must not publish MLE inference/IC.\nparams=list(fixtures['fixtures'][0]['args']);params[3]=1\nunfinished=run('irt_fit',fixtures['fixtures'][0]['data'],params)\nrequire('PD_unfinished_inference_suppression',unfinished['information_identified'] and not unfinished['inference_valid'] and unfinished['parameter_covariance'] is None and unfinished['parameter_standard_errors'] is None and unfinished['aic'] is None and unfinished['bic'] is None)\n# Native-catalog literals are independently known; here only candidate module layer.\napi=json.loads(pathlib.Path(args.api).read_text())\nfor operation in api['operations']:\n result=run(operation['operation'],operation['fixture']['data'],operation['fixture']['args'])\n for key,expected in operation['known_value'].items():\n  if isinstance(expected,bool) or (isinstance(expected,list) and expected and isinstance(expected[0],bool)):require('catalog_fixture_known_values',result[key]==expected)\n  else:check('catalog_fixture_known_values',result[key],expected,rtol=1e-8,atol=1e-9)\n\nresult={'schema_version':1,'timestamp_utc':datetime.now(timezone.utc).isoformat(),'seed':20261024,'layer':('actual exported production ds_analytics_run/free; native DuckDB SQL not covered' if args.public else 'unchanged candidate irt.rs::run through thin temporary candidate_irt_run/free ABI; production public execute and DuckDB SQL NOT connected or covered'),'environment':{'python':platform.python_version(),'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'elapsed_seconds':time.time()-start_time,'checks':checks,'assertions_total':sum(v['assertions'] for v in checks.values()),'diagnostics':diagnostics,'library_sha256':hashlib.sha256(pathlib.Path(args.library).read_bytes()).hexdigest()};pathlib.Path(args.output).write_text(json.dumps(result,indent=2)+'\\n');print(json.dumps({'groups':len(checks),'assertions':result['assertions_total'],'max_error':max(v['max_absolute_error'] for v in checks.values()),'elapsed':result['elapsed_seconds'],'diagnostics':diagnostics}))\n",
+    "harness_sha256": "829cddea18abd4ae5b686052a94ce8d053095ad2a28558b90f800d5c42909ef5",
+    "command": "python3 <saved-harness.py> --library /private/tmp/rusta-ducksmiles-jmp-target/specialized-public.dylib --public --api tasks/jmp-irt-api.json --output <output.json>",
+    "exit_code": 0,
+    "note": "The command emits raw checks/counts; metadata/status/replay provenance was appended after the successful production run. The --public path calls actual ds_analytics_run/free."
+  }
+}

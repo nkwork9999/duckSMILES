@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "module": "market",
+  "source": "crates/analytics/src/market.rs",
+  "common_contract": {
+    "inputs": "Finite nonempty rectangular <=100000rows,1024columns,1Mcells. Baskets strictly0/1 with <=32columns; no frequency weights,missing rows,automatic text extraction.",
+    "rules": "Apriori includes all frequent sets up to max_rule_size2..6,max antecedents1..5,min support1e-12..1,confidence0..1,lift>=0. Defaults .1,.4,1.2,3,4. Rule output limit1..100000 default10000; exceeding it errors rather than truncates. <=1Mjoins,100Mtransaction count work,100kfrequent sets,1Mrule candidates; may reject large dense supported input by explicit work limit. No global rule ranking/top-k truncation. Every rule proper disjoint nonempty LHS/RHS. Counts exact; row number denominator includes empty baskets.",
+    "rule_metrics": "support=count(X union Y)/n;confidence=countXY/countX;lift=n*countXY/(countX*countY);leverage=support-pX*pY;conviction=(1-pY)/(1-confidence). Confidence1 yields convictionnull with conviction_infinite=true when pY<1; if pY1,indeterminate null/false. All thresholds inclusive.",
+    "reliability": "Complete-case respondents x items,>=2rows,2..64items,abs<=1e150,n*p^2<=100M. Raw alpha=p/(p-1)*(1-sum var(item)/var(total)). Standardized uses correlation-scale items and requires every variance positive. Deleted alpha null when fewer than2items remain or variance zero. Corrected correlation excludes the item from total. Undefined/nonrepresentable JSONnull; negative alpha is retained. No automatic reversal,significance interval,IRT,unidimensionality/validity conclusion.",
+    "verification": "7 public tests GREEN,independent NumPy/exhaustive exported-CABI gate recorded separately; nativeSQL pending."
+  },
+  "operations": [
+    {
+      "operation": "association_rules",
+      "symbol": "AssociationRules",
+      "sql_name": "chem_association_rules",
+      "description": "Binary transaction rows/items columns,including empty baskets; [minimum_support=.1,minimum_confidence=.4,minimum_lift=1.2,max_antecedents=3,max_rule_size=4,max_rules=10000]. Complete Apriori within explicit limits,arbitrary disjoint consequents.",
+      "sql_example": "chem_association_rules([[1.0,1.0,0.0],[1.0,1.0,1.0],[1.0,0.0,1.0],[0.0,1.0,0.0],[0.0,0.0,0.0]], [0.4,0.6,1.5,1.0,2.0])",
+      "known_value": {
+        "rule_count": 2,
+        "truncated": false
+      },
+      "source": "crates/analytics/src/market.rs",
+      "tests": "crates/analytics/tests/market.rs",
+      "validation_evidence": "tasks/evidence/jmp-market-reference.json",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/association-analysis.shtml",
+        "https://jsl.jmp.com/All%20Categories/Objects/Association%20Analysis.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/multivariate-methods.pdf"
+      ]
+    },
+    {
+      "operation": "basket_affinity",
+      "symbol": "BasketAffinity",
+      "sql_name": "chem_basket_affinity",
+      "description": "Binary transaction rows,<=32items; []. All distinct pairs: support,directional confidence,lift,Jaccard,leverage; undefined divisions JSONnull.",
+      "sql_example": "chem_basket_affinity([[1.0,1.0,0.0],[1.0,1.0,1.0],[1.0,0.0,1.0],[0.0,1.0,0.0],[0.0,0.0,0.0]], [])",
+      "known_value": {
+        "item_counts": [
+          3,
+          3,
+          2
+        ],
+        "pairs.1.jaccard": 0.6666666666666666
+      },
+      "source": "crates/analytics/src/market.rs",
+      "tests": "crates/analytics/tests/market.rs",
+      "validation_evidence": "tasks/evidence/jmp-market-reference.json",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/association-analysis.shtml",
+        "https://jsl.jmp.com/All%20Categories/Objects/Association%20Analysis.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/multivariate-methods.pdf"
+      ]
+    },
+    {
+      "operation": "item_reliability",
+      "symbol": "ItemReliability",
+      "sql_name": "chem_item_reliability",
+      "description": "Complete finite respondents/items; [standardized0raw/1correlation=0]. Cronbach alpha,deleted-item alpha,corrected item-total correlations; negative alpha retained,undefined or nonrepresentable quantities null.",
+      "sql_example": "chem_item_reliability([[0.0,0.0,0.0],[1.0,2.0,1.0],[2.0,4.0,0.0],[3.0,6.0,1.0]], [])",
+      "known_value": {
+        "alpha": 0.75,
+        "alpha_if_deleted": [
+          0.32,
+          0.5,
+          0.8888888888888888
+        ]
+      },
+      "source": "crates/analytics/src/market.rs",
+      "tests": "crates/analytics/tests/market.rs",
+      "validation_evidence": "tasks/evidence/jmp-market-reference.json",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/association-analysis.shtml",
+        "https://jsl.jmp.com/All%20Categories/Objects/Association%20Analysis.html",
+        "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/multivariate-methods.pdf"
+      ]
+    }
+  ],
+  "native_sql_validation": {
+    "status": "PASS matching current209-function checkpoint",
+    "evidence": "tasks/evidence/jmp-models-validation.json",
+    "overall_jmp_parity": false
+  }
+}

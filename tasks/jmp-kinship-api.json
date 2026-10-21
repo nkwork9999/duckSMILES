@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "module": "kinship",
+  "source": "crates/analytics/src/kinship.rs",
+  "scope": "Bounded one-kernel Gaussian genomic ML/REML and reusable cross-kinship BLUP; partial genomic mixed-model support,not GWAS.",
+  "common_contract": {
+    "input": "Finite nonempty rectangular inputs,abs<=1e150,<=1Mcells; ntraining4..128,pfixed0..16,n>p+2. Exact row order retained for K and queries. No observation weights/missing response. Intercept automatic.",
+    "kernel": "Supplied exactly symmetric PSD K; diagonal mean positive and representable; any unequal mirrored entries reject (including roundoff asymmetry), so callers must explicitly symmetrize before fitting. max(|Kij|)/maxdiag<=1e4; eigenvalues below -1e-12*max(1,maxeigen) reject. Roundoff-small negative eigenvalues are clipped to zero; likelihood and training BLUP use that effective PSD kernel, saved normalized weights are restricted to its strictly positive eigenspace. Symmetric original training cross-rows reuse the same fitted BLUP to eigensolver rounding. K normalized by original mean diagonal for scale-invariant h.",
+    "likelihood": "V=sigma_g^2 K+sigma_e^2 I;normalized R(h)=(1-h)I+hK/mean(diagK),sigma_g^2=profile_scale*h/meanDiagK,sigma_e^2=profile_scale*(1-h). ML denominatorn,REMLdenominatorn-p-1. REML includes logdet of original-design X^TR^-1X; response and fixed-feature unit changes carry required likelihood constants.",
+    "optimizer": "Evaluate uniform h grid including0/upper,refine all resolved interior and endpoint-neighbor minima with golden sections,retain exact boundaries. <=30000profileevaluations. No global optimum theorem; grid can miss unresolved narrow interior extrema. Flat observed profile relative1e-9 returns components_identified=false/converged=false. Active upper bound returns converged=false; lower zero-genetic boundary can converge. Conditional fixed effects and BLUP use fitted covariance.",
+    "numerics": "Response/features use origin-relative dimensionless differences; eigenspace weighting and Cholesky of standardized whitened normal Gram with relative diagonal-pivot1e-12. Numerically perfectly explained response relative residual norm<=1e-12 rejects; no positive-scale Gaussian MLE claimed. Component variance products use logarithms. Portable prediction expands each physical term including y_scale into binary mantissa/exponent products and ratios and uses compensated floating expansions before conversion to binary64; finite zero/nonzero effects survive intermediate overflow, underflow, and large cancellation, including subnormal kernel/feature units. Finite precision and eigensolver tolerance still apply. Positive fitted variance underflowing physical binary64 rejects with rescaling guidance.",
+    "saved_model": "[version1,n,p,y_origin,y_offset_scaled,y_scale,standardized_intercept,kernel_mean_diagonal,feature_origins(p),feature_mean_offsets_scaled(p),feature_difference_scales(p),standardized_slopes(p),positive_support_normalized_kernel_weights(n)]. Length8+4p+n. Algebraic prediction=y_origin+y_scale*(y_offset+fixed_normalized+(crossK/kernel_mean_diagonal)dotweights), evaluated in physical term scales. CrossK rows must share the training kernel units/order. With clipped near-PSD training K, weights remove clipped/null training directions; query crossK is interpreted against that retained support. No query/query covariance or full joint-PSD check is performed.",
+    "uncertainty": "No variance-component inference or fixed-effect SE. Normalized h is not a general biological heritability estimate unless the caller kernel normalization/model assumptions justify it. No installed-JMP head-to-head comparison."
+  },
+  "operations": [
+    {
+      "operation": "kinship_model",
+      "symbol": "KinshipModel",
+      "sql_name": "chem_kinship_model",
+      "description": "Gaussian y=Xbeta+g+e with supplied PSD kinship K; rows[y,fixed covariates...,K row]; [p,method0ML/1REML=1,h_upper=.99999999,grid=128,tol=1e-10]. Bounded nonnegative variance components; profile likelihood and BLUP.",
+      "sql_example": "chem_kinship_model([[0.0,1.0,1.0,0.0,0.0,0.0,0.0],[2.0,1.0,1.0,0.0,0.0,0.0,0.0],[4.0,0.0,0.0,1.0,1.0,0.0,0.0],[6.0,0.0,0.0,1.0,1.0,0.0,0.0],[8.0,0.0,0.0,0.0,0.0,1.0,1.0],[10.0,0.0,0.0,0.0,0.0,1.0,1.0]], [0.0,1.0])",
+      "known_value": {
+        "intercept": 5,
+        "genetic_variance": 15,
+        "residual_variance": 2
+      },
+      "data": "n training rows[y,fixed numeric covariates(p),K_i0...K_i(n-1)]. n4..128,n>p+2,p0..16,one phenotype and one supplied kinship.",
+      "args": [
+        "p integer0..16 required",
+        "method0ML/1REML default1",
+        "h_upper .01..0.999999999999 default.99999999",
+        "grid16..512 default128",
+        "tolerance1e-12..1e-4 default1e-10"
+      ],
+      "unsupported": [
+        "GWAS tests and marker-specific variance refits",
+        "Multiple kernels/multitrait/nested effects/phenotype missing",
+        "Unbounded negative variance components",
+        "Variance-component SE,CI or boundary tests",
+        "Guaranteed global optimum",
+        "Asymmetric kernels, including unequal mirrored entries within former roundoff tolerance; explicitly symmetrize before fitting"
+      ],
+      "source": "crates/analytics/src/kinship.rs",
+      "tests": "crates/analytics/tests/kinship.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling",
+        "https://www.jmp.com/support/help/en/19.2/jmp/mixed-model-report-and-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/mixed-models-and-random-effect-models.shtml",
+        "https://www.ncbi.nlm.nih.gov/books/NBK583962/",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC9875494/"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-kinship-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            2.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            4.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            6.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            8.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0
+          ],
+          [
+            10.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0
+          ]
+        ],
+        "args": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "operation": "kinship_predict",
+      "symbol": "KinshipPredict",
+      "sql_name": "chem_kinship_predict",
+      "description": "Saved Gaussian genomic model scoring: rows[fixed covariates(p),cross-kinship to n training individuals]; unchanged kinship_model.predict_parameters. Reuses fixed effects and training kernel weights.",
+      "sql_example": "chem_kinship_predict([[1,1,0,0,0,0],[0,0,0,0,0,0]], [1,6,0,0,0.5,10,0,0.9999999999999999,-0.18749999984346133,-0.18749999984346133,0,0,0.18749999984346133,0.18749999984346133])",
+      "known_value": {
+        "predictions": [
+          1.25,
+          5.0
+        ]
+      },
+      "data": "Query rows[p original fixed covariates,n cross-kinship values in exact training-row order]. No query outcomes or variance fitting.",
+      "args": [
+        "unchanged fitted predict_parameters"
+      ],
+      "unsupported": [
+        "Prediction intervals and covariance-parameter uncertainty",
+        "Refitting new genetic effects from observed query phenotypes",
+        "Checking the full joint query/training PSD kernel without query/query covariance",
+        "Inferring a corrected joint query/training PSD kernel from query cross-covariances alone"
+      ],
+      "source": "crates/analytics/src/kinship.rs",
+      "tests": "crates/analytics/tests/kinship.rs",
+      "jmp_primary_sources": [
+        "https://www.jmp.com/en/software/capabilities/advanced-statistical-modeling",
+        "https://www.jmp.com/support/help/en/19.2/jmp/mixed-model-report-and-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/mixed-models-and-random-effect-models.shtml",
+        "https://www.ncbi.nlm.nih.gov/books/NBK583962/",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC9875494/"
+      ],
+      "validation_evidence": "tasks/evidence/jmp-kinship-reference.json",
+      "fixture": {
+        "data": [
+          [
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "args": [
+          1,
+          6,
+          0,
+          0,
+          0.5,
+          10,
+          0,
+          0.9999999999999999,
+          -0.18749999984346133,
+          -0.18749999984346133,
+          0,
+          0,
+          0.18749999984346133,
+          0.18749999984346133
+        ]
+      }
+    }
+  ],
+  "integration_status": "Public execute/formal Rust tests and matching native SQL PASS; bounded partial contracts only",
+  "native_sql_validation": {
+    "status": "PASS matching225 CPU checkpoint",
+    "evidence": "tasks/evidence/jmp-specialized-validation.json",
+    "overall_jmp_parity": false
+  }
+}

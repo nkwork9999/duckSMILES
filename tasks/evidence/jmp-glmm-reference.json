@@ -1,0 +1,1682 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-10-21T15:38:53.746335+00:00",
+  "seed": 20261022,
+  "elapsed_seconds": 3.201690912246704,
+  "layer": "actual exported ds_analytics_run/free from production lib.rs; native DuckDB SQL not covered",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "checks": {
+    "version1_finite_JSON": {
+      "assertions": 79,
+      "max_absolute_error": 0.0
+    },
+    "optimizer_convergence": {
+      "assertions": 6,
+      "max_absolute_error": 0.0
+    },
+    "estimated_fixed_coefficients": {
+      "assertions": 11,
+      "max_absolute_error": 8.288419903884625e-08
+    },
+    "estimated_variance": {
+      "assertions": 6,
+      "max_absolute_error": 1.2864362988196376e-06
+    },
+    "optimized_log_likelihood": {
+      "assertions": 6,
+      "max_absolute_error": 1.3151044697679026e-09
+    },
+    "actual_parameter_quad_log_likelihood": {
+      "assertions": 6,
+      "max_absolute_error": 1.315097364340545e-09
+    },
+    "posterior_mean": {
+      "assertions": 38,
+      "max_absolute_error": 4.159289357374973e-09
+    },
+    "posterior_mode": {
+      "assertions": 38,
+      "max_absolute_error": 5.63571411760222e-12
+    },
+    "posterior_variance": {
+      "assertions": 38,
+      "max_absolute_error": 7.113091760047041e-08
+    },
+    "joint_observed_information_covariance": {
+      "assertions": 23,
+      "max_absolute_error": 9.70186149196195e-08
+    },
+    "joint_observed_information_SE": {
+      "assertions": 9,
+      "max_absolute_error": 7.242615662761409e-08
+    },
+    "known_group_plugin_prediction": {
+      "assertions": 18,
+      "max_absolute_error": 1.0594768395932874e-09
+    },
+    "posterior_predictive_integral": {
+      "assertions": 18,
+      "max_absolute_error": 4.6334389058877434e-07
+    },
+    "population_predictive_integral": {
+      "assertions": 18,
+      "max_absolute_error": 4.699018900655716e-07
+    },
+    "known_new_group_indicators": {
+      "assertions": 6,
+      "max_absolute_error": 0.0
+    },
+    "row_and_group_label_permutation": {
+      "assertions": 18,
+      "max_absolute_error": 9.82951497974227e-10
+    },
+    "boundary_standard_error": {
+      "assertions": 2,
+      "max_absolute_error": 5.551115123125783e-17
+    },
+    "boundary_variance_exact": {
+      "assertions": 2,
+      "max_absolute_error": 0.0
+    },
+    "quadrature_nonconvergence_flags": {
+      "assertions": 5,
+      "max_absolute_error": 0.0
+    },
+    "coarse_quadrature_false": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "large_origin_variance": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "large_origin_saved_model": {
+      "assertions": 6,
+      "max_absolute_error": 0.0
+    },
+    "invalid_public_ABI_NULL": {
+      "assertions": 78,
+      "max_absolute_error": 0.0
+    },
+    "iteration_limit_false": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "variance_upper_bound_false": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "HiGHS_recession_classification": {
+      "assertions": 90,
+      "max_absolute_error": 0.0
+    },
+    "near_degenerate_recession_reject": {
+      "assertions": 4,
+      "max_absolute_error": 0.0
+    },
+    "weighted_Poisson_logsumexp": {
+      "assertions": 1,
+      "max_absolute_error": 7.993605777301127e-15
+    },
+    "Bernoulli_prediction_probability_bounds": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "tiny_variance_bound_zero_optimum": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "catalog_fixture_known_values": {
+      "assertions": 19,
+      "max_absolute_error": 5.551115123125783e-17
+    }
+  },
+  "assertions_total": 551,
+  "diagnostics": [
+    {
+      "family": "binomial",
+      "n": 36,
+      "features": 0,
+      "variance": 4.325165164273362,
+      "iterations": 8,
+      "gradient": 1.5433359712887133e-09,
+      "quadrature_order": 31,
+      "validation_order": 35,
+      "LL_order_delta": 1.4874430576128361e-09,
+      "quad_max_estimated_error": 2.260722973607774e-11,
+      "converged": true,
+      "prediction_prior_quadrature_converged": true,
+      "prediction_prior_order_delta": 5.551115123125783e-17
+    },
+    {
+      "family": "poisson",
+      "n": 30,
+      "features": 1,
+      "variance": 1.2844466504659513,
+      "iterations": 12,
+      "gradient": 1.298039166123045e-09,
+      "quadrature_order": 31,
+      "validation_order": 35,
+      "LL_order_delta": 4.069491410518822e-10,
+      "quad_max_estimated_error": 4.1937689398514594e-11,
+      "converged": true,
+      "prediction_prior_quadrature_converged": true,
+      "prediction_prior_order_delta": 0
+    },
+    {
+      "family": "binomial",
+      "n": 36,
+      "features": 0,
+      "variance": 0,
+      "iterations": 0,
+      "gradient": 3.700743415417188e-17,
+      "quadrature_order": 31,
+      "validation_order": 35,
+      "LL_order_delta": 0,
+      "quad_max_estimated_error": 0.0,
+      "converged": true,
+      "prediction_prior_quadrature_converged": true,
+      "prediction_prior_order_delta": 0
+    },
+    {
+      "family": "poisson",
+      "n": 24,
+      "features": 0,
+      "variance": 0,
+      "iterations": 0,
+      "gradient": 0,
+      "quadrature_order": 31,
+      "validation_order": 35,
+      "LL_order_delta": 0,
+      "quad_max_estimated_error": 0.0,
+      "converged": true,
+      "prediction_prior_quadrature_converged": true,
+      "prediction_prior_order_delta": 0
+    },
+    {
+      "family": "binomial",
+      "n": 42,
+      "features": 2,
+      "variance": 5.643931262861234,
+      "iterations": 23,
+      "gradient": 9.15074646923071e-09,
+      "quadrature_order": 31,
+      "validation_order": 35,
+      "LL_order_delta": 5.06005193301462e-09,
+      "quad_max_estimated_error": 4.387529740002183e-11,
+      "converged": true,
+      "prediction_prior_quadrature_converged": false,
+      "prediction_prior_order_delta": 6.375435078753711e-07
+    },
+    {
+      "family": "poisson",
+      "n": 42,
+      "features": 2,
+      "variance": 1.5572054533073696,
+      "iterations": 16,
+      "gradient": 1.9560852529771505e-10,
+      "quadrature_order": 31,
+      "validation_order": 35,
+      "LL_order_delta": 4.777291451318888e-09,
+      "quad_max_estimated_error": 3.612141310529449e-11,
+      "converged": true,
+      "prediction_prior_quadrature_converged": true,
+      "prediction_prior_order_delta": 0
+    },
+    {
+      "bernoulli_requested_order": 3,
+      "LL": -20.57463900769705,
+      "LL_error_vs_quad_optimum": -0.003768059419751779,
+      "LL_order_delta": 0.06991051761785272,
+      "converged": false
+    },
+    {
+      "bernoulli_requested_order": 7,
+      "LL": -20.570834204635272,
+      "LL_error_vs_quad_optimum": 3.674364202765901e-05,
+      "LL_order_delta": 0.0012204276232452571,
+      "converged": false
+    },
+    {
+      "bernoulli_requested_order": 15,
+      "LL": -20.57087186733093,
+      "LL_error_vs_quad_optimum": -9.190536296443952e-07,
+      "LL_order_delta": 7.895293496318345e-06,
+      "converged": false
+    },
+    {
+      "bernoulli_requested_order": 23,
+      "LL": -20.570870923611395,
+      "LL_error_vs_quad_optimum": 2.4665904874154876e-08,
+      "LL_order_delta": 1.0632034630475573e-07,
+      "converged": false
+    },
+    {
+      "bernoulli_requested_order": 31,
+      "LL": -20.570870949592404,
+      "LL_error_vs_quad_optimum": -1.3151044697679026e-09,
+      "LL_order_delta": 1.4874430576128361e-09,
+      "converged": true
+    }
+  ],
+  "library_sha256": "d1569200b5a59ed2353c3c1275f118ce0ed09bebc98617fc4510407dc8131bd7",
+  "scope": "Bernoulli/logit and Poisson/log Gaussian random intercept integrated maximum likelihood plus reusable known/new-group prediction; partial JMP19.2 GLMM numerical coverage.",
+  "status": "Production source frozen; formal public Rust and real exported C ABI gates passed. Native DuckDB SQL validation is a separate parent-owned layer and is not claimed here.",
+  "operations": [
+    "glmm_binomial",
+    "glmm_poisson",
+    "glmm_predict"
+  ],
+  "tdd": {
+    "baseline": "Initial public API8tests:7behavior failures on explicit GLMM not-implemented stub;1rejection pass. No numerical production implementation existed then.",
+    "initial_first_subset": "Earlier4test unknown-dispatch run:3unknown-operation failures +1rejectionpass; parent then enabled stub module/dispatch.",
+    "green": "Final actual public execute14/14pass. Command uses explicit shared external CARGO_TARGET_DIR.",
+    "quadrature_test_correction": "Initial positive-variance tests assumed q15would satisfy1e-7order consistency; independent q15/q19comparison disproved that assumption. Positive tight-reference tests explicitly requestq23,tol1e-7. Separateq3test requiresfalsequadrature/convergence, and replay recordsorders3/7/15/23/31without hiding inconsistency.",
+    "regression_red_green": [
+      {
+        "test": "glmm_rejects_unrepresentable_saved_posterior_second_moment",
+        "observed_red": "Squared centered nodes overflowed and inf>inf comparison allowed invalid saved variance.",
+        "fix": "Explicit finite mean/second-moment validation before tolerance comparisons."
+      },
+      {
+        "test": "tiny_variance_search_bound_does_not_turn_a_zero_optimum_into_an_upper_bound_hit",
+        "observed_red": "Absolute1e-8upper-bound slack classified v0asupper whenvariance_upper1e-14.",
+        "fix": "Relative upper-bound comparison and interval-scaled active-set slack."
+      },
+      {
+        "test": "poisson_saved_posterior_mean_uses_weighted_log_sum_before_exponentiation",
+        "observed_red": "A low-weight node exp710overflowed although weighted mean atlog700.01095isfinite.",
+        "fix": "Weighted posterior log-sum-exp before exponentiation."
+      },
+      {
+        "test": "accepted_rounded_posterior_weights_preserve_bernoulli_probability_bounds",
+        "observed_red": "Accepted sum1.000000005produced probability>1.",
+        "fix": "Normalize near-unit weights for moments and prediction; bound Bernoulli weighted sum at floating endpoints."
+      },
+      {
+        "test": "rare_control_separation_is_not_hidden_by_loose_optimizer_tolerance",
+        "observed_red": "961-row rare-control completely separated binary data falsely converged at loose1e-3tolerance.",
+        "fix": "Independent bounded fixed-effect recession LP with deterministic Bland pivots before optimization."
+      },
+      {
+        "test": "poisson_zero_only_direction_has_no_finite_extended_mle",
+        "observed_red": "A direction leaving all positive-count predictors fixed and reducing zero-count predictors falsely converged with finite large coefficients.",
+        "fix": "Poisson recession LP equality constraints on positive counts and nonincrease on zeros."
+      }
+    ]
+  },
+  "gates": {
+    "focused_public_Rust": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test glmm --quiet",
+      "passed": 14,
+      "failed": 0
+    },
+    "isolated_strict_Clippy": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy --manifest-path /private/tmp/ducksmiles-glmm-check/Cargo.toml --tests -- -D warnings",
+      "status": "PASS",
+      "isolation": "Uses unchanged production glmm.rs and formal tests; thin public execute forwards only glmm::run to avoid sibling work in progress."
+    },
+    "rustfmt": {
+      "command": "rustfmt --edition2021 --check crates/analytics/src/glmm.rs crates/analytics/tests/glmm.rs",
+      "status": "PASS"
+    },
+    "public_C_ABI": {
+      "status": "PASS",
+      "groups": 31,
+      "assertions": 551,
+      "note": "Counts include numerical comparisons,boolean/JSON/NULL controls and90independent HiGHS classifications; not551independent datasets.",
+      "max_absolute_numeric_error": 1.2864362988196376e-06
+    },
+    "native_DuckDB_SQL": {
+      "status": "PENDING_PARENT_FROZEN_BUILD",
+      "not_covered": "No native SQL claim from this C ABI replay. API3examples have independent literal known_value checks and were passed directly through production C ABI."
+    }
+  },
+  "oracle_method": {
+    "likelihood": "scipy.integrate.quad over posterior-mode/curvature-rescaled full real line; brentq root; full Poisson factorial constants. This does not reuse production Hermite nodes/weights.",
+    "parameter_estimates": "Three independent Nelder-Mead likelihood starts variance0.25,1,4,fullquadobjective; two boundary fixtures closed form.",
+    "uncertainty": "Independent finite differences of fullquadjointnegativeLL in original fixed coefficients/log1pvariance,inverted with NumPy; compares fixed covariance andSE. At boundary closed-form exact GLM information.",
+    "predictions": "Known groups use independent real-line posterior integrals; new groups use Gaussian prior integral; Poisson exp(eta+v/2) identity. Logistic prior mean in production remains finite-order31/35with an honest consistency flag.",
+    "separation": "90seeded cases compared with independent SciPyHiGHS linear programming, plus4explicitnearlydependentquasi-recession rejection cases and2reviewreproducers. Standardized features1,2,4; both families; random,complete/quasi,zero-only directions.",
+    "seed_list": [
+      20261022,
+      20261023,
+      20261024
+    ]
+  },
+  "fixtures": {
+    "schema_version": 1,
+    "timestamp_utc": "2026-10-21T15:08:55.604262+00:00",
+    "seed": 20261022,
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "elapsed_seconds": 17.362457990646362,
+    "method": "scipy.integrate.quad on posterior-mode and curvature rescaled real-line integrals; scipy.optimize.brentq mode roots; Nelder-Mead integrated likelihood optimization with3independentstarts",
+    "fixtures": [
+      {
+        "family": "binomial",
+        "data": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            2.0
+          ],
+          [
+            1.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            0.0,
+            3.0
+          ],
+          [
+            0.0,
+            3.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            0.0,
+            4.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ]
+        ],
+        "intercept": -2.2877202116869396e-08,
+        "coefficients": [],
+        "variance": 4.325165492488126,
+        "log_likelihood": -20.5708709482773,
+        "optimizer_success": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "iterations": 74,
+        "group_ids": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+        ],
+        "posterior_mean": [
+          -2.6721283663129514,
+          -1.4731592942402087,
+          -0.6709416279569924,
+          0.6709416662048762,
+          1.4731593301110053,
+          2.6721283954485546
+        ],
+        "posterior_mode": [
+          -2.320673256994725,
+          -1.28748484224813,
+          -0.5921139663252365,
+          0.5921140054969823,
+          1.2874848795275393,
+          2.320673288051971
+        ],
+        "posterior_variance": [
+          1.5709758604225454,
+          0.9342977824027511,
+          0.7095916558931925,
+          0.7095916546019672,
+          0.9342977785582625,
+          1.5709758496995272
+        ],
+        "max_quad_estimated_error": 2.2607198555875128e-11
+      },
+      {
+        "family": "poisson",
+        "data": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.5,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            1.0
+          ],
+          [
+            -0.5,
+            1.0,
+            1.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.5,
+            1.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -0.5,
+            3.0,
+            2.0
+          ],
+          [
+            0.0,
+            1.0,
+            2.0
+          ],
+          [
+            0.5,
+            0.0,
+            2.0
+          ],
+          [
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            3.0,
+            3.0
+          ],
+          [
+            -0.5,
+            1.0,
+            3.0
+          ],
+          [
+            0.0,
+            3.0,
+            3.0
+          ],
+          [
+            0.5,
+            1.0,
+            3.0
+          ],
+          [
+            1.0,
+            2.0,
+            3.0
+          ],
+          [
+            -1.0,
+            0.0,
+            4.0
+          ],
+          [
+            -0.5,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            4.0,
+            4.0
+          ],
+          [
+            0.5,
+            3.0,
+            4.0
+          ],
+          [
+            1.0,
+            3.0,
+            4.0
+          ],
+          [
+            -1.0,
+            3.0,
+            5.0
+          ],
+          [
+            -0.5,
+            5.0,
+            5.0
+          ],
+          [
+            0.0,
+            4.0,
+            5.0
+          ],
+          [
+            0.5,
+            7.0,
+            5.0
+          ],
+          [
+            1.0,
+            6.0,
+            5.0
+          ]
+        ],
+        "intercept": -0.004986696855306316,
+        "coefficients": [
+          0.23671924408457024
+        ],
+        "variance": 1.2844466299244024,
+        "log_likelihood": -46.55605211708837,
+        "optimizer_success": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "iterations": 155,
+        "group_ids": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+        ],
+        "posterior_mean": [
+          -1.625409436275414,
+          -0.8019060922938205,
+          -0.28040836326528584,
+          0.5882898634863929,
+          0.5882898634863929,
+          1.5311442806602342
+        ],
+        "posterior_mode": [
+          -1.4780334576493455,
+          -0.6879787029113644,
+          -0.19489222614506102,
+          0.6335818083462794,
+          0.6335818083462794,
+          1.5509530086153533
+        ],
+        "posterior_variance": [
+          0.5300936978649464,
+          0.3186387975758752,
+          0.21435114322137372,
+          0.10096456878385252,
+          0.10096456878385253,
+          0.04145635766779107
+        ],
+        "max_quad_estimated_error": 2.0582046109583673e-11
+      },
+      {
+        "family": "binomial",
+        "data": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            1.0,
+            2.0
+          ],
+          [
+            1.0,
+            2.0
+          ],
+          [
+            1.0,
+            2.0
+          ],
+          [
+            0.0,
+            3.0
+          ],
+          [
+            0.0,
+            3.0
+          ],
+          [
+            0.0,
+            3.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            4.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            0.0,
+            5.0
+          ],
+          [
+            0.0,
+            5.0
+          ],
+          [
+            0.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            1.0,
+            5.0
+          ]
+        ],
+        "intercept": 0.0,
+        "coefficients": [],
+        "variance": 0.0,
+        "log_likelihood": -24.95329850015803,
+        "intercept_standard_error": 0.3333333333333333,
+        "source": "closed-form repeated balanced Bernoulli groups"
+      },
+      {
+        "family": "poisson",
+        "data": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0
+          ],
+          [
+            3.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            2.0,
+            1.0
+          ],
+          [
+            3.0,
+            1.0
+          ],
+          [
+            2.0,
+            1.0
+          ],
+          [
+            1.0,
+            2.0
+          ],
+          [
+            2.0,
+            2.0
+          ],
+          [
+            3.0,
+            2.0
+          ],
+          [
+            2.0,
+            2.0
+          ],
+          [
+            1.0,
+            3.0
+          ],
+          [
+            2.0,
+            3.0
+          ],
+          [
+            3.0,
+            3.0
+          ],
+          [
+            2.0,
+            3.0
+          ],
+          [
+            1.0,
+            4.0
+          ],
+          [
+            2.0,
+            4.0
+          ],
+          [
+            3.0,
+            4.0
+          ],
+          [
+            2.0,
+            4.0
+          ],
+          [
+            1.0,
+            5.0
+          ],
+          [
+            2.0,
+            5.0
+          ],
+          [
+            3.0,
+            5.0
+          ],
+          [
+            2.0,
+            5.0
+          ]
+        ],
+        "intercept": 0.6931471805599453,
+        "coefficients": [],
+        "variance": 0.0,
+        "log_likelihood": -33.797258315210286,
+        "intercept_standard_error": 0.14433756729740646,
+        "source": "closed-form identical repeated Poisson group means"
+      },
+      {
+        "family": "binomial",
+        "data": [
+          [
+            1.6870351205983747,
+            1.9545116702480603,
+            0.0,
+            0.0
+          ],
+          [
+            1.173746906139441,
+            -1.637571884897821,
+            0.0,
+            0.0
+          ],
+          [
+            0.32646160926166606,
+            -0.08866832493469737,
+            0.0,
+            0.0
+          ],
+          [
+            0.7417414651028343,
+            0.38387752011957266,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0840339780120696,
+            0.39799239063885783,
+            0.0,
+            1.0
+          ],
+          [
+            0.016716071487125467,
+            0.24941803184024758,
+            0.0,
+            1.0
+          ],
+          [
+            1.0072321078208208,
+            0.8246050813145377,
+            0.0,
+            1.0
+          ],
+          [
+            0.26493682082130904,
+            -1.4592590055494412,
+            1.0,
+            2.0
+          ],
+          [
+            0.21763647753246904,
+            1.2028078951969954,
+            0.0,
+            2.0
+          ],
+          [
+            -1.5120139712196228,
+            0.8336391998894149,
+            0.0,
+            2.0
+          ],
+          [
+            1.7998428785326803,
+            -0.5913315536032595,
+            0.0,
+            2.0
+          ],
+          [
+            -0.7709219237804908,
+            -0.2989859912250583,
+            0.0,
+            2.0
+          ],
+          [
+            -2.252911462450492,
+            2.421514943614154,
+            1.0,
+            3.0
+          ],
+          [
+            -0.9993101386391079,
+            0.4854015779312937,
+            1.0,
+            3.0
+          ],
+          [
+            0.5947824334110682,
+            -0.32475208913366027,
+            1.0,
+            3.0
+          ],
+          [
+            -0.4471892919283927,
+            0.722875283384699,
+            0.0,
+            3.0
+          ],
+          [
+            -0.3012621774822911,
+            -0.8622705810273856,
+            0.0,
+            3.0
+          ],
+          [
+            1.942425632801049,
+            -0.8618824728092181,
+            0.0,
+            3.0
+          ],
+          [
+            1.2897417593512288,
+            1.521609100596442,
+            1.0,
+            4.0
+          ],
+          [
+            0.11586428443722913,
+            -0.04936916380294012,
+            1.0,
+            4.0
+          ],
+          [
+            0.5039005668126366,
+            0.7922515392199123,
+            1.0,
+            4.0
+          ],
+          [
+            -0.048180551993000066,
+            -0.4623751007591376,
+            1.0,
+            4.0
+          ],
+          [
+            -1.5332361081003694,
+            -0.888829994085446,
+            1.0,
+            4.0
+          ],
+          [
+            0.1530883226565768,
+            2.6761865290961717,
+            0.0,
+            4.0
+          ],
+          [
+            1.1928650839762887,
+            -1.2279636951272386,
+            0.0,
+            4.0
+          ],
+          [
+            0.26479953146800617,
+            -0.09689845949900917,
+            1.0,
+            5.0
+          ],
+          [
+            1.6139552809555648,
+            0.22676664612317846,
+            1.0,
+            5.0
+          ],
+          [
+            0.9964914904124098,
+            0.5649983161420984,
+            1.0,
+            5.0
+          ],
+          [
+            -0.4683544537885366,
+            2.2084115645033258,
+            1.0,
+            5.0
+          ],
+          [
+            -0.3980450734232281,
+            0.568769346739071,
+            1.0,
+            5.0
+          ],
+          [
+            0.18793608357855693,
+            0.5871495024296731,
+            1.0,
+            5.0
+          ],
+          [
+            -0.20148288214435098,
+            -0.7097510068205888,
+            1.0,
+            5.0
+          ],
+          [
+            -0.6952920858372839,
+            -0.49374893514864643,
+            0.0,
+            5.0
+          ],
+          [
+            0.8923891123102026,
+            0.36127638873543855,
+            1.0,
+            6.0
+          ],
+          [
+            -1.43322335081756,
+            -0.6277705202334564,
+            1.0,
+            6.0
+          ],
+          [
+            0.8977779857812914,
+            -0.7542568506708255,
+            1.0,
+            6.0
+          ],
+          [
+            0.15237446167898042,
+            -1.0683140902432955,
+            1.0,
+            6.0
+          ],
+          [
+            -0.3125074124564358,
+            -1.2121076110912883,
+            1.0,
+            6.0
+          ],
+          [
+            -1.3174269746494944,
+            2.8355737264456313,
+            1.0,
+            6.0
+          ],
+          [
+            -0.6896461085064384,
+            -0.16189476263188532,
+            1.0,
+            6.0
+          ],
+          [
+            0.20604152455491712,
+            -0.3835532501944162,
+            1.0,
+            6.0
+          ],
+          [
+            1.3196451779052925,
+            1.7915321447848989,
+            1.0,
+            6.0
+          ]
+        ],
+        "intercept": 0.0014064215928964773,
+        "coefficients": [
+          -0.39127610335464247,
+          -0.014901999842479662
+        ],
+        "variance": 5.643932549297533,
+        "log_likelihood": -22.371220134049214,
+        "optimizer_success": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "iterations": 424,
+        "group_ids": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ],
+        "posterior_mean": [
+          -2.2005661647742913,
+          -2.6334580195699497,
+          -1.3843387281876058,
+          -0.08264129557212814,
+          1.028888623718525,
+          1.959958658704615,
+          3.312156925640746
+        ],
+        "posterior_mode": [
+          -1.7598109531262751,
+          -2.1970974444264995,
+          -1.1906358750565806,
+          -0.08458243289185445,
+          0.9253309478602842,
+          1.7298535019187091,
+          2.862867830585824
+        ],
+        "posterior_variance": [
+          2.474464060670477,
+          2.1915559276191727,
+          1.1171559402255145,
+          0.7058276512753001,
+          0.6981564617603304,
+          0.9487289942238308,
+          1.8003898806218561
+        ],
+        "max_quad_estimated_error": 2.4048375510265834e-11
+      },
+      {
+        "family": "poisson",
+        "data": [
+          [
+            1.2224371175193625,
+            0.8069277235850852,
+            0.0,
+            0.0
+          ],
+          [
+            0.18850854488945012,
+            0.04840233337403403,
+            0.0,
+            0.0
+          ],
+          [
+            -0.05650211058679989,
+            1.3678274407660207,
+            0.0,
+            0.0
+          ],
+          [
+            -0.37793028286616936,
+            -0.29537152373628617,
+            0.0,
+            1.0
+          ],
+          [
+            1.7509770000639941,
+            1.0266788801544309,
+            0.0,
+            1.0
+          ],
+          [
+            2.577071735933134,
+            -1.912102691595666,
+            1.0,
+            1.0
+          ],
+          [
+            1.3608280441027714,
+            -3.0062957837762823,
+            6.0,
+            1.0
+          ],
+          [
+            -1.2548377021652835,
+            -2.5121712668550438,
+            1.0,
+            2.0
+          ],
+          [
+            0.386104236939415,
+            -0.5906327968235409,
+            0.0,
+            2.0
+          ],
+          [
+            -0.8695353909915952,
+            -1.6499396130276178,
+            1.0,
+            2.0
+          ],
+          [
+            -0.7454096038434409,
+            0.9439586130077184,
+            0.0,
+            2.0
+          ],
+          [
+            -0.9635458182533626,
+            1.3269352612630656,
+            0.0,
+            2.0
+          ],
+          [
+            -0.5649929354351478,
+            0.9353779123867313,
+            0.0,
+            3.0
+          ],
+          [
+            -1.7780685199040478,
+            1.766988472704744,
+            0.0,
+            3.0
+          ],
+          [
+            -0.4403430617192861,
+            -1.3729369389555663,
+            2.0,
+            3.0
+          ],
+          [
+            0.8316211163464384,
+            0.529102309627252,
+            1.0,
+            3.0
+          ],
+          [
+            -0.7362579508716939,
+            -0.5748210452632587,
+            2.0,
+            3.0
+          ],
+          [
+            0.4139832144383773,
+            1.9514580036246625,
+            1.0,
+            3.0
+          ],
+          [
+            1.1843184037347834,
+            2.2458955236125315,
+            2.0,
+            4.0
+          ],
+          [
+            1.4228435890706879,
+            -0.5325198790018921,
+            4.0,
+            4.0
+          ],
+          [
+            2.2243101492070756,
+            -1.2516749920159584,
+            4.0,
+            4.0
+          ],
+          [
+            0.5702776150532338,
+            -0.13342026227991072,
+            3.0,
+            4.0
+          ],
+          [
+            1.1782948828660174,
+            -2.249264453472422,
+            6.0,
+            4.0
+          ],
+          [
+            -1.3595850108560361,
+            -0.28330980376464293,
+            0.0,
+            4.0
+          ],
+          [
+            -1.9979801020540384,
+            -1.7751141245514146,
+            3.0,
+            4.0
+          ],
+          [
+            0.46413201368650636,
+            -0.8231222494327036,
+            9.0,
+            5.0
+          ],
+          [
+            -0.932721604759173,
+            0.37403744134463063,
+            4.0,
+            5.0
+          ],
+          [
+            -0.6238247940950391,
+            0.03581087897803266,
+            3.0,
+            5.0
+          ],
+          [
+            -1.4859679353152986,
+            -0.9081954694998684,
+            7.0,
+            5.0
+          ],
+          [
+            -0.012037069851535631,
+            0.24753198468667245,
+            1.0,
+            5.0
+          ],
+          [
+            0.8147245886958949,
+            0.35778261631577657,
+            6.0,
+            5.0
+          ],
+          [
+            0.6922819770270331,
+            -1.4261284942189958,
+            14.0,
+            5.0
+          ],
+          [
+            1.146207084584917,
+            1.1758243117353682,
+            6.0,
+            5.0
+          ],
+          [
+            1.4276159686600756,
+            0.2914420071939613,
+            6.0,
+            6.0
+          ],
+          [
+            0.2805325191546375,
+            -0.5001518326386288,
+            14.0,
+            6.0
+          ],
+          [
+            -1.4267186191979022,
+            -0.6420184228461113,
+            5.0,
+            6.0
+          ],
+          [
+            -0.656083165062174,
+            1.9601196351477679,
+            3.0,
+            6.0
+          ],
+          [
+            -0.16282875664284263,
+            -0.479685959700028,
+            12.0,
+            6.0
+          ],
+          [
+            -0.7337135827808484,
+            -0.1214963359631181,
+            6.0,
+            6.0
+          ],
+          [
+            0.21744949050937032,
+            -0.6926852282442498,
+            7.0,
+            6.0
+          ],
+          [
+            -0.3842083555274487,
+            0.6434324071299808,
+            0.0,
+            6.0
+          ],
+          [
+            0.5389484850537142,
+            1.1043225699460812,
+            4.0,
+            6.0
+          ]
+        ],
+        "intercept": 0.11704992857265537,
+        "coefficients": [
+          0.25463765884457423,
+          -0.5512374604966569
+        ],
+        "variance": 1.55720554983616,
+        "log_likelihood": -79.06882658770618,
+        "optimizer_success": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "iterations": 286,
+        "group_ids": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ],
+        "posterior_mean": [
+          -1.4006531978302101,
+          -0.8587096354471507,
+          -1.2260429331369265,
+          -0.02829799681073153,
+          0.29212209370641107,
+          1.5058591402941355,
+          1.7157224680713536
+        ],
+        "posterior_mode": [
+          -1.219937090673047,
+          -0.8016973903970813,
+          -1.1061413381032983,
+          0.04055262567215234,
+          0.3138942531179442,
+          1.5158260075639478,
+          1.7244898554684567
+        ],
+        "posterior_variance": [
+          0.7098862399351555,
+          0.12847952002334942,
+          0.3190977593447772,
+          0.15948010319589936,
+          0.04548097156046469,
+          0.020329404945450456,
+          0.017840171750405854
+        ],
+        "max_quad_estimated_error": 2.6884101959055042e-11
+      }
+    ],
+    "additional_seed": 20261023
+  },
+  "production_snapshot": {
+    "kind": "Unmodified production lib.rs,with active public execute/FFI dispatch; no candidate wrapper substitute. Source copy retained in temporary snapshot directory.",
+    "source_sha256": {
+      "crates/analytics/src/glmm.rs": "2ccf86ccc2b66cc0a4f51b3601911bdf2af08345db03df1e7f92052bd7f1c77f",
+      "crates/analytics/tests/glmm.rs": "6e848ea808dc595fa8e721f6707ca4af8fb76c17a41bc184542409104bc716b7",
+      "crates/analytics/src/lib.rs": "d9a36b5687420b512a09f41bc3a15b21249ace09aa457bd0acc89c0cdf7a1bc0",
+      "crates/analytics/Cargo.toml": "736c9e3ad578cf53e85fd3e3da697dcbfd5c5829ca3acd4e7cb6d4383c6bc205",
+      "tasks/jmp-glmm-api.json": "c8d1357bfa18fcb014b6d7a24b8e02043a9852d5914c97748718790f1f235e76",
+      "tasks/jmp-glmm-registry.inc": "7876150852eff2fd60bcb9261cbfb255cb4519cec1a0a4e623655b4dbbb3c291"
+    },
+    "source_snapshot_directory": "/private/tmp/rusta-ducksmiles-jmp-target/glmm-public-snapshot",
+    "shared_library": "/private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_glmm_public.dylib",
+    "library_sha256": "d1569200b5a59ed2353c3c1275f118ce0ed09bebc98617fc4510407dc8131bd7",
+    "compile_command": "rustc --edition2021 --crate-type cdylib --crate-name ducksmiles_analytics_glmm crates/analytics/src/lib.rs -O -o /private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_glmm_public.dylib"
+  },
+  "review": {
+    "reviewer": "/root/nonlinear read-only numerical/validation review",
+    "outcome": "All confirmed carrier/prediction/separation findings resolved by observed RED->GREEN tests; AGHQ normalization,mode adaptation,variance-zero objective/one-sided score and conditional/posterior/prior semantics reviewed clean.",
+    "remaining_numerical_limit": "LP uses floating-point pivot/reduced-cost1e-12,positive summed-improvement1e-10,feasibility1e-8; near-degenerate exact-arithmetic existence is not certified. Work/iteration/numerical failures explicitly reject. Full variance identification/global optimization is not guaranteed."
+  },
+  "limitations": {
+    "finite": "Finite nonempty rectangular data; generic <=10000rows,128columns,1Mcells; fit additionally<=2000rows,<=16features,2..200groups. Exact signed group IDs abs<=2^53-1. Parameters<=16384finite doubles.",
+    "identification": "Automatic unpenalized intercept; full-rank standardized fixed design; n>features+2; >=2groups with repeat observations. Both Bernoulli classes required; allzero Poisson rejected. A fitted-tolerance-independent bounded LP rejects Bernoulli complete/quasi separation and Poisson zero-count recession directions. Numerical LP reduced-cost/pivot tolerance1e-12,positive summed-improvement threshold1e-10,feasibility1e-8; ambiguous/work/iteration failures reject. Extremely near-degenerate finite-MLE existence remains a numerical assessment,not exact arithmetic. Guard-bound hits cannot report convergence.",
+    "preprocessing": "Fit-only origin+mean-offset/population-scale feature normalization. Saved eta=eta_center+sum(original_slope*((x-origin)-mean_offset)); this avoids large-origin cancellation. Raw intercept is also reported and may lose digits; use saved model for stable prediction. Unrepresentable raw coefficients/intercepts reject explicitly.",
+    "limits": "Nominal n*(features+2)*q*maxiter*4<=200000000; per-group mode root<=100steps with<=60bracket expansions per side, line search<=50trials/step, eigen<=64sweeps. This preflight is not a cumulative CPU instruction cap. Finite-MLE LP<=4096Bland pivots and<=200M nominal tableau-cell updates,otherwise reject. LP constraints use row-normalized fixed design and |direction_j|<=1.",
+    "optimizer": "Constrained local projected BFGS; coefficients standardized bounded[-30,30] as numerical guard; variance>=0 and<=variance_upper. A separate v0 GLM and three positive starts are compared. Coefficient/upper-variance bound prevents overall convergence.",
+    "quadrature": "Fit uses requested odd q3..31; final likelihood,EB moments,saved posterior useq+4<=35. Compare total and each group LL differences; tolerance=max(user_tol,1e-8)*(1+abs(total_LL)),group tolerance=total_tolerance/G. This is order consistency,not a rigorous error bound. q15 can be insufficient,as recorded in evidence.",
+    "convergence": "converged=optimizer_converged && quadrature_converged && !coefficient_guard_bound && !variance_upper_bound. Variance zero itself is a legitimate boundary optimum. Finite maxiter or failure may return convergedfalse.",
+    "uncertainty": "Interior covariance inverts finite-difference joint integrated-likelihood Hessian in fixed coefficients/log1p variance; fixed block transformed to original units. At v0, exact fixed GLM information. Non-SPD/unrepresentable information gives null covariance/SE. Estimates/SE from unconverged fits remain diagnostic. No variance SE/pvalue.",
+    "portable_layout": "[1,family0logit/1log,p,G,Q,variance,eta_center,origins(p),mean_offsets(p),slopes_original(p),group_ids(G),posterior_means(G),posterior_modes(G),posterior_variances(G),posterior_nodes(G*Q),posterior_weights(G*Q)]",
+    "portable_size": "7+3p+4G+2GQ<=16384doubles; fit caps p16,G200,Q35 ->14855. Variance-zero saves Q1. Prediction validates uniqueIDs,nonnegative variance/weights,unit weight sums within1e-8,and finite consistent moments; normalizes accepted weights.",
+    "prediction_semantics": "conditional=known posterior-mean plug-in/new b0;posterior=known saved-posterior integral/new Gaussian-prior integral;population=Gaussian-prior integral for all. Logistic prior31/35consistency reported separately,not guaranteed for extreme variance.",
+    "JMP_differences": "JMP19.2 supports more distributions,summarized trials,probit,random slopes/multiple factors/repeated structures and permits noninteger Poisson responses/unbounded variance options; absent here. Do not claim identical JMP defaults or full GLMM parity.",
+    "finite_mle_reference_inference": "Bernoulli signed-X directions and Poisson directions unchanged on positive counts/nonincreasing on zero counts are standard GLM recession criteria. Their rejection in this random-intercept model follows because they improve conditional likelihood pointwise for every random intercept,thus also the positive Gaussian integral. This is a stated inference from the cited GLM theory,not a claim those papers establish full random-variance identification."
+  },
+  "references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/generalized-linear-mixed-models.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-generalized-linear-mixed-model-personality.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-linear-mixed-model-personality.shtml",
+    "https://lme4.github.io/lme4/reference/glmer.html",
+    "https://lme4.github.io/lme4/reference/GHrule.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.quad.html",
+    "https://doi.org/10.1093/biomet/71.1.1",
+    "https://personal.lse.ac.uk/TENREYRO/poissonpml.pdf",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linprog.html"
+  ],
+  "full_replay": {
+    "requirements": "Python with recorded NumPy/SciPy versions; production Rust sources; stdlib ctypes loads exported ds_analytics_run/free. Rust production has no added dependencies.",
+    "extract_and_run": [
+      "Write fixtures field to fixtures.json.",
+      "Write python_source below to replay.py.",
+      "Compile production cdylib using production_snapshot.compile_command.",
+      "Run python3 replay.py --library /private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_glmm_public.dylib --fixtures fixtures.json --api tasks/jmp-glmm-api.json --output replay-result.json"
+    ],
+    "python_source": "import argparse,ctypes,hashlib,json,math,pathlib,platform,time\nfrom datetime import datetime,timezone\nimport numpy as np\nimport scipy\nfrom scipy import integrate,optimize,special\np=argparse.ArgumentParser();p.add_argument('--library',default='/private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_glmm_public.dylib');p.add_argument('--fixtures',default='/private/tmp/jmp-glmm-all-fixtures.json');p.add_argument('--api',default='tasks/jmp-glmm-api.json');p.add_argument('--output',default='/private/tmp/jmp-glmm-public-oracle-result.json');args=p.parse_args()\nlib=ctypes.CDLL(args.library);lib.ds_analytics_run.argtypes=[ctypes.c_char_p,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.POINTER(ctypes.c_size_t)];lib.ds_analytics_run.restype=ctypes.c_void_p;lib.ds_analytics_free.argtypes=[ctypes.c_void_p,ctypes.c_size_t]\nchecks={};diagnostics=[];start_time=time.time()\ndef invoke(operation,data,parameters=(),reject=False):\n a=np.ascontiguousarray(data,dtype=float);b=np.ascontiguousarray(parameters,dtype=float);op=operation.encode();length=ctypes.c_size_t(123)\n ptr=lib.ds_analytics_run(op,len(op),a.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),a.shape[0],a.shape[1],b.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),b.size,ctypes.byref(length))\n if not ptr:\n  if reject:require('invalid_public_ABI_NULL',length.value==0);return None\n  raise AssertionError((operation,'public C ABI NULL',a.shape,list(parameters)))\n try:s=ctypes.string_at(ptr,length.value).decode()\n finally:lib.ds_analytics_free(ptr,length.value)\n if reject:raise AssertionError((operation,'expected NULL',s))\n result=json.loads(s);require('version1_finite_JSON',result['version']==1 and 'NaN' not in s and 'Infinity' not in s);return result\n\ndef check(group,a,b,rtol=3e-6,atol=3e-8):\n a=np.asarray(a,dtype=float);b=np.asarray(b,dtype=float);assert a.shape==b.shape,(group,a.shape,b.shape);assert np.all(np.isfinite(a)),group;np.testing.assert_allclose(a,b,rtol=rtol,atol=atol,err_msg=group)\n item=checks.setdefault(group,{'assertions':0,'max_absolute_error':0.});item['assertions']+=int(a.size);item['max_absolute_error']=max(item['max_absolute_error'],float(np.max(abs(a-b),initial=0)))\ndef require(group,value):\n assert value,group\n checks.setdefault(group,{'assertions':0,'max_absolute_error':0.})['assertions']+=1\n\ndef group_integral(beta,variance,x,y,family,moments=False,predict_eta=None):\n eta=beta[0]+x@beta[1:]\n def cond(b):\n  t=eta+b\n  if family=='binomial':return float(np.sum(np.where(y==1,-np.logaddexp(0,-t),-np.logaddexp(0,t))))\n  with np.errstate(over='ignore'):mu=np.exp(t)\n  return float(np.sum(y*t-mu-special.gammaln(y+1)))\n if variance==0:\n  prediction=(special.expit(predict_eta) if family=='binomial' else math.exp(predict_eta)) if predict_eta is not None else None\n  return (cond(0),0.,0.,0.,0.,prediction) if moments else cond(0)\n def score(b):\n  t=eta+b\n  with np.errstate(over='ignore'):mu=special.expit(t) if family=='binomial' else np.exp(t)\n  return float(np.sum(y-mu)-b/variance)\n extent=max(1.,math.sqrt(variance));left=-extent;right=extent\n while score(left)<0:left*=2\n while score(right)>0:right*=2\n mode=optimize.brentq(score,left,right,xtol=1e-13,rtol=1e-14)\n mu=special.expit(eta+mode) if family=='binomial' else np.exp(eta+mode);curvature=1/variance+np.sum(mu*(1-mu) if family=='binomial' else mu);scale=1/math.sqrt(curvature)\n def logdensity(b):return cond(b)-.5*b*b/variance-.5*math.log(2*math.pi*variance)\n maximum=logdensity(mode)\n def weight(t):\n  l=logdensity(mode+scale*t)-maximum\n  return math.exp(l) if l>-745 else 0.\n denominator,error=integrate.quad(weight,-np.inf,np.inf,epsabs=2e-11,epsrel=2e-11,limit=300);ll=maximum+math.log(scale*denominator)\n if not moments:return ll\n first,e1=integrate.quad(lambda t:t*weight(t),-np.inf,np.inf,epsabs=2e-11,epsrel=2e-11,limit=300);second,e2=integrate.quad(lambda t:t*t*weight(t),-np.inf,np.inf,epsabs=2e-11,epsrel=2e-11,limit=300)\n mean=mode+scale*first/denominator;postvar=scale*scale*(second/denominator-(first/denominator)**2);prediction=None\n if predict_eta is not None:\n  def pred(t):\n   w=weight(t)\n   if w==0:return 0.\n   lin=predict_eta+mode+scale*t\n   return w*special.expit(lin) if family=='binomial' else math.exp(math.log(w)+lin)\n  prediction=integrate.quad(pred,-np.inf,np.inf,epsabs=2e-11,epsrel=2e-11,limit=300)[0]/denominator\n return ll,mean,mode,postvar,max(error,e1,e2),prediction\n\ndef prior_mean(eta,v,family):\n if family=='poisson':return math.exp(eta+v/2)\n if v==0:return special.expit(eta)\n return integrate.quad(lambda z:special.expit(eta+math.sqrt(v)*z)*math.exp(-z*z/2)/math.sqrt(2*math.pi),-np.inf,np.inf,epsabs=1e-12,epsrel=1e-12)[0]\n\nfixtures=json.loads(pathlib.Path(args.fixtures).read_text());fits=[]\nfor fixture in fixtures['fixtures']:\n family=fixture['family'];data=np.asarray(fixture['data']);x=data[:,:-2];y=data[:,-2];g=data[:,-1];ids=np.unique(g);pp=x.shape[1];fit=invoke('glmm_'+family,data,[500,1e-8,31,100]);fits.append(fit)\n require('optimizer_convergence',fit['converged'] and fit['optimizer_converged'] and fit['quadrature_converged']);check('estimated_fixed_coefficients',[fit['intercept']]+fit['coefficients'],[fixture['intercept']]+fixture['coefficients'],rtol=5e-5,atol=5e-6);check('estimated_variance',fit['random_intercept_variance'],fixture['variance'],rtol=5e-5,atol=4e-6);check('optimized_log_likelihood',fit['log_likelihood'],fixture['log_likelihood'],rtol=1e-9,atol=3e-8)\n beta=np.r_[fit['intercept'],fit['coefficients']];v=fit['random_intercept_variance'];post=[group_integral(beta,v,x[g==group],y[g==group],family,True) for group in ids]\n check('actual_parameter_quad_log_likelihood',fit['log_likelihood'],sum(r[0] for r in post),rtol=1e-9,atol=3e-8);check('posterior_mean',fit['posterior_means'],[r[1] for r in post],rtol=3e-6,atol=3e-7);check('posterior_mode',fit['posterior_modes'],[r[2] for r in post],rtol=3e-6,atol=3e-7);check('posterior_variance',fit['posterior_variances'],[r[3] for r in post],rtol=3e-6,atol=3e-7)\n if v==0:\n  check('boundary_standard_error',fit['intercept_standard_error'],fixture['intercept_standard_error'],rtol=1e-10,atol=1e-10);require('boundary_variance_exact',fit['boundary'] and v==0)\n else:\n  theta=np.r_[beta,math.log1p(v)]\n  def objective(t):return -sum(group_integral(t[:-1],math.expm1(t[-1]),x[g==group],y[g==group],family) for group in ids)\n  h=5e-4*(1+abs(theta));m=len(theta);hessian=np.zeros((m,m));base=objective(theta)\n  for j in range(m):\n   for k in range(j+1):\n    ej=np.eye(m)[j]*h[j];ek=np.eye(m)[k]*h[k]\n    hessian[j,k]=(objective(theta+ej)-2*base+objective(theta-ej))/h[j]**2 if j==k else (objective(theta+ej+ek)-objective(theta+ej-ek)-objective(theta-ej+ek)+objective(theta-ej-ek))/(4*h[j]*h[k]);hessian[k,j]=hessian[j,k]\n  covariance=np.linalg.inv(hessian)[:pp+1,:pp+1];check('joint_observed_information_covariance',fit['fixed_effect_covariance'],covariance,rtol=2e-4,atol=2e-6);check('joint_observed_information_SE',[fit['intercept_standard_error']]+fit['coefficient_standard_errors'],np.sqrt(np.diag(covariance)),rtol=1e-4,atol=2e-6)\n # Known and unknown group prediction uses independent posterior/prior real-line integrals.\n query=[];conditional=[];posterior_prediction=[];population=[];known=[]\n for i,group in enumerate([ids[0],ids[-1],999]):\n  features=np.repeat(-.4+.4*i,pp);query.append([*features,group]);eta=beta[0]+features@beta[1:];population.append(prior_mean(eta,v,family));is_known=group in ids;known.append(is_known)\n  if is_known:\n   moment=group_integral(beta,v,x[g==group],y[g==group],family,True,predict_eta=eta);conditional.append(special.expit(eta+moment[1]) if family=='binomial' else math.exp(eta+moment[1]));posterior_prediction.append(moment[5])\n  else:conditional.append(special.expit(eta) if family=='binomial' else math.exp(eta));posterior_prediction.append(population[-1])\n prediction=invoke('glmm_predict',query,fit['predict_parameters']);check('known_group_plugin_prediction',prediction['conditional_predictions'],conditional,rtol=3e-6,atol=4e-7);check('posterior_predictive_integral',prediction['posterior_predictions'],posterior_prediction,rtol=4e-6,atol=4e-7);check('population_predictive_integral',prediction['population_predictions'],population,rtol=3e-6,atol=4e-7);require('known_new_group_indicators',prediction['known_groups']==known)\n # Within/group order and group IDs are labels, not learned numeric predictors.\n perm=data[::-1].copy();perm[:,-1]=perm[:,-1]*-13-7;other=invoke('glmm_'+family,perm,[500,1e-8,31,100]);check('row_and_group_label_permutation',[other['intercept'],other['random_intercept_variance'],other['log_likelihood']],[fit['intercept'],v,fit['log_likelihood']],rtol=3e-6,atol=3e-7)\n diagnostics.append({'family':family,'n':len(data),'features':pp,'variance':v,'iterations':fit['iterations'],'gradient':fit['projected_gradient_max'],'quadrature_order':fit['quadrature_order'],'validation_order':fit['validation_order'],'LL_order_delta':fit['log_likelihood_order_delta'],'quad_max_estimated_error':max(r[4] for r in post),'converged':fit['converged'],'prediction_prior_quadrature_converged':prediction['prior_quadrature_converged'],'prediction_prior_order_delta':prediction['prior_quadrature_order_delta']})\n\n# Explicit coarse quadrature must not report success; q comparison is an honest diagnostic.\nfor order in [3,7,15,23,31]:\n fit=invoke('glmm_binomial',fixtures['fixtures'][0]['data'],[500,1e-8,order,100]);require('quadrature_nonconvergence_flags',fit['converged']==(fit['optimizer_converged'] and fit['quadrature_converged'] and not fit['variance_upper_bound'] and not fit['coefficient_guard_bound']));diagnostics.append({'bernoulli_requested_order':order,'LL':fit['log_likelihood'],'LL_error_vs_quad_optimum':fit['log_likelihood']-fixtures['fixtures'][0]['log_likelihood'],'LL_order_delta':fit['log_likelihood_order_delta'],'converged':fit['converged']})\n if order==3:require('coarse_quadrature_false',not fit['converged'] and not fit['quadrature_converged'])\n\n# Strong origin shifts and unit changes must be removed using fit-only stable centering.\na=np.array(fixtures['fixtures'][1]['data']);b=a.copy();b[:,0]=1e12+2*a[:,0];shift=invoke('glmm_poisson',b,[500,1e-8,31,100]);check('large_origin_variance',shift['random_intercept_variance'],fits[1]['random_intercept_variance'],rtol=3e-6,atol=1e-8)\nqa=np.array([[0,0],[.5,999]],dtype=float);qb=qa.copy();qb[:,0]=1e12+2*qa[:,0];pa=invoke('glmm_predict',qa,fits[1]['predict_parameters']);pb=invoke('glmm_predict',qb,shift['predict_parameters'])\nfor key in ['conditional_predictions','posterior_predictions','population_predictions']:check('large_origin_saved_model',pb[key],pa[key],rtol=3e-6,atol=3e-8)\n\n# Input/identification/model contracts: real public ABI must return NULL, len=0.\nbin_data=fixtures['fixtures'][0]['data'];poi_data=fixtures['fixtures'][1]['data']\nfor params in [[0],[100,0],[100,1e-8,2],[100,1e-8,4],[100,1e-8,33],[100,1e-8,15,0],[100,1e-8,15,1001],[1,1e-8,15,100,3]]:invoke('glmm_binomial',bin_data,params,reject=True)\nfor bad in [[[0,0],[1,0],[0,0]],[[.2,0],[0,0],[1,1],[0,1]],[[0,.5],[0,.5],[1,2],[1,2]],[[0,2**53],[0,2**53],[1,0],[1,0]],[[0,0],[0,0],[0,1],[0,1]]]:invoke('glmm_binomial',bad,reject=True)\nfor bad in [[[-1,0],[1,0],[0,1],[1,1]],[[.5,0],[1,0],[0,1],[1,1]],[[1e9+1,0],[1,0],[0,1],[1,1]]]:invoke('glmm_poisson',bad,reject=True)\nseparated=[[x,float(x>0),g] for g in range(4) for x in [-1,1]];invoke('glmm_binomial',separated,reject=True)\nconstant=[[1,y,g] for y,g in bin_data];invoke('glmm_binomial',constant,reject=True)\nredundant=[[x,x,y,g] for x,y,g in poi_data];invoke('glmm_poisson',redundant,reject=True)\nmodel=fits[1]['predict_parameters']\nfor change in ['version','length','variance','weight','moment','duplicate_id']:\n m=list(model)\n if change=='version':m[0]=2\n if change=='length':m.pop()\n if change=='variance':m[5]=-1\n if change=='weight':m[-1]=-1\n if change=='moment':m[7+3+6]+=1\n if change=='duplicate_id':m[7+3+1]=m[7+3]\n invoke('glmm_predict',[[0,0]],m,reject=True)\ninvoke('glmm_predict',[[1e308,0]],model,reject=True)\nlimited=invoke('glmm_poisson',poi_data,[1,1e-8,15,100]);require('iteration_limit_false',not limited['converged']);bounded=invoke('glmm_binomial',bin_data,[500,1e-8,23,.1]);require('variance_upper_bound_false',bounded['variance_upper_bound'] and not bounded['converged'])\n\n\n# Independent HiGHS LP classifies complete/quasi and zero-count recession directions.\n# This is a different solver from production's slack dictionary/Bland pivots.\nrng=np.random.default_rng(20261024)\nfor family in ['binomial','poisson']:\n for features in [1,2,4]:\n  for mode in range(3):\n   for repeat in range(5):\n    n=36;x=rng.normal(size=(n,features))\n    if family=='binomial':\n     if mode==0:y=rng.integers(0,2,n)\n     elif mode==1:y=(x@np.linspace(.8,1.1,features)>.1).astype(float)\n     else:\n      x[:,0]=np.tile([-1,0,1],12);y=np.where(x[:,0]==0,rng.integers(0,2,n),x[:,0]>0).astype(float)\n    else:\n     if mode==0:y=rng.poisson(np.exp(.2+.15*x[:,0]))\n     elif mode==1:\n      x[:,0]=np.tile([0,1],18);y=np.where(x[:,0]==0,rng.integers(1,4,n),0)\n     else:y=rng.integers(1,5,n)\n    z=np.c_[np.ones(n),(x-x.mean(0))/x.std(0)];scale=np.linalg.norm(z,axis=1);constraints=[];objective=np.zeros(features+1)\n    for xi,yi,si in zip(z,y,scale):\n     direction=(2*yi-1)*xi/si if family=='binomial' else -xi/si\n     constraints.append(-direction)\n     if family=='poisson' and yi>0:constraints.append(direction)\n     else:objective+=direction\n    reference=optimize.linprog(-objective,A_ub=constraints,b_ub=np.zeros(len(constraints)),bounds=[(-1,1)]*(features+1),method='highs');assert reference.success\n    separated=-reference.fun>1e-8;data=np.c_[x,y,np.arange(n)//6]\n    if separated:invoke('glmm_'+family,data,[1,1e-6,3,100],reject=True);require('HiGHS_recession_classification',True)\n    else:\n     outcome=invoke('glmm_'+family,data,[1,1e-6,3,100]);require('HiGHS_recession_classification',outcome is not None)\n\n# Reviewer reproductions and numerically almost dependent designs.\nrare=[[x,z,float(x>0),g] for g in range(20) for _ in range(12) for x in [-1,1] for z in [-1,1]]+[[.1,-1,0,0]]\ninvoke('glmm_binomial',rare,[200,1e-3,3,100],reject=True)\nzero_only=[[x,y,g] for g in range(6) for _ in range(4) for x,y in [(-1,1),(1,0)]]\ninvoke('glmm_poisson',zero_only,reject=True)\nfor gap in [1e-5,1e-7,1e-9,1e-11]:\n x=np.tile([-1.,0.,1.],12);x2=x.copy();x2[0]+=gap;labels=np.tile([0.,0.,1.],12);labels[0]=1.\n # d=(-1,1) changes only row0 in the correct direction and leaves all other signed margins0.\n invoke('glmm_binomial',np.c_[x,x2,labels,np.arange(36)//6],[200,1e-3,3,100],reject=True)\n require('near_degenerate_recession_reject',True)\n\n# Portable exponential intermediate-overflow and rounded-weight regressions.\nmodel=[1,1,0,1,3,1,700,7,0,0,.0001,-10,0,10,.0000005,.999999,.0000005]\nresult=invoke('glmm_predict',[[7]],model);check('weighted_Poisson_logsumexp',np.array(result['posterior_predictions'])/math.exp(700),[.999999+.000001*math.cosh(10)],rtol=1e-12,atol=1e-12)\nmodel=[1,0,0,1,1,1,40,7,0,0,0,0,1.000000005];result=invoke('glmm_predict',[[7]],model);require('Bernoulli_prediction_probability_bounds',0<=result['posterior_predictions'][0]<=1)\nmodel=[1,0,0,1,3,1,0,7,0,0,0,-1e308,0,1e308,.25,.5,.25];invoke('glmm_predict',[[7]],model,reject=True)\nzero=invoke('glmm_binomial',fixtures['fixtures'][2]['data'],[200,1e-6,15,1e-14]);require('tiny_variance_bound_zero_optimum',zero['converged'] and not zero['variance_upper_bound'] and zero['random_intercept_variance']==0)\n\n# Literal SQL/API fixtures use independent known values; this is still the C ABI layer.\napi=json.loads(pathlib.Path(args.api).read_text())\nfor op in api['operations']:\n result=invoke(op['operation'],op['fixture']['data'],op['fixture']['args'])\n for key,expected in op['known_value'].items():\n  if isinstance(expected,bool) or (isinstance(expected,list) and expected and isinstance(expected[0],bool)):require('catalog_fixture_known_values',result[key]==expected)\n  else:check('catalog_fixture_known_values',result[key],expected,rtol=1e-8,atol=1e-9)\n\nresult={'schema_version':1,'timestamp_utc':datetime.now(timezone.utc).isoformat(),'seed':20261022,'elapsed_seconds':time.time()-start_time,'layer':'actual exported ds_analytics_run/free from production lib.rs; native DuckDB SQL not covered','environment':{'python':platform.python_version(),'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'checks':checks,'assertions_total':sum(v['assertions'] for v in checks.values()),'diagnostics':diagnostics,'library_sha256':hashlib.sha256(pathlib.Path(args.library).read_bytes()).hexdigest()}\npathlib.Path(args.output).write_text(json.dumps(result,indent=2)+'\\n');print(json.dumps({'groups':len(checks),'assertions':result['assertions_total'],'maximum_error':max(v['max_absolute_error'] for v in checks.values()),'elapsed':result['elapsed_seconds'],'diagnostics':diagnostics}))\n",
+    "fixture_generation_sources": {
+      "jmp-glmm-quad-oracle.py": "import json,math,pathlib,time\nfrom datetime import datetime,timezone\nimport numpy as np\nimport scipy\nfrom scipy import integrate,optimize,special\n\ndef group_integral(beta,variance,x,y,family,moments=False):\n eta=beta[0]+x@beta[1:]\n def cond(b):\n  linear=eta+b\n  if family=='binomial':return float(np.sum(y*linear-np.logaddexp(0,linear)))\n  with np.errstate(over='ignore'):\n   mu=np.exp(linear)\n  return float(np.sum(y*linear-mu-special.gammaln(y+1)))\n if variance==0:return (cond(0),0.,0.,0.,0.) if moments else cond(0)\n def score(b):\n  linear=eta+b\n  with np.errstate(over='ignore'):\n   mu=special.expit(linear) if family=='binomial' else np.exp(linear)\n  return float(np.sum(y-mu)-b/variance)\n extent=max(1.,math.sqrt(variance));left=-extent;right=extent\n while score(left)<0:left*=2\n while score(right)>0:right*=2\n mode=optimize.brentq(score,left,right,xtol=1e-13,rtol=1e-14)\n mu=special.expit(eta+mode) if family=='binomial' else np.exp(eta+mode)\n curvature=1/variance+np.sum(mu*(1-mu) if family=='binomial' else mu)\n scale=1/math.sqrt(curvature)\n def logdensity(b):return cond(b)-.5*b*b/variance-.5*math.log(2*math.pi*variance)\n maximum=logdensity(mode)\n def weight(t):\n  v=logdensity(mode+scale*t)-maximum\n  return math.exp(v) if v>-745 else 0.\n denominator,error=integrate.quad(weight,-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n ll=maximum+math.log(scale*denominator)\n if not moments:return ll\n first,e1=integrate.quad(lambda t:t*weight(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n second,e2=integrate.quad(lambda t:t*t*weight(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n mean=mode+scale*first/denominator;posterior_variance=scale*scale*(second/denominator-(first/denominator)**2)\n return ll,mean,mode,posterior_variance,max(error,e1,e2)\n\ndef fit(data,family):\n a=np.array(data,dtype=float);x=a[:,:-2];y=a[:,-2];groups=a[:,-1];unique=np.unique(groups);p=x.shape[1]\n def objective(theta):\n  beta=theta[:-1];variance=math.expm1(theta[-1]);return -sum(group_integral(beta,variance,x[groups==g],y[groups==g],family) for g in unique)\n initial=np.zeros(p+2);initial[0]=0 if family=='binomial' else math.log(y.mean());initial[-1]=math.log(2)\n starts=[]\n for variance in [.25,1,4]:\n  initial[-1]=math.log1p(variance)\n  sol=optimize.minimize(objective,initial,method='Nelder-Mead',bounds=[(-20,20)]*(p+1)+[(0,math.log1p(100))],options={'xatol':1e-9,'fatol':1e-10,'maxiter':2000});starts.append(sol)\n best=min(starts,key=lambda s:s.fun);theta=best.x;beta=theta[:-1];variance=math.expm1(theta[-1]);post=[group_integral(beta,variance,x[groups==g],y[groups==g],family,True) for g in unique]\n return {'family':family,'data':data,'intercept':float(beta[0]),'coefficients':beta[1:].tolist(),'variance':variance,'log_likelihood':float(-best.fun),'optimizer_success':bool(best.success),'optimizer_message':str(best.message),'iterations':int(best.nit),'group_ids':unique.tolist(),'posterior_mean':[v[1] for v in post],'posterior_mode':[v[2] for v in post],'posterior_variance':[v[3] for v in post],'max_quad_estimated_error':max(v[4] for v in post)}\n\nstart=time.time();fixtures=[]\nbinary=[]\nfor g,s in enumerate([0,1,2,4,5,6]):\n for i in range(6):binary.append([float(i<s),float(g)])\nfixtures.append(fit(binary,'binomial'));print('binary',fixtures[-1]['intercept'],fixtures[-1]['variance'],fixtures[-1]['log_likelihood'],flush=True)\nrng=np.random.default_rng(20261022);poisson=[]\nfor g,b in enumerate([-1.,-.5,0.,.4,.8,1.2]):\n for x in [-1.,-.5,0.,.5,1.]:poisson.append([x,float(rng.poisson(np.exp(.4+.35*x+b))),float(g)])\nfixtures.append(fit(poisson,'poisson'));print('poisson',fixtures[-1]['intercept'],fixtures[-1]['coefficients'],fixtures[-1]['variance'],fixtures[-1]['log_likelihood'],flush=True)\nboundary_binary=[[float(i>=3),float(g)] for g in range(6) for i in range(6)]\nfixtures.append({'family':'binomial','data':boundary_binary,'intercept':0.,'coefficients':[],'variance':0.,'log_likelihood':36*math.log(.5),'intercept_standard_error':1/3,'source':'closed-form repeated balanced Bernoulli groups'})\nboundary_poisson=[[float(y),float(g)] for g in range(6) for y in [1,2,3,2]]\nll=sum(y*math.log(2)-2-special.gammaln(y+1) for y,g in boundary_poisson)\nfixtures.append({'family':'poisson','data':boundary_poisson,'intercept':math.log(2),'coefficients':[],'variance':0.,'log_likelihood':float(ll),'intercept_standard_error':1/math.sqrt(48),'source':'closed-form identical repeated Poisson group means'})\nresult={'schema_version':1,'timestamp_utc':datetime.now(timezone.utc).isoformat(),'seed':20261022,'numpy':np.__version__,'scipy':scipy.__version__,'elapsed_seconds':time.time()-start,'method':'scipy.integrate.quad on posterior-mode and curvature rescaled real-line integrals; scipy.optimize.brentq mode roots; Nelder-Mead integrated likelihood optimization with3independentstarts','fixtures':fixtures}\npathlib.Path('/private/tmp/jmp-glmm-quad-fixtures.json').write_text(json.dumps(result,indent=2)+'\\n');print('written',len(fixtures),'fixtures in',time.time()-start,'seconds',flush=True)\n",
+      "jmp-glmm-unbalanced-oracle.py": "import json,math,pathlib,time\nfrom datetime import datetime,timezone\nimport numpy as np\nimport scipy\nfrom scipy import integrate,optimize,special\n\ndef group_integral(beta,variance,x,y,family,moments=False):\n eta=beta[0]+x@beta[1:]\n def cond(b):\n  linear=eta+b\n  if family=='binomial':return float(np.sum(y*linear-np.logaddexp(0,linear)))\n  with np.errstate(over='ignore'):\n   mu=np.exp(linear)\n  return float(np.sum(y*linear-mu-special.gammaln(y+1)))\n if variance==0:return (cond(0),0.,0.,0.,0.) if moments else cond(0)\n def score(b):\n  linear=eta+b\n  with np.errstate(over='ignore'):\n   mu=special.expit(linear) if family=='binomial' else np.exp(linear)\n  return float(np.sum(y-mu)-b/variance)\n extent=max(1.,math.sqrt(variance));left=-extent;right=extent\n while score(left)<0:left*=2\n while score(right)>0:right*=2\n mode=optimize.brentq(score,left,right,xtol=1e-13,rtol=1e-14)\n mu=special.expit(eta+mode) if family=='binomial' else np.exp(eta+mode)\n curvature=1/variance+np.sum(mu*(1-mu) if family=='binomial' else mu)\n scale=1/math.sqrt(curvature)\n def logdensity(b):return cond(b)-.5*b*b/variance-.5*math.log(2*math.pi*variance)\n maximum=logdensity(mode)\n def weight(t):\n  v=logdensity(mode+scale*t)-maximum\n  return math.exp(v) if v>-745 else 0.\n denominator,error=integrate.quad(weight,-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n ll=maximum+math.log(scale*denominator)\n if not moments:return ll\n first,e1=integrate.quad(lambda t:t*weight(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n second,e2=integrate.quad(lambda t:t*t*weight(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n mean=mode+scale*first/denominator;posterior_variance=scale*scale*(second/denominator-(first/denominator)**2)\n return ll,mean,mode,posterior_variance,max(error,e1,e2)\n\ndef fit(data,family):\n a=np.array(data,dtype=float);x=a[:,:-2];y=a[:,-2];groups=a[:,-1];unique=np.unique(groups);p=x.shape[1]\n def objective(theta):\n  beta=theta[:-1];variance=math.expm1(theta[-1]);return -sum(group_integral(beta,variance,x[groups==g],y[groups==g],family) for g in unique)\n initial=np.zeros(p+2);initial[0]=0 if family=='binomial' else math.log(y.mean());initial[-1]=math.log(2)\n starts=[]\n for variance in [.25,1,4]:\n  initial[-1]=math.log1p(variance)\n  sol=optimize.minimize(objective,initial,method='Nelder-Mead',bounds=[(-20,20)]*(p+1)+[(0,math.log1p(100))],options={'xatol':1e-9,'fatol':1e-10,'maxiter':2000});starts.append(sol)\n best=min(starts,key=lambda s:s.fun);theta=best.x;beta=theta[:-1];variance=math.expm1(theta[-1]);post=[group_integral(beta,variance,x[groups==g],y[groups==g],family,True) for g in unique]\n return {'family':family,'data':data,'intercept':float(beta[0]),'coefficients':beta[1:].tolist(),'variance':variance,'log_likelihood':float(-best.fun),'optimizer_success':bool(best.success),'optimizer_message':str(best.message),'iterations':int(best.nit),'group_ids':unique.tolist(),'posterior_mean':[v[1] for v in post],'posterior_mode':[v[2] for v in post],'posterior_variance':[v[3] for v in post],'max_quad_estimated_error':max(v[4] for v in post)}\n\n\nstart=time.time();rng=np.random.default_rng(20261023);fixtures=[]\nfor family in ['binomial','poisson']:\n rows=[]\n for g,(size,b) in enumerate(zip([3,4,5,6,7,8,9],[-1.4,-.8,-.3,.2,.7,1.3,1.8])):\n  x=rng.normal(size=(size,2));eta=.1+.3*x[:,0]-.4*x[:,1]+b\n  yy=rng.binomial(1,special.expit(eta)) if family=='binomial' else rng.poisson(np.exp(eta))\n  for r,y in zip(x,yy):rows.append([*r,float(y),float(g)])\n fixtures.append(fit(rows,family));print(family,fixtures[-1]['intercept'],fixtures[-1]['coefficients'],fixtures[-1]['variance'],fixtures[-1]['log_likelihood'],flush=True)\nresult={'schema_version':1,'seed':20261023,'numpy':np.__version__,'scipy':scipy.__version__,'elapsed_seconds':time.time()-start,'fixtures':fixtures}\npathlib.Path('/private/tmp/jmp-glmm-unbalanced-fixtures.json').write_text(json.dumps(result,indent=2)+'\\n')\n",
+      "jmp-glmm-unbalanced-binary-oracle.py": "import json,math,pathlib,time\nfrom datetime import datetime,timezone\nimport numpy as np\nimport scipy\nfrom scipy import integrate,optimize,special\n\ndef group_integral(beta,variance,x,y,family,moments=False):\n eta=beta[0]+x@beta[1:]\n def cond(b):\n  linear=eta+b\n  if family=='binomial':return float(np.sum(y*linear-np.logaddexp(0,linear)))\n  with np.errstate(over='ignore'):\n   mu=np.exp(linear)\n  return float(np.sum(y*linear-mu-special.gammaln(y+1)))\n if variance==0:return (cond(0),0.,0.,0.,0.) if moments else cond(0)\n def score(b):\n  linear=eta+b\n  with np.errstate(over='ignore'):\n   mu=special.expit(linear) if family=='binomial' else np.exp(linear)\n  return float(np.sum(y-mu)-b/variance)\n extent=max(1.,math.sqrt(variance));left=-extent;right=extent\n while score(left)<0:left*=2\n while score(right)>0:right*=2\n mode=optimize.brentq(score,left,right,xtol=1e-13,rtol=1e-14)\n mu=special.expit(eta+mode) if family=='binomial' else np.exp(eta+mode)\n curvature=1/variance+np.sum(mu*(1-mu) if family=='binomial' else mu)\n scale=1/math.sqrt(curvature)\n def logdensity(b):return cond(b)-.5*b*b/variance-.5*math.log(2*math.pi*variance)\n maximum=logdensity(mode)\n def weight(t):\n  v=logdensity(mode+scale*t)-maximum\n  return math.exp(v) if v>-745 else 0.\n denominator,error=integrate.quad(weight,-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n ll=maximum+math.log(scale*denominator)\n if not moments:return ll\n first,e1=integrate.quad(lambda t:t*weight(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n second,e2=integrate.quad(lambda t:t*t*weight(t),-np.inf,np.inf,epsabs=1e-11,epsrel=1e-11,limit=300)\n mean=mode+scale*first/denominator;posterior_variance=scale*scale*(second/denominator-(first/denominator)**2)\n return ll,mean,mode,posterior_variance,max(error,e1,e2)\n\ndef fit(data,family):\n a=np.array(data,dtype=float);x=a[:,:-2];y=a[:,-2];groups=a[:,-1];unique=np.unique(groups);p=x.shape[1]\n def objective(theta):\n  beta=theta[:-1];variance=math.expm1(theta[-1]);return -sum(group_integral(beta,variance,x[groups==g],y[groups==g],family) for g in unique)\n initial=np.zeros(p+2);initial[0]=0 if family=='binomial' else math.log(y.mean());initial[-1]=math.log(2)\n starts=[]\n for variance in [.25,1,4]:\n  initial[-1]=math.log1p(variance)\n  sol=optimize.minimize(objective,initial,method='Nelder-Mead',bounds=[(-20,20)]*(p+1)+[(0,math.log1p(100))],options={'xatol':1e-9,'fatol':1e-10,'maxiter':2000});starts.append(sol)\n best=min(starts,key=lambda s:s.fun);theta=best.x;beta=theta[:-1];variance=math.expm1(theta[-1]);post=[group_integral(beta,variance,x[groups==g],y[groups==g],family,True) for g in unique]\n return {'family':family,'data':data,'intercept':float(beta[0]),'coefficients':beta[1:].tolist(),'variance':variance,'log_likelihood':float(-best.fun),'optimizer_success':bool(best.success),'optimizer_message':str(best.message),'iterations':int(best.nit),'group_ids':unique.tolist(),'posterior_mean':[v[1] for v in post],'posterior_mode':[v[2] for v in post],'posterior_variance':[v[3] for v in post],'max_quad_estimated_error':max(v[4] for v in post)}\n\n\nstart=time.time();rng=np.random.default_rng(20261023);fixtures=[]\nfor family in ['binomial']:\n rows=[]\n for g,(size,b) in enumerate(zip([3,4,5,6,7,8,9],[-1.4,-.8,-.3,.2,.7,1.3,1.8])):\n  x=rng.normal(size=(size,2));eta=.1+.3*x[:,0]-.4*x[:,1]+b\n  yy=np.arange(size)<[0,0,1,3,5,7,9][g] if family=='binomial' else rng.poisson(np.exp(eta))\n  for r,y in zip(x,yy):rows.append([*r,float(y),float(g)])\n fixtures.append(fit(rows,family));print(family,fixtures[-1]['intercept'],fixtures[-1]['coefficients'],fixtures[-1]['variance'],fixtures[-1]['log_likelihood'],flush=True)\nresult={'schema_version':1,'seed':20261023,'numpy':np.__version__,'scipy':scipy.__version__,'elapsed_seconds':time.time()-start,'fixtures':fixtures}\npathlib.Path('/private/tmp/jmp-glmm-unbalanced-binary-fixture.json').write_text(json.dumps(result,indent=2)+'\\n')\n"
+    },
+    "fixture_merge": "Base4fixtures + positive binary fixture from unbalanced-binary result + Poisson fixture index1 from unbalanced result. Raw data and exact expected values are retained in fixtures field,so comparison replay does not require regeneration."
+  }
+}

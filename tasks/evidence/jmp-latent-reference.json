@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-10-21T14:29:21.651578+00:00",
+  "seed": 20261021,
+  "layer": "actual exported public ds_analytics_run/free C ABI compiled from crates/analytics/src/lib.rs; native DuckDB SQL is not covered",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O"
+  },
+  "checks": {
+    "mds_gower_gram": {
+      "assertions": 142,
+      "max_absolute_error": 4.618527782440651e-14
+    },
+    "mds_eigenvalues": {
+      "assertions": 20,
+      "max_absolute_error": 1.7763568394002505e-14
+    },
+    "mds_distance_input": {
+      "assertions": 142,
+      "max_absolute_error": 4.973799150320701e-14
+    },
+    "mds_translation": {
+      "assertions": 142,
+      "max_absolute_error": 8.952838470577262e-13
+    },
+    "mds_standardization": {
+      "assertions": 142,
+      "max_absolute_error": 7.105427357601002e-15
+    },
+    "mds_stress": {
+      "assertions": 3,
+      "max_absolute_error": 2.8568620721072353e-18
+    },
+    "ca_singular_values": {
+      "assertions": 12,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "ca_masses": {
+      "assertions": 44,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "ca_inertias": {
+      "assertions": 12,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "ca_row_geometry": {
+      "assertions": 108,
+      "max_absolute_error": 5.551115123125783e-16
+    },
+    "ca_column_geometry": {
+      "assertions": 68,
+      "max_absolute_error": 1.7763568394002505e-15
+    },
+    "ca_pearson_chi_square": {
+      "assertions": 6,
+      "max_absolute_error": 2.842170943040401e-14
+    },
+    "ca_frequency_units": {
+      "assertions": 3,
+      "max_absolute_error": 2.220446049250313e-16
+    },
+    "paf_convergence": {
+      "assertions": 2,
+      "max_absolute_error": 0.0
+    },
+    "paf_common_covariance": {
+      "assertions": 72,
+      "max_absolute_error": 1.788202919073001e-11
+    },
+    "paf_communalities": {
+      "assertions": 12,
+      "max_absolute_error": 1.788202919073001e-11
+    },
+    "paf_uniquenesses": {
+      "assertions": 12,
+      "max_absolute_error": 1.788202919073001e-11
+    },
+    "varimax_convergence": {
+      "assertions": 2,
+      "max_absolute_error": 0.0
+    },
+    "varimax_orthogonality": {
+      "assertions": 8,
+      "max_absolute_error": 1.0669913033007725e-17
+    },
+    "varimax_rotation": {
+      "assertions": 24,
+      "max_absolute_error": 1.1102230246251565e-16
+    },
+    "varimax_covariance": {
+      "assertions": 72,
+      "max_absolute_error": 1.788202919073001e-11
+    },
+    "varimax_objective": {
+      "assertions": 2,
+      "max_absolute_error": 0.0
+    },
+    "factor_saved_scores": {
+      "assertions": 36,
+      "max_absolute_error": 3.885780586188048e-15
+    },
+    "factor_raw_scores": {
+      "assertions": 300,
+      "max_absolute_error": 3.9968028886505635e-15
+    },
+    "factor_saved_raw_scores": {
+      "assertions": 300,
+      "max_absolute_error": 4.440892098500626e-16
+    },
+    "cca_singular_values": {
+      "assertions": 14,
+      "max_absolute_error": 1.942890293094024e-16
+    },
+    "cca_score_normalization": {
+      "assertions": 34,
+      "max_absolute_error": 1.3322676295501878e-15
+    },
+    "cca_cross_covariance": {
+      "assertions": 34,
+      "max_absolute_error": 2.7755575615628914e-16
+    },
+    "cca_score_correlation": {
+      "assertions": 14,
+      "max_absolute_error": 1.6653345369377348e-16
+    },
+    "cca_saved_scores": {
+      "assertions": 2240,
+      "max_absolute_error": 4.440892098500626e-16
+    },
+    "gmm_single_mean": {
+      "assertions": 3,
+      "max_absolute_error": 1.4210854715202004e-14
+    },
+    "gmm_single_covariance": {
+      "assertions": 9,
+      "max_absolute_error": 1.7763568394002505e-15
+    },
+    "gmm_single_log_density": {
+      "assertions": 50,
+      "max_absolute_error": 3.907985046680551e-14
+    },
+    "gmm_single_log_likelihood": {
+      "assertions": 1,
+      "max_absolute_error": 2.842170943040401e-14
+    },
+    "gmm_single_convergence": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "gmm_saved_log_density": {
+      "assertions": 8,
+      "max_absolute_error": 1.4210854715202004e-13
+    },
+    "gmm_aic_bic": {
+      "assertions": 2,
+      "max_absolute_error": 5.684341886080802e-14
+    },
+    "gmm_independent_optimizer": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "gmm_two_log_likelihood": {
+      "assertions": 1,
+      "max_absolute_error": 1.4210854715202004e-14
+    },
+    "gmm_two_means": {
+      "assertions": 2,
+      "max_absolute_error": 1.0664269467497434e-10
+    },
+    "gmm_two_weights": {
+      "assertions": 2,
+      "max_absolute_error": 1.952021877471566e-11
+    },
+    "gmm_two_covariances": {
+      "assertions": 2,
+      "max_absolute_error": 9.187328675608342e-11
+    },
+    "gmm_monotone": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "gmm_determinism": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "gmm_two_probabilities": {
+      "assertions": 160,
+      "max_absolute_error": 5.22277233024331e-15
+    },
+    "som_local_linear_codebook": {
+      "assertions": 18,
+      "max_absolute_error": 3.552713678800501e-15
+    },
+    "som_labels": {
+      "assertions": 40,
+      "max_absolute_error": 0.0
+    },
+    "som_quantization": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "som_topographic": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "som_saved_labels": {
+      "assertions": 9,
+      "max_absolute_error": 0.0
+    },
+    "som_saved_distances": {
+      "assertions": 9,
+      "max_absolute_error": 2.220446049250313e-15
+    },
+    "som_iteration_limit_not_convergence": {
+      "assertions": 1,
+      "max_absolute_error": 0.0
+    },
+    "large_offset_density": {
+      "assertions": 3,
+      "max_absolute_error": 0.0
+    },
+    "large_offset_saved_density": {
+      "assertions": 3,
+      "max_absolute_error": 0.0
+    },
+    "public_abi_invalid_NULL": {
+      "assertions": 18,
+      "max_absolute_error": 0.0
+    }
+  },
+  "assertions_total": 4369,
+  "optimizer": {
+    "method": "scipy.optimize BFGS on direct 1D two-component likelihood",
+    "success": true,
+    "gradient_norm": 1.6027278712984426e-08
+  },
+  "library_sha256": "df77e61f74d5c7d954a692448edbbb57bf704bd7cbe046ae5102c8b38979ae19",
+  "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+  "source_sha256": {
+    "crates/analytics/src/latent.rs": "c98a82f87b0011f485d19c3d6eb9c517d02a2e5577d4bf6b660c5662b62dcfd0",
+    "crates/analytics/tests/latent.rs": "cc2cfa26a415e9a68f283b429575e6230f6166837cc92e900edbc2c9c3f27a08"
+  },
+  "primary_sources": {
+    "mds": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/multidimensional-scaling.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-stress-function.shtml"
+    ],
+    "correspondence_analysis": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/correspondence-analysis-report.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-correspondence-analysis.shtml"
+    ],
+    "factor_analysis": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-factor-analysis-platform.shtml"
+    ],
+    "canonical_correlation": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/multivariate-response-reports.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/example-of-canonical-correlation-analysis.shtml"
+    ],
+    "gaussian_mixture": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/normal-mixtures.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-platforms-for-clustering-observations.shtml"
+    ],
+    "self_organizing_map": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/self-organizing-map.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/description-of-som-algorithm.shtml"
+    ]
+  },
+  "scope": "Six substantive bounded CPU estimators plus Gaussian mixture and SOM saved-model reuse. Method subsets are explicit in tasks/jmp-latent-api.json; this is not complete JMP family parity.",
+  "operations_covered": [
+    "mds",
+    "correspondence_analysis",
+    "factor_analysis",
+    "canonical_correlation",
+    "gaussian_mixture",
+    "gaussian_mixture_predict",
+    "self_organizing_map",
+    "som_predict",
+    "glm_predict (existing operation used for factor/CCA scoring reuse)"
+  ],
+  "verification_layers": {
+    "baseline": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test multivariate --quiet",
+      "status": "14 passed"
+    },
+    "candidate_unit_integration_contract": {
+      "command": "rustc --edition=2021 --test /private/tmp/ducksmiles-latent-candidate-tests.rs -o /private/tmp/rusta-ducksmiles-jmp-target/latent-candidate-tests && /private/tmp/rusta-ducksmiles-jmp-target/latent-candidate-tests --nocapture",
+      "status": "15 passed; the unmodified public execute tests are included in a temporary wrapper that locally routes to candidate latent::run; this does not prove real public dispatch"
+    },
+    "candidate_clippy": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo clippy --manifest-path /private/tmp/ducksmiles-latent-candidate-check/Cargo.toml -- -D warnings",
+      "status": "passed in temporary no-dependency library exposing candidate latent.rs"
+    },
+    "rustfmt": {
+      "command": "rustfmt --check crates/analytics/src/latent.rs crates/analytics/tests/latent.rs",
+      "status": "passed"
+    },
+    "public_execute": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test latent",
+      "status": "15 passed, 0 failed; actual public execute dispatch",
+      "log": "/private/tmp/ducksmiles-latent-public.log",
+      "log_sha256": "82fedadc9a73e5c0be8506b05ca5c603e639f3dcf221db0beeafe8f0d11f2b83",
+      "collected_by": "root session41276 exit0; exact log read independently"
+    },
+    "sql_examples": {
+      "status": "8 literal SQL example payloads previously passed candidate run; actual SQL binding/native execution still pending."
+    },
+    "native_sql": {
+      "status": "not run for new latent methods; SQL registration fragment prepared for parent integration and native build."
+    },
+    "full_workspace": {
+      "status": "Parent owns final workspace verification after additional implementations; focused actual public latent suite15passes."
+    },
+    "public_c_abi": {
+      "command": "rustc --edition=2021 --crate-type cdylib -O /private/tmp/rusta-ducksmiles-jmp-target/latent-public-snapshot/lib.rs -o /private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_latent_public.dylib; python3 /private/tmp/jmp-latent-public-oracle.py",
+      "status": "55 groups, 4369 assertions passed, including 4351 reference fields/properties and18 invalid-input NULL/zero-output-length checks",
+      "api": "ds_analytics_run/free exported from actual lib.rs, calling actual execute dispatch",
+      "note": "Rust compilation directly is valid here because the analytics crate has no external dependencies; production sources are unchanged."
+    }
+  },
+  "tdd_evidence": [
+    {
+      "stage": "initial feature RED",
+      "observation": "10 initial tests using actual public execute: 9 behavior failures unknown optimization operation, 1 rejection-only pass before candidate implementation."
+    },
+    {
+      "stage": "Gaussian density overflow regression",
+      "observation": "Extreme finite query [1e308,1e308] against covariance [[.6,.4],[.4,.6]] previously produced center density through NaN.max(0); test observed RED then passed after eigen-whitened quadratic finite validation."
+    },
+    {
+      "stage": "portable model size regression",
+      "observation": "GMM and SOM previously emitted >16384 doubles; tests observed RED then passed with early fit rejection and bounded run args."
+    },
+    {
+      "stage": "rank-deficient CCA regression",
+      "observation": "Rotated rank-one cross covariance previously reported spurious ~2.9e-9 singular value and near-zero canonical score variance; test observed RED then passed after one-sided Jacobi SVD/null completion."
+    },
+    {
+      "stage": "covariance symmetry regression",
+      "observation": "Saved covariance [1e-20,0;1e-11,1e-20] previously passed absolute symmetry tolerance; test observed RED then passed after relative covariance-scale check."
+    },
+    {
+      "stage": "embedding default regression",
+      "observation": "Two observations with default MDS args failed because dimensions=2 exceeds available 1 axis; test observed RED then passed when default is min(2,available axes). Same default fix applies to 2x2 CA."
+    }
+  ],
+  "independent_review": {
+    "reviewer": "separate read-only latent_math_review agent; recompiled current source independently",
+    "svd": {
+      "seed": 7721,
+      "cases": 70,
+      "shapes": "1..64 square, wide and tall; random, zero, rank-one, rank-minus-one and near-rank-deficient matrices",
+      "max_relative_reconstruction_error": 3.0470068529112635e-12,
+      "max_orthogonality_error": 3.1354764576158836e-13,
+      "max_relative_singular_value_error": 1.0000178640109908e-12,
+      "status": "passed"
+    },
+    "cca": {
+      "seed": 2307721,
+      "cases": 44,
+      "shapes": "1..32 variables per block; full/rank-one/rank-minus-one/near-rank-deficient canonical correlations and feature scales 1e-3..1e3",
+      "max_unit_score_covariance_error": 1.9859632040600408e-14,
+      "max_cross_diagonal_error": 1.471737568368487e-12,
+      "max_singular_value_error": 3.4990355942154354e-14,
+      "status": "passed"
+    },
+    "som": "One batch iteration on random40x3 data independently compared to expanded per-observation NumPy weighted least squares, max original-codebook error 2.22e-15.",
+    "varimax": "Random known-covariance checks: objective does not decrease, loadings*rotation agrees with rotated loadings within 3e-16, rotation orthogonality within 1e-15.",
+    "resource_audit": {
+      "status": "All shapes, cells, iteration counts, starts and nominal work are bounded; MAX_WORK is not a cumulative CPU-operation cap.",
+      "specific_case": "2 observations x32 features; GMM [2,2000,1e-12,32,42,1]. Nominal EM guard 8192000 units passes; independent temporary instrumentation measured about321290240 eigen sweep p^3 units,1633 iterations,0.48 seconds optimized on this machine.",
+      "limitation": "Repeated eigen decomposition cost is bounded separately per eigensolver, not accumulated into the nominal EM estimate. No unbounded memory or unacceptable runtime was established; documentation states nominal guard semantics."
+    }
+  },
+  "limits": [
+    "Classical Gower MDS is not JMP quasi-Newton optimized Stress1/nonmetric MDS.",
+    "Correspondence analysis accepts a simple contingency matrix; MCA and supplementary projection are absent.",
+    "Factor analysis is principal-axis factoring with ONE/SMC and optional Kaiser-normalized varimax; ML and oblique rotations/inference are absent.",
+    "CCA is numerical two-block whitening with optional standardized ridge; MANOVA/canonical inference is absent.",
+    "Gaussian mixture has full covariance, eigenvalue-floor constrained EM and user-specified component count; no global optimum guarantee.",
+    "SOM is deterministic PCA-initialized rectangular batch local-linear Gaussian smoothing with fixed bandwidth and explicit weighted-mean fallback; no assertion of identical JMP codebooks.",
+    "MAX_WORK is a nominal per-method preflight estimate and separate solver guard, not a cumulative CPU instruction ceiling.",
+    "Actual public execute and exported C ABI are verified; DuckDB SQL registration/native execution remain pending."
+  ],
+  "replay": {
+    "instructions": [
+      "The primary oracle uses the real production ds_analytics_run/free exports; no candidate dispatcher is substituted.",
+      "Compile current crates/analytics/src/lib.rs directly as cdylib with rustc; the production analytics crate has no external dependencies. The recorded artifact used an unchanged source snapshot for concurrent-edit isolation; its exact per-file hashes are stored above.",
+      "Save python_oracle as /private/tmp/jmp-latent-public-oracle.py and run the first two replay commands. NumPy/SciPy are verification dependencies only.",
+      "Optional read-only primitive reviews: save review_operation_wrapper_rust as /private/tmp/latent_review.rs; concatenate current latent.rs with private_svd_main_rust into /private/tmp/latent_svd_review.rs. Save review_python_svd and review_python_cca to their indicated filenames, compile wrappers and run the remaining commands.",
+      "candidate_test_wrapper_rust records the pre-dispatch standalone test layer only; actual cargo --test latent15passes is independently recorded above."
+    ],
+    "commands": [
+      "rustc --edition=2021 --crate-type cdylib -O crates/analytics/src/lib.rs -o /private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_latent_public.dylib",
+      "python3 /private/tmp/jmp-latent-public-oracle.py --library /private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_latent_public.dylib --output /private/tmp/jmp-latent-public-oracle-result.json",
+      "rustc --edition=2021 -O /private/tmp/latent_review.rs -o /private/tmp/rusta-ducksmiles-jmp-target/latent_review",
+      "rustc --edition=2021 -O /private/tmp/latent_svd_review.rs -o /private/tmp/rusta-ducksmiles-jmp-target/latent_svd_review",
+      "python3 /private/tmp/review_latent.py",
+      "python3 /private/tmp/review_cca.py"
+    ],
+    "candidate_test_wrapper_rust": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/latent.rs\"]\nmod latent_candidate;\n#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/glm.rs\"]\nmod existing_glm;\nmod ducksmiles_analytics {\n    pub fn execute(op:&str,data:&[Vec<f64>],args:&[f64])->Result<String,String> {\n        if op==\"glm_predict\" { crate::existing_glm::run(op,data,args) }\n        else { crate::latent_candidate::run(op,data,args) }\n    }\n}\ninclude!(\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/tests/latent.rs\");\n",
+    "review_operation_wrapper_rust": "#[path=\"/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/latent.rs\"]\nmod latent;\nuse std::io::{self,Read};\nfn main() {\n let mut s=String::new();io::stdin().read_to_string(&mut s).unwrap();\n let mut t=s.split_whitespace();let op=t.next().unwrap();let n:usize=t.next().unwrap().parse().unwrap();let p:usize=t.next().unwrap().parse().unwrap();\n let mut data=Vec::new();for _ in 0..n { let mut row=Vec::new();for _ in 0..p {row.push(t.next().unwrap().parse::<f64>().unwrap());}data.push(row);}\n let args=t.map(|x|x.parse::<f64>().unwrap()).collect::<Vec<_>>();\n match latent::run(op,&data,&args) {Ok(j)=>println!(\"{j}\"),Err(e)=>println!(\"ERROR: {e}\")}\n}\n",
+    "private_svd_main_rust": "\nfn main() {\n use std::io::{self,Read};\n let mut s=String::new();io::stdin().read_to_string(&mut s).unwrap();let mut t=s.split_whitespace();\n let p:usize=t.next().unwrap().parse().unwrap();let q:usize=t.next().unwrap().parse().unwrap();\n let mut a=Vec::new();for _ in 0..p {let mut r=Vec::new();for _ in 0..q {r.push(t.next().unwrap().parse::<f64>().unwrap());}a.push(r);}\n match svd(&a) {Ok(d)=>println!(\"{{\\\"values\\\":{},\\\"u\\\":{},\\\"v\\\":{}}}\",numbers(&d.values),matrix(&d.u),matrix(&d.v)),Err(e)=>println!(\"ERROR: {e}\")}\n}\n",
+    "python_oracle": "import argparse, ctypes, hashlib, json, math, pathlib, platform, sys\nfrom datetime import datetime, timezone\nimport numpy as np\nimport scipy\nfrom scipy import optimize, spatial, stats\nfrom scipy.special import expit, logsumexp\n\nparser=argparse.ArgumentParser()\nparser.add_argument('--library',default='/private/tmp/rusta-ducksmiles-jmp-target/libducksmiles_analytics_latent_public.dylib')\nparser.add_argument('--output',default='/private/tmp/jmp-latent-oracle-result.json')\noptions=parser.parse_args()\nlib=ctypes.CDLL(options.library)\nlib.ds_analytics_run.argtypes=[ctypes.c_char_p,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_size_t,ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.POINTER(ctypes.c_size_t)]\nlib.ds_analytics_run.restype=ctypes.c_void_p\nlib.ds_analytics_free.argtypes=[ctypes.c_void_p,ctypes.c_size_t]\nchecks={}\ndef run(operation,data,args=()):\n    a=np.ascontiguousarray(data,dtype=np.float64); b=np.ascontiguousarray(args,dtype=np.float64)\n    operation_bytes=operation.encode();size=ctypes.c_size_t(0)\n    ptr=lib.ds_analytics_run(operation_bytes,len(operation_bytes),a.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),a.shape[0],a.shape[1],b.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),b.size,ctypes.byref(size))\n    if not ptr: raise ValueError('Public C ABI returned NULL: '+operation)\n    try: value=ctypes.string_at(ptr,size.value).decode()\n    finally: lib.ds_analytics_free(ptr,size.value)\n    result=json.loads(value); assert result['version']==1\n    return result\n\ndef check(group,actual,expected,rtol=2e-8,atol=2e-10):\n    a=np.asarray(actual,dtype=float); b=np.asarray(expected,dtype=float)\n    assert a.shape==b.shape,(group,a.shape,b.shape)\n    assert np.all(np.isfinite(a)),(group,'nonfinite')\n    np.testing.assert_allclose(a,b,rtol=rtol,atol=atol,err_msg=group)\n    item=checks.setdefault(group,{'assertions':0,'max_absolute_error':0.})\n    item['assertions']+=int(a.size)\n    item['max_absolute_error']=max(item['max_absolute_error'],float(np.max(np.abs(a-b),initial=0)))\n\ndef require(group,condition):\n    assert condition,group\n    checks.setdefault(group,{'assertions':0,'max_absolute_error':0.})['assertions']+=1\n\nrng=np.random.default_rng(20261021)\nfor n,p in [(5,2),(9,3),(6,1)]:\n    x=rng.normal(size=(n,p))*np.linspace(.5,3,p)+np.arange(p)*5\n    d=spatial.distance.squareform(spatial.distance.pdist(x))\n    center=np.eye(n)-np.ones((n,n))/n; gram=-.5*center@(d*d)@center\n    e=np.linalg.eigvalsh(gram)[::-1]\n    result=run('mds',x,[p]); coordinates=np.asarray(result['coordinates'])\n    check('mds_gower_gram',coordinates@coordinates.T,gram)\n    check('mds_eigenvalues',result['eigenvalues'],e)\n    distances=run('mds',d,[p,1]); c=np.asarray(distances['coordinates'])\n    check('mds_distance_input',c@c.T,gram)\n    translated=run('mds',x+1234,[p]); c=np.asarray(translated['coordinates'])\n    check('mds_translation',c@c.T,gram)\n    standardized=run('mds',x,[p,0,1]); c=np.asarray(standardized['coordinates'])\n    z=(x-x.mean(0))/x.std(0)\n    check('mds_standardization',c@c.T,z@z.T)\n    dimension=1\n    r=run('mds',x,[dimension]); c=np.asarray(r['coordinates'])\n    fitted=spatial.distance.pdist(c); target=spatial.distance.pdist(x)\n    check('mds_stress',r['normalized_raw_stress'],np.sqrt(np.sum((fitted-target)**2)/np.sum(target**2)))\n\nfor rows,cols in [(3,4),(6,3),(3,3)]:\n    counts=rng.integers(1,40,size=(rows,cols)).astype(float); probability=counts/counts.sum()\n    rm=probability.sum(1); cm=probability.sum(0)\n    s=(probability-np.outer(rm,cm))/np.sqrt(np.outer(rm,cm)); u,values,vt=np.linalg.svd(s,full_matrices=False)\n    axes=min(rows-1,cols-1); values=values[:axes]\n    for scaling in [0,1]:\n        r=run('correspondence_analysis',counts,[axes,scaling])\n        check('ca_singular_values',r['singular_values'],values)\n        check('ca_masses',r['row_masses'],rm);check('ca_masses',r['column_masses'],cm)\n        check('ca_inertias',r['inertias'],values**2)\n        power=values if scaling==0 else np.sqrt(values)\n        rc=u[:,:axes]*power/np.sqrt(rm)[:,None]; cc=vt[:axes].T*power/np.sqrt(cm)[:,None]\n        observed=np.asarray(r['row_coordinates']);check('ca_row_geometry',observed@observed.T,rc@rc.T)\n        observed=np.asarray(r['column_coordinates']);check('ca_column_geometry',observed@observed.T,cc@cc.T)\n        check('ca_pearson_chi_square',r['chi_square'],stats.chi2_contingency(counts,correction=False).statistic)\n    r=run('correspondence_analysis',counts*7.5,[axes]);check('ca_frequency_units',r['total_inertia'],np.sum(values**2))\n\ndef paf_reference(r,k,prior,tolerance=1e-12):\n    h=np.ones(len(r)) if prior==0 else np.clip(1-1/np.diag(np.linalg.inv(r)),0,1)\n    for _ in range(10000):\n        reduced=r.copy();np.fill_diagonal(reduced,h)\n        e,v=np.linalg.eigh(reduced); order=np.argsort(e)[::-1][:k]; loadings=v[:,order]*np.sqrt(e[order])\n        next_h=np.sum(loadings**2,axis=1)\n        if np.max(abs(next_h-h))<=tolerance: h=next_h; break\n        h=next_h\n    reduced=r.copy();np.fill_diagonal(reduced,h);e,v=np.linalg.eigh(reduced);order=np.argsort(e)[::-1][:k]\n    return v[:,order]*np.sqrt(e[order])\n\nloadings=np.array([[.75,.1],[.7,.15],[.65,.05],[.1,.72],[.15,.68],[.05,.78]])\nr=loadings@loadings.T;np.fill_diagonal(r,1)\nfor prior in [0,1]:\n    reference=paf_reference(r,2,prior); common=reference@reference.T\n    fit=run('factor_analysis',r,[2,0,1000,1e-11,prior,1]);observed=np.asarray(fit['loadings'])\n    require('paf_convergence',fit['converged'])\n    check('paf_common_covariance',observed@observed.T,common,atol=2e-8)\n    check('paf_communalities',fit['communalities'],np.diag(common),atol=2e-8)\n    check('paf_uniquenesses',fit['uniquenesses'],1-np.diag(common),atol=2e-8)\n    rotated=run('factor_analysis',r,[2,1,1000,1e-11,prior,1]);a=np.asarray(rotated['unrotated_loadings']);b=np.asarray(rotated['loadings']);t=np.asarray(rotated['rotation_matrix'])\n    require('varimax_convergence',rotated['converged']);check('varimax_orthogonality',t.T@t,np.eye(2))\n    check('varimax_rotation',a@t,b);check('varimax_covariance',b@b.T,common,atol=2e-8)\n    def objective(v):\n        v=v/np.linalg.norm(v,axis=1)[:,None]\n        return np.sum(np.sum(v**4,axis=0)-np.sum(v**2,axis=0)**2/len(v))\n    require('varimax_objective',objective(b)>=objective(a)-1e-10)\n    data=rng.normal(size=(9,len(r)));weights=np.linalg.solve(r,b)\n    for axis,parameters in enumerate(rotated['score_predict_parameters']):\n        predicted=run('glm_predict',data,parameters)['predictions'];check('factor_saved_scores',predicted,data@weights[:,axis])\n\n# Raw data scoring independently uses sample correlation and population scaling.\nx=rng.normal(size=(150,6))@np.linalg.cholesky(r).T*np.arange(1,7)+100\nfit=run('factor_analysis',x,[2,0,1000,1e-10]);z=(x-x.mean(0))/x.std(0);rr=z.T@z/len(x)\nweights=np.linalg.solve(rr,np.asarray(fit['loadings']));check('factor_raw_scores',fit['scores'],z@weights)\nfor axis,parameters in enumerate(fit['score_predict_parameters']):\n    check('factor_saved_raw_scores',run('glm_predict',x,parameters)['predictions'],np.asarray(fit['scores'])[:,axis])\n\nfor p,q in [(2,3),(4,2),(3,3)]:\n    n=80;x=rng.normal(size=(n,p))*np.geomspace(.1,10,p)+500;y=rng.normal(size=(n,q))+x[:,:1]*rng.normal(size=q)\n    rows=np.c_[x,y];zx=(x-x.mean(0))/x.std(0);zy=(y-y.mean(0))/y.std(0)\n    sx=zx.T@zx/(n-1);sy=zy.T@zy/(n-1);sxy=zx.T@zy/(n-1)\n    for ridge in [0,.25]:\n        xx=sx+ridge*np.eye(p); yy=sy+ridge*np.eye(q)\n        def inverse_sqrt(a):\n            e,v=np.linalg.eigh(a);return (v/np.sqrt(e))@v.T\n        whitened=inverse_sqrt(xx)@sxy@inverse_sqrt(yy);reference=np.linalg.svd(whitened,compute_uv=False)\n        fit=run('canonical_correlation',rows,[p,min(p,q),ridge]);xs=np.asarray(fit['x_scores']);ys=np.asarray(fit['y_scores'])\n        check('cca_singular_values',fit['canonical_correlations'],reference)\n        if ridge==0:\n            check('cca_score_normalization',xs.T@xs/(n-1),np.eye(min(p,q)))\n            check('cca_score_normalization',ys.T@ys/(n-1),np.eye(min(p,q)))\n        check('cca_cross_covariance',xs.T@ys/(n-1),np.diag(reference))\n        check('cca_score_correlation',fit['score_correlations'],[np.corrcoef(xs[:,i],ys[:,i])[0,1] for i in range(min(p,q))])\n        for block,features in [('x',x),('y',y)]:\n            for axis,parameters in enumerate(fit[block+'_score_predict_parameters']):\n                check('cca_saved_scores',run('glm_predict',features,parameters)['predictions'],np.asarray(fit[block+'_scores'])[:,axis])\n\n# Multivariate one-component MLE is available in closed form, including covariance cross terms.\nx=rng.normal(size=(50,3))@np.array([[1,.3,.2],[0,2,.4],[0,0,.7]])+np.array([100,-10,4])\nfit=run('gaussian_mixture',x,[1,50,1e-10,1e-10,12]);mu=x.mean(0);cov=np.cov(x,rowvar=False,bias=True)\ncheck('gmm_single_mean',fit['component_means'],mu[None,:]);check('gmm_single_covariance',fit['component_covariances_flat'],cov.reshape(1,-1))\nll=stats.multivariate_normal.logpdf(x,mu,cov);check('gmm_single_log_density',fit['sample_log_likelihood'],ll)\ncheck('gmm_single_log_likelihood',fit['log_likelihood'],ll.sum());require('gmm_single_convergence',fit['converged'])\nquery=rng.normal(size=(8,3))*4+mu\npred=run('gaussian_mixture_predict',query,fit['predict_parameters']);check('gmm_saved_log_density',pred['sample_log_likelihood'],stats.multivariate_normal.logpdf(query,mu,cov))\nparameter_count=3+3*4//2\ncheck('gmm_aic_bic',[fit['aic'],fit['bic']],[2*parameter_count-2*ll.sum(),parameter_count*np.log(len(x))-2*ll.sum()])\n\n# Independent direct likelihood optimization of a nontrivial two-component 1D mixture.\nx=np.r_[rng.normal(-2.5,.5,35),rng.normal(2.2,.8,45)]\ndef mixture_nll(parameters):\n    weight=expit(parameters[0]);means=parameters[1:3];sd=np.exp(parameters[3:5]);logs=np.c_[np.log(weight)+stats.norm.logpdf(x,means[0],sd[0]),np.log1p(-weight)+stats.norm.logpdf(x,means[1],sd[1])]\n    row_ll=logsumexp(logs,axis=1);responsibilities=np.exp(logs-row_ll[:,None])\n    residual=x[:,None]-means;gradient=np.r_[np.sum(weight-responsibilities[:,0]),np.sum(-responsibilities*residual/(sd*sd),axis=0),np.sum(responsibilities*(1-residual*residual/(sd*sd)),axis=0)]\n    return -np.sum(row_ll),gradient\noracle=optimize.minimize(mixture_nll,[math.log(35/45),-2.5,2.2,math.log(.5),math.log(.8)],jac=True,method='BFGS',options={'gtol':1e-8,'maxiter':2000})\nrequire('gmm_independent_optimizer',oracle.success or np.linalg.norm(oracle.jac)<1e-5)\nfit=run('gaussian_mixture',x[:,None],[2,1000,1e-11,1e-10,42,8]);par=oracle.x\ncheck('gmm_two_log_likelihood',fit['log_likelihood'],-oracle.fun,atol=2e-7)\ncheck('gmm_two_means',np.asarray(fit['component_means']).ravel(),par[1:3],rtol=1e-5,atol=3e-6)\ncheck('gmm_two_weights',fit['weights'],[expit(par[0]),1-expit(par[0])],rtol=1e-5,atol=3e-6)\ncheck('gmm_two_covariances',np.asarray(fit['component_covariances_flat']).ravel(),np.exp(par[3:5])**2,rtol=1e-5,atol=3e-6)\nrequire('gmm_monotone',np.min(np.diff(fit['log_likelihood_history']))>=-1e-8)\nrequire('gmm_determinism',fit==run('gaussian_mixture',x[:,None],[2,1000,1e-11,1e-10,42,8]))\nprobability=np.exp(np.c_[np.log(expit(par[0]))+stats.norm.logpdf(x,par[1],np.exp(par[3])),np.log1p(-expit(par[0]))+stats.norm.logpdf(x,par[2],np.exp(par[4]))]+oracle.fun*0)\nprobability/=probability.sum(axis=1)[:,None]\ncheck('gmm_two_probabilities',fit['probabilities'],probability,atol=5e-6)\n\n# SOM oracle expands every observation in local WLS, independently of fit's count/mean aggregation.\nx=rng.normal(size=(40,3))*[1,2,.5]+[3,-4,2];z=(x-x.mean(0))/x.std(0);n=len(x)\ngrid=np.array([[a,b] for a in [-1,1] for b in [-1,0,1]])\ne,v=np.linalg.eigh(z.T@z/n);order=np.argsort(e)[::-1];e=e[order];v=v[:,order]\nfor axis in range(v.shape[1]):\n    anchor=np.argmax(abs(v[:,axis]));v[:,axis]*=1 if v[anchor,axis]>=0 else -1\ncodebook=2.5*(grid[:,1,None]*np.sqrt(e[0])*v[:,0]+grid[:,0,None]*np.sqrt(e[1])*v[:,1])\nlabels=np.argmin(spatial.distance.cdist(z,codebook),axis=1);next_codebook=[]\nfor target in grid:\n    delta=grid[labels]-target;design=np.c_[np.ones(n),delta]\n    weights=np.exp(-.5*np.sum(delta**2,axis=1)/.7**2)\n    solution=np.linalg.lstsq(design*np.sqrt(weights)[:,None],z*np.sqrt(weights)[:,None],rcond=None)[0]\n    next_codebook.append(solution[0])\nnext_codebook=np.array(next_codebook);fit=run('self_organizing_map',x,[2,3,1,.7,1,1e-8]);expected=next_codebook*x.std(0)+x.mean(0)\ncheck('som_local_linear_codebook',fit['codebook'],expected)\nd=spatial.distance.cdist(z,next_codebook);winners=np.argsort(d,axis=1,kind='stable');labels=winners[:,0]\ncheck('som_labels',fit['labels'],labels);check('som_quantization',fit['quantization_error'],np.min(d,axis=1).mean())\ntopographic=np.mean(np.abs(grid[winners[:,0],0]-grid[winners[:,1],0])/2+np.abs(grid[winners[:,0],1]-grid[winners[:,1],1])!=1)\ncheck('som_topographic',fit['topographic_error'],topographic)\nquery=rng.normal(size=(9,3))*2+[3,-4,2];q=(query-x.mean(0))/x.std(0);d=spatial.distance.cdist(q,next_codebook)\npred=run('som_predict',query,fit['predict_parameters']);check('som_saved_labels',pred['labels'],np.argmin(d,axis=1));check('som_saved_distances',pred['distances'],np.min(d,axis=1))\nrequire('som_iteration_limit_not_convergence',not fit['converged'])\n\n# Offset representation preserves feature spreads below the ULP of a naively rounded sample mean.\nx=np.array([[0.],[2.],[6.]])+1e16;fit=run('gaussian_mixture',x,[1,20,1e-10,1e-8,42]);base=run('gaussian_mixture',x-1e16,[1,20,1e-10,1e-8,42]);check('large_offset_density',fit['sample_log_likelihood'],base['sample_log_likelihood'])\ncheck('large_offset_saved_density',run('gaussian_mixture_predict',x,fit['predict_parameters'])['sample_log_likelihood'],base['sample_log_likelihood'])\n\n# The actual C ABI must convert invalid production contracts into NULL/zero length.\ndef reject(operation,data,args=()):\n    a=np.ascontiguousarray(data,dtype=np.float64);b=np.ascontiguousarray(args,dtype=np.float64);op=operation.encode();size=ctypes.c_size_t(987)\n    ptr=lib.ds_analytics_run(op,len(op),a.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),a.shape[0],a.shape[1],b.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),b.size,ctypes.byref(size))\n    if ptr:\n        value=ctypes.string_at(ptr,size.value);lib.ds_analytics_free(ptr,size.value)\n        raise AssertionError((operation,'unexpected success',value))\n    require('public_abi_invalid_NULL',size.value==0)\n\nreject('mds',np.empty((0,1)))\nreject('mds',[[0],[1],[2]],[float('nan')])\nreject('mds',[[0],[float('inf')],[2]],[1])\nreject('mds',[[0,1],[2,0]],[1,1])\nreject('correspondence_analysis',[[1,-1],[2,3]],[1])\nreject('correspondence_analysis',[[0,0],[2,3]],[1])\nreject('canonical_correlation',[[-1,-1,-2,-2],[0,0,0,0],[1,1,2,2]],[2])\nreject('factor_analysis',[[1,1],[1,1]],[1,0,20,1e-8,1,1])\nreject('gaussian_mixture',[[0],[1]],[3])\nreject('gaussian_mixture',np.zeros((32,32)),[32,1,1e-6,1e-6,42])\nreject('self_organizing_map',[[0],[1]],[32,32])\nreject('self_organizing_map',np.array([[0]*64,[1]*64]),[16,16,1])\nreject('gaussian_mixture_predict',[[1e308,1e308]],[2,1,0,0,0,0,1,1,1,0,0,.6,.4,.4,.6])\nreject('gaussian_mixture_predict',[[0,0]],[2,1,0,0,0,0,1,1,1,0,0,1e-20,0,1e-11,1e-20])\nreject('som_predict',[[0]],[2,1,0,0,0,0,1,1,0,0])\nreject('som_predict',[[0]],[1,1,0,0,1,0]+[0]*16379)\nreject('latent_unknown_operation',[[0],[1]],[])\nreject('mds',[[0],[1],[2]],[]+[0]*16385)\n\nresult={'schema_version':1,'timestamp_utc':datetime.now(timezone.utc).isoformat(),'seed':20261021,'layer':'actual exported public ds_analytics_run/free C ABI compiled from crates/analytics/src/lib.rs; native DuckDB SQL is not covered','environment':{'python':platform.python_version(),'numpy':np.__version__,'scipy':scipy.__version__,'platform':platform.platform()},'checks':checks,'assertions_total':sum(v['assertions'] for v in checks.values()),'optimizer':{'method':'scipy.optimize BFGS on direct 1D two-component likelihood','success':bool(oracle.success),'gradient_norm':float(np.linalg.norm(oracle.jac))},'library_sha256':hashlib.sha256(pathlib.Path(options.library).read_bytes()).hexdigest()}\npathlib.Path(options.output).write_text(json.dumps(result,indent=2)+'\\n')\nprint(json.dumps({'checks':len(checks),'assertions_total':result['assertions_total'],'max_error':max(v['max_absolute_error'] for v in checks.values())}))\n",
+    "review_python_svd": "import numpy as np,subprocess,json\nb='/private/tmp/rusta-ducksmiles-jmp-target/latent_review'; bs='/private/tmp/rusta-ducksmiles-jmp-target/latent_svd_review'\ndef run(op,a,args):\n a=np.asarray(a);s=' '.join([op,str(len(a)),str(a.shape[1]),*[str(x) for x in a.flat],*[str(x) for x in args]])\n r=subprocess.check_output([b],input=s,text=True);return r.strip() if r.startswith('ERROR') else json.loads(r)\n# Prior concrete reproducers.\nbase=[2,1,0,0,0,0,1,1,1,0,0]\nprint('extreme density',run('gaussian_mixture_predict',[[1e308,1e308]],base+[.6,.4,.4,.6]))\nprint('asymmetric covariance',run('gaussian_mixture_predict',[[0,0]],base+[1e-20,0,1e-11,1e-20]))\nw=np.array([[(-1. if (i>>j)&1==0 else 1.) for j in range(4)] for i in range(16)])\nt=.23;R=np.array([[np.cos(t),-np.sin(t)],[np.sin(t),np.cos(t)]])\nx=w[:,:2]@R;y=np.c_[.8*w[:,0]+.6*w[:,2],w[:,3]]@R\nr=run('canonical_correlation',np.c_[x,y],[2,2,0]);xs=np.asarray(r['x_scores']);ys=np.asarray(r['y_scores'])\nprint('rank1 CCA singulars',r['canonical_correlations'],'X covariance max identity error',np.max(np.abs(xs.T@xs/15-np.eye(2))),'Y covariance max identity error',np.max(np.abs(ys.T@ys/15-np.eye(2))))\nrng=np.random.default_rng(17);print('GMM cap',run('gaussian_mixture',rng.normal(size=(64,32)),[16,1,1e-6,1e-6,42,1]))\nrng=np.random.default_rng(18);print('SOM cap',run('self_organizing_map',rng.normal(size=(64,64)),[16,16,1,.5,1,1e-6]))\n# Independent numpy.linalg SVD reference checks over squares, wide/tall, rank deficiency, condition.\nrng=np.random.default_rng(7721);max_recon=max_orth=max_vals=0.;cases=0;errors=[]\nfor p,q in [(1,1),(1,7),(7,1),(2,7),(7,2),(8,8),(4,12),(12,4),(17,31),(31,17),(32,32),(64,64),(3,64),(64,3)]:\n for kind in ['random','rank1','rankminus1','near_rank_deficient','zero']:\n  k=min(p,q)\n  if kind=='random':a=rng.normal(size=(p,q))\n  elif kind=='zero':a=np.zeros((p,q))\n  else:\n   u,_=np.linalg.qr(rng.normal(size=(p,k)));v,_=np.linalg.qr(rng.normal(size=(q,k)))\n   s=np.geomspace(1,1e-9,k)\n   if kind=='rank1':s[1:]=0\n   elif kind=='rankminus1':s[-1]=0\n   elif kind=='near_rank_deficient':s=np.geomspace(1,1e-14,k)\n   a=(u*s)@v.T\n  inp=' '.join([str(p),str(q),*[str(v) for v in a.flat]])\n  out=subprocess.check_output([bs],input=inp,text=True)\n  if out.startswith('ERROR'):errors.append((p,q,kind,out.strip()));continue\n  z=json.loads(out);s=np.array(z['values']);u=np.array(z['u']);v=np.array(z['v']);ref=np.linalg.svd(a,compute_uv=False)\n  recon=np.linalg.norm((u*s)@v.T-a)/max(1,np.linalg.norm(a));orth=max(np.linalg.norm(u.T@u-np.eye(k),ord=np.inf),np.linalg.norm(v.T@v-np.eye(k),ord=np.inf));vals=np.max(abs(ref-s))/max(1,ref[0])\n  max_recon=max(max_recon,recon);max_orth=max(max_orth,orth);max_vals=max(max_vals,vals);cases+=1\n  if recon>1e-10 or orth>1e-9 or vals>1e-10:errors.append((p,q,kind,recon,orth,vals))\nprint('SVD',cases,'cases max relative reconstruction',max_recon,'orthogonality',max_orth,'singular_value',max_vals,'errors',errors)\n\nassert cases == 70 and not errors, (cases,errors)\n",
+    "review_python_cca": "exec(open('/private/tmp/review_latent.py').read().split('# Prior concrete reproducers.')[0])\nrng=np.random.default_rng(2307721);metrics=[0.,0.,0.];errors=[];cases=0\nfor p,q in [(1,1),(1,8),(8,1),(2,3),(3,2),(8,8),(12,20),(20,12),(32,32),(1,32),(32,1)]:\n for kind in ['full','rank1','rankminus1','near_rank_deficient']:\n  n=max(100,2*(p+q));k=min(p,q)\n  Z=rng.normal(size=(n,p+q));Z-=Z.mean(0);Z=np.linalg.qr(Z)[0]*np.sqrt(n-1)\n  rho=np.linspace(.9,.15,k)\n  if kind=='rank1':rho[1:]=0\n  elif kind=='rankminus1':rho[-1]=0\n  elif kind=='near_rank_deficient':rho=np.geomspace(.9,1e-11,k)\n  X=Z[:,:p]\n  Y=Z[:,p:p+q].copy()\n  for j in range(k):Y[:,j]=rho[j]*X[:,j]+np.sqrt(1-rho[j]*rho[j])*Y[:,j]\n  U=np.linalg.qr(rng.normal(size=(p,p)))[0];V=np.linalg.qr(rng.normal(size=(q,q)))[0]\n  X=X@U*np.geomspace(1e-3,1e3,p);Y=Y@V*np.geomspace(1e-3,1e3,q)\n  r=run('canonical_correlation',np.c_[X,Y],[p,k,0])\n  if isinstance(r,str):errors.append((p,q,kind,r));continue\n  xs=np.array(r['x_scores']);ys=np.array(r['y_scores']);cor=np.array(r['canonical_correlations'])\n  cov=max(np.max(abs(xs.T@xs/(n-1)-np.eye(k))),np.max(abs(ys.T@ys/(n-1)-np.eye(k))))\n  cross=np.max(abs(xs.T@ys/(n-1)-np.diag(cor)))\n  vals=np.max(abs(cor-rho));m=[cov,cross,vals];metrics=[max(a,b) for a,b in zip(metrics,m)];cases+=1\n  if cov>1e-9 or cross>1e-9 or vals>1e-9:errors.append((p,q,kind,m))\nprint('CCA',cases,'cases max unit-score-covariance error/cross-diagonal error/singular-value error',metrics,'errors',errors)\n\nassert cases == 44 and not errors, (cases,errors)\n"
+  },
+  "before_parent_activation": {
+    "layer": "candidate module compiled as standalone Rust C ABI; public execute dispatch and native SQL are not covered",
+    "assertions_total": 4351,
+    "library_sha256": "654e63f88b0704e426233a38169439629aa45cc473fe16f1a96368dd844a5c62",
+    "public_execute": {
+      "command": "CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-jmp-target cargo test -p ducksmiles_analytics --test latent --quiet",
+      "status": "RED pending parent module activation and dispatch",
+      "passed": 4,
+      "failed": 11,
+      "reason": "All 11 behavior failures are unknown optimization operation; four rejection tests pass without dispatch. Parent owns lib.rs and registry, so no unauthorized edit was made."
+    }
+  },
+  "public_source_snapshot_sha256": {
+    "crates/analytics/src/lib.rs": "b446fbd3aa4acac5466fdb245744638d45f682f8241a7b4e1e8574ec77063548",
+    "crates/analytics/src/advanced_design.rs": "054a3e17592a123babb908bdcec4d1f1a037ec22030ab2aa4518748ad1de32c1",
+    "crates/analytics/src/arima.rs": "114d03aa73b915498868c323d048c73529a41568417f0cae6f1f081e4b44a898",
+    "crates/analytics/src/design.rs": "ef321449399727e186fec5eb8c9b858443bb072b6be24030851959b8d7fd4415",
+    "crates/analytics/src/distributions.rs": "dbdb3e318ce81409f317ee7256b33312aa2f6f9fb4dee050fae8c35263b37a72",
+    "crates/analytics/src/evaluation.rs": "a95a5622ec86b0e64b52c958b02391fbabf79d1f5ad534f85c9a0bc323dab6c7",
+    "crates/analytics/src/explore.rs": "0861c7f15ad12ae7f83355a50909793be3407117c63a2eec0b0bdf4a11d25e53",
+    "crates/analytics/src/glm.rs": "6195fefd5e1e1e2c117ae54a1179b2607dff98539210f9492bf304a2f72218eb",
+    "crates/analytics/src/inference.rs": "2e54fd0fc06ea59283978e733af60b5050a30a5d294dbded56ef3e4519dc2595",
+    "crates/analytics/src/latent.rs": "c98a82f87b0011f485d19c3d6eb9c517d02a2e5577d4bf6b660c5662b62dcfd0",
+    "crates/analytics/src/learning.rs": "1e73863a1da1cecaed61d253a6d25ad640eec33eefb9cfdb9b29e24258a91fe2",
+    "crates/analytics/src/mixed.rs": "f1fbc60df9d24ac0b95bd76076b48644c365f5a80db18997bf68e9c3d82a6a8e",
+    "crates/analytics/src/multivariate.rs": "75dd2b079e0b415583cc46227c534ea3c4a0ec51d3d36a747f70a9c63a397463",
+    "crates/analytics/src/nonlinear.rs": "d3456f1b92b44b7e01306aa5523b22cc9332f965888a47275f6fd7f714bdd47b",
+    "crates/analytics/src/optimize.rs": "58cabd7597f80b51c98d22c25a91087f939159ed239630e0b55fe5a360fdc720",
+    "crates/analytics/src/quality.rs": "2b7411de07bdef8b61ea1acd1c00608dd293ea604e5430dc5de78e55a2cbbf37",
+    "crates/analytics/src/regression.rs": "6aedd8e4cce2fa1c853d7c2eaee27857656b6a3b0c7cdc570bfb1fb784df9fad",
+    "crates/analytics/src/resampling.rs": "a2bb594fb0051a4a55465b8ddd8fa667ee9bd770e4fdb07fa2de744319204793",
+    "crates/analytics/src/statistics.rs": "9f27bb4d08ff08ef1517896d850e8559ecf0f568252a49d159aa10039365a1a6",
+    "crates/analytics/src/survival.rs": "be525094fa9b54b202cb1b3c85c0a9c1534808102aba141a5ce361c40b7e0bcc",
+    "crates/analytics/src/timeseries.rs": "dea89cfc83541102db5aedd5cc0492fae412972268bba9a9f0f8d9a19309af2d"
+  },
+  "public_source_snapshot_note": "The actual production lib.rs and every pub-mod source file were copied unchanged to a temporary snapshot before compilation to avoid concurrent unrelated parent edits; no wrapper or dispatch substitution is used.",
+  "registry_fragment": {
+    "path": "tasks/jmp-latent-registry.inc",
+    "entries": 8,
+    "validation": "All eight macro entries parse, match exact operation names/SQL examples and have no existing registry symbol/name collisions at generation. Existing registry is unchanged."
+  }
+}
