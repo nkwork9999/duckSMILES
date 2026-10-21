@@ -6,5 +6,7 @@
 statement ok
 LOAD '__BUILD_DIRECTORY__/extension/ducksmiles/ducksmiles.duckdb_extension';
 
-statement ok
-LOAD json;
+query I
+SELECT json_extract('{"v":1}', '$.v')::INTEGER;
+----
+1

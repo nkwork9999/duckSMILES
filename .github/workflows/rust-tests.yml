@@ -18,6 +18,8 @@ jobs:
         run: cmake -P cmake/test_rust_target.cmake
       - name: Check MSVC fmt shim in generated C translation units
         run: python3 scripts/check_msvc_fmt_compat.py
+      - name: Check prebuilt DuckDB version alignment
+        run: python3 -m unittest discover -s scripts -p test_prebuilt_duckdb_version.py
       - name: Test Wasm linkage validator
         run: node --test scripts/check_wasm_linkage.test.cjs
       - name: Test workspace, including pinned RDKit reference fixtures

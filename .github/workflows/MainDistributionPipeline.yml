@@ -31,6 +31,8 @@ jobs:
       extension_name: ducksmiles
       extra_toolchains: rust
       extra_extension_config: 'duckdb_extension_load(json)'
+      test_config: >-
+        {"test_env_variables":{"DUCKDB_TEST_STATICALLY_LOADED_EXTENSIONS":"['core_functions','json']"}}
 
   code-quality-check:
     name: Code Quality Check

@@ -53,11 +53,17 @@ These local checks do not establish Wasm runtime SQL coverage or publication.
 The submission fixes preserve argument names across DuckDB 1.5 and 2 and avoid
 integer APIs unavailable in that pinned Rust compiler.
 
-CI also builds JSON for the SQL regression suite. A required-extension test uses
-explicit `LOAD` statements so missing DuckSMILES or JSON causes a failure instead
-of silently skipping the tests. With these prerequisites loaded, the DuckDB 2
+CI also builds and preloads JSON for the SQL regression suite. A required-extension
+test loads the built DuckSMILES file and executes a JSON query, so missing
+prerequisites cause a failure instead of silently skipping the tests. The DuckDB 2
 preflight passes 14 SQL cases / 443 assertions. Community CI additionally loads
 the built extension on test initialization and marks both extensions as required.
+
+When CI supplies a prebuilt native DuckDB library, the build checks its embedded
+source ID and version against DuckDB's version record for that commit before
+setting the extension's CMake version. Missing or inconsistent metadata fails the
+build; runtime version and ABI checks remain enabled. This handles prerelease
+libraries supplied under a stable CI label.
 
 ## Quick Start
 
