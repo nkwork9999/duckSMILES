@@ -60,10 +60,11 @@ preflight passes 14 SQL cases / 443 assertions. Community CI additionally loads
 the built extension on test initialization and marks both extensions as required.
 
 When CI supplies a prebuilt native DuckDB library, the build checks its embedded
-source ID and version against DuckDB's version record for that commit before
-setting the extension's CMake version. Missing or inconsistent metadata fails the
-build; runtime version and ABI checks remain enabled. This handles prerelease
-libraries supplied under a stable CI label.
+source ID and version before setting the extension's CMake version. Stable-only
+libraries must match the requested stable version and checked-out source ID.
+For prerelease libraries supplied under a stable CI label, the build also checks
+DuckDB's official version record for that commit. Missing or inconsistent
+metadata fails the build; runtime version and ABI checks remain enabled.
 
 ## Quick Start
 
