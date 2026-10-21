@@ -3,7 +3,7 @@
 
 # Required extensions must load successfully; a require directive could skip.
 statement ok
-LOAD ducksmiles;
+LOAD '{BUILD_DIRECTORY}/extension/ducksmiles/ducksmiles.duckdb_extension';
 
 statement ok
 LOAD json;
