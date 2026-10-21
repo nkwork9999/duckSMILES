@@ -2,8 +2,9 @@
 # group: [sql]
 
 # Required extensions must load successfully; a require directive could skip.
+# This build-directory spelling works in both DuckDB 1.5 and 2 test runners.
 statement ok
-LOAD '{BUILD_DIRECTORY}/extension/ducksmiles/ducksmiles.duckdb_extension';
+LOAD '__BUILD_DIRECTORY__/extension/ducksmiles/ducksmiles.duckdb_extension';
 
 statement ok
 LOAD json;
