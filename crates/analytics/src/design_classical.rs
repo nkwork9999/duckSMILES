@@ -279,6 +279,8 @@ fn combinations(v: usize, k: usize, start: usize, c: &mut Vec<usize>, out: &mut 
         c.pop();
     }
 }
+// Wasm uses nightly-2025-02-01, before unsigned::is_multiple_of stabilized.
+#[allow(clippy::manual_is_multiple_of)]
 fn bibd(data: &[Vec<f64>], args: &[f64]) -> Result<String, String> {
     treatment_input(data, 9)?;
     if args.is_empty() || args.len() > 3 {
@@ -290,7 +292,7 @@ fn bibd(data: &[Vec<f64>], args: &[f64]) -> Result<String, String> {
     if k < 2 || k >= v || k > 4 || !(1..=3).contains(&lam) {
         return Err("unsupported: exact BIBD search supports2<=k<=4,k<v,lambda1..3,v<=9".into());
     }
-    if !(lam * (v - 1)).is_multiple_of(k - 1) || !(lam * v * (v - 1)).is_multiple_of(k * (k - 1)) {
+    if (lam * (v - 1)) % (k - 1) != 0 || (lam * v * (v - 1)) % (k * (k - 1)) != 0 {
         return Err("no_solution: BIBD integer replication/block equations are violated".into());
     }
     let r = lam * (v - 1) / (k - 1);

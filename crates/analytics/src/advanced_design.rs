@@ -434,7 +434,7 @@ fn fractional_factorial(bounds: &[Vec<f64>], args: &[f64]) -> Result<String, Str
             masks
                 .iter()
                 .map(|&mask| {
-                    if (mask.count_ones() - (run & mask).count_ones()).is_multiple_of(2) {
+                    if (mask.count_ones() - (run & mask).count_ones()) & 1 == 0 {
                         1.
                     } else {
                         -1.
@@ -456,7 +456,7 @@ fn orthogonal_screening(bounds: &[Vec<f64>], args: &[f64]) -> Result<String, Str
         .map(|i| {
             (1..=p)
                 .map(|j| {
-                    if (i & j).count_ones().is_multiple_of(2) {
+                    if (i & j).count_ones() & 1 == 0 {
                         1.
                     } else {
                         -1.
@@ -467,6 +467,8 @@ fn orthogonal_screening(bounds: &[Vec<f64>], args: &[f64]) -> Result<String, Str
         .collect::<Vec<Vec<f64>>>();
     design_result("orthogonal_screening",bounds,&coded,",\"construction\":\"sylvester_hadamard_main_effect_screening\",\"interactions_may_be_aliased\":true")
 }
+// Wasm uses nightly-2025-02-01, before unsigned::is_multiple_of stabilized.
+#[allow(clippy::manual_is_multiple_of)]
 fn randomize(data: &[Vec<f64>], args: &[f64]) -> Result<String, String> {
     arguments(args, 2, 3)?;
     let replicates = integer(args[0], 1, 1000, "replicates")?;
@@ -477,7 +479,7 @@ fn randomize(data: &[Vec<f64>], args: &[f64]) -> Result<String, String> {
         data.len(),
         "blocks per replicate",
     )?;
-    if !data.len().is_multiple_of(blocks) {
+    if data.len() % blocks != 0 {
         return Err("input run count must divide evenly into blocks for each replicate".into());
     }
     let count = data

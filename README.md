@@ -43,6 +43,16 @@ INSTALL ducksmiles FROM community;
 LOAD ducksmiles;
 ```
 
+The 0.6.0 source adds 254 CPU analytics functions (405 total SQL overloads).
+Community packages depend on the version and source revision accepted upstream.
+Before submission, the DuckDB 2 CI revision
+`d54cbbe3df17e8e5ce68312f483b4155836112aa` passed all 13 SQL cases
+(441 assertions) and all 405 catalog examples on macOS ARM64. The pinned Wasm
+Rust compiler, `nightly-2025-02-01`, also passed the affected 58 analytics tests.
+These local checks do not establish Wasm runtime SQL coverage or publication.
+The submission fixes preserve argument names across DuckDB 1.5 and 2 and avoid
+integer APIs unavailable in that pinned Rust compiler.
+
 ## Quick Start
 
 ```sql

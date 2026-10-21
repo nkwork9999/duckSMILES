@@ -135,7 +135,7 @@ ANALYTICS_CALLBACK(AdjustPvalues, "adjust_pvalues")
 ANALYTICS_CALLBACK(ProcessCapability, "process_capability")
 ANALYTICS_CALLBACK(KaplanMeier, "kaplan_meier")
 ANALYTICS_CALLBACK(RandomIntercept, "random_intercept")
-#define ANALYTICS_METHOD(Symbol, Name, Operation, Description, Example) \
+#define ANALYTICS_METHOD(Symbol, Name, Operation, Description, Example)        \
   ANALYTICS_CALLBACK(Symbol, Operation)
 #include "analytics_registry.inc"
 #undef ANALYTICS_METHOD
@@ -246,6 +246,7 @@ void Register(ExtensionLoader &loader, const char *name,
   documentation.parameter_names =
       generic ? vector<string>{"operation", "data", "parameters"}
               : vector<string>{scaffold ? "smiles" : "data", "parameters"};
+  ducksmiles_compat::SetArgumentNames(function, documentation.parameter_names);
   documentation.description =
       description + " Returns versioned JSON; NULL for invalid, nonfinite, "
                     "rank-deficient or resource-limited inputs. See "
@@ -260,7 +261,7 @@ void Register(ExtensionLoader &loader, const char *name,
 } // namespace
 
 void RegisterAnalyticsFunctions(ExtensionLoader &loader) {
-#define ANALYTICS_METHOD(Symbol, Name, Operation, Description, Example) \
+#define ANALYTICS_METHOD(Symbol, Name, Operation, Description, Example)        \
   Register(loader, Name, Symbol, Description, Example);
 #include "analytics_registry.inc"
 #undef ANALYTICS_METHOD

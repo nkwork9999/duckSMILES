@@ -389,7 +389,7 @@ fn quantile(d: &[Vec<f64>], a: &[f64]) -> Result<String, String> {
 fn median(x: &[f64]) -> f64 {
     let mut a = x.to_vec();
     a.sort_by(f64::total_cmp);
-    if a.len().is_multiple_of(2) {
+    if a.len() & 1 == 0 {
         a[a.len() / 2 - 1] / 2. + a[a.len() / 2] / 2.
     } else {
         a[a.len() / 2]

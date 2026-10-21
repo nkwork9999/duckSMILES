@@ -77,7 +77,7 @@ static void ToUnifiedFormatImpl(V &input, idx_t count,
 }
 
 static inline void ToUnifiedFormat(Vector &input, idx_t count,
-                            UnifiedVectorFormat &data) {
+                                   UnifiedVectorFormat &data) {
   ToUnifiedFormatImpl(input, count, data, 0);
 }
 
@@ -92,7 +92,8 @@ static Vector &ListChildImpl(Vector &input, long) {
   return List::GetEntry(input);
 }
 
-static inline auto ListChild(Vector &input) -> decltype(ListChildImpl(input, 0)) {
+static inline auto ListChild(Vector &input)
+    -> decltype(ListChildImpl(input, 0)) {
   return ListChildImpl(input, 0);
 }
 

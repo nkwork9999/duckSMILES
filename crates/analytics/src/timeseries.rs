@@ -497,7 +497,7 @@ fn periodogram(x: &[f64], dt: f64) -> Result<String, String> {
             real += v * angle.cos();
             imaginary -= v * angle.sin();
         }
-        let factor = if k == 0 || n.is_multiple_of(2) && k == n / 2 {
+        let factor = if k == 0 || n & 1 == 0 && k == n / 2 {
             1.
         } else {
             2.
@@ -523,7 +523,7 @@ fn decompose(x: &[f64], period: usize) -> Result<String, String> {
         let origin = window[0];
         let mut offset = 0.;
         for (j, &v) in window.iter().enumerate() {
-            let w = if period.is_multiple_of(2) && (j == 0 || j == width - 1) {
+            let w = if period & 1 == 0 && (j == 0 || j == width - 1) {
                 0.5
             } else {
                 1.

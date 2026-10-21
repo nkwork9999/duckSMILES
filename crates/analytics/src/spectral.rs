@@ -246,7 +246,7 @@ fn savgol(data: &[Vec<f64>], args: &[f64]) -> Result<String, String> {
     arguments(args, 1, 4)?;
     let n = data[0].len();
     let window = integer(args[0], 3, n.min(101), "SG window")?;
-    if window.is_multiple_of(2) {
+    if window & 1 == 0 {
         return Err("SG window must be odd".into());
     }
     let degree = integer(
@@ -452,7 +452,7 @@ fn fourier(data: &[Vec<f64>], args: &[f64]) -> Result<String, String> {
     arguments(args, 0, 1)?;
     let inverse = integer(args.first().copied().unwrap_or(0.), 0, 1, "inverse flag")?;
     let width = data[0].len();
-    if inverse == 1 && !width.is_multiple_of(2) {
+    if inverse == 1 && width & 1 != 0 {
         return Err(
             "inverse Fourier input packs real coefficients followed by imaginary coefficients"
                 .into(),
