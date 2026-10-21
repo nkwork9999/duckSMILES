@@ -1,0 +1,9 @@
+# name: test/sql/required_extensions.test
+# group: [sql]
+
+# Required extensions must load successfully; a require directive could skip.
+statement ok
+LOAD ducksmiles;
+
+statement ok
+LOAD json;
