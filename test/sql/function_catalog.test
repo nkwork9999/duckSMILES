@@ -39,6 +39,16 @@ WHERE function_name = 'sdf_property';
 ----
 property_name
 
+# Documentation must stay attached to the exact overload on both DuckDB APIs.
+query T rowsort
+SELECT array_to_string(parameter_types, ',')
+FROM duckdb_functions()
+WHERE function_name = 'morgan_fp_bits'
+  AND list_contains(categories, 'ducksmiles');
+----
+VARCHAR
+VARCHAR,INTEGER,INTEGER
+
 query T
 SELECT mol_formula('CCO');
 ----
