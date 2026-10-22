@@ -1,0 +1,255 @@
+{
+  "schema": "jmp19.2-censored-gamma-small-upper-tail-review-v1",
+  "reviewed_on": "2026-10-22",
+  "purpose": "Independent public-C-ABI regression proof and numerical oracle for actual smaller upper Gamma tails. This is interim failing behavior, not final production validation.",
+  "operation": "censored_predict",
+  "fit_parameterization": {
+    "family": 2,
+    "link_mean_eta": -32,
+    "dispersion_sigma": 1,
+    "shape": "exp(-32)/1",
+    "shape_double": 1.2664165549094176e-14,
+    "shape_double_hex": "0x1.c8464f7616468p-47"
+  },
+  "predict_parameters": [
+    1.0,
+    2.0,
+    0.0,
+    0.95,
+    0.0,
+    1.0,
+    0.0,
+    -32.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "public_boundary": {
+    "library_path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+    "sha256": "1641e0d2fe42019275cb0300edbab7b8af1e731e5e20e1c9d8e15f4914392c72",
+    "symbol": "ds_analytics_run",
+    "release_symbol": "ds_analytics_free",
+    "buffer_handling": "ctypes copies exactly returned length then frees once; JSON parsed independently."
+  },
+  "reference_environment": {
+    "python": "3.12.10 (main, Apr  9 2025, 03:49:38) [Clang 20.1.0 ]",
+    "platform": "macOS-26.2-arm64-arm-64bit",
+    "scipy": "1.18.1",
+    "mpmath": "1.4.1",
+    "mpmath_decimal_precision": 80
+  },
+  "reference_method": {
+    "tail": "Q(a,x)=Gamma(a,x)/Gamma(a), computed by mpmath.gammainc(a,x,inf) directly at80dps. Never1-rounded lower CDF.",
+    "density": "exp((a-1)*log(x)-x-loggamma(a)), unit scale.",
+    "quantile": "Find root logQ(a,q)=log1p(-p), using exact binary-float input probability, starting bracket(.3,.4).",
+    "binary_inputs": "mp.mpf(float) retains the exact f64 input, rather than treating decimal1e-14 as the exact complement.",
+    "cross_check": "SciPy gammaincc, gamma.pdf/ppf and independent upper-tail quadrature atx=.1. SciPy lower gammainc is shown only as supplemental output, not the tail oracle.",
+    "scipy_upper_integral_at_point_one": {
+      "expression": "integrate exp(-t+(a-1)*log(t)-gammaln(a)) from .1 to infinity",
+      "value": 2.3085810792833062e-14,
+      "absolute_error_estimate": 7.205227492543393e-28
+    }
+  },
+  "primary_sources": [
+    {
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.gammaincc.html",
+      "supports": "Regularized upper incomplete-gamma definition and direct survival computation."
+    },
+    {
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html",
+      "supports": "Gamma density/shape/scale and survival/quantile API definitions."
+    },
+    {
+      "url": "https://mpmath.org/doc/current/functions/expintegrals.html?highlight=gammain",
+      "supports": "Generalized incomplete gamma with integration limits and upper-tail normalization."
+    }
+  ],
+  "cases": [
+    {
+      "input_data": [
+        [
+          0.1,
+          0.99999999999999
+        ]
+      ],
+      "binary_input_hex": [
+        "0x1.999999999999ap-4",
+        "0x1.fffffffffffa6p-1"
+      ],
+      "mpmath80dps": {
+        "cdf": "0.9999999999999769141892071669196726035083476304367557141836911845750124",
+        "survival": "0.00000000000002308581079283308032739649165236956324428581630881542498763528548575975",
+        "density": "0.0000000000001145901085702207293630057880396463614144270883067273703442402131916912",
+        "quantile": "0.3526041408838702014071502312085086535489316143866138823692975558743625",
+        "quantile_log_tail_residual": "0.0"
+      },
+      "scipy_direct": {
+        "cdf": 0.9999999999999757,
+        "survival": 2.308581079283308e-14,
+        "density": 1.1459010857022077e-13,
+        "quantile": 0.35260414088387004
+      },
+      "interim_public_c_abi": {
+        "version": 1,
+        "algorithm": "censored_predict",
+        "family": "gamma",
+        "means": [
+          1.2664165549094176e-14
+        ],
+        "cdf": [
+          0.9999999999999787
+        ],
+        "survival": [
+          2.1316282072802753e-14
+        ],
+        "density": [
+          1.1459010857022077e-13
+        ],
+        "quantiles": [
+          0.37758125065284565
+        ],
+        "mean_standard_errors": [
+          null
+        ],
+        "mean_confidence_intervals": [
+          null
+        ],
+        "quantile_standard_errors": [
+          null
+        ],
+        "confidence": 0.95,
+        "uncertainty": "observed_information_delta_normal_approximation"
+      },
+      "interim_survival_relative_error": -0.07665005729751861,
+      "interim_quantile_relative_error": 0.0708361215111244
+    },
+    {
+      "input_data": [
+        [
+          1e-100,
+          0.99999999999999
+        ]
+      ],
+      "binary_input_hex": [
+        "0x1.bff2ee48e0530p-333",
+        "0x1.fffffffffffa6p-1"
+      ],
+      "mpmath80dps": {
+        "cdf": "0.9999999999970912780738867735003103265182331897729105207176216466764928",
+        "survival": "0.000000000002908721926113226499689673481766810227089479282378353323507247695474729",
+        "density": "1.26641655490573387480408011711939032584156700266671138067626429048135e+86",
+        "quantile": "0.3526041408838702014071502312085086535489316143866138823692975558743625",
+        "quantile_log_tail_residual": "0.0"
+      },
+      "scipy_direct": {
+        "cdf": 0.9999999999970939,
+        "survival": 2.9087219261132264e-12,
+        "density": 1.2664165549057242e+86,
+        "quantile": 0.35260414088387004
+      },
+      "interim_public_c_abi": {
+        "version": 1,
+        "algorithm": "censored_predict",
+        "family": "gamma",
+        "means": [
+          1.2664165549094176e-14
+        ],
+        "cdf": [
+          0.9999999999970939
+        ],
+        "survival": [
+          2.9061197892545838e-12
+        ],
+        "density": [
+          126641655490572420000000000000000000000000000000000000000000000000000000000000000000000
+        ],
+        "quantiles": [
+          0.37758125065284565
+        ],
+        "mean_standard_errors": [
+          null
+        ],
+        "mean_confidence_intervals": [
+          null
+        ],
+        "quantile_standard_errors": [
+          null
+        ],
+        "confidence": 0.95,
+        "uncertainty": "observed_information_delta_normal_approximation"
+      },
+      "interim_survival_relative_error": -0.0008945980140905307,
+      "interim_quantile_relative_error": 0.0708361215111244
+    },
+    {
+      "input_data": [
+        [
+          1e-300,
+          0.99999999999999
+        ]
+      ],
+      "binary_input_hex": [
+        "0x1.56e1fc2f8f359p-997",
+        "0x1.fffffffffffa6p-1"
+      ],
+      "mpmath80dps": {
+        "cdf": "0.9999999999912592143122101434756082148626777213386498093921361895530085",
+        "survival": "0.000000000008740785687789856524391785137322278661350190607863810446991540558406374",
+        "density": "1.26641655489834804628982966410843903488006952678276344126319965708138e+286",
+        "quantile": "0.3526041408838702014071502312085086535489316143866138823692975558743625",
+        "quantile_log_tail_residual": "0.0"
+      },
+      "scipy_direct": {
+        "cdf": 0.9999999999912603,
+        "survival": 8.740785687789858e-12,
+        "density": 1.2664165548983014e+286,
+        "quantile": 0.35260414088387004
+      },
+      "interim_public_c_abi": {
+        "version": 1,
+        "algorithm": "censored_predict",
+        "family": "gamma",
+        "means": [
+          1.2664165549094176e-14
+        ],
+        "cdf": [
+          0.9999999999912603
+        ],
+        "survival": [
+          8.73967564981105e-12
+        ],
+        "density": [
+          12664165548983014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        ],
+        "quantiles": [
+          0.37758125065284565
+        ],
+        "mean_standard_errors": [
+          null
+        ],
+        "mean_confidence_intervals": [
+          null
+        ],
+        "quantile_standard_errors": [
+          null
+        ],
+        "confidence": 0.95,
+        "uncertainty": "observed_information_delta_normal_approximation"
+      },
+      "interim_survival_relative_error": -0.0001269952174158817,
+      "interim_quantile_relative_error": 0.0708361215111244
+    }
+  ],
+  "confirmed_issue": "Interim gamma_logs selects its series usingx<a+1 and obtains a tiny upper tail by complementing a large lower probability. Atx=.1 the actual survival is7.665%too small and requested upper quantile7.084%too large. Shape and all expected values are representable.",
+  "expected_regression_acceptance": {
+    "survival_relative_error_max": 1e-07,
+    "density_relative_error_max": 1e-07,
+    "quantile_absolute_error_max": 1e-08
+  },
+  "final_fix_validation": {
+    "status": "pending",
+    "note": "Owner/root must validate the final compiled ABI/loaded DuckDB extension and append matching artifact hashes; no final GREEN claim is made here."
+  }
+}

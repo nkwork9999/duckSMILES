@@ -43,9 +43,9 @@ INSTALL ducksmiles FROM community;
 LOAD ducksmiles;
 ```
 
-The 0.6.0 source adds 254 CPU analytics functions (405 total SQL overloads).
+The 0.6.0 source adds 263 CPU analytics functions (414 total SQL overloads).
 Community packages depend on the version and source revision accepted upstream.
-Before submission, the DuckDB 2 CI revision
+At the earlier 254-function checkpoint, the DuckDB 2 CI revision
 `d54cbbe3df17e8e5ce68312f483b4155836112aa` passed all 13 SQL cases
 (441 assertions) and all 405 catalog examples on macOS ARM64. The pinned Wasm
 Rust compiler, `nightly-2025-02-01`, also passed the affected 58 analytics tests.
@@ -55,8 +55,9 @@ integer APIs unavailable in that pinned Rust compiler.
 
 CI also builds and preloads JSON for the SQL regression suite. A required-extension
 test loads the built DuckSMILES file and executes a JSON query, so missing
-prerequisites cause a failure instead of silently skipping the tests. The DuckDB 2
-preflight passes 14 SQL cases / 443 assertions. Community CI additionally loads
+prerequisites cause a failure instead of silently skipping the tests. The earlier DuckDB 2
+preflight passed 14 SQL cases / 443 assertions. The resumed Release build passes
+16 SQL cases / 513 assertions and all414 catalog examples on macOS arm64. Community CI additionally loads
 the built extension on test initialization and marks both extensions as required.
 
 When CI supplies a prebuilt native DuckDB library, the build checks its embedded
@@ -915,7 +916,7 @@ FROM (VALUES ('CCO'), ('CC(=O)O'), ('NCC(=O)O')) AS t(smiles);
 The analytics build adds numerical methods to the molecular SQL workflow. The
 calculation core runs on the CPU, without a GUI, GPU runtime, Python or external
 chemistry library. This section lists **every currently registered analytics SQL
-function** (254 verified functions: the original 24 plus the method registry below), with its input contract and an
+function** (263 verified functions: the original 24 plus the method registry below), with its input contract and an
 executable call. Existing community packages can predate this implementation;
 use a build containing these registrations and check the loaded catalog:
 
@@ -1252,6 +1253,15 @@ limited kernel has passed tests.
 | `chem_spatial_variogram` / `spatial_variogram` | Empirical isotropic Matheron semivariogram: rows[coordinates1..3,response]; [bins=10,lower=min_pair_distance,upper=max_pair_distance]. Pair counts,mean distance and half mean squared differences; empty classes null. | `SELECT chem_spatial_variogram([[0,0],[1,2],[2,4]], [2]);` |
 | `chem_spatial_gls` / `spatial_gls` | Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation. | `SELECT chem_spatial_gls([[0,1],[1,2],[2,6]], [1,0,0,2,1,1]);` |
 | `chem_spatial_predict` / `spatial_predict` | Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance. | `SELECT chem_spatial_predict([[0],[10]], [1,3,1,0,0,2,1,1,3,0,1,2,1,1,1,-2,-1.0000000000000002,3,1,0,1,0,0,1,0.33333333333333337]);` |
+| `chem_censored_normal` / `censored_normal` | Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts]. | `SELECT chem_censored_normal([[-2,-2,0,1],[-1,-1,0,1],[0,0,0,1],[1,1,0,1],[2,2,0,1]], []);` |
+| `chem_censored_exponential` / `censored_exponential` | Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts]. | `SELECT chem_censored_exponential([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);` |
+| `chem_censored_gamma` / `censored_gamma` | Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts]. | `SELECT chem_censored_gamma([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);` |
+| `chem_censored_weibull` / `censored_weibull` | Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts]. | `SELECT chem_censored_weibull([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);` |
+| `chem_censored_lognormal` / `censored_lognormal` | Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts]. | `SELECT chem_censored_lognormal([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);` |
+| `chem_censored_beta` / `censored_beta` | Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts]. | `SELECT chem_censored_beta([[0.15,0.15,0,1],[0.25,0.25,0,1],[0.4,0.4,0,1],[0.55,0.55,0,1],[0.75,0.75,0,1]], []);` |
+| `chem_censored_predict` / `censored_predict` | Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters. | `SELECT chem_censored_predict([[0.0,0.5],[1.0,0.975]], [1.0,0.0,0.0,0.95,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]);` |
+| `chem_spatial_fit` / `spatial_fit` | Profile Gaussian ML/REML spatial regression with estimated total variance,range and optional nugget; independent subject blocks and numeric fixed trend. | `SELECT chem_spatial_fit([[0,0,1],[1,0,2],[2,0,6]], [1,0,0,0,0,100,1e-8,0.1,0.5]);` |
+| `chem_spatial_fit_predict` / `spatial_fit_predict` | Saved estimated-spatial-model universal kriging,with conditional latent and independent-observation variances. | `SELECT chem_spatial_fit_predict([[10,0]], [1,1,0,3,0,4.666666666666667,0,0.1,0,0,1,1,0,2,2,0,6]);` |
 
 <!-- analytics-registry-table:end -->
 
@@ -1774,7 +1784,7 @@ IRT posterior scores can truthfully have `quadrature_converged:false`, including
 
 ### Time series, functional preprocessing, text and spatial contracts
 
-This checkpoint adds **29 CPU operations**, for **254 registered analytics functions / 405 total extension overloads**. Every call appears in the table above. Implementation stopped at this verified checkpoint under the user instruction to push and stop. Full JMP19.2 parity remains incomplete.
+This checkpoint adds **29 CPU operations**, for **254 registered analytics functions / 405 total extension overloads**. Every call appears in the table above. Implementation paused at that verified checkpoint under the earlier instruction to push and stop. Work resumed on 2026-10-22 toward the full non-GUI, non-GPU JMP19.2 objective; full parity remains incomplete. The active continuation covers six-family censored-response regression and estimated spatial covariance models, with test-first numerical, public C ABI and native SQL gates. Work in progress is not counted as a verified API.
 
 #### State Space
 
@@ -1930,6 +1940,110 @@ Numerical repairs are regression-tested: external Gaussian covariances reject as
 
 <!-- analytics-streams-contracts:end -->
 
+### Resumed work: censored regression and estimated spatial covariance
+
+The nine operations below extend the verified bounded numerical API to263 analytics
+functions /414 total SQL overloads. The production Release C ABI and matching
+DuckDB SQL gates pass; the overall JMP19.2 objective remains active.
+The [checkpoint evidence](tasks/evidence/jmp-parity-estimation-validation.json)
+records source/artifact hashes, independent references and remaining contracts.
+
+The six regression fits are `chem_censored_normal`, `chem_censored_exponential`,
+`chem_censored_gamma`, `chem_censored_weibull`, `chem_censored_lognormal` and
+`chem_censored_beta`. Each accepts rows
+`[features..., lower, upper, censor_code, frequency]`. Codes are `0` exact
+(`lower=upper`), `1` left (upper used), `2` right (lower used) and `3` interval
+(`lower<upper`). Frequency is a nonnegative integer replication count; zero rows
+are ignored. Fit arguments, in order, are `[maxiter=400, tolerance=1e-7,
+confidence=.95, optional_raw_start_parameters...]`; explicit starts require all
+three leading options and contain intercept, slopes and log sigma, except that
+Exponential has no free dispersion. `maxiter=0` evaluates the supplied/automatic
+initial fit; convergence still requires the numerical score and guard checks.
+`maxiter` is0..2000, tolerance1e-10..1e-3 and confidence in[.5,.999999).
+Individual frequencies are0..1e6 and their total is at most1e9; the total must
+exceed the parameter count and the positive-frequency design must have full rank.
+
+| Distribution | Regression parameterization |
+| --- | --- |
+| Normal | `mu=X beta`, common positive sigma, joint censored maximum likelihood |
+| Exponential | `mu=exp(X beta)`, mean mu, no free dispersion |
+| Gamma | `mu=exp(X beta)`, shape `mu/sigma`, scale sigma |
+| Weibull | log-response location `X beta`, log-response scale sigma; Weibull shape `1/sigma`, scale `exp(X beta)` |
+| Lognormal | log-response Normal location `X beta`, scale sigma |
+| Beta | `mu=logistic(X beta)`, alpha `mu/sigma`, beta `(1-mu)/sigma` |
+
+These parameterizations follow the [JMP19.2 distribution definitions](https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml).
+Normal estimates the likelihood scale even for an all-exact sample; it does not
+substitute the uncensored least-squares RMSE. Positive families require exact
+responses greater than zero, and Beta requires exact responses strictly between
+zero and one. Censoring contributes log density, log CDF, log survival or a log
+interval probability to one joint likelihood. Training-only frequency weighted
+scaling and full-rank checks precede local BFGS fitting.
+
+`chem_censored_predict` takes rows `[features..., query_value, probability]` and
+the complete returned `predict_parameters`. It returns conditional means, CDF,
+survival, density and quantiles, plus available delta-method uncertainty. Save the
+array unchanged: its versioned layout includes the fitted normalized coefficients,
+training transforms and covariance. Its layout is
+`[1,family,p,confidence,response_origin,response_scale,has_covariance,
+intercept,standardized_slopes(p),log_sigma_internal,feature_origins(p),
+feature_mean_offsets(p),feature_scales(p),normalized_covariance(d*d)]`, where
+family0 Normal/1 Exponential/2 Gamma/3 Weibull/4 Lognormal/5 Beta,
+`d=p+1+(family!=1)`, and Exponential uses internal log sigma0. The maximum length
+is397 at16 features. Prediction probability must be strictly between0 and1.
+A nonconverged fit withholds covariance, standard errors and confidence intervals.
+An interval whose physical endpoints overflow is null even when its mean and
+standard error remain finite. Saved covariance must be symmetric and positive definite;
+material asymmetry is rejected using scaled comparisons. Observed joint-information uncertainty
+uses normal Wald intervals, not profile likelihood. Rank, local convergence and
+information checks do not certify global optimality or every nonexistence path.
+The API supports at most16 features, finite data with absolute value at most1e150,
+100000 rows, 1M cells, and a cumulative200M numerical work budget. Work-budget or
+special-function convergence failure returns SQL NULL. See the
+[full censoring contract and saved layout](tasks/jmp-censored-api.json) for shape,
+iteration, support and representability limits. Penalties, variable selection,
+categorical metadata, arbitrary weights, scale regression, profile intervals and
+installed-JMP numerical comparison remain outstanding.
+
+`chem_spatial_fit` estimates isotropic Gaussian spatial regression from rows
+`[coordinates..., fixed_features..., subject_id, response]`. Arguments are
+`[dimensions, feature_count, kernel, method, estimate_nugget, maxiter=1000,
+tolerance=1e-8, optional_length_lower, optional_length_upper]`. Dimensions are1..3,
+features0..8, kernels0 spherical/1 exponential/2 Gaussian/3 JMP Power, method0 ML/1
+REML, and nugget0 disabled/1 estimated. Both optional positive length bounds must
+be provided together. Every model includes an intercept; equal integer subject
+IDs share a covariance block, and different subjects have zero process covariance.
+Require `p+1<n<=96`, maxiter1..3000 per start and tolerance1e-11..1e-4.
+Inputs have absolute value at most1e100; subject IDs are integers with absolute
+value at most2^53-1. Explicit length bounds satisfy1e-100<=lower<upper<=1e100;
+defaults are.001 times the minimum positive within-subject distance and1000 times
+the maximum, or.001/1000 when no such positive distance exists.
+
+The fit profiles fixed effects and total variance, searches correlation length
+and nugget fraction, and checks local scores separately from simplex convergence.
+For Power, the stored length is the optimization parameter and
+`kernel_parameter=exp(-1/length)` is JMP rho. Interior observed-information
+covariance, standard errors and untruncated normal95% Wald intervals are returned
+only when identified and converged away from active bounds. These are not JMP's
+bounded Satterthwaite intervals. Nonconverged or boundary fits return null
+covariance inference. A cumulative3e9 dense-work limit applies across starts;
+budget exhaustion fails the call.
+
+`chem_spatial_fit_predict` takes `[coordinates..., fixed_features..., subject_id]`
+rows (at most1000) and the unchanged `predict_parameters` array. The carrier is
+`[1,dimensions,feature_count,n,kernel,partial_sill,nugget,correlation_length,
+original_training_rows_flat...]`, length at most1256. It rebuilds the saved fitted
+covariance and performs universal kriging without refitting. Predictions use
+estimated fixed effects. Latent and independent-observation
+variances include fixed-effect estimation uncertainty conditional on fitted
+covariance. Covariance parameter estimation uncertainty is
+excluded. Queries for unseen subjects use the fitted trend and zero process cross
+covariance. The [complete spatial estimation contract](tasks/jmp-spatial-estimation-api.json)
+records the carrier, bounds and convergence diagnostics. Anisotropy, G-side random
+effects, weights, no-intercept and categorical designs, negative variance
+components, small-sample degrees of freedom, variogram nonlinear fitting and
+automatic family selection remain outstanding.
+
 ### Worked workflows and saved models
 
 ```sql
@@ -2068,7 +2182,7 @@ See [the version audit](JMP_PARITY.md#200-urlの確認と版を混ぜないた�
 A function name or a restricted implementation does not establish whole-platform
 equivalence.
 
-Large outstanding families include GLMM random slopes/multiple factors and other response families, spatial covariance-parameter fitting, general SEM/FIML/multigroup beyond simple CFA and supplied RAM, further causal estimators and uplift-tree fitting, irregular functional inference and automatic basis selection, full wavelets/X11/multiplicative ETS, seasonal or multivariate transfer, arbitrary DOE/mixture/restricted-randomization designs, Bayesian repeated-measures degradation and further reliability workflows, tokenization/sentiment/text regression and multidimensional IRT, choice/conjoint/MaxDiff, GWAS/multikernel inference and linked/polyploid admixture, further tuning/uncertainty/deployment/export options. The new numeric text/functional/time-series/spatial contracts are bounded subsets. DuckDB joins, aggregates,pivot/unpivot and SQL I/O remain reused host functionality. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain separately tracked. No full-JMP coverage percentage is inferred from the unequal inventory rows. The user requested pushing this completed checkpoint and stopping; additional feature implementation is stopped.
+Large outstanding families include GLMM random slopes/multiple factors and other response families, spatial covariance-parameter fitting, general SEM/FIML/multigroup beyond simple CFA and supplied RAM, further causal estimators and uplift-tree fitting, irregular functional inference and automatic basis selection, full wavelets/X11/multiplicative ETS, seasonal or multivariate transfer, arbitrary DOE/mixture/restricted-randomization designs, Bayesian repeated-measures degradation and further reliability workflows, tokenization/sentiment/text regression and multidimensional IRT, choice/conjoint/MaxDiff, GWAS/multikernel inference and linked/polyploid admixture, further tuning/uncertainty/deployment/export options. The new numeric text/functional/time-series/spatial contracts are bounded subsets. DuckDB joins, aggregates,pivot/unpivot and SQL I/O remain reused host functionality. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All 44 report/plot acceptance contracts are now [specified](tasks/jmp-report-acceptance.json): 13 have existing partial numerical backends and 31 are absent; none has been newly certified as a completed artifact/export implementation. No full-JMP coverage percentage is inferred from the unequal inventory rows. That checkpoint was pushed under the earlier stop instruction. The user has now resumed the full non-GUI, non-GPU goal; censored-response regression and spatial covariance estimation are in progress, and unverified additions are not counted as completed features.
 
 The implementation workflow is test driven: observe an expected behavioral RED,
 implement the bounded contract, then verify GREEN, numerical edge cases and
@@ -2078,7 +2192,13 @@ head-to-head numerical comparison.
 
 <!-- analytics-validation-summary:start -->
 
-- The current **254-function checkpoint** passed **1,302 Rust tests across 63 suites**, zero failures; two pre-existing external-data tests remain ignored. Strict analytics Clippy, scoped formatting and `git diff --check` passed.
+- The resumed **263-function checkpoint** passes **1,340 Rust tests across65 suites**, zero failures, with two existing ignored tests (diagnostic logP print helper and explicit external-population acceptance). Strict analytics Clippy, scoped formatting and diff checks pass. [Dev evidence](tasks/evidence/jmp-parity-dev-final.json).
+- The matching macOS arm64 **Release** extension loads into DuckDB `v2.0.0-alpha49307` and passes **16 SQL cases /513 assertions**, zero skips, plus all **414 catalog overload examples**. These new Release checks do not use ASan/UBSan. [Native evidence](tasks/evidence/jmp-parity-native-sqllogictest.json).
+- Documented production C ABI fixtures pass for38 operations /128 fields. The independent censored-family oracle checks6 families and4 edge contracts on **both Release C ABI and actual SQL**,768 assertions including46 edge checks. [Censored evidence](tasks/evidence/jmp-censored-reference.json).
+- Spatial estimation passes **48 production C ABI calls /810 numerical fields** and16 independently fitted SQL cases /130 fields with3 saved-model roundtrips. [C ABI evidence](tasks/evidence/jmp-spatial-estimation-reference.json), [SQL evidence](tasks/evidence/jmp-spatial-estimation-sql.json).
+- Gamma at the deliberately stricter optimizer tolerance1e-8 can finish unconverged with null inference; the independent average-score check confirms that behavior. The six-family numeric oracle uses the documented1e-7 default, unchanged reference comparison tolerances and an independent score gate. Full JMP parity and new cross-platform/Wasm runtime coverage are not inferred from this local CPU checkpoint.
+
+- The earlier **254-function checkpoint** passed **1,302 Rust tests across 63 suites**, zero failures; two pre-existing tests remain ignored: a diagnostic print helper and an explicit external-population acceptance test. Strict analytics Clippy, scoped formatting and `git diff --check` passed.
 - The matching macOS arm64 CPU Debug extension passed **13 native SQL cases / 439 assertions**, no skips, and every **405 documented catalog overloads / 405 executable examples**. C++ uses ASan/UBSan; Rust is not sanitizer-instrumented.
 - All **29 new operations / 106 fields** passed the production exported C ABI. The general new native checker tested **29 examples / 118 fields**, **6 SQL saved-model round trips**, **39 invalid NULL cases**, selected/interleaved vectors; **45 strict JSON results / 11 queries**. The functional checker added **3 saved-reference round trips / 18 fields**, **43 invalid NULL cases**, explicit arWLS nonconvergence, selected/interleaved vectors; **22 JSON results / 7 queries**.
 - All six prior numerical/model/design checkers passed against the matching build. [Current evidence](tasks/evidence/jmp-streams-validation.json) identifies the complete source graph, actual artifacts, logs and reproduction commands. [225-function](tasks/evidence/jmp-specialized-validation.json), [209-function](tasks/evidence/jmp-models-validation.json), [181-function](tasks/evidence/jmp-continuation-validation.json) and [119-function](tasks/evidence/jmp-sql-validation.json) records remain historical.

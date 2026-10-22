@@ -1,0 +1,40 @@
+{
+  "purpose": "Store process logs with exactly one terminal newline for git whitespace checks; internal log content is unchanged. Raw process digests and stored digests are both preserved.",
+  "normalizations": [
+    {
+      "path": "tasks/evidence/censored-carrier-green.log",
+      "raw_process_sha256": "7e6fdbb1ceee5d48f55c31a461ec3679f854630f6cf3eb664c06ed29396ad628",
+      "stored_normalized_sha256": "ed47975cfc526ed4fc07bc4aa93beb6f838af326c6de0200c06339c4925ccd76"
+    },
+    {
+      "path": "tasks/evidence/censored-edge-green.log",
+      "raw_process_sha256": "1ef65cbdd2b61f04b19eb50850bd127eb4367b19b2a5f6744812991c624d544e",
+      "stored_normalized_sha256": "7c47862a59ec5ad479b6c5e5afc71cb34db8696237c1c72d738f9728d56c49e1"
+    },
+    {
+      "path": "tasks/evidence/censored-final-green.log",
+      "raw_process_sha256": "f52a8120d00c309fd5cfcc2a356ebe6db38450ab672ef4fe11ea252cbfa8d908",
+      "stored_normalized_sha256": "895f847f32a427e116276a0305e5ac6783e0c96b6c05478b29128e8a0ab8f5c1"
+    },
+    {
+      "path": "tasks/evidence/censored-gamma-units-green.log",
+      "raw_process_sha256": "a5e80da5a409c43f26c0d154f75e89835f53fb9a52230a47e95084646e9d5fef",
+      "stored_normalized_sha256": "65cd1a37c56b5c110fff59456e22512c7974c739687c084ee4fb382dbb57a811"
+    },
+    {
+      "path": "tasks/evidence/censored-support-green.log",
+      "raw_process_sha256": "88d816576ce87c16f7de5f1c718b0c90e96c4afd6f327535e40c3eda1846e5fa",
+      "stored_normalized_sha256": "a477f744ab4d0dbf9f267edb1c838211489d2b9e59a00c276e7b55ba5dbd6f0c"
+    },
+    {
+      "path": "tasks/evidence/jmp-parity-native-sqllogictest.log",
+      "raw_process_sha256": "f4dcac1121a57bb39f4474474e274e28c51086b2512f949b62cee9c884572068",
+      "stored_normalized_sha256": "b26ef1ad168af03f03ee77aa335e04cf49151b6d2da6a26ea045631b5f9eec0f"
+    },
+    {
+      "path": "tasks/evidence/jmp-workspace-final-dev.log",
+      "raw_process_sha256": "d85ac6464be97cb28e4eee16b5d8989a9ea48f0fad9b2a9a81d094668cdb1b15",
+      "stored_normalized_sha256": "a7b6cf589e5c247cf4ba51fd968c0d440a06d3ad40f9c9214ffb95828b41eab1"
+    }
+  ]
+}

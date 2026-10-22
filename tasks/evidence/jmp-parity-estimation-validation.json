@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "status": "PASS9additional bounded CPU operations",
+  "date": "2026-10-22",
+  "full_goal_complete": false,
+  "work_status": "active",
+  "new_operations": [
+    "censored_normal",
+    "censored_exponential",
+    "censored_gamma",
+    "censored_weibull",
+    "censored_lognormal",
+    "censored_beta",
+    "censored_predict",
+    "spatial_fit",
+    "spatial_fit_predict"
+  ],
+  "analytics_functions": 263,
+  "total_sql_overloads": 414,
+  "rust_workspace": {
+    "suites": 65,
+    "passed": 1340,
+    "failed": 0,
+    "ignored_existing": 2,
+    "ignored_details": [
+      "diagnostic logP print helper",
+      "external unselected100k population acceptance requires explicit source"
+    ]
+  },
+  "native_sql": {
+    "cases": 16,
+    "assertions": 513,
+    "skipped": 0
+  },
+  "catalog_examples_executed": 414,
+  "documented_public_C_ABI_operations": 38,
+  "documented_public_C_ABI_fields": 128,
+  "censored_reference": {
+    "families": 6,
+    "boundaries": [
+      "public C ABI",
+      "matching native DuckDB SQL"
+    ],
+    "assertions": 768,
+    "confirmed_edge_contracts": 4,
+    "edge_assertions": 46,
+    "native_sql_queries": 16,
+    "evidence": "tasks/evidence/jmp-censored-reference.json"
+  },
+  "spatial_reference": {
+    "calls": 48,
+    "numeric_fields": 810,
+    "native_independent_fits": 16,
+    "native_reference_fields": 130,
+    "saved_roundtrips": 3,
+    "evidence": [
+      "tasks/evidence/jmp-spatial-estimation-reference.json",
+      "tasks/evidence/jmp-spatial-estimation-sql.json"
+    ]
+  },
+  "build_profile": "Release/default features; Rust tests+strictClippy in dev profile before isolated cleanup transition",
+  "artifacts": {
+    "cli": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+    "extension": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+    "cli_sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2",
+    "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710",
+    "loaded_metadata": [
+      {
+        "version": "v2.0.0-alpha49307",
+        "overloads": 414
+      }
+    ]
+  },
+  "C_ABI_build": "tasks/evidence/jmp-parity-release-abi-build.json",
+  "dev_evidence": "tasks/evidence/jmp-parity-dev-final.json",
+  "native_build": "tasks/evidence/jmp-parity-native-build.json",
+  "native_sql_evidence": "tasks/evidence/jmp-parity-native-sqllogictest.json",
+  "catalog_evidence": "tasks/evidence/jmp-parity-catalog-abi.json",
+  "status_counts": {
+    "partial": 275,
+    "database_existing": 37,
+    "absent": 209,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "limitations": [
+    "No installed JMP numerical comparison",
+    "No new cross-platform CI or Wasm runtime claim from local native gates",
+    "Censored regression and spatial model families remain partial with explicit residual methods/options",
+    "44report contracts remain in scope; no new report artifact completion in this9operation checkpoint"
+  ],
+  "chemical_DQ": "research only; user directed implementation after full JMP objective completion"
+}

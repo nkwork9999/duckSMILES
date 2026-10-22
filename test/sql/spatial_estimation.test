@@ -1,0 +1,64 @@
+# name: test/sql/spatial_estimation.test
+# description: Estimated spatial ML/REML contracts, inference and saved SQL prediction
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+query IIII
+SELECT count(*),count(description),count(*) FILTER(WHERE len(examples)>0),
+       count(*) FILTER(WHERE parameters=['data','parameters'] AND parameter_types=['DOUBLE[][]','DOUBLE[]'])
+FROM duckdb_functions() WHERE function_name IN('chem_spatial_fit','chem_spatial_fit_predict');
+----
+2	2	2	2
+
+# In the spherical cutoff limit covariance is iid; ML and REML use different df.
+query IIII
+WITH fit AS(SELECT chem_spatial_fit([[0.,0.,1.],[1.,0.,2.],[2.,0.,6.]],[1.,0.,0.,0.,0.,100.,1e-8,.1,.5])AS ml,
+                   chem_spatial_fit([[0.,0.,1.],[1.,0.,2.],[2.,0.,6.]],[1.,0.,0.,1.,0.,100.,1e-8,.1,.5])AS reml)
+SELECT abs(json_extract(ml,'$.intercept')::DOUBLE-3.)<1e-10,
+       abs(json_extract(ml,'$.total_variance')::DOUBLE-14./3.)<1e-9,
+       abs(json_extract(reml,'$.total_variance')::DOUBLE-7.)<1e-9,
+       json_extract(ml,'$.covariance_parameter_intervals')::VARCHAR='null' FROM fit;
+----
+true	true	true	true
+
+# Independently optimized dense Gaussian likelihood fixtures, not supplied covariance.
+query IIII
+WITH sample AS(
+ SELECT list([i*.25,sin(i*.25),CASE WHEN i<12 THEN 0. ELSE 1. END,ys[i+1]] ORDER BY i)AS data
+ FROM range(24)t(i) CROSS JOIN(SELECT [3.680779827821175,3.49955299615519,4.245665084208936,2.985080583137176,3.6828878639053784,3.7513926741099475,4.823887252424179,2.9544118969350306,2.816875001593167,2.6808727577622538,1.8054882526399254,2.541261702417471,3.3318529172854947,4.3046048697620325,5.1639901527723495,2.80379486301126,3.525871037267851,2.163388276159442,4.265647365135814,3.596893023869619,2.6384275848630123,2.6432640650732577,1.9374016337868554,2.99800250508825]AS ys)),
+ fit AS(SELECT chem_spatial_fit(data,[1.,1.,1.,0.,1.,1500.,1e-9,.01,30.])AS ml,
+               chem_spatial_fit(data,[1.,1.,1.,1.,1.,1500.,1e-9,.01,30.])AS reml FROM sample)
+SELECT abs(json_extract(ml,'$.partial_sill')::DOUBLE-.40382278275555383)<1e-4,
+       abs(json_extract(reml,'$.correlation_length')::DOUBLE-1.2764754686328958)<1e-3,
+       json_array_length(json_extract(ml,'$.covariance_parameter_standard_errors'))=3,
+       json_extract(ml,'$.covariance_parameter_intervals[0][0]')::DOUBLE<0. FROM fit;
+----
+true	true	true	true
+
+# New subject is independent; saved carrier extraction preserves the REML scale.
+query III
+WITH fit AS(SELECT chem_spatial_fit([[0.,1.,1.],[0.,2.,2.],[0.,3.,6.]],[1.,0.,1.,1.,0.,100.,1e-8,.1,2.])AS model),
+ prediction AS(SELECT chem_spatial_fit_predict([[0.,4.]],json_extract(model,'$.predict_parameters')::DOUBLE[])AS model FROM fit)
+SELECT abs(json_extract(model,'$.predictions[0]')::DOUBLE-3.)<1e-10,
+       abs(json_extract(model,'$.latent_variances[0]')::DOUBLE-28./3.)<1e-9,
+       abs(json_extract(model,'$.observation_variances[0]')::DOUBLE-28./3.)<1e-9 FROM prediction;
+----
+true	true	true
+
+query IIII
+SELECT chem_spatial_fit(NULL::DOUBLE[][],[1.,0.,1.,1.,1.])IS NULL,
+       chem_spatial_fit([[0.,0.,2.],[1.,0.,2.],[2.,0.,2.]],[1.,0.,1.,1.,1.])IS NULL,
+       chem_spatial_fit([[0.,.5,1.],[1.,0.,2.],[2.,0.,6.]],[1.,0.,0.,0.,0.])IS NULL,
+       chem_spatial_fit_predict([[0.,0.]],[1.,1.,0.,3.,0.,4.666666666666667,0.,.1,0.,0.,1.,1.,0.,2.,2.,0.])IS NULL;
+----
+true	true	true	true
+
+# Nonconstant selected rows interleave NULL without losing the child-list offsets.
+query III
+WITH r AS(SELECT i,chem_spatial_fit(CASE WHEN i%3=0 THEN NULL::DOUBLE[][] ELSE [[i::DOUBLE,0.,1.],[i+1.,0.,2.],[i+2.,0.,6.]]END,[1.,0.,0.,0.,0.,100.,1e-8,.1,.5])AS model FROM range(8)t(i)WHERE i<>4)
+SELECT count(*),count(*)FILTER(WHERE model IS NULL),bool_and(abs(json_extract(model,'$.total_variance')::DOUBLE-14./3.)<1e-9)FROM r;
+----
+7	3	true

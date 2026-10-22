@@ -1,0 +1,22 @@
+Filters: /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*
+
+[0/16] (0%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test
+[1/16] (6%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test took 0.181s
+[2/16] (12%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_specialized.test took 0.081s
+[3/16] (18%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_continuation.test took 0.111s
+[4/16] (25%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/spatial_estimation.test took 0.199s
+[5/16] (31%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_models.test took 0.122s
+[6/16] (37%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/fallibility.test took 0.067s
+[7/16] (43%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test took 0.156s
+[8/16] (50%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/mass_context.test took 0.117s
+[9/16] (56%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_streams.test took 0.042s
+[10/16] (62%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_analytics.test took 0.355s
+[11/16] (68%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/native_graph.test took 0.138s
+[12/16] (75%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/vector_compat.test took 0.135s
+[13/16] (81%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test took 0.089sReplacing deprecated __BUILD_DIRECTORY__ in test /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test - please replace with {BUILD_DIRECTORY}
+
+[14/16] (87%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test took 0.043s
+[15/16] (93%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/censored_regression.test took 0.149s
+[16/16] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test took 0.199s
+===============================================================================
+All tests passed (513 assertions in 16 test cases)

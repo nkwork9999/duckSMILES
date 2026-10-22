@@ -1,0 +1,88 @@
+{
+  "profile": "dev/default features",
+  "cargo_target_dir": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "checks": [
+    {
+      "name": "workspace-final-dev",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 107.9904286660003,
+      "log_sha256": "a7b6cf589e5c247cf4ba51fd968c0d440a06d3ad40f9c9214ffb95828b41eab1",
+      "suites": 65,
+      "passed": 1340,
+      "failed": 0,
+      "ignored": 2,
+      "stored_log": "tasks/evidence/jmp-workspace-final-dev.log"
+    },
+    {
+      "name": "analytics-clippy-final-dev",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "ducksmiles_analytics",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 4.998092374999942,
+      "log_sha256": "67e25f46d9d5b9ba5c9a2a7877ca5b7c553be2db2e5f27dea6d9202b038fbff0",
+      "stored_log": "tasks/evidence/jmp-analytics-clippy-final-dev.log"
+    },
+    {
+      "name": "format-final-dev",
+      "command": [
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2021",
+        "crates/analytics/src/lib.rs",
+        "crates/analytics/src/censored_regression.rs",
+        "crates/analytics/src/spatial_estimation.rs",
+        "crates/analytics/tests/censored_regression_contracts.rs",
+        "crates/analytics/tests/spatial_estimation_contracts.rs"
+      ],
+      "exit_code": 1,
+      "seconds": 0.752495541999906,
+      "log_sha256": "c10ab11279a207c743b9fedfddf50663ee394f21c4caf3e8cf07ba6361739cb3",
+      "stored_log": "tasks/evidence/jmp-format-final-dev.log"
+    }
+  ],
+  "source_sha256": {
+    "crates/analytics/src/lib.rs": "d3fdba99f3762931b02347ff16b271e81ee30f46e61b008fa0a48a8c99c53def",
+    "crates/analytics/src/censored_regression.rs": "b8f829799d05c80ca2f6abf6dfbda3214608578b0c9345129431c6e0507fa42c",
+    "crates/analytics/src/spatial_estimation.rs": "b804eed49fbfe023cdc9350752587ea7cc13ff80f05e9827cf8db0dfbbe905cb",
+    "crates/analytics/tests/censored_regression_contracts.rs": "74793f7e12467c38e5133c649e0e7702bb028eb3ce4856bbfac0b1f75b0c148e",
+    "crates/analytics/tests/spatial_estimation_contracts.rs": "8e199b29e0d9ce3c61dba19950f65e8ad04ceb1187430254e9976b188adbdcbf"
+  },
+  "format_correction": {
+    "change": "lib.rs spatial dispatch braces only; no behavioral change",
+    "command": [
+      "rustfmt",
+      "--check",
+      "--config",
+      "skip_children=true",
+      "--edition",
+      "2021",
+      "crates/analytics/src/lib.rs",
+      "crates/analytics/src/censored_regression.rs",
+      "crates/analytics/src/spatial_estimation.rs",
+      "crates/analytics/tests/censored_regression_contracts.rs",
+      "crates/analytics/tests/spatial_estimation_contracts.rs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.2707777499999793
+  },
+  "ignored_tests": [
+    "test logp_crippen::print_values::print_logp_table ... ignored",
+    "test workbench::tests::supplied_population_preparation_acceptance ... ignored, external unselected100k source is supplied explicitly"
+  ]
+}

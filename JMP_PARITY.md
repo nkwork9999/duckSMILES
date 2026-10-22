@@ -8,7 +8,7 @@
 
 - 以前の「GUI以外全部」という指示を踏まえ、純粋な画面操作は `excluded_gui` にした。
 - 最新の「GPU以外」とGUIは別の条件。GPU専用でなければ、ニューラルネットを含む数値アルゴリズムはCPU実装の対象として残す。参照した公式一覧にGPU専用手法は見つからなかった。
-- 静的図・帳票の出力は画面操作とは別なので、描画項目を `clarification_pending` として可視化した。数値バックエンドまで暗黙に除外しない。
+- 静的図・帳票の出力は画面操作とは別である。再開前の `clarification_pending` 44項目は[非GUI受入契約](tasks/jmp-report-acceptance.json)へ具体化し、既存数値バックエンドの部分対応13行・未実装31行として対象に残した。図・帳票成果物の生成完了を新たに認定したものではなく、数値バックエンドも暗黙に除外しない。
 - JMP Liveは公式に別製品。JMP ClinicalもJMP / JMP Proそのものと区別する。公式一覧にあるMarketplace拡張は `external_plugin` にした。
 - DuckDBが既に提供する集計・相関・整形・結合・SQL入出力は `database_existing`。duckSMILESの新実装として数えない。外部形式・接続先は対象版で個別検証する。
 
@@ -22,7 +22,7 @@
 
 ## 調査開始時の差分と受入条件
 
-次表の「既存」は調査開始時の24関数の状態を指す。今回の追加実装は、[READMEの全SQL API](README.md#cpu-analytics-complete-sql-api-reference) と台帳の `current_sql_api` / 各項目の `current_implementation` に追記した。前回の登録は追加95関数、従来分と合わせて119関数で、その限定SQL契約の検証が完了した。8領域62操作、さらに6領域28操作を追加し、現在の登録は **254 analytics関数 / 全405 overloads**。ソース・動作テスト・独立参照を関連付けた限定実装は `partial` のままとし、継続分のmatching native SQLゲートも合格した。公式の方法群全体の完了や、実行していない対象版/方法の同等性を推定しない。
+次表の「既存」は調査開始時の24関数の状態を指す。今回の追加実装は、[READMEの全SQL API](README.md#cpu-analytics-complete-sql-api-reference) と台帳の `current_sql_api` / 各項目の `current_implementation` に追記した。前回の登録は追加95関数、従来分と合わせて119関数で、その限定SQL契約の検証が完了した。8領域62操作、さらに6領域28操作を追加し、29操作の時点は254/405で、今回の打切り回帰・空間推定9操作を加え、現在の登録は **263 analytics関数 / 全414 overloads**。ソース・動作テスト・独立参照を関連付けた限定実装は `partial` のままとし、継続分のmatching native SQLゲートも合格した。公式の方法群全体の完了や、実行していない対象版/方法の同等性を推定しない。
 
 | 領域 | 既存実装の限界と、残っている契約 | 公式根拠 |
 | --- | --- | --- |
@@ -66,7 +66,7 @@
 
 この台帳の既存実装評価は [前回の検証記録](tasks/evidence/sql-analytics-validation.json) と [独立参照](tasks/evidence/sql-analytics-reference.json)、実際のソース/テストに基づく。前回の865 Rustテスト・367 SQL assertions・18独立fixtureは、その記録のrevisionに対する証拠である。
 
-今回の限定実装は、対象ソース・テストと利用可能な独立参照を関連付けたうえで `partial` とした。台帳552行のうち、関連限定実装がある項目は254行、未実装186行、ホスト既存37行、従来の限定契約として検証済み6行、GUI除外17行、描画/出力の範囲未確定44行、外部拡張4行、別製品4行。これらは粒度が異なり、実装率やJMP同等性の割合ではない。
+今回の限定実装は、対象ソース・テストと利用可能な独立参照を関連付けたうえで `partial` とした。台帳552行のうち、関連限定実装/既存数値バックエンドがある項目は267行、未実装217行、ホスト既存37行、従来の限定契約として検証済み6行、GUI除外17行、範囲未確定0行、外部拡張4行、別製品4行。図・帳票44行は[非GUI受入契約](tasks/jmp-report-acceptance.json)から13行を既存数値バックエンドの部分対応、31行を未実装と具体化した。静的成果物の生成完了を認定した行は0で、実装済みSQL関数の件数は増えていない。これらは粒度が異なり、実装率やJMP同等性の割合ではない。
 
 各追加SQL関数の入力・パラメータ・実行例・ソース/テスト・公式項目との関係を `current_sql_api` に保持した。直接Rust参照の証拠は [分布/ARIMA](tasks/evidence/jmp-distribution-arima-reference.json)、[回帰/多変量/混合](tasks/evidence/jmp-model-reference.json)、[検定/時系列/Cox](tasks/evidence/jmp-inference-timeseries-reference.json)。[追加DOE参照](tasks/evidence/jmp-advanced-design-reference.json) と [最終実SQL検証](tasks/evidence/jmp-sql-validation.json) も関連付けた。前回119関数のゲートはRust 1,006件（40 suites、失敗0、既存ignored 2）、native SQL 8 cases（skipなし）、catalog 270 overloadsと全270例の実行が合格。95追加操作のSQL oracleは199数値フィールド、保存モデル再利用・不正入力・query-label除外・選択/動的vectorも確認した。検証範囲はmacOS arm64 CPUの登録された限定契約であり、名称の一致をもとにJMPの方法群全体を完了にはしない。
 
@@ -104,6 +104,30 @@
 16操作を追加し、225analysis関数/376overloadsをmatching nativeで検証した。Rust 1236tests/58suites、SQL 12cases/430assertions、全376catalog例が成功。保存モデル7往復とsubnormal予測の修正も実SQLで確認。552行の現在状態は partial 235, database_existing 37, absent 205, external_plugin 4, clarification_pending 44, implemented_verified 6, excluded_gui 17, separate_product 4。[証拠](tasks/evidence/jmp-specialized-validation.json)と[README](README.md#cpu-analytics-complete-sql-api-reference)に全契約・制限・別計算との照合を記録した。IRT、SEM、劣化、genomicモデルは限定部分対応で、全JMP同等は未達。時系列・残るfunctional/DOE等の必要作業を継続する。
 
 
-## 254関数checkpoint・push後停止
+## 254関数checkpoint（過去の停止時点）
 
 今回の29操作を統合し、254analytics関数/全405overloadsをmatching nativeで検証。Rust1302tests/63suites、SQL13cases/439assertions、全405catalog例、29操作のproduction C ABI既知値、保存model/referenceの9SQL往復が成功した。数値レビューのGaussian covariance入力とspatial予測/半分散/物理共分散の不具合は実RED→GREEN回帰と独立計算で検証した。[最終証拠](tasks/evidence/jmp-streams-validation.json)、[全関数README](README.md#cpu-analytics-complete-sql-api-reference)。552行の状態は partial 254, database_existing 37, absent 186, external_plugin 4, clarification_pending 44, implemented_verified 6, excluded_gui 17, separate_product 4。19行をabsentからpartialへ変更したが、**全JMP同等は未達**。ユーザーの「それ完了したらpushでストップ」により今回の検証済み範囲をpush後、追加実装を停止する。choice/censored-regression等の次段階コードは追加していない。
+
+
+## 2026-10-22: 全体目標の再開
+
+ユーザーが全体目標を再開した。上のpush後停止は過去のcheckpointの記録であり、現在の作業状態ではない。main `442f54588d5882a3fc14f3f830c2d29d20701ace` への反映、Community CIの3対象、ソースCIの9対象の成功は、既存254関数の提出・互換性に対する証拠であり、JMP全体の達成を証明しない。再開時点の台帳は部分対応254行・未実装186行・出力範囲未確定44行だった。その後、44行の受入契約を具体化し、既存バックエンド部分対応13行・未実装31行へ分類したため、現在は部分対応267行・未実装217行・範囲未確定0行である。成果物の実装完了を追加認定したものではない。
+
+継続中の契約は、Normal/Exponential/Gamma/Weibull/Lognormal/Betaの左・右・区間・正確観測を含む打切り回帰と、空間共分散パラメータのML/REML推定・推論・保存予測である。各契約のRED、独立数値参照、公開C ABI、実DuckDB SQLが揃うまでは検証済みの関数数を増やさない。限定的な推定法を追加しても、異方性・全推論オプションなどの残差分は保持する。
+
+現目標が除外するのはGUI操作とGPU依存だけである。静的図・帳票のCPU数値バックエンドと出力は対象に残し、従来の44件の範囲未確定項目を一次資料から具体化する。未確定であることを除外や達成として扱わない。全体目標はactiveのまま継続する。
+
+図・帳票の全44契約は [tasks/jmp-report-acceptance.json](tasks/jmp-report-acceptance.json) に、入力、計算/構造出力、静的artifact、非GUIオプション、一次資料、独立検証と残調査を記録した。範囲の具体化は未実装成果物の代わりにはならず、全体達成の根拠にしない。
+
+## 再開後の検証済み9操作（全体は継続中）
+
+6分布のexact/left/right/interval打切り回帰と保存予測7操作、および空間共分散ML/REML推定と保存予測2操作を追加した。契約・全引数・SQL例・制約はREADMEと `tasks/jmp-censored-api.json` / `tasks/jmp-spatial-estimation-api.json`。JMP本体との直接比較は行っておらず、該当方法群は `partial` を維持する。
+
+- Rust: 65suite /1,340成功 /0失敗 /既存ignore2。厳格Clippy・scopedfmt・diff検査合格。
+- 実Release拡張: matching DuckDB2 SDKで16 SQL cases /513assertions /skip0、全414カタログ実行例合格。
+- 打切り回帰: 独立SciPy参照・実C ABI・実SQLの768検査。Gamma微小上側、有限CI、非対称保存共分散を含む。
+- 空間推定: 実C ABI48calls /810fields、実SQL16独立fit /130fieldsと3保存再利用。
+
+[集約証跡](tasks/evidence/jmp-parity-estimation-validation.json)。台帳は552行のまま、partial275 /absent209 /implemented_verified6 /database_existing37 /excluded_gui17 /external_plugin4 /separate_product4。44帳票項目の受入条件を具体化したが、このcheckpointでは新しい帳票成果物の完成は認定していない。全体達成率には換算しない。次の帳票契約は [histogram/box plotの調査](tasks/jmp-report-next-contracts.json) で具体化中。
+
+化学DQの[別調査](tasks/chemistry-dq-research-20261022.json)は保存した。ユーザー指定により実装開始はJMP全体の完了後とし、DuckOrchの併用とDuckSMILESへの基盤組込みの両案を残す。

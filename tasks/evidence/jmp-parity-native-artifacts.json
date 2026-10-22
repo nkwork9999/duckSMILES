@@ -1,0 +1,12 @@
+{
+  "cli": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+  "extension": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+  "cli_sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2",
+  "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710",
+  "loaded_metadata": [
+    {
+      "version": "v2.0.0-alpha49307",
+      "overloads": 414
+    }
+  ]
+}

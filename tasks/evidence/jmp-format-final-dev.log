@@ -1,0 +1,11 @@
+Diff in /Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics/src/lib.rs:123:
+         | "censored_lognormal"
+         | "censored_beta"
+         | "censored_predict" => censored_regression::run(operation, data, parameters),
+-        "spatial_fit" | "spatial_fit_predict" => spatial_estimation::run(operation, data, parameters),
++        "spatial_fit" | "spatial_fit_predict" => {
++            spatial_estimation::run(operation, data, parameters)
++        }
+         "kalman_smoother" | "state_space_smoothing" | "state_space_predict" => {
+             state_space::run(operation, data, parameters)
+         }

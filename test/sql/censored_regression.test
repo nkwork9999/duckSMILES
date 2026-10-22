@@ -1,0 +1,163 @@
+# name: test/sql/censored_regression.test
+# description: Censored likelihoods, saved predictions, tail regressions and nullable selected vectors
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+# Catch missing SQL registration, argument names or examples at the real catalog.
+query IIII
+SELECT count(*), count(description), count(*) FILTER (WHERE len(examples)>0),
+       count(*) FILTER (WHERE parameters=['data','parameters'] AND parameter_types=['DOUBLE[][]','DOUBLE[]'])
+FROM duckdb_functions()
+WHERE function_name IN ('chem_censored_normal','chem_censored_exponential','chem_censored_gamma','chem_censored_weibull','chem_censored_lognormal','chem_censored_beta','chem_censored_predict');
+----
+7	7	7	7
+
+# Normal exact rows have MLE mu=0 and sigma=sqrt(2), rather than unbiased RMSE.
+# Fix that analytic optimum as the starting point with maxiter=0. The summed
+# log likelihood is -5/2*(log(2*pi)+log(2)+1); joint information gives
+# SE(mu)=sqrt(2/5), SE(log_sigma)=1/sqrt(10).
+query IIIIII
+WITH fit AS (
+ SELECT chem_censored_normal([[-2.,-2.,0.,1.],[-1.,-1.,0.,1.],[0.,0.,0.,1.],[1.,1.,0.,1.],[2.,2.,0.,1.]],
+                             [0.,1e-7,.95,0.,.34657359027997264]) AS model
+)
+SELECT abs(json_extract(model,'$.coefficients[0]')::DOUBLE)<1e-10,
+       abs(json_extract(model,'$.sigma')::DOUBLE-1.4142135623730951)<1e-10,
+       abs(json_extract(model,'$.log_likelihood')::DOUBLE+8.827560617423227)<1e-10,
+       abs(json_extract(model,'$.standard_errors[0]')::DOUBLE-.6324555320336759)<5e-5,
+       abs(json_extract(model,'$.standard_errors[1]')::DOUBLE-.31622776601683794)<5e-5,
+       json_extract(model,'$.inference_valid')::BOOLEAN
+FROM fit;
+----
+true	true	true	true	true	true
+
+# Two failures at1, one at3, and right censoring at6 give failures/exposure=3/11.
+# Frequency must multiply both likelihood and information. The exact MLE has
+# log(mu)=log(11/3), logLik=-3*log(11/3)-3 and SE(log_mu)=1/sqrt(3).
+query IIIIII
+WITH fit AS (
+ SELECT chem_censored_exponential([[1.,1.,0.,2.],[3.,3.,0.,1.],[6.,0.,2.,1.]],
+                                  [0.,1e-7,.95,1.2992829841302609]) AS model
+)
+SELECT abs(json_extract(model,'$.coefficients[0]')::DOUBLE-1.2992829841302609)<1e-10,
+       abs(json_extract(model,'$.log_likelihood')::DOUBLE+6.897848952390783)<1e-10,
+       abs(json_extract(model,'$.standard_errors[0]')::DOUBLE-.5773502691896258)<5e-5,
+       json_extract(model,'$.effective_sample_size')::DOUBLE=4.,
+       json_extract(model,'$.censor_counts')::VARCHAR='[3,0,1,0]',
+       json_extract(model,'$.sigma')::VARCHAR='null'
+FROM fit;
+----
+true	true	true	true	true	true
+
+# Extract the actual fitted carrier through JSON and reuse it through SQL.
+# At query mu, exponential CDF=1-e^-1, SF=e^-1 and pdf=e^-1/mu.
+# The median is mu*log(2), and the mean delta SE is mu/sqrt(3).
+query IIIIII
+WITH fit AS (
+ SELECT chem_censored_exponential([[1.,1.,0.,2.],[3.,3.,0.,1.],[6.,0.,2.,1.]],
+                                  [0.,1e-7,.95,1.2992829841302609]) AS model
+), prediction AS (
+ SELECT chem_censored_predict([[3.6666666666666665,.5]],
+                              json_extract(model,'$.predict_parameters')::DOUBLE[]) AS model FROM fit
+)
+SELECT abs(json_extract(model,'$.means[0]')::DOUBLE-3.6666666666666665)<1e-10,
+       abs(json_extract(model,'$.cdf[0]')::DOUBLE-.6321205588285577)<1e-10,
+       abs(json_extract(model,'$.survival[0]')::DOUBLE-.36787944117144233)<1e-10,
+       abs(json_extract(model,'$.density[0]')::DOUBLE-.10033075668312064)<1e-10,
+       abs(json_extract(model,'$.quantiles[0]')::DOUBLE-2.5415396620531325)<1e-10,
+       abs(json_extract(model,'$.mean_standard_errors[0]')::DOUBLE-2.116950987028628)<2e-4
+FROM prediction;
+----
+true	true	true	true	true	true
+
+# A saved normal fit carries its response transform and joint uncertainty.
+# For N(0,2), pdf(0)=1/sqrt(4*pi), median0 and 97.5% quantile2.7718076487.
+query IIIIII
+WITH fit AS (
+ SELECT chem_censored_normal([[-2.,-2.,0.,1.],[-1.,-1.,0.,1.],[0.,0.,0.,1.],[1.,1.,0.,1.],[2.,2.,0.,1.]],
+                             [0.,1e-7,.95,0.,.34657359027997264]) AS model
+), prediction AS (
+ SELECT chem_censored_predict([[0.,.5],[1.4142135623730951,.975]],
+                              json_extract(model,'$.predict_parameters')::DOUBLE[]) AS model FROM fit
+)
+SELECT abs(json_extract(model,'$.means[0]')::DOUBLE)<1e-10,
+       abs(json_extract(model,'$.cdf[0]')::DOUBLE-.5)<1e-10,
+       abs(json_extract(model,'$.density[0]')::DOUBLE-.28209479177387814)<1e-10,
+       abs(json_extract(model,'$.quantiles[0]')::DOUBLE)<1e-10,
+       abs(json_extract(model,'$.quantiles[1]')::DOUBLE-2.771807648699356)<1e-9,
+       abs(json_extract(model,'$.mean_standard_errors[0]')::DOUBLE-.6324555320336759)<5e-5
+FROM prediction;
+----
+true	true	true	true	true	true
+
+# A small upper Gamma tail must be computed directly, not as1-rounded_CDF.
+# Independent mpmath80dps upper incomplete gamma and inverse-tail fixture:
+# tasks/evidence/jmp-censored-gamma-tail-review.json. Relative tolerance is
+# essential: an absolute1e-10 check would accept an entirely missing tail.
+query III
+WITH prediction AS (
+ SELECT chem_censored_predict([[.1,.99999999999999]],
+                              [1.,2.,0.,.95,0.,1.,0.,-32.,0.,0.,0.,0.,0.]) AS model
+)
+SELECT abs(json_extract(model,'$.survival[0]')::DOUBLE/2.308581079283308e-14-1.)<1e-7,
+       abs(json_extract(model,'$.density[0]')::DOUBLE/1.1459010857022073e-13-1.)<1e-7,
+       abs(json_extract(model,'$.quantiles[0]')::DOUBLE-.3526041408838702)<1e-8
+FROM prediction;
+----
+true	true	true
+
+# For beta mean-logit32 and covarianceI, delta SE is logistic(32)*logistic(-32).
+# Differencing two rounded near-one means must not turn it into zero.
+query I
+WITH prediction AS (
+ SELECT chem_censored_predict([[.5,1e-16]],
+                              [1.,5.,0.,.95,0.,1.,1.,32.,0.,1.,0.,0.,1.]) AS model
+)
+SELECT abs(json_extract(model,'$.mean_standard_errors[0]')::DOUBLE/1.2664165549093855e-14-1.)<1e-7
+FROM prediction;
+----
+true
+
+# Bad nested inputs, support, censor ordering and nonreplication frequencies
+# must become SQL NULL instead of corrupting the next scalar result.
+query IIIIII
+SELECT chem_censored_normal(NULL::DOUBLE[][],[]::DOUBLE[]) IS NULL,
+       chem_censored_normal([[-1.,-1.,0.,1.],[0.,0.,0.,1.],[1.,1.,0.,1.]],NULL::DOUBLE[]) IS NULL,
+       chem_censored_normal([[NULL::DOUBLE,0.,0.,1.]],[]::DOUBLE[]) IS NULL,
+       chem_censored_beta([[0.,0.,0.,1.],[.2,.2,0.,1.],[.4,.4,0.,1.]],[]::DOUBLE[]) IS NULL,
+       chem_censored_normal([[1.,0.,3.,1.],[0.,0.,0.,1.],[2.,2.,0.,1.]],[]::DOUBLE[]) IS NULL,
+       chem_censored_exponential([[1.,1.,0.,-1.],[2.,2.,0.,1.],[3.,3.,0.,1.]],[]::DOUBLE[]) IS NULL;
+----
+true	true	true	true	true	true
+
+# Truncated/wrong-version carriers, indefinite covariance, a covariance flag
+# inconsistent with nonzero entries and endpoint probabilities are invalid.
+query IIIIII
+SELECT chem_censored_predict([[0.,.5]],[1.,0.,0.]) IS NULL,
+       chem_censored_predict([[0.,.5]],[2.,0.,0.,.95,0.,1.,0.,0.,0.,0.,0.,0.,0.]) IS NULL,
+       chem_censored_predict([[0.,.5]],[1.,0.,0.,.95,0.,1.,1.,0.,0.,1.,0.,0.,-1.]) IS NULL,
+       chem_censored_predict([[0.,.5]],[1.,0.,0.,.95,0.,1.,0.,0.,0.,1.,0.,0.,1.]) IS NULL,
+       chem_censored_predict([[0.,0.]],[1.,0.,0.,.95,0.,1.,0.,0.,0.,0.,0.,0.,0.]) IS NULL,
+       chem_censored_predict([[0.,1.]],[1.,0.,0.,.95,0.,1.,0.,0.,0.,0.,0.,0.,0.]) IS NULL;
+----
+true	true	true	true	true	true
+
+# Filtered, nonconstant nested matrices and parameter lists interleave NULL
+# with four analytic normal fits. Their means follow i and sigma remains sqrt2.
+query IIII
+WITH selected AS (
+ SELECT i, chem_censored_normal(
+   CASE WHEN i%3=0 THEN NULL::DOUBLE[][] ELSE
+    [[i-2.,i-2.,0.,1.],[i-1.,i-1.,0.,1.],[i::DOUBLE,i::DOUBLE,0.,1.],[i+1.,i+1.,0.,1.],[i+2.,i+2.,0.,1.]] END,
+   [0.,1e-7,.95,i::DOUBLE,.34657359027997264]) AS model
+ FROM range(8) t(i) WHERE i<>4
+)
+SELECT count(*), count(*) FILTER (WHERE model IS NULL),
+       count(*) FILTER (WHERE abs(json_extract(model,'$.coefficients[0]')::DOUBLE-i)<1e-10),
+       count(*) FILTER (WHERE abs(json_extract(model,'$.sigma')::DOUBLE-1.4142135623730951)<1e-10)
+FROM selected;
+----
+7	3	4	4

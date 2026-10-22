@@ -1,0 +1,291 @@
+{
+  "schema": "chemistry-dq-background-research-v1",
+  "checked_date": "2026-10-22",
+  "scope": "Information gathering and proposed contracts only; no DQ implementation, dependency installation, experiment execution, submission, data restoration, or production adoption.",
+  "implementation_status": "not_started",
+  "discovery_method": "Tsubame indexed discovery followed by bounded reads of named files; primary-source web research. Ryer tool catalog was empty.",
+  "repositories": {
+    "duckorch": {
+      "path": "/Users/nk/Desktop/duck-orch-pr6-20261017",
+      "origin": "https://github.com/nkwork9999/duck-orch.git",
+      "head_at_read": "ee9ccd7966f02f15497332d6cf5a01808ebdb256",
+      "validation_level": "README and implementation inspected; not built or executed in this research task",
+      "older_source_copy": "/Users/nk/Desktop/renshu/duckdbex/duckOrch"
+    },
+    "ducksmiles": {
+      "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021",
+      "validation_level": "Selected current public SQL registration and Rust implementation inspected; no runtime test performed for this DQ proposal"
+    },
+    "active_chemistry_project": {
+      "path": "/Users/nk/Desktop/renshu/kaggle/casmi26-data-foundation",
+      "evidence": "experiments/FOUNDATION_CONTINUE_20261022/progress.json:1-34 records current 2026-10-22 work, remaining incomplete work, and submission=false",
+      "other_related_path": "/Users/nk/Desktop/CASMI26_Class_Improvement_20261020",
+      "uncertainty": "This establishes current CASMI26 work, not an exhaustive inventory of all competitions the user may be entering. Old March competition lists were not treated as current. No Kaggle account/API or remote jobs were queried."
+    }
+  },
+  "current_competition": {
+    "name": "Enveda CASMI 2026 - Molecule ID From Mass Spectra",
+    "primary_url": "https://www.kaggle.com/competitions/enveda-CASMI26-molecule-id-mass-spectra/overview",
+    "facts_checked": {
+      "task": "Rank up to 25 SMILES candidates per test molecule from LC-MS/MS spectra",
+      "metric": "MRR@25, using tautomer canonicalization under RDKit 2026.03.3 followed by the first InChIKey block",
+      "entry_and_team_merger_deadline": "2026-12-07 23:59 UTC",
+      "final_submission_deadline": "2026-12-14 23:59 UTC",
+      "runtime": "Notebook submission, internet disabled, CPU or GPU notebook up to nine hours"
+    },
+    "consequence": "An offline CPU SQL audit is a plausible deployment target. Competition equivalence must retain the pinned official normalization; the latest generic RDKit documentation or DuckSMILES canonicalization is not a substitute. This is a proposed fit, not an integration verified in a Kaggle notebook."
+  },
+  "local_missingness_evidence": [
+    {
+      "id": "retrieval_positive_absence_158",
+      "meaning": "158 molecule queries whose fixed baseline 10-ppm retrieval set did not contain the correct structure, among 2242 development molecule queries. These are not 158 missing assay observations, spectra, or NULL labels.",
+      "baseline": {
+        "molecule_queries": 2242,
+        "correct_structure_present": 2084,
+        "empty_candidates": 45,
+        "nonempty_candidates_without_correct_structure": 113
+      },
+      "mutually_exclusive_primary_causes": {
+        "mass_window_exclusion": 129,
+        "all_observed_adduct_inverse_mass_computations_unsupported": 17,
+        "neutral_physical_candidate_policy_exclusion": 12
+      },
+      "empty_candidate_breakdown": {
+        "mass_window_exclusion": 27,
+        "unsupported_adduct": 17,
+        "neutral_policy": 1
+      },
+      "nonempty_correct_absent_breakdown": {
+        "mass_window_exclusion": 102,
+        "unsupported_adduct": 0,
+        "neutral_policy": 11
+      },
+      "important_limits": "All 158 true structures had records in the existing frozen F001/COCO/BIO catalogues. Cause classification uses labels only after label-free candidate sets were written and hashed; it cannot be used as a label-free test-set quality rule. Candidate coverage is separate from top-1/MRR. No automatic adduct correction or window widening is justified by this report.",
+      "local_refs": [
+        "experiments/RETRIEVAL_DIAGNOSTICS_20261022/README.md:3-15",
+        "experiments/RETRIEVAL_DIAGNOSTICS_20261022/README.md:19-39",
+        "experiments/RETRIEVAL_DIAGNOSTICS_20261022/protocol.json:3-18",
+        "experiments/RETRIEVAL_DIAGNOSTICS_20261022/audit.py:30-48"
+      ]
+    },
+    {
+      "id": "feature_missing_551",
+      "meaning": "Historical 109-feature incompleteness for 551 candidate rows, not 551 molecules or spectra: 525 unsupported adduct rows and 26 outside the 10-ppm mass-support range.",
+      "local_ref": "RESUME_FOUNDATION_20261017.md:9",
+      "limit": "Different population and level from the 158 molecule-query retrieval diagnostic; do not sum these counts."
+    },
+    {
+      "id": "observed_spectra_qc",
+      "reuse": "Existing flags distinguish NULL arrays, empty arrays, unequal lengths, nonfinite peaks, nonpositive m/z, negative intensities, unsorted m/z, peaks above precursor, invalid precursor, missing adduct, and reported-count mismatch; no source rows or peaks are removed.",
+      "local_ref": "models/int_spectra_qc.sql:1-25",
+      "limit": "These are diagnostic flags; an above-precursor flag or formula-text difference is not by itself proof of an invalid physical measurement. Preserve the original rule severity until a charge/measurement-specific contract is validated."
+    },
+    {
+      "id": "conditions_and_withheld_labels",
+      "reuse": "Existing CE interpretation retains eV/NCE/percent/V/unknown separately and records conversion=not_performed; test structures are intentionally NULL in the staging view.",
+      "local_refs": [
+        "models/int_measurement_conditions.sql:1-22",
+        "models/stg_spectra.sql:24-39"
+      ],
+      "limit": "Source-not-reported metadata must not be inferred to mean not-measured. Test labels withheld by competition design must not be treated as ingestion defects or imputed. Missing spectral peaks are not automatically below-LOD observations."
+    }
+  ],
+  "confirmed_reuse": [
+    {
+      "component": "DuckOrch asset checks",
+      "confirmed": "AssetCheck supports named SQL and eq/gt/lt/between/not_null expectations. The executor evaluates the first column of the first row, stores pass/fail plus actual scalar and run ID, and error-severity failures mark the task/materialization failed for downstream skip propagation; warn only logs.",
+      "local_refs": [
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/crates/orch_common/src/task.rs:100-115",
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/src/duckorch_extension.cpp:409-433",
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/src/duckorch_extension.cpp:1496-1536",
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/src/duckorch_extension.cpp:2328-2378"
+      ],
+      "proposed_use": "Orchestrate materialized chemical findings assets, then run scalar count/coverage gates over the findings.",
+      "missing": "The inspected check contract has no per-record chemical reason schema, unresolved/unsupported state, rule-version snapshot, raw-value/bounds/units contract, or chemistry validation policy. Historical check results join the current check definition rather than storing immutable historical expectation/severity."
+    },
+    {
+      "component": "DuckOrch lineage, partitions and ingestion",
+      "confirmed": "Named assets, materializations, lineage and partition parameters exist. SQL task code_version uses FNV-1a 64-bit. Ingestion has nested JSON normalization and a schema-difference module.",
+      "local_refs": [
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/README.md:1",
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/src/duckorch_extension.cpp:571-582",
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/src/duckorch_extension.cpp:1349-1388",
+        "/Users/nk/Desktop/duck-orch-pr6-20261017/crates/orch_ingest/src/ledger.rs:36"
+      ],
+      "proposed_use": "Bounded per-source/shard QC runs, dependency ordering and run lineage. Reuse current Parquet/DuckLake views rather than reingest or duplicate large CASMI raw files.",
+      "missing": "FNV task fingerprint is not a cryptographic input/artifact audit. Add explicit SHA256 and snapshot/version references in the proposed DQ run evidence. Chemical semantic drift is distinct from structural schema drift. Same-process DuckOrch plus DuckSMILES ABI compatibility was not tested."
+    },
+    {
+      "component": "DuckSMILES molecular SQL",
+      "confirmed": "Public registrations expose mol_is_valid, mol_formula, mol_exact_mass, formula_exact_mass, canonical_smiles, mol_hash, scaffolds, largest_fragment, strip_salts, neutralize_charges, normalize_smiles and fragment_parent. Adduct inverse/forward mass functions return SQL NULL for unsupported or invalid inputs.",
+      "local_refs": [
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/src/ducksmiles_extension.cpp:230-288",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/src/ducksmiles_extension.cpp:1268-1324",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/smiles/src/lib.rs:733-741",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/smiles/src/mass_context.rs:1-45",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/smiles/src/mass_context.rs:87-115"
+      ],
+      "proposed_use": "Fast CPU parse/property/explicit-adduct checks and derived identity candidates, with backend and policy version recorded.",
+      "missing": "The inspected bool validator returns parse success without a rich issue list. Supported native graph/canonicalization is not proof of RDKit MolStandardize or official CASMI equivalence. Existing InChIKey helpers validate/split supplied keys, not evidence of official tautomer-normalized key generation. NULL must be diagnosed as source missing, unsupported label, invalid numeric input or failed computation rather than flattened to a single missing bucket."
+    },
+    {
+      "component": "Existing CASMI identity, structure and leakage audits",
+      "confirmed": "Official identity overlay preserves raw/legacy keys, official code SHA and pinned RDKit version. Structure QC stores charge, component count and neutral-assumption support without modifying original structures. Grouped split logic checks source row, content hash and held official identity; newer training-member checks reject content components crossing fold/role/protection.",
+      "local_refs": [
+        "curation/official_identity_overlay.py:15-33",
+        "curation/enrich_structure_qc.py:19-33",
+        "curation/enrich_structure_qc.py:46-49",
+        "curation/split_plan.py:19-36",
+        "curation/split_plan.py:100-121",
+        "curation/candidate_catalog/fold_selector.py:35-56"
+      ],
+      "proposed_use": "Wrap and report existing validated derivations as DQ assets; do not silently replace the official identity backend or recompute archived full data.",
+      "missing": "Each script's declared population/version must remain explicit. A slice-only split audit is not full-train leakage clearance; matching hashes or multiple distributors do not prove distinct physical measurements."
+    }
+  ],
+  "primary_references": [
+    {
+      "id": "rdkit_molstandardize",
+      "url": "https://rdkit.org/docs/source/rdkit.Chem.MolStandardize.rdMolStandardize.html",
+      "observed_documentation_version": "2026.09.1",
+      "finding": "Provides validation, cleanup, charge/fragment parents, tautomer normalization and PipelineResult stages/status/logs, including structure-modification events. Use as a reference for separating diagnosis from transformations.",
+      "limit": "Current generic docs are not the contest-pinned RDKit 2026.03.3 contract. No package was installed or invoked."
+    },
+    {
+      "id": "chembl_structure_pipeline",
+      "url": "https://github.com/chembl/ChEMBL_Structure_Pipeline",
+      "finding": "Separates checker, standardizer and parent generation. Checker returns issues and severity penalty; parent/standardization methods can change the representation. This supports keeping check findings and proposed corrections distinct."
+    },
+    {
+      "id": "chembl_activity_checks",
+      "url": "https://chembl.blogspot.com/2020/10/data-checks.html",
+      "finding": "ChEMBL flags questionable type/unit/range, activity comments, target-assignment confidence and potential duplicates. Identical compound/target/activity/type/unit may be a duplicate flag; assay context still matters."
+    },
+    {
+      "id": "chembl_units",
+      "url": "https://chembl.gitbook.io/chembl-interface-documentation/frequently-asked-questions/chembl-data-questions",
+      "finding": "Published units are retained and separately standardized. Biological assay type and target relationship confidence are distinct metadata."
+    },
+    {
+      "id": "epa_missing_qualifiers_censoring",
+      "url": "https://www.epa.gov/n-steps-online/data-considerations",
+      "observed_page_updated": "2026-04-13",
+      "finding": "Recommends explicit blank/exclusion reasons and retaining flags. Qualifier definitions are not universal. Censored observations require method/laboratory-specific detection or quantification limits, and left/right/interval censoring differ. Automatic zero/half-limit replacement can distort analysis.",
+      "scope_limit": "Water-quality source: reuse the information-preservation principle, not its qualifier-code table as a universal chemical assay dictionary."
+    },
+    {
+      "id": "iupac_detection_limit",
+      "url": "https://goldbook.iupac.org/terms/view/D01629/pdf",
+      "finding": "Detection limit concerns distinguishing a result from blank with stated probability; it need not equal the lower end of a quantitatively determinable range.",
+      "access": "Official PDF indexed in search; HTML endpoint returned 403, so no additional HTML detail was assumed."
+    },
+    {
+      "id": "moleculenet_split_reference",
+      "url": "https://arxiv.org/abs/1703.00564",
+      "finding": "Original molecular benchmark distinguishes random, scaffold and time splits. A split policy must match the intended generalization question; scaffold grouping alone does not establish every form of leakage is absent."
+    }
+  ],
+  "proposed_missingness_contract": {
+    "principle": "Different axes, not a single NULL reason enum. Preserve raw evidence and use unknown/not_reported when the source does not establish a more specific reason.",
+    "observation_status": [
+      "measured",
+      "not_measured",
+      "measurement_failed",
+      "not_applicable",
+      "not_reported",
+      "unknown",
+      "withheld_by_design"
+    ],
+    "measurement_qualification": [
+      "exact_reported_value",
+      "estimated_value",
+      "left_censored",
+      "right_censored",
+      "interval_censored",
+      "unknown"
+    ],
+    "computation_status": [
+      "not_requested",
+      "pending",
+      "completed",
+      "unsupported_input",
+      "failed",
+      "excluded_by_policy"
+    ],
+    "structural_ambiguity_flags": [
+      "unspecified_stereochemistry",
+      "conflicting_identifiers",
+      "multiple_components",
+      "salt_or_parent_policy_unresolved",
+      "tautomer_policy_unresolved",
+      "isotope_or_charge_policy_unresolved"
+    ],
+    "minimum_preserved_fields": [
+      "dataset_id, source_uri, source_sha256, source_record_id/source_row_index, subject_id",
+      "field/endpoint, raw_value_text, numeric_value, observation_status, qualifier_raw and qualifier_dictionary_version",
+      "relation (=,<,<=,>,>=,interval,unknown), lower_bound, upper_bound, lower_inclusive, upper_inclusive, censoring_type",
+      "unit_raw, unit_canonical, conversion_policy/version/status, original and derived values separately",
+      "LOD, LOQ and upper analytical limit with their units and method/source provenance where available",
+      "assay/sample/method/instrument/source/batch/time and endpoint-specific conditions; MS includes polarity, adduct, charge/multimer interpretation and CE raw/unit/pattern",
+      "raw structure/identifiers, native derived representation, official normalized identity key, backend/version/policy and computation reason"
+    ],
+    "examples": [
+      "Reported <5 nM keeps a left-open/closed bound according to the source relation, not numeric_value=0 or 2.5. An assumed lower bound of zero is allowed only for a nonnegative endpoint contract.",
+      "Detected but below LOQ may be an estimated measured value, an interval, or an unknown point depending on source documentation; the letter J alone does not fix the meaning.",
+      "An assay failure is not a nondetect. Missing metadata is not evidence that the condition was not measured. An absent MS/MS peak is not a per-analyte nondetect without an acquisition/reporting contract.",
+      "Unspecified stereo, a salt and a mixture are structure-level information states. They need not make a measured concentration or spectrum missing.",
+      "NCE and eV remain different units. Mass-to-molar conversion needs the correct molecular form/molar mass. A decreasing transform such as pIC50 reverses inequalities and swaps bounds.",
+      "Test structures withheld by design remain outside imputation/quality-failure counts. Unsupported adduct conversion is a computation-support issue, not proof the original adduct is wrong."
+    ]
+  },
+  "proposed_architecture": {
+    "flow": "Existing immutable source views -> versioned interpretation sidecars -> DuckSMILES/official-backend derivations -> record-level findings -> grouped summaries and scalar DuckOrch asset gates -> immutable audit manifest",
+    "duckorch_role": "DAG, retry/partition/run tracking, asset dependency and lineage, scalar severity gates",
+    "ducksmiles_role": "Bounded CPU molecular parse/property/explicit supported-mass calculations; optional transform proposals stored separately",
+    "existing_casmi_role": "Reuse official normalization, source IDs, spectrum-content hashes, data eligibility and fold/feature exposure evidence",
+    "new_rule_spec": [
+      "rule_id, rule_version, population/field, required metadata, applicable backend/policy version, SQL predicate/measurement, severity, unsupported behavior, independent reference fixture"
+    ],
+    "new_findings_table": [
+      "dq_run_id, rule_id/version, source_record/field, status(pass/fail/warn/not_evaluated/unsupported), reason_code, raw/derived evidence, bounds/units/conditions references, optional correction_proposal_id"
+    ],
+    "new_audit_run_table": [
+      "input manifest SHA256 and snapshot, complete rule spec SHA256, code/extension/compiler or environment versions, identity/units policy, denominators and not-evaluated counts, output artifact SHA256, execution timing/status"
+    ],
+    "correction_policy": "Detection emits findings only. Any future correction writes a new derived column/table plus original value, transformation policy and provenance; structure parents, charge neutralization and censored-value substitutions are never silent repairs.",
+    "important_gap": "DuckOrch's existing scalar check history does not provide this immutable record-level contract. A proposed thin integration can persist findings as ordinary DuckDB tables and gate their aggregate counts without initially changing DuckOrch's engine."
+  },
+  "recommended_first_product": {
+    "name": "CASMI chemical input and computational-support audit, CPU SQL/JSON sidecar",
+    "scope": [
+      "Raw field/array and provenance checks, preserving input rows and peak lists",
+      "Adduct/charge/multimer/precursor and CE-unit interpretation support matrix, with source missing versus unsupported versus invalid distinguished",
+      "Structure parse, component/charge/formula and identity-policy diagnostics using existing native/official backends separately",
+      "Same-identity/source-row/content-component overlap across current folds and supervised feature/model membership; keep measured versus derived/generated provenance",
+      "Candidate-generation coverage diagnostics for labeled development data only, with label-free outputs frozen before truth audit and every empty/unsupported query retained in the denominator"
+    ],
+    "initial_acceptance": [
+      "Independent fixtures distinguish source NULL, empty list, nonfinite value, unsupported adduct and invalid numeric input; no unexplained NULL becomes a pass",
+      "Equivalent units and relations produce consistent canonical bounds, and decreasing transforms reverse inequalities correctly; unknown dictionaries remain not_evaluated",
+      "Two raw aliases sharing an official identity never cross identity groups; content components crossing folds are reported even when IDs differ; genuine condition-specific repeats are retained",
+      "Reproducing existing aggregates must preserve exact populations: 551 candidate-row feature support gaps and 158/2242 molecule-query positive absences are separate reports",
+      "Source hashes, scalar fields, list values and row identities remain unchanged; outputs are finite valid JSON and reference input/rule/backend snapshots",
+      "Prove actual DuckOrch and DuckSMILES can load in the same supported DuckDB version before claiming integrated deployment; verify one bounded public SQL run and its persisted findings/audit linkage"
+    ],
+    "later_generalization": "Assay concentration/LOD/LOQ qualifier adapters, rule dictionaries for ChEMBL/environmental/ADMET datasets, and explicit correction proposals can follow. CASMI's current mass-spectra task does not by itself demonstrate demand for an assay-censoring engine."
+  },
+  "open_uncertainties": [
+    "Which other current competitions matter to the user; CASMI26 is confirmed locally and publicly, not claimed to be exclusive",
+    "Exact currently installed/published DuckOrch and DuckSMILES versions and same-DuckDB ABI compatibility",
+    "Source-specific LOD/LOQ/assay failure dictionaries and whether these fields are available in the user's future non-CASMI datasets",
+    "Chemical validation issue taxonomy and breadth of native parser/normalization support versus the selected RDKit/ChEMBL reference version",
+    "Which existing CASMI derived tables are locally present versus archived; no large archive was restored for this research",
+    "No assertion that flags or a wider search window improve ranking or should alter live data; integration and product implementation remain future authorized work"
+  ],
+  "user_followup": {
+    "sequence": "JMP objective first, chemical DQ implementation afterward",
+    "additional_architecture_option": "Embed reusable DuckOrch orchestration foundation into DuckSMILES",
+    "implementation_started": false,
+    "status": "deferred until JMP objective completion"
+  }
+}

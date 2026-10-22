@@ -1,0 +1,53 @@
+{
+  "command": [
+    "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/test/unittest",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+    "--test-dir",
+    "/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk",
+    "--require",
+    "ducksmiles",
+    "--require",
+    "json",
+    "--emit-on-skip",
+    "--reporter",
+    "console"
+  ],
+  "required_extensions": [
+    "ducksmiles",
+    "json"
+  ],
+  "test_names": [
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_specialized.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_continuation.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/spatial_estimation.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_models.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/fallibility.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/mass_context.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_streams.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_analytics.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/native_graph.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/vector_compat.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/censored_regression.test",
+    "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test"
+  ],
+  "listing_exit_code": 16,
+  "exit_code": 0,
+  "seconds": 2.3552115829998,
+  "log_sha256": "b26ef1ad168af03f03ee77aa335e04cf49151b6d2da6a26ea045631b5f9eec0f",
+  "skip_markers": 0,
+  "console_summary": [
+    "[13/16] (81%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test took 0.089sReplacing deprecated __BUILD_DIRECTORY__ in test /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test - please replace with {BUILD_DIRECTORY}",
+    "",
+    "[14/16] (87%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test took 0.043s",
+    "[15/16] (93%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/censored_regression.test took 0.149s",
+    "[16/16] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test took 0.199s",
+    "===============================================================================",
+    "All tests passed (513 assertions in 16 test cases)",
+    ""
+  ],
+  "stored_log": "tasks/evidence/jmp-parity-native-sqllogictest.log"
+}

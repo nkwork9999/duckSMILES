@@ -1,0 +1,25 @@
+{
+  "layer": "actual production Release static archive exported ds_analytics_run/free; no copied implementation or test wrapper",
+  "command": [
+    "clang",
+    "-dynamiclib",
+    "-Wl,-force_load,/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
+    "-Wl,-exported_symbol,_ds_analytics_run",
+    "-Wl,-exported_symbol,_ds_analytics_free",
+    "-framework",
+    "Security",
+    "-framework",
+    "CoreFoundation",
+    "-liconv",
+    "-o",
+    "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib"
+  ],
+  "library": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+  "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f",
+  "archive_sha256": "6a5bbda054525bfdaafceb349b26da261042d9f394e4a0a9a98b99b05f1e3b6f",
+  "source_sha256": {
+    "crates/analytics/src/lib.rs": "d3fdba99f3762931b02347ff16b271e81ee30f46e61b008fa0a48a8c99c53def",
+    "crates/analytics/src/censored_regression.rs": "b8f829799d05c80ca2f6abf6dfbda3214608578b0c9345129431c6e0507fa42c",
+    "crates/analytics/src/spatial_estimation.rs": "b804eed49fbfe023cdc9350752587ea7cc13ff80f05e9827cf8db0dfbbe905cb"
+  }
+}

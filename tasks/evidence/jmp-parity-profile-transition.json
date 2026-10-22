@@ -1,0 +1,7 @@
+{
+  "removed_exact_task_owned_path": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "rejected_symlink": true,
+  "previous_profile": "dev/default features",
+  "next_profile": "Release/default features",
+  "dev_evidence": "tasks/evidence/jmp-parity-dev-final.json"
+}

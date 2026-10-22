@@ -1,0 +1,60 @@
+{
+  "checks": [
+    {
+      "name": "catalog",
+      "command": [
+        "python3",
+        "scripts/check_function_catalog.py",
+        "--duckdb",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+        "--extension",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0742298749992187,
+      "stdout": "PASS: 414 overloads documented; 414 examples executed\n",
+      "stderr": ""
+    },
+    {
+      "name": "documented_public_abi",
+      "command": [
+        "python3",
+        "scripts/check_jmp_public_abi.py",
+        "--library",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+        "--api",
+        "jmp-state-space-api.json",
+        "jmp-functional-preprocess-api.json",
+        "jmp-text-analysis-api.json",
+        "jmp-spatial-api.json",
+        "jmp-censored-api.json",
+        "jmp-spatial-estimation-api.json"
+      ],
+      "exit_code": 1,
+      "seconds": 0.33739224999953876,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_public_abi.py\", line 20, in <module>\n    if __name__=='__main__':main()\n                            ~~~~^^\n  File \"/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_public_abi.py\", line 18, in main\n    for key,value in op['known_value'].items():equal(field(result,key),value,op['operation']+'.'+key,5e-5);count+=1\n                     ~~^^^^^^^^^^^^^^^\nKeyError: 'known_value'\n"
+    },
+    {
+      "name": "documented_public_abi_after_metadata_correction",
+      "command": [
+        "python3",
+        "scripts/check_jmp_public_abi.py",
+        "--library",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+        "--api",
+        "jmp-state-space-api.json",
+        "jmp-functional-preprocess-api.json",
+        "jmp-text-analysis-api.json",
+        "jmp-spatial-api.json",
+        "jmp-censored-api.json",
+        "jmp-spatial-estimation-api.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3529965000006996,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"layer\": \"production exported ds_analytics_run/free\",\n  \"operations\": 38,\n  \"numeric_fields\": 128,\n  \"library_sha256\": \"8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f\"\n}\n",
+      "stderr": ""
+    }
+  ],
+  "documented_fixture_metadata_correction": "Added independently calculated known_value metadata to7censored API fixtures; no numerical production change"
+}

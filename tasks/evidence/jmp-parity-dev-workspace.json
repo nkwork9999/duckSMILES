@@ -1,0 +1,12 @@
+{
+  "command": "cargo test --workspace --locked",
+  "profile": "dev/default features",
+  "exit_code": 0,
+  "seconds": 196.00496258400017,
+  "suites": 65,
+  "passed": 1338,
+  "failed": 0,
+  "ignored": 2,
+  "log_sha256": "27b9d761c33dfdc48dfd8e5bbce5384a94917b4a39c656ce20b00154a3a7179d",
+  "log": "/private/tmp/ducksmiles-jmp-parity-20261022/workspace-dev.log"
+}

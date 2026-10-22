@@ -1,0 +1,62 @@
+{
+  "schema": "jmp-censored-final-strict-precision-diagnostic-v1",
+  "status": "checker_assertion_incorrectly_demanded_covariance_from_honest_nonconverged_fit",
+  "command": "PYTHONDONTWRITEBYTECODE=1 /private/tmp/ducksmiles-jmp-parity-20261022/reference-env/bin/python scripts/check_jmp_censored.py --library /private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-censored-reference.json",
+  "fit_arguments": [
+    600,
+    1e-08,
+    0.95
+  ],
+  "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f",
+  "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710",
+  "failure": {
+    "exit_code": 1,
+    "family": "gamma",
+    "layer": "public_c_abi",
+    "error": "TypeError subtracting production null standard_errors from finite reference SE; original checker omitted convergence precondition."
+  },
+  "actual_gamma": {
+    "coefficients": [
+      0.3880816825215785,
+      0.4535697120602679,
+      -1.0232057696370462
+    ],
+    "log_sigma": -1.879831444918782,
+    "converged": false,
+    "information_identified": false,
+    "inference_valid": false,
+    "gradient_max": 2.5695926083179555e-08,
+    "line_search_failed": false,
+    "iterations": 600,
+    "standard_errors": null
+  },
+  "independent_average_nll_score": {
+    "method": "SciPy approx_derivative 3-point on SciPy distribution log-likelihood, divided by total frequency; production code is not called by this reference calculation.",
+    "default_step_gradient": [
+      -2.1955281514311594e-08,
+      -9.011290909631857e-09,
+      -1.5562176277739126e-08,
+      -3.657428508131132e-10
+    ],
+    "default_step_max": 2.1955281514311594e-08,
+    "step_1e_minus_5_max": 2.163269563479954e-08,
+    "step_1e_minus_6_max": 2.1760371283235278e-08
+  },
+  "documented_default_precision_diagnostic": {
+    "fit_arguments": [
+      600,
+      1e-07,
+      0.95
+    ],
+    "converged": true,
+    "gradient_max": 7.39633133194428e-08,
+    "iterations": 16,
+    "standard_errors": [
+      0.09525779764306395,
+      0.10568121555154326,
+      0.1518723208273495,
+      0.4760498833878309
+    ]
+  },
+  "resolution": "Use explicit documented default tolerance1e-7 for all six validation fixtures; retain every numerical comparison tolerance and add independent average-NLL score<=2e-7 plus convergence/inference prerequisites. This changes checker precision, not production behavior. Full both-boundary run is recorded separately after completion."
+}

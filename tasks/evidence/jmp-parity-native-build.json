@@ -1,0 +1,56 @@
+{
+  "profile": "Release/default features",
+  "cargo_target_dir": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "sdk_revision": "d54cbbe3df17e8e5ce68312f483b4155836112aa",
+  "checks": [
+    {
+      "name": "configure",
+      "command": [
+        "cmake",
+        "-S",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk",
+        "-B",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_OSX_ARCHITECTURES=arm64",
+        "-DPREBUILT_BINARY=/private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libduckdb_static.a",
+        "-DPREBUILT_EXTENSIONS=core_functions;parquet;json;icu",
+        "-DSTATICALLY_LINK_EXTENSIONS=core_functions;json",
+        "-DDUCKDB_EXTENSION_CONFIGS=/Users/nk/Desktop/ducksmiles-analytics-20261021/extension_config.cmake",
+        "-DDUCKDB_EXPLICIT_VERSION=v2.0.0-alpha49307",
+        "-DEXTENSION_STATIC_BUILD=ON",
+        "-DBUILD_SHELL=ON",
+        "-DBUILD_UNITTESTS=ON",
+        "-DENABLE_UNITTEST_CPP_TESTS=OFF",
+        "-DENABLE_JEMALLOC=OFF",
+        "-DBUILD_BENCHMARKS=OFF"
+      ],
+      "exit_code": 0,
+      "seconds": 13.0514688330004,
+      "log": "/private/tmp/ducksmiles-jmp-parity-20261022/native/configure.log",
+      "log_sha256": "8b0f42660b7dc52014de576debe6a9948fd5a63d557f46c50e21adb47314dd95",
+      "stored_log": "tasks/evidence/jmp-native-configure.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build",
+        "--target",
+        "shell",
+        "ducksmiles_loadable_extension",
+        "unittest",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 181.60673804199996,
+      "log": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build.log",
+      "log_sha256": "e96003672120e0d99d52aedc99b162b27449789ab6a2edaa6eb2f9fcc0583a8f",
+      "stored_log": "tasks/evidence/jmp-native-build.log"
+    }
+  ]
+}

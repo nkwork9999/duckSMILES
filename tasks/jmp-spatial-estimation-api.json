@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "module": "spatial_estimation",
+  "source": "crates/analytics/src/spatial_estimation.rs",
+  "tests": "crates/analytics/tests/spatial_estimation_contracts.rs",
+  "scope": "Estimated isotropic Gaussian spatial regression, four kernels, optional independent record nugget and subject blocks; bounded partial spatial mixed-model support",
+  "integration_status": "PASS matching macOS arm64 Release: focused public execute5tests; actual production public C ABI48calls/810numeric fields over16 independent ML/REML fits; DuckDBv2.0.0-alpha49307 actual SQL16fits/130numeric fields,3saved-model roundtrips,15malformed NULL cases and selected/join/interleaved NULL vectors.",
+  "official_references": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/repeated-effects-covariance-parameter-estimates.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/random-effects-covariance-parameter-estimates.shtml"
+  ],
+  "common_contract": {
+    "input": "Finite rectangular rows with absolute data values<=1e100; missing/NULL rejected. Coordinates have caller-supplied consistent units. Subject labels are exact integers with abs<=2^53-1; equal labels define independent covariance blocks. All-zero labels give one block.",
+    "kernels": "0 spherical r(h)=(1-u)^2(1+u/2) for u=h/length<1 else0; 1 exponential exp(-h/length); 2 Gaussian exp(-(h/length)^2); 3 JMP Power rho^h using rho=exp(-1/length). kind3 and kind1 describe the same isotropic family under different parameterization. The fitted length/range_parameter always has coordinate-distance units. kernel_parameter gives JMP rho for Power, length otherwise; physical Power rho can round to0 or1 at extreme length and is descriptive only, the carrier retains length.",
+    "variance": "V=total_variance*((1-w)*R_block+w*I). partial_sill=(1-w)*total_variance; nugget=w*total_variance; total_sill=total_variance. Off-block process covariance0. Independent record nugget only on covariance diagonal even for collocated observations. JMP report nugget/residual ratio is not silently treated as physical nugget variance.",
+    "model": "Always an intercept plus p explicitly supplied numeric full-rank fixed features. Twice-reorthogonalized QR profiles fixed effects. Positive total variance is estimated as GLS residual SSE/n for ML or SSE/(n-p-1) for REML. Gaussian log likelihood includes determinant and normalizing constants; REML includes logdet(X'V^-1X) in physical feature units. Exact zero/roundoff-level residual variance rejects rather than inventing a positive floor.",
+    "optimization": "Deterministic coarse grid plus up to6 bounded Nelder-Mead starts and3 explicit zero-nugget-face starts. Shape parameters are log correlation length and optional nugget fraction in[0,1]. Each start has maxiter; at most3e9 charged dense n^3 work units across all objective calls, with100 likelihood-evaluation reserve for final/information computations. Budget exhaustion rejects rather than returning truncated-search results. Simplex convergence is independently checked by projected finite-difference first-order score in unit search coordinates, scaled by1+abs(normalized profile nll), threshold1e-4. No global optimum certificate. likelihood_evaluations reports charged search/score closure calls; the separate final/profile-information reserve is excluded from this diagnostic counter.",
+    "range_bounds": "Either both optional positive length bounds or neither. Defaults min_positive_within_subject_distance*0.001 and max_within_subject_distance*1000. If no positive within-subject distance exists, defaults0.001/1000. Require1e-100<=lower<upper<=1e100. Contact within1e-6 of a unit-coordinate bound disables combined convergence and covariance inference. User must inspect bound diagnostics and widen bounds when needed.",
+    "inference": "Interior full observed negative-likelihood Hessian central differences step2e-4 on [log(total_variance),log(length),optional identity nugget_fraction], profiling fixed effects but not re-profiling scale. Positive-definite factorization required. Delta-method maps inverse information to physical [partial_sill,nugget,length] or [partial_sill,length]. Standard errors and untruncated normal Wald95% intervals are supplied only when locally identified and away from active bounds. Nonconverged search, boundary, or failed information returns null covariance/SE/CI. This is explicitly not JMP bounded Satterthwaite inference and does not support unbounded negative variance components.",
+    "prediction_carrier": "Version1 flat array [1,dimensions,fixed_features,n,kind,partial_sill,nugget,correlation_length,original_training_rows_flat...]. At most1256 values for d3,p8,n96, safely below public ABI16384. Rebuilds normalized covariance and trend at fixed fitted physical covariance, without optimizing/refitting covariance parameters. Original training data and row/subject order are preserved.",
+    "prediction": "Plug-in universal kriging with fixed-effect estimation correction given fitted covariance. Query nugget is independent even at a training coordinate/subject. latent variance omits new query nugget; observation variance adds it. Matching training records with zero nugget return structural zero variance. Unseen subject process cross-covariance is0 and prediction reduces to fixed trend, with residual/process and fixed-effect uncertainty. Covariance parameter estimation uncertainty is excluded and explicitly labeled.",
+    "resource": "fit n<=96,p<=8,d1..3; predict query<=1000. Finite rectangular inputs, args<=16384. Dense likelihood cost is cubic in n; exhaustion fails closed.",
+    "remaining_JMP_contracts": [
+      "anisotropy/directional covariance parameters, G-side random effects and general repeated covariance integration",
+      "no-intercept models, categorical metadata construction, general missingness and observation weights",
+      "JMP unbounded variance components and bounded Satterthwaite covariance-parameter intervals",
+      "small-sample fixed-effect df/F corrections, covariance-estimation uncertainty in predictions",
+      "automatic covariance family/model search, variogram nonlinear least-squares fitting",
+      "installed JMP numerical comparison and exact optimizer/default equivalence"
+    ]
+  },
+  "operations": [
+    {
+      "operation": "spatial_fit",
+      "symbol": "SpatialFit",
+      "sql_name": "chem_spatial_fit",
+      "description": "Profile Gaussian ML/REML spatial regression with estimated total variance,range and optional nugget; independent subject blocks and numeric fixed trend.",
+      "data": "n>p+1,n<=96 rows [coordinates d,fixed features p,subject integer,response].",
+      "args": [
+        "dimensions integer1..3",
+        "fixed_features integer0..8",
+        "kind0spherical/1exponential/2Gaussian/3Power",
+        "reml0ML/1REML",
+        "nugget_enabled0/1",
+        "maxiter1..3000 per start default1000",
+        "tolerance1e-11..1e-4 default1e-8",
+        "optional correlation_length_lower",
+        "optional correlation_length_upper"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            2
+          ],
+          [
+            2,
+            0,
+            6
+          ]
+        ],
+        "args": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          100,
+          1e-08,
+          0.1,
+          0.5
+        ]
+      },
+      "known_value": {
+        "intercept": 3,
+        "total_variance": 4.666666666666667,
+        "nugget": 0,
+        "covariance_parameters_identified": false
+      },
+      "fixture_note": "This intentionally iid spherical-cutoff example proves the ML scale and explicitly flags unidentifiable correlation length. The independent reference evidence supplies interior ML/REML estimated range/nugget examples.",
+      "sql_example": "chem_spatial_fit([[0,0,1],[1,0,2],[2,0,6]], [1,0,0,0,0,100,1e-8,0.1,0.5])",
+      "evidence": [
+        "tasks/evidence/jmp-spatial-estimation-tdd.json",
+        "tasks/evidence/jmp-spatial-estimation-reference.json",
+        "tasks/evidence/jmp-spatial-estimation-sql.json"
+      ],
+      "source": "crates/analytics/src/spatial_estimation.rs",
+      "tests": "crates/analytics/tests/spatial_estimation_contracts.rs",
+      "unsupported": [
+        "anisotropy/directional covariance parameters, G-side random effects and general repeated covariance integration",
+        "no-intercept models, categorical metadata construction, general missingness and observation weights",
+        "JMP unbounded variance components and bounded Satterthwaite covariance-parameter intervals",
+        "small-sample fixed-effect df/F corrections, covariance-estimation uncertainty in predictions",
+        "automatic covariance family/model search, variogram nonlinear least-squares fitting",
+        "installed JMP numerical comparison and exact optimizer/default equivalence"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/repeated-effects-covariance-parameter-estimates.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/random-effects-covariance-parameter-estimates.shtml"
+      ]
+    },
+    {
+      "operation": "spatial_fit_predict",
+      "symbol": "SpatialFitPredict",
+      "sql_name": "chem_spatial_fit_predict",
+      "description": "Saved estimated-spatial-model universal kriging,with conditional latent and independent-observation variances.",
+      "data": "1..1000 rows [coordinates d,fixed features p,subject integer].",
+      "args": [
+        "unchanged spatial_fit.predict_parameters version1"
+      ],
+      "fixture": {
+        "data": [
+          [
+            10,
+            0
+          ]
+        ],
+        "args": [
+          1,
+          1,
+          0,
+          3,
+          0,
+          4.666666666666667,
+          0,
+          0.1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          2,
+          2,
+          0,
+          6
+        ]
+      },
+      "known_value": {
+        "predictions": [
+          3
+        ],
+        "latent_variances": [
+          6.222222222222222
+        ],
+        "observation_variances": [
+          6.222222222222222
+        ]
+      },
+      "sql_example": "chem_spatial_fit_predict([[10,0]], [1,1,0,3,0,4.666666666666667,0,0.1,0,0,1,1,0,2,2,0,6])",
+      "evidence": [
+        "tasks/evidence/jmp-spatial-estimation-tdd.json",
+        "tasks/evidence/jmp-spatial-estimation-reference.json",
+        "tasks/evidence/jmp-spatial-estimation-sql.json"
+      ],
+      "source": "crates/analytics/src/spatial_estimation.rs",
+      "tests": "crates/analytics/tests/spatial_estimation_contracts.rs",
+      "unsupported": [
+        "anisotropy/directional covariance parameters, G-side random effects and general repeated covariance integration",
+        "no-intercept models, categorical metadata construction, general missingness and observation weights",
+        "JMP unbounded variance components and bounded Satterthwaite covariance-parameter intervals",
+        "small-sample fixed-effect df/F corrections, covariance-estimation uncertainty in predictions",
+        "automatic covariance family/model search, variogram nonlinear least-squares fitting",
+        "installed JMP numerical comparison and exact optimizer/default equivalence"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-spatial-and-temporal-variability.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-mixed-model-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/repeated-effects-covariance-parameter-estimates.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/random-effects-covariance-parameter-estimates.shtml"
+      ]
+    }
+  ],
+  "verification": {
+    "source_sha256": "b804eed49fbfe023cdc9350752587ea7cc13ff80f05e9827cf8db0dfbbe905cb",
+    "public_c_abi": {
+      "status": "PASS",
+      "evidence": "tasks/evidence/jmp-spatial-estimation-reference.json",
+      "calls": 48,
+      "numeric_fields": 810,
+      "maximum_scaled_error": 3.6391999104765684e-07,
+      "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f",
+      "harness_sha256": "0918fbb102b96aca78a98a9a8d48c1899c9bf31fda0e31731f3f13a204cd4ceb",
+      "reference_sha256": "f4d822c0d7a781998e38032320357c961dfdce2242bee680569ee3deb0faaf86",
+      "build_evidence": "tasks/evidence/jmp-parity-release-abi-build.json"
+    },
+    "native_sql": {
+      "status": "PASS",
+      "evidence": "tasks/evidence/jmp-spatial-estimation-sql.json",
+      "duckdb_version": "v2.0.0-alpha49307",
+      "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710",
+      "independent_ml_reml_fits": 16,
+      "numerical_reference_scalar_fields": 130,
+      "saved_model_sql_roundtrips": 3,
+      "invalid_inputs_returning_sql_null": 15,
+      "strict_json_results": 46,
+      "reference_sha256": "f4d822c0d7a781998e38032320357c961dfdce2242bee680569ee3deb0faaf86",
+      "sql_evidence_sha256": "7d333d04351ec9f54c2f64bbf5d8c904c3075f1867ab82082ecaca672251bfb6"
+    },
+    "whole_JMP_family_parity": false,
+    "installed_JMP_comparison": "not performed"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "timestamp_utc": "2026-10-22T11:26:21.203863+00:00",
+  "layer": "actual native DuckDB SQL -> extension C++ vector adapter -> Rust",
+  "duckdb_version": "v2.0.0-alpha49307",
+  "catalog_functions": 2,
+  "catalog_examples_executed": 2,
+  "independent_ml_reml_fits": 16,
+  "numerical_reference_scalar_fields": 130,
+  "saved_model_sql_roundtrips": 3,
+  "invalid_inputs_returning_sql_null": 15,
+  "selected_dynamic_rows": 6,
+  "join_dictionary_rows": 8,
+  "interleaved_null_rows": 7,
+  "interleaved_null_parameter_rows": 7,
+  "nonconverged_fit_withholding_intervals": 1,
+  "negative_untruncated_Wald_lower_bounds_checked": 2,
+  "native_sql_queries": 13,
+  "strict_json_results": 46,
+  "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710",
+  "reference_sha256": "f4d822c0d7a781998e38032320357c961dfdce2242bee680569ee3deb0faaf86",
+  "source_sha256": "b804eed49fbfe023cdc9350752587ea7cc13ff80f05e9827cf8db0dfbbe905cb",
+  "harness_sha256": "a4b0d1bb5acb7a1bacd726c2c302045df1478cc42050bdd8a14b7cef22f745df",
+  "limitations": [
+    "bounded isotropic ML/REML only; no whole-family JMP parity",
+    "Wald intervals are explicitly untruncated and not JMP bounded Satterthwaite intervals",
+    "plug-in prediction omits covariance estimation uncertainty"
+  ]
+}

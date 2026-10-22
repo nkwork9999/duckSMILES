@@ -1,0 +1,547 @@
+{
+  "schema_version": 1,
+  "module": "censored_regression",
+  "module_path": "crates/analytics/src/censored_regression.rs",
+  "source": "crates/analytics/src/censored_regression.rs",
+  "scope": "Six unpenalized CPU generalized/censored regression distributions and saved prediction, all exact/left/right/interval likelihood terms; not full JMP Generalized Regression parity.",
+  "integration_status": "Frozen numeric implementation validated: 33 focused censored tests; parent workspace1340 passed with2 existing ignored; strict analytics all-target Clippy and scoped formatting passed. Final Release exported C ABI and matching loaded native DuckDB SQL independent checks passed768 scalar/contract assertions across both boundaries. Bounded partial Generalized Regression contracts only; no installed-JMP comparison.",
+  "common_contract": {
+    "parameterization": {
+      "normal": "identity mu=Xbeta,common sigma>0",
+      "exponential": "log mu=Xbeta,mean mu; no free scale",
+      "gamma": "log mu=Xbeta,shape mu/sigma,scale sigma,common sigma>0 (not fixed-shape GLM)",
+      "weibull": "log response SEV location mu=Xbeta,scale sigma; Weibull shape1/sigma,scale exp(mu)",
+      "lognormal": "log response Normal location mu=Xbeta,scale sigma",
+      "beta": "logit mu=Xbeta,alpha=mu/sigma,beta=(1-mu)/sigma,common sigma>0"
+    },
+    "censoring": "Weighted sum logpdf(exact),logCDF(upper;left),logSF(lower;right),log[CDF(upper)-CDF(lower)](interval). Numerically smaller tail evaluated directly and interval difference formed in log space. No replacement of censored observations by endpoints. Original physical interval width is retained before normal-response centering. Exponential/Weibull use stable exact cumulative-hazard differences; Lognormal uses log1p relative endpoint increments; Normal/Gamma/Beta unresolved/narrow intervals integrate an analytic log-density ratio using Gauss-Legendre16/32/64/128, requiring successive log-integrals within2e-13*(1+abs(log_integral_ratio)), otherwise error. Agreement is a numerical consistency check,not a rigorous certified quadrature error bound.",
+    "frequency": "Nonnegative integer replication frequencies 0..1e6, with total frequency <=1e9 and greater than the number of estimated parameters. Zero-frequency rows do not enter fitting. Repeating rows and supplying their frequencies give the same likelihood and information. Frequencies are replication counts, not analytic or survey weights. A single exponential row is allowed when its total replication frequency exceeds one.",
+    "normal_scale": "The normal operation uses joint censored maximum-likelihood scale even when every row is exact. JMP uses least-squares RMSE in its uncensored normal regression path. This explicit convention difference remains an open item in the overall parity ledger.",
+    "preprocessing": "Training-only frequency-weighted origin+mean-offset/population feature scales; weighted QR full-rank check. Normal response additionally centered/scaled for numerical conditioning. Saved normalized coefficients/transforms used for prediction.",
+    "optimizer": "Local average-NLL finite-difference BFGS with automatic initial fit and three scale starts. maxiter0 returns diagnostic initial fit. Stop on maximum numerical gradient<=tolerance; coefficient absolute1e6 and log scale[-30,30] are numerical guard limits. Guard-bound convergence forbidden. No proof of global optimum or all forms of recession/nonidentification.",
+    "uncertainty": "Joint observed summed-likelihood information uses Richardson-extrapolated central differences. Invert only positive-definite information with relative Cholesky pivots >1e-12. Return original coefficient/log_sigma covariance, standard errors, and normal Wald confidence intervals; predictions use delta uncertainty for conditional means and quantiles. Nonconverged fits withhold inference and saved uncertainty. If original-unit covariance is unrepresentable, it is null and inference_valid=false, while finite normalized covariance may remain available for saved prediction. The Beta mean derivative uses logistic(eta)*logistic(-eta). A mean Wald interval with unrepresentable endpoints is null while its finite mean and standard error remain available.",
+    "portable_layout": "[1,family0Normal/1Exponential/2Gamma/3Weibull/4Lognormal/5Beta,p,confidence,response_origin,response_scale,has_covariance,theta_intercept,standardized_slopes(p),log_sigma_internal(0exponential),feature_origins(p),feature_mean_offsets(p),feature_scales(p),normalized_covariance(d*d)] where d=p+1+[family!=1]; length9+4p+d*d<=397 atp16,well below16384publicABIlimit.",
+    "bounds": "Finite data with absolute values <=1e150; at most 100000 rows, 1024 columns, and 1 million numeric cells. Fitting supports p<=16 features. The entire public call has a cumulative numerical work limit of 200 million units, including every start, finite-difference gradient/Hessian, and prediction inverse CDF. Gamma and Beta shapes must be positive and <=1e6. Special-function fractions/series stop after 10000 iterations and reject if not converged.",
+    "verification": "33 focused tests; parent workspace1340 passed/0failed/2existing ignored and strict analytics all-target Clippy. Final Release actual ds_analytics_run/free and native DuckDB SQL:6 mixed-censor/two-feature fits, saved prediction/inference, and4 confirmed edge contracts per boundary;768 total scalar/contract checks, including46 edge checks. Fixture optimizer tolerance is documented default1e-7; independent average-NLL score<=2e-7 required. Numeric reference tolerances unchanged. Evidence:tasks/evidence/jmp-censored-reference.json. This does not establish complete JMP platform or head-to-head parity.",
+    "identification": "The weighted fixed-design QR check rejects constant or aliased predictors. All-left and all-right fits without opposite bounds are rejected. With free dispersion, no exact failures, and a common nonempty censor interval, a zero-dispersion supremum is rejected. Other covariate-dependent recession paths are not completely certified; global_optimum_verified remains false. Nonconverged fits return point diagnostics but withhold covariance, standard errors, and confidence intervals.",
+    "work_budget": "One thread-local counter is reset per public module call. All fitting starts and all prediction rows share it. Charges are 8 per input cell, rows*d per likelihood evaluation, 12/20 per Gamma series/fraction iteration, 40 per Beta fraction iteration, 6*order per Gauss root iteration, 8*d*d per BFGS step, 4*d^3 for covariance inversion, 4*d^4 for its raw-unit transformation, and 8*d*d+32 per prediction row. This bounds algorithmic work, not CPU instructions. Exhaustion returns an error before a fit or prediction is returned.",
+    "support": "Exact responses are positive for Exponential/Gamma/Weibull/Lognormal and strictly between zero and one for Beta. JMP 19.2 documents the exponential density on y>0 (images/12-20.png on its Statistical Details for Distributions page); actual JMP boundary behavior was not executed. Queries outside the open support return zero density and boundary probabilities. A positive-family quantile that rounds to zero, or a Beta quantile that rounds to one, is rejected explicitly. Quantile probabilities must lie strictly between zero and one.",
+    "gamma_small_tail": "For shape a<.25 and scaled x<=1, use P=exp(a*log(x)-logGamma(1+a))*(1+a*S), where S=sum(n>=1)(-x)^n/(n!*(a+n)). Form small Q with -expm1(prefactor)-exp(prefactor)*a*S. The 32-term zeta expansion of logGamma(1+a) avoids forming rounded 1+a; its omitted tail is bounded by 2*a^33/(33*(1-a)). The alternating series has a next-term remainder bound for x<=1. Elsewhere, compute the actual smaller tail directly with the lower series or upper fraction. Preserve log(x) before y/sigma underflows. The implementation matches independent SciPy and 80-digit mpmath small-tail fixtures.",
+    "numeric_units": "Weighted feature and normal-response scales rescale magnitudes before squaring. Delta standard errors scale the gradient and covariance before their quadratic form, so a representable standard deviation survives variance underflow. Original-unit covariance is withheld if any positive diagonal underflows or any cell overflows; normalized saved prediction covariance is retained.",
+    "saved_validation": "A finite version-1 carrier must have matching length, p, family, and response/feature transforms. Feature and response scales must be positive. Covariance flag zero requires all-zero covariance entries. Flag one requires a symmetric positive-definite covariance; symmetry checks scale before differences and additions, including values near the maximum finite double.",
+    "numerical_primary_references": [
+      "https://dlmf.nist.gov/8.7.E1",
+      "https://dlmf.nist.gov/5.7.E3"
+    ]
+  },
+  "operations": [
+    {
+      "operation": "censored_normal",
+      "symbol": "CensoredNormal",
+      "sql_name": "chem_censored_normal",
+      "description": "Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "data": "0..16 numeric features followed by lower,upper,censor kind,nonnegative integer frequency. Exact endpoints agree; left uses upper,right uses lower,interval lower<upper. Finite unused endpoints are placeholders. Only positive-frequency rows fit; full-rank design and n_active>=p+1; total frequency>number of parameters and <=1e9.",
+      "args": [
+        "maxiter integer 0..2000,default400",
+        "tolerance 1e-10..1e-3,default1e-7",
+        "confidence in [.5,.999999),default.95",
+        "Optional starts appear only after all three settings: original intercept,original slopes,log_sigma (omitted for exponential). Exactly p+1+[family!=exponential] starts."
+      ],
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-censored-reference.json",
+      "fixture": {
+        "data": [
+          [
+            -2,
+            -2,
+            0,
+            1
+          ],
+          [
+            -1,
+            -1,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            0,
+            1
+          ],
+          [
+            2,
+            2,
+            0,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "sql_example": "chem_censored_normal([[-2,-2,0,1],[-1,-1,0,1],[0,0,0,1],[1,1,0,1],[2,2,0,1]], [])",
+      "unsupported": [
+        "penalized/stepwise/validation-selection methods",
+        "automatic categorical/model-effect expansion or informative missing handling",
+        "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
+        "left truncation/delayed entry,dependent censoring,frailty/random effects",
+        "global optimizer and finite-MLE identification proof"
+      ],
+      "known_value": {
+        "coefficients": [
+          0.0
+        ],
+        "sigma": 1.4142135623730951
+      },
+      "known_value_reference": "Closed form normal ML: arithmetic mean and population standard deviation."
+    },
+    {
+      "operation": "censored_exponential",
+      "symbol": "CensoredExponential",
+      "sql_name": "chem_censored_exponential",
+      "description": "Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "data": "0..16 numeric features followed by lower,upper,censor kind,nonnegative integer frequency. Exact endpoints agree; left uses upper,right uses lower,interval lower<upper. Finite unused endpoints are placeholders. Only positive-frequency rows fit; full-rank design and n_active>=p+1; total frequency>number of parameters and <=1e9.",
+      "args": [
+        "maxiter integer 0..2000,default400",
+        "tolerance 1e-10..1e-3,default1e-7",
+        "confidence in [.5,.999999),default.95",
+        "Optional starts appear only after all three settings: original intercept,original slopes,log_sigma (omitted for exponential). Exactly p+1+[family!=exponential] starts."
+      ],
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-censored-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0.4,
+            0.4,
+            0,
+            1
+          ],
+          [
+            0.8,
+            0.8,
+            0,
+            1
+          ],
+          [
+            1.2,
+            1.2,
+            0,
+            1
+          ],
+          [
+            2.0,
+            2.0,
+            0,
+            1
+          ],
+          [
+            3.0,
+            3.0,
+            0,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "sql_example": "chem_censored_exponential([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], [])",
+      "unsupported": [
+        "penalized/stepwise/validation-selection methods",
+        "automatic categorical/model-effect expansion or informative missing handling",
+        "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
+        "left truncation/delayed entry,dependent censoring,frailty/random effects",
+        "global optimizer and finite-MLE identification proof"
+      ],
+      "known_value": {
+        "coefficients": [
+          0.3920420877760237
+        ]
+      },
+      "known_value_reference": "Closed form exponential ML: log arithmetic mean."
+    },
+    {
+      "operation": "censored_gamma",
+      "symbol": "CensoredGamma",
+      "sql_name": "chem_censored_gamma",
+      "description": "Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "data": "0..16 numeric features followed by lower,upper,censor kind,nonnegative integer frequency. Exact endpoints agree; left uses upper,right uses lower,interval lower<upper. Finite unused endpoints are placeholders. Only positive-frequency rows fit; full-rank design and n_active>=p+1; total frequency>number of parameters and <=1e9.",
+      "args": [
+        "maxiter integer 0..2000,default400",
+        "tolerance 1e-10..1e-3,default1e-7",
+        "confidence in [.5,.999999),default.95",
+        "Optional starts appear only after all three settings: original intercept,original slopes,log_sigma (omitted for exponential). Exactly p+1+[family!=exponential] starts."
+      ],
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-censored-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0.4,
+            0.4,
+            0,
+            1
+          ],
+          [
+            0.8,
+            0.8,
+            0,
+            1
+          ],
+          [
+            1.2,
+            1.2,
+            0,
+            1
+          ],
+          [
+            2.0,
+            2.0,
+            0,
+            1
+          ],
+          [
+            3.0,
+            3.0,
+            0,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "sql_example": "chem_censored_gamma([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], [])",
+      "unsupported": [
+        "penalized/stepwise/validation-selection methods",
+        "automatic categorical/model-effect expansion or informative missing handling",
+        "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
+        "left truncation/delayed entry,dependent censoring,frailty/random effects",
+        "global optimizer and finite-MLE identification proof"
+      ],
+      "known_value": {
+        "coefficients": [
+          0.39204208777602384
+        ],
+        "log_sigma": -0.47272268030439796
+      },
+      "known_value_reference": "Independent scipy.stats.gamma.fit(y,floc=0); JMP mean=shape*scale, sigma=scale."
+    },
+    {
+      "operation": "censored_weibull",
+      "symbol": "CensoredWeibull",
+      "sql_name": "chem_censored_weibull",
+      "description": "Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "data": "0..16 numeric features followed by lower,upper,censor kind,nonnegative integer frequency. Exact endpoints agree; left uses upper,right uses lower,interval lower<upper. Finite unused endpoints are placeholders. Only positive-frequency rows fit; full-rank design and n_active>=p+1; total frequency>number of parameters and <=1e9.",
+      "args": [
+        "maxiter integer 0..2000,default400",
+        "tolerance 1e-10..1e-3,default1e-7",
+        "confidence in [.5,.999999),default.95",
+        "Optional starts appear only after all three settings: original intercept,original slopes,log_sigma (omitted for exponential). Exactly p+1+[family!=exponential] starts."
+      ],
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-censored-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0.4,
+            0.4,
+            0,
+            1
+          ],
+          [
+            0.8,
+            0.8,
+            0,
+            1
+          ],
+          [
+            1.2,
+            1.2,
+            0,
+            1
+          ],
+          [
+            2.0,
+            2.0,
+            0,
+            1
+          ],
+          [
+            3.0,
+            3.0,
+            0,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "sql_example": "chem_censored_weibull([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], [])",
+      "unsupported": [
+        "penalized/stepwise/validation-selection methods",
+        "automatic categorical/model-effect expansion or informative missing handling",
+        "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
+        "left truncation/delayed entry,dependent censoring,frailty/random effects",
+        "global optimizer and finite-MLE identification proof"
+      ],
+      "known_value": {
+        "coefficients": [
+          0.5090265013718972
+        ],
+        "log_sigma": -0.5112485716182543
+      },
+      "known_value_reference": "Independent scipy.stats.weibull_min.fit(y,floc=0); JMP log-location=log(scale), sigma=1/shape."
+    },
+    {
+      "operation": "censored_lognormal",
+      "symbol": "CensoredLognormal",
+      "sql_name": "chem_censored_lognormal",
+      "description": "Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "data": "0..16 numeric features followed by lower,upper,censor kind,nonnegative integer frequency. Exact endpoints agree; left uses upper,right uses lower,interval lower<upper. Finite unused endpoints are placeholders. Only positive-frequency rows fit; full-rank design and n_active>=p+1; total frequency>number of parameters and <=1e9.",
+      "args": [
+        "maxiter integer 0..2000,default400",
+        "tolerance 1e-10..1e-3,default1e-7",
+        "confidence in [.5,.999999),default.95",
+        "Optional starts appear only after all three settings: original intercept,original slopes,log_sigma (omitted for exponential). Exactly p+1+[family!=exponential] starts."
+      ],
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-censored-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0.4,
+            0.4,
+            0,
+            1
+          ],
+          [
+            0.8,
+            0.8,
+            0,
+            1
+          ],
+          [
+            1.2,
+            1.2,
+            0,
+            1
+          ],
+          [
+            2.0,
+            2.0,
+            0,
+            1
+          ],
+          [
+            3.0,
+            3.0,
+            0,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "sql_example": "chem_censored_lognormal([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], [])",
+      "unsupported": [
+        "penalized/stepwise/validation-selection methods",
+        "automatic categorical/model-effect expansion or informative missing handling",
+        "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
+        "left truncation/delayed entry,dependent censoring,frailty/random effects",
+        "global optimizer and finite-MLE identification proof"
+      ],
+      "known_value": {
+        "coefficients": [
+          0.16692934856672897
+        ],
+        "log_sigma": -0.35246863818663005
+      },
+      "known_value_reference": "Closed form normal ML on log responses: mean(log y) and population SD(log y)."
+    },
+    {
+      "operation": "censored_beta",
+      "symbol": "CensoredBeta",
+      "sql_name": "chem_censored_beta",
+      "description": "Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "data": "0..16 numeric features followed by lower,upper,censor kind,nonnegative integer frequency. Exact endpoints agree; left uses upper,right uses lower,interval lower<upper. Finite unused endpoints are placeholders. Only positive-frequency rows fit; full-rank design and n_active>=p+1; total frequency>number of parameters and <=1e9.",
+      "args": [
+        "maxiter integer 0..2000,default400",
+        "tolerance 1e-10..1e-3,default1e-7",
+        "confidence in [.5,.999999),default.95",
+        "Optional starts appear only after all three settings: original intercept,original slopes,log_sigma (omitted for exponential). Exactly p+1+[family!=exponential] starts."
+      ],
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-censored-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0.15,
+            0.15,
+            0,
+            1
+          ],
+          [
+            0.25,
+            0.25,
+            0,
+            1
+          ],
+          [
+            0.4,
+            0.4,
+            0,
+            1
+          ],
+          [
+            0.55,
+            0.55,
+            0,
+            1
+          ],
+          [
+            0.75,
+            0.75,
+            0,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "sql_example": "chem_censored_beta([[0.15,0.15,0,1],[0.25,0.25,0,1],[0.4,0.4,0,1],[0.55,0.55,0,1],[0.75,0.75,0,1]], [])",
+      "unsupported": [
+        "penalized/stepwise/validation-selection methods",
+        "automatic categorical/model-effect expansion or informative missing handling",
+        "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
+        "left truncation/delayed entry,dependent censoring,frailty/random effects",
+        "global optimizer and finite-MLE identification proof"
+      ],
+      "known_value": {
+        "coefficients": [
+          -0.3143032494481242
+        ],
+        "log_sigma": -1.5944789315660186
+      },
+      "known_value_reference": "Independent scipy.stats.beta.fit(y,floc=0,fscale=1); JMP logit mean=log(alpha/beta), sigma=1/(alpha+beta)."
+    },
+    {
+      "operation": "censored_predict",
+      "symbol": "CensoredPredict",
+      "sql_name": "chem_censored_predict",
+      "description": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+      "data": "Same feature count as fit then evaluation response and quantile probability strictly(0,1). Out-of-support evaluation response returns zero density and boundary probabilities; query quantiles remain on distribution support.",
+      "args": [
+        "Complete unchanged numeric predict_parameters vector from fitted model; not raw coefficient array."
+      ],
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ],
+      "evidence": "tasks/evidence/jmp-censored-reference.json",
+      "fixture": {
+        "data": [
+          [
+            0,
+            0.5
+          ],
+          [
+            1,
+            0.975
+          ]
+        ],
+        "args": [
+          1,
+          0,
+          0,
+          0.95,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "sql_example": "chem_censored_predict([[0.0,0.5],[1.0,0.975]], [1.0,0.0,0.0,0.95,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])",
+      "unsupported": [
+        "parameter-uncertainty integration over a full distribution",
+        "simultaneous confidence bands",
+        "profile likelihood or guaranteed support-respecting mean Wald intervals"
+      ],
+      "known_value": {
+        "means": [
+          0.0,
+          0.0
+        ],
+        "cdf": [
+          0.5,
+          0.8413447460685429
+        ],
+        "density": [
+          0.3989422804014327,
+          0.24197072451914337
+        ],
+        "quantiles": [
+          0.0,
+          1.959963984540054
+        ]
+      },
+      "known_value_reference": "Standard normal analytic mean/CDF/density and independent scipy.stats.norm.ppf."
+    }
+  ],
+  "verification_evidence": {
+    "path": "tasks/evidence/jmp-censored-reference.json",
+    "sha256": "265243bef7beb3d6cc0d936fe9e005195d6a4d6071e770d9ef85e3297cb079a1",
+    "boundaries": [
+      "public_c_abi",
+      "native_duckdb_sql"
+    ],
+    "assertions": 768,
+    "regression_assertions": 46,
+    "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f",
+    "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710",
+    "fixture_precision_diagnostic": "tasks/evidence/jmp-censored-final-strict-precision-diagnostic.json"
+  }
+}

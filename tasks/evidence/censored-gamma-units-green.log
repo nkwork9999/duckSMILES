@@ -1,0 +1,38 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 53.00s
+     Running tests/censored_regression_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/censored_regression_contracts-634035530fc990a7)
+
+running 31 tests
+test adjacent_interval_weibull_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_exponential_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_beta_fixed_likelihood_matches_independent_log_density_integral ... ok
+test common_censor_interval_without_failures_rejects_zero_dispersion_supremum ... ok
+test adjacent_interval_lognormal_fixed_likelihood_matches_independent_log_density_integral ... ok
+test beta_logit32_small_cdf_and_quantile_keep_complement_tail_precision ... ok
+test adjacent_interval_normal_fixed_likelihood_matches_independent_log_density_integral ... ok
+test gamma_and_beta_quantiles_preserve_representable_extreme_left_tail ... ok
+test exponential_right_censoring_uses_total_weighted_exposure ... ok
+test adjacent_interval_gamma_fixed_likelihood_matches_independent_log_density_integral ... ok
+test gamma_tiny_shape_upper_tail_is_computed_without_large_cdf_subtraction ... ok
+test censored_normal_uncensored_intercept_has_mle_scale_and_information ... ok
+test malformed_censor_support_rank_and_saved_models_are_rejected ... ok
+test normal_centering_preserves_original_adjacent_interval_width ... ok
+test nonconverged_coefficient_fit_withholds_observed_information_inference ... ok
+test positive_distribution_quantiles_reject_unrepresentable_zero ... ok
+test frequency_replication_and_zero_weight_rows_preserve_estimates ... ok
+test replicated_single_exponential_value_is_an_identifiable_frequency_fit ... ok
+test public_c_abi_owns_censored_json_and_rejects_bad_support ... ok
+test saturated_positive_beta_logit_preserves_small_shape_and_mean_derivative ... ok
+test representable_tiny_normal_scale_and_prediction_se_do_not_underflow_when_squaring ... ok
+test subnormal_exponential_interval_uses_actual_lower_hazard ... ok
+test subnormal_left_censor_limit_has_finite_exponential_log_likelihood ... ok
+test unbounded_one_direction_censor_fits_are_rejected_before_claiming_inference ... ok
+test saved_normal_prediction_has_mean_probability_quantile_and_uncertainty ... ok
+test original_unit_information_overflow_never_serializes_nonfinite_json ... ok
+test representable_tiny_feature_units_keep_full_rank_saved_predictions ... ok
+test all_six_families_have_exact_left_right_interval_likelihoods ... ok
+test adjacent_distinct_raw_endpoints_keep_positive_interval_mass_all_families ... ok
+test mixed_censoring_predictor_fits_match_independent_scipy_likelihood_and_joint_information ... ok
+test prediction_budget_counts_gamma_special_function_iterations_globally ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.96s

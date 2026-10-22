@@ -1,0 +1,202 @@
+{
+  "schema": "jmp-censored-development-v1",
+  "status": "33_focused_green_final_release_abi_native_sql_independent_checks_passed",
+  "source_revision": "442f54588d5882a3fc14f3f830c2d29d20701ace",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "initial_red": {
+    "command": "env CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test censored_regression_contracts",
+    "exit_code": 101,
+    "result": "7tests:6behaviorfailures unknownoptimizationoperation or exportedABI null;1validationtestpassedbecauseunknown,notcountedasevidence"
+  },
+  "edge_red": {
+    "exit_code": 101,
+    "passed": 9,
+    "failed": 5,
+    "failures": [
+      "gamma/beta tiny quantile absolutebisectionfloor",
+      "subnormal exponentiallefttail logCDFunderflow",
+      "originalcovarianceoverflow nonfiniteJSON",
+      "replicatedsinglevalueexponential falseminimumrowrestriction",
+      "commonintervalzero-dispersion sup withoutfiniteMLE"
+    ]
+  },
+  "edge_green": {
+    "exit_code": 0,
+    "tests_passed": 14
+  },
+  "boundaries": "33 focused public Rust tests include real exported ds_analytics_run/free valid and invalid support. Final Release C ABI and matching native SQL both passed independent six-family mixed-censor fits, saved predictions and full observed-information inference comparisons, plus Gamma tiny survival/quantile, finite-SD/null-CI, and malformed-covariance edge contracts. Parent workspace1340 and strict analytics all-target Clippy passed.",
+  "remaining_work": "Parent-owned README/master ledger, repository-wide final metadata/native release validation, merge/push and community CI; full JMP parity remains incomplete outside these bounded contracts.",
+  "censored-edge-red.log": {
+    "path": "tasks/evidence/censored-edge-red.log",
+    "sha256": "873e154db624b4bb8c8857c35c1f1697bbb8064c0273f85b141cf71f7953420d"
+  },
+  "censored-edge-green.log": {
+    "path": "tasks/evidence/censored-edge-green.log",
+    "sha256": "7c47862a59ec5ad479b6c5e5afc71cb34db8696237c1c72d738f9728d56c49e1"
+  },
+  "focused_final_green": {
+    "tests_passed": 33,
+    "failed": 0,
+    "exit_code": 0,
+    "runtime_seconds": 0.87,
+    "command": "env CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test censored_regression_contracts"
+  },
+  "review_red": {
+    "tests_total": 25,
+    "passed": 14,
+    "failed": 11,
+    "failures": [
+      "all6adjacentintervalfixed-source density-integral oracles",
+      "largeNormalorigin intervalwidth",
+      "Beta40stable shape anddelta",
+      "CDFiterationglobalbudget",
+      "nonconvergedinferencewithholding"
+    ]
+  },
+  "interim_public_abi": {
+    "six_fits": 6,
+    "scalar_assertions": 160,
+    "library_sha256": "1641e0d2fe42019275cb0300edbab7b8af1e731e5e20e1c9d8e15f4914392c72",
+    "limitation": "Interim14-testsourceartifactbeforelateredgefixes; finalartifactmustrerun."
+  },
+  "censored-final-red.log": {
+    "path": "tasks/evidence/censored-final-red.log",
+    "sha256": "2c0475ace9f6995dc79365e0efa2b5c7e249c5096f1f395605689ed0288f732e"
+  },
+  "censored-review-red.log": {
+    "path": "tasks/evidence/censored-review-red.log",
+    "sha256": "51500460687da887f865d40fe2b195eba309b73697772ec30c5b5b59bb7c07db"
+  },
+  "censored-review-green.log": {
+    "path": "tasks/evidence/censored-review-green.log",
+    "sha256": "260ee41134d4abd5f77ac2e21e0022ceed3df25b0ca66ac180b82cf6e77602e7"
+  },
+  "censored-support-red.log": {
+    "path": "tasks/evidence/censored-support-red.log",
+    "sha256": "55d7e58fcd93a9a50af4ed0689d523a128ddb5ee3990de46846cc299abc83f18"
+  },
+  "censored-support-green.log": {
+    "path": "tasks/evidence/censored-support-green.log",
+    "sha256": "a477f744ab4d0dbf9f267edb1c838211489d2b9e59a00c276e7b55ba5dbd6f0c"
+  },
+  "censored-beta-complement-red.log": {
+    "path": "tasks/evidence/censored-beta-complement-red.log",
+    "sha256": "e34c756890423966c02ab468b911453dee5dfff6e9c87dadab23065f191505f1"
+  },
+  "censored-final-green.log": {
+    "path": "tasks/evidence/censored-final-green.log",
+    "sha256": "895f847f32a427e116276a0305e5ac6783e0c96b6c05478b29128e8a0ab8f5c1"
+  },
+  "source_hashes": {
+    "crates/analytics/src/censored_regression.rs": "b8f829799d05c80ca2f6abf6dfbda3214608578b0c9345129431c6e0507fa42c",
+    "crates/analytics/tests/censored_regression_contracts.rs": "74793f7e12467c38e5133c649e0e7702bb028eb3ce4856bbfac0b1f75b0c148e",
+    "scripts/check_jmp_censored.py": "d33b8da241a107edc59096a848b59e984ac5f9d9dbf7ed44fcdd617277c20430"
+  },
+  "censored-gamma-units-red.log": {
+    "path": "tasks/evidence/censored-gamma-units-red.log",
+    "sha256": "3a935e073d066e415f3c2c7b858b77fe1f5c8dc2cf555d76d2b9d56df0d609fd"
+  },
+  "censored-gamma-units-green.log": {
+    "path": "tasks/evidence/censored-gamma-units-green.log",
+    "sha256": "65cd1a37c56b5c110fff59456e22512c7974c739687c084ee4fb382dbb57a811"
+  },
+  "censored-clippy.log": {
+    "path": "tasks/evidence/censored-clippy.log",
+    "sha256": "d3409730406b62367bec33392cf6e44bf91eecf52af096fbc6e6882ee9160d26"
+  },
+  "censored-clippy-green.log": {
+    "path": "tasks/evidence/censored-clippy-green.log",
+    "sha256": "21e07902609a9a0b22a0e4ec954a9cdc8cccf1c687ad9d1f629240b015f4c11a"
+  },
+  "confirmed_gamma_units": {
+    "red": "31tests28pass3expectedfail",
+    "green": "31/31PASS",
+    "cases": [
+      "Gamma exp(-32) shape upper tails .1/1e-100/1e-300 and PPF .3526041408838702",
+      "Normalrepresentableσ1e-200withvarianceunderflow andsavedmeanSE",
+      "Featureunit1e-200fullrankandstablepredictions"
+    ],
+    "independent_evidence": "tasks/evidence/jmp-censored-gamma-tail-review.json"
+  },
+  "final_carrier_red": {
+    "tests_total": 33,
+    "passed": 31,
+    "failed": 2,
+    "failures": [
+      "Finite mean/SE with overflowing WaldCI endpoints serialized Inf",
+      "Covariance-symmetry tolerance overflow falsely accepted malformed huge asymmetric carrier"
+    ]
+  },
+  "final_carrier_green": {
+    "tests_total": 33,
+    "passed": 33,
+    "failed": 0,
+    "fixes": [
+      "unrepresentable meanWaldCI becomesnull,finiteSDandmeanretained",
+      "scale-before-add symmetrytolerance doesnot overflow"
+    ]
+  },
+  "parent_pre_final_workspace": {
+    "passed": 1338,
+    "failed": 0,
+    "existing_ignored": 2,
+    "suites": 65,
+    "limitation": "Parent-run31-testcensoredsnapshot,beforelast2carrierregressions;finalparentworkspacepending."
+  },
+  "censored-carrier-red.log": {
+    "path": "tasks/evidence/censored-carrier-red.log",
+    "sha256": "deef09a2ff7894b2921824e3b6b392acff3fffff61d2d51c3a41a1e22b3ce4b5"
+  },
+  "censored-carrier-green.log": {
+    "path": "tasks/evidence/censored-carrier-green.log",
+    "sha256": "ed47975cfc526ed4fc07bc4aa93beb6f838af326c6de0200c06339c4925ccd76"
+  },
+  "censored-interim-public-reference.json": {
+    "path": "tasks/evidence/censored-interim-public-reference.json",
+    "sha256": "6c4cef8497f8be8cbe1c486716f977d7326e7384c3359fef35cf5cf0690a5893"
+  },
+  "censored-interim-reference.log": {
+    "path": "tasks/evidence/censored-interim-reference.log",
+    "sha256": "7428296bf1fc090afb702f05c4db6128382b83a5eef75c4838d8e6a48f8b229d"
+  },
+  "parent_final_workspace": {
+    "passed": 1340,
+    "failed": 0,
+    "existing_ignored": 2,
+    "suites": 65,
+    "seconds": 107.99
+  },
+  "parent_final_clippy": {
+    "status": "passed",
+    "seconds": 4.99,
+    "scope": "ducksmiles_analytics --all-targets -- -D warnings"
+  },
+  "final_oracle_scope": "Six mixed-censor/two-feature fits and saved predictions against independent SciPy coefficients,log_sigma,likelihood,fulljointcovariance,SE,coefficient/log-scaleWaldCI,mean,CDF,SF,density,quantile,mean/quantileDeltaSE,andmeanWaldCI. Each returned fit must converge and have independent average-NLL score<=2e-7 at documented default optimizer tolerance1e-7. Plus4 confirmed edge contracts per boundary.768 total scalar/contract checks passed (46edgechecks).",
+  "final_strict_precision_diagnostic": {
+    "path": "tasks/evidence/jmp-censored-final-strict-precision-diagnostic.json",
+    "sha256": "dff6ed21d1846c8ae6e98ec850a0c831bdcbe1fd095ff3d98af4f7f85094a0ac",
+    "status": "checker_assertion_incorrectly_demanded_covariance_from_honest_nonconverged_fit"
+  },
+  "final_confirmed_boundary_regressions": {
+    "path": "tasks/evidence/jmp-censored-final-boundary-edges.json",
+    "sha256": "dc6dc1f674174a00829a77d6c9185a1cd53c6000373c2cb9a1f0a2f92a774502",
+    "contracts": 4,
+    "checks": 46,
+    "status": "passed_actual_release_c_abi_and_native_sql"
+  },
+  "final_release_reference": {
+    "path": "tasks/evidence/jmp-censored-reference.json",
+    "sha256": "265243bef7beb3d6cc0d936fe9e005195d6a4d6071e770d9ef85e3297cb079a1",
+    "families": 6,
+    "boundaries": [
+      "public_c_abi",
+      "native_duckdb_sql"
+    ],
+    "assertions": 768,
+    "regression_assertions": 46,
+    "native_sql_queries": 16,
+    "native_sql_decoded_results": 15,
+    "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f",
+    "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710"
+  }
+}

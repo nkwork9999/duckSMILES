@@ -1,0 +1,46 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.48s
+     Running tests/censored_regression_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/censored_regression_contracts-634035530fc990a7)
+
+running 25 tests
+test adjacent_interval_exponential_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_gamma_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_weibull_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_normal_fixed_likelihood_matches_independent_log_density_integral ... ok
+test common_censor_interval_without_failures_rejects_zero_dispersion_supremum ... ok
+test exponential_right_censoring_uses_total_weighted_exposure ... ok
+test adjacent_interval_lognormal_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_beta_fixed_likelihood_matches_independent_log_density_integral ... ok
+test censored_normal_uncensored_intercept_has_mle_scale_and_information ... ok
+test malformed_censor_support_rank_and_saved_models_are_rejected ... ok
+test gamma_and_beta_quantiles_preserve_representable_extreme_left_tail ... ok
+test frequency_replication_and_zero_weight_rows_preserve_estimates ... ok
+test nonconverged_coefficient_fit_withholds_observed_information_inference ... ok
+test normal_centering_preserves_original_adjacent_interval_width ... ok
+test public_c_abi_owns_censored_json_and_rejects_bad_support ... ok
+test replicated_single_exponential_value_is_an_identifiable_frequency_fit ... ok
+test saturated_positive_beta_logit_preserves_small_shape_and_mean_derivative ... FAILED
+test subnormal_left_censor_limit_has_finite_exponential_log_likelihood ... ok
+test original_unit_information_overflow_never_serializes_nonfinite_json ... ok
+test unbounded_one_direction_censor_fits_are_rejected_before_claiming_inference ... ok
+test saved_normal_prediction_has_mean_probability_quantile_and_uncertainty ... ok
+test all_six_families_have_exact_left_right_interval_likelihoods ... ok
+test adjacent_distinct_raw_endpoints_keep_positive_interval_mass_all_families ... ok
+test mixed_censoring_predictor_fits_match_independent_scipy_likelihood_and_joint_information ... ok
+test prediction_budget_counts_gamma_special_function_iterations_globally ... ok
+
+failures:
+
+---- saturated_positive_beta_logit_preserves_small_shape_and_mean_derivative stdout ----
+
+thread 'saturated_positive_beta_logit_preserves_small_shape_and_mean_derivative' (195708) panicked at crates/analytics/tests/censored_regression_contracts.rs:32:5:
+0.9999999999999998 != 0.0023510845295342986
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    saturated_positive_beta_logit_preserves_small_shape_and_mean_derivative
+
+test result: FAILED. 24 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s
+
+error: test failed, to rerun pass `-p ducksmiles_analytics --test censored_regression_contracts`

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "status": "active",
+  "baseline_revision": "442f54588d5882a3fc14f3f830c2d29d20701ace",
+  "previous_turn_classification": "progress",
+  "previous_turn_evidence": {
+    "source_distribution_run": 39660858094,
+    "source_rust_run": 39660857660,
+    "community_run": 39660908406,
+    "all_applicable_targets": "success"
+  },
+  "full_goal_complete": false,
+  "scope": "JMP/JMP Pro19.2 practical non-GUI, non-GPU parity; static reports and numeric backends remain in scope",
+  "active_contracts": [
+    "six-family censored regression with exact/left/right/interval likelihood and saved prediction",
+    "estimated spatial covariance ML/REML with inference and saved prediction",
+    "44 static report/plot acceptance contracts"
+  ],
+  "baseline_counts": {
+    "partial": 254,
+    "absent": 186,
+    "clarification_pending": 44
+  },
+  "verification_gates": [
+    "behavioral TDD RED before production",
+    "independent numerical reference",
+    "public C ABI",
+    "matching native DuckDB SQL",
+    "all implemented SQL argument/example/constraint/evidence documentation",
+    "retain residual full-goal gaps"
+  ],
+  "cargo_target_dir": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "build_profile": "Release/default features",
+  "report_scope_resolved": {
+    "record": "tasks/jmp-report-acceptance.json",
+    "partial_existing_backend": 13,
+    "absent": 31,
+    "excluded_gui": 0,
+    "implemented_verified": 0
+  },
+  "current_status_counts": {
+    "partial": 275,
+    "database_existing": 37,
+    "absent": 209,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "candidate_registry": {
+    "added_operations": 9,
+    "analytics_if_verified": 263,
+    "total_sql_overloads_if_verified": 414,
+    "verification_status": "PASS final Release production C ABI and matching native SQL"
+  },
+  "candidate_documentation": [
+    "README.md nine individual SQL calls and detailed arguments/limits",
+    "tasks/jmp-censored-api.json",
+    "tasks/jmp-spatial-estimation-api.json"
+  ],
+  "native_build_plan": {
+    "duckdb_sdk_revision": "d54cbbe3df17e8e5ce68312f483b4155836112aa",
+    "matching_version": "v2.0.0-alpha49307",
+    "profile": "Release only after recording dev evidence and deleting exact task-owned output root",
+    "targets": [
+      "shell",
+      "ducksmiles_loadable_extension",
+      "unittest"
+    ],
+    "sql_test_files_expected": 16
+  },
+  "dev_final_evidence": "tasks/evidence/jmp-parity-dev-final.json",
+  "profile_transition_evidence": "tasks/evidence/jmp-parity-profile-transition.json",
+  "deferred_chemical_data_quality": {
+    "user_sequence": "Start implementation only after full JMP objective completion, as explicitly requested 2026-10-22",
+    "research": "tasks/chemistry-dq-research-20261022.json",
+    "implementation_started": false,
+    "integration_candidates": [
+      "DuckOrch orchestration with DuckSMILES chemical checks",
+      "Integrate reusable DuckOrch foundation into DuckSMILES"
+    ],
+    "initial_use_case": "Current Enveda CASMI26 input, calculation-support and retrieval-coverage diagnostics; distinguish experimental missingness and contest-hidden labels",
+    "status": "research complete; implementation deferred until JMP objective achieved"
+  },
+  "verified_checkpoint": {
+    "analytics_functions": 263,
+    "sql_overloads": 414,
+    "added_operations": 9,
+    "evidence": "tasks/evidence/jmp-parity-estimation-validation.json",
+    "overall_goal_complete": false
+  }
+}

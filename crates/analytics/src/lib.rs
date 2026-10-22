@@ -2,6 +2,7 @@
 pub mod advanced_design;
 pub mod arima;
 pub mod causal;
+pub mod censored_regression;
 pub mod degradation;
 pub mod design;
 pub mod design_classical;
@@ -33,6 +34,7 @@ pub mod resampling;
 pub mod robust_learning;
 pub mod sem;
 pub mod spatial;
+pub mod spatial_estimation;
 pub mod spectral;
 pub mod state_space;
 pub mod statistics;
@@ -114,6 +116,16 @@ pub unsafe extern "C" fn ds_analytics_free(data: *mut u8, len: usize) {
 
 pub fn execute(operation: &str, data: &[Vec<f64>], parameters: &[f64]) -> Result<String, String> {
     match operation {
+        "censored_normal"
+        | "censored_exponential"
+        | "censored_gamma"
+        | "censored_weibull"
+        | "censored_lognormal"
+        | "censored_beta"
+        | "censored_predict" => censored_regression::run(operation, data, parameters),
+        "spatial_fit" | "spatial_fit_predict" => {
+            spatial_estimation::run(operation, data, parameters)
+        }
         "kalman_smoother" | "state_space_smoothing" | "state_space_predict" => {
             state_space::run(operation, data, parameters)
         }

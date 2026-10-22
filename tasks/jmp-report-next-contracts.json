@@ -1,0 +1,274 @@
+{
+  "schema": "jmp-report-next-contracts-v1",
+  "researched_on": "2026-10-22",
+  "reference_product": "JMP 19.2",
+  "features": ["histogram", "box_plot"],
+  "status": "research_and_candidate_contract_only",
+  "production_implementation_present": false,
+  "whole_feature_completion_claim": false,
+  "scope": "CPU numerical summaries and exportable static SVG are in scope. Basic artifacts would be partial progress, not completion of either entire JMP feature row. No production source, Cargo, master ledger or README changes were made for this research.",
+  "primary_sources": [
+    {
+      "id": "quantile_details",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-quantiles.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Distribution quantiles sort nonmissing data, use rank (n+1)*p for p in [0,1], clamp below rank 1 or above rank n, and interpolate adjacent order statistics. This is the convention commonly called Hyndman-Fan type 6.",
+      "equation_image": {
+        "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/1-68.png",
+        "sha256": "513a40926eb95106678acd96c11d33f2b1563dfd3f05bccb535d307993eeb3f8",
+        "visually_inspected": true,
+        "transcription": "q_p=(1-f)*y_i+f*y_(i+1)"
+      },
+      "limit": "The explicit formula is documented for Distribution. Graph Builder's box-plot page refers to the Distribution outlier/quantile descriptions, but a direct Graph Builder numerical fixture is still useful before claiming every platform shares every option."
+    },
+    {
+      "id": "outlier_box",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/outlier-box-plot.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Box limits are Q1/Q3, internal line is median, whiskers reach actual outermost observations within 1.5 IQR of the quartiles. Mean confidence diamond and shortest-half bracket are additional objects. Distribution normally suppresses the default outlier box above a configurable row cutoff, initially 100000.",
+      "inference": "Interpreting 'within' as inclusive fence equality means only values strictly beyond a fence are outliers. Boundary fixtures should verify this in an actual JMP reference session."
+    },
+    {
+      "id": "quantile_box",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/quantile-box-plot.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Quantile boxes display selected quantiles; the example image identifies additional ticks at 2.5%, 10%, 90% and 97.5%. Confidence diamond and shortest-half display are configurable.",
+      "example_image": {
+        "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/1-64.png",
+        "sha256": "ed44eca637404472d9c98e06e3e785dc5101951859abfcba25a9cb8c71cd29bc",
+        "visually_inspected": true
+      }
+    },
+    {
+      "id": "graph_builder_box",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Graph Builder provides Tukey or full-range quantile boxes, outlier visibility, Normal/Solid/Thin styles, five-number labels, width/placement, mean CI diamond, notches, shortest half, orientation, grouping and several jitter algorithms.",
+      "equation_image": {
+        "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/3-41.png",
+        "sha256": "ce5b1fc2f7ade0c3f95c7d89b95403e90ecae989d0b56ab4d84c33964c9616ee",
+        "visually_inspected": true,
+        "transcription": "notch endpoints = median +/- 1.58*IQR/sqrt(n)"
+      },
+      "remaining_formula_details": "How notches are drawn when they extend beyond the box, exact shortest-half sample-count/tie handling, weighted effective n, and confidence-diamond inference conventions still need targeted reference fixtures."
+    },
+    {
+      "id": "graph_builder_histogram",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Histogram bars align with value-axis ticks. Response choices include count, percent and fill; styles include bars, polygon, kernel density and shadowgram. Grouping, overlays, orientation, annotations and mean-related options are available."
+    },
+    {
+      "id": "distribution_histograms",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/histograms.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Continuous histograms bin numeric values. Set Bin Width and axis Increment explicitly control bar width; shifting the starting value changes membership. The inspected page does not state the automatic-bin algorithm or boundary-closure convention."
+    },
+    {
+      "id": "histogram_options",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/options-for-continuous-variables.shtml#ww1257611",
+      "publication_date": "2026-01-13",
+      "confirmed": "Distribution supports count, probability and density axes, with probability=width*density. It also supports count/percent labels and histogram standard-error bars. Shadowgrams use multiple bin widths and do not offer standard-error bars or count/percent labels."
+    },
+    {
+      "id": "distribution_roles",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-distribution-platform.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Continuous-response Weight and Freq are separate roles. Zero Weight removes a row from the histogram and all calculations, including quantiles. Freq represents summarized occurrences and contributes its sum to N. By produces separate reports. The page does not fully specify nonzero Weight effects on quantiles or every frequency edge case."
+    },
+    {
+      "id": "summary_statistics",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-statistics.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Weight/Freq affect means and standard-error calculations. The variance equation image explicitly has denominator N-1 and weighted squared deviations in the numerator. Do not silently substitute a different analytic-weight or effective-sample-size convention.",
+      "equation_images": [
+        {"url":"https://www.jmp.com/support/help/en/19.2/jmp/images/2-39.png","sha256":"8f1fe0e18085ae25788729b401e09f6e2f17814e6a970f1f6dd9e4a81175d455","visually_inspected":true},
+        {"url":"https://www.jmp.com/support/help/en/19.2/jmp/images/3-20.png","sha256":"5b7704fa442d6e9dece9a33e47cded793a17ca61b77087b1306191b5b3396e15","visually_inspected":true}
+      ]
+    },
+    {
+      "id": "hidden_rows",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/hide-rows-in-data-tables.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Hidden alone does not remove observations from calculations. Individual row marks are normally hidden, while grouped summaries often retain hidden data; specific graph elements have exceptions. Do not implement a universal hidden==excluded rule."
+    },
+    {
+      "id": "hidden_excluded_rows",
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/hide-and-exclude-rows-in-data-tables.shtml",
+      "publication_date": "2026-01-13",
+      "confirmed": "Hide-and-exclude removes rows from subsequent calculations and display. Recalculation timing differs among live platforms, so a static snapshot should declare that its summaries are recomputed from the supplied row states."
+    }
+  ],
+  "unresolved_jmp_conventions": [
+    {
+      "id": "automatic_histogram_bins",
+      "status": "unresolved",
+      "searched": "JMP 19.2 histogram, histograms, continuous options and axis documentation, plus targeted official-site searches for default bin width, Scott and Freedman-Diaconis",
+      "finding": "No precise current primary specification of automatic bin count/origin/nice-tick rounding was located. Do not call FD, Scott or Sturges the JMP default. Explicit edges can proceed without pretending to resolve this.",
+      "next_evidence": "Collect versioned numeric bin boundaries from a licensed JMP 19.2 reference for skewed, small, constant, discrete, outlier and tied samples, across canvas sizes and axis settings. Separate inference from a documented specification."
+    },
+    {
+      "id": "histogram_edge_equality",
+      "status": "unresolved",
+      "finding": "Explicit edges and their closures are independently implementable, but exact JMP tie membership needs observed reference bins with values exactly on each edge and adjacent representable floats."
+    },
+    {
+      "id": "nonunit_analytic_weights",
+      "status": "unresolved",
+      "finding": "Zero-weight exclusion is explicit. Nonunit positive Weight treatment in quantiles, histogram counts, notches, shortest half and diamonds is not completely specified by the inspected pages. Weight and Freq must not be conflated."
+    },
+    {
+      "id": "fractional_frequencies",
+      "status": "unresolved",
+      "finding": "JMP supports fractional Freq in some contexts; continuous options explicitly disable custom-quantile CIs and smoothed empirical-likelihood quantiles for fractional frequencies. The first candidate contract deliberately supports integer replication frequencies only."
+    },
+    {
+      "id": "element_specific_hidden_policy",
+      "status": "partially_documented",
+      "finding": "General hidden versus excluded behavior is clear, but the exact Distribution and Graph Builder histogram/box summary/marker interaction should be checked independently. The candidate native policy below is explicit and must not be marketed as every live JMP platform's behavior."
+    }
+  ],
+  "code_audit": {
+    "public_entry": "ds_analytics_run(operation bytes, flat row-major f64 data, rows, columns, f64 parameters, out_len) -> Rust-owned JSON bytes; free with ds_analytics_free",
+    "sql_entry": "chem_analyze(operation VARCHAR, data DOUBLE[][], parameters DOUBLE[]) -> VARCHAR JSON",
+    "local_refs": [
+      "src/analytics_functions.cpp:19-64",
+      "src/analytics_functions.cpp:66-105",
+      "src/analytics_functions.cpp:233-270"
+    ],
+    "confirmed_input_limits": "The loaded-SQL bridge accepts finite rectangular numerical matrices only: nonempty, at most 100000 rows, 1024 columns, 1000000 cells; parameters at most 16384 finite numbers. Any nested SQL NULL currently invalidates the argument rather than dropping a row.",
+    "important_nonreuse": {
+      "local_ref": "crates/analytics/src/resampling.rs:86-90",
+      "finding": "Existing percentile uses p*(n-1), i.e. a type-7 interpolation, and cannot be reused as JMP's type-6 quartile function without changing results. Existing bootstrap behavior should remain distinct."
+    },
+    "existing_numeric_precursors": "summarize, Gaussian KDE and one-sample inference can inform additional report layers. No histogram bins, box summaries or SVG report operation was found in the bounded analytics-source search.",
+    "not_performed": "No Cargo/build/runtime verification of new report operations; the operations below are proposals and are not registered APIs."
+  },
+  "candidate_shared_public_contract": {
+    "status": "proposed_not_implemented",
+    "operations": ["report_histogram_svg", "report_box_plot_svg"],
+    "transport": "Use the existing public numeric C ABI and chem_analyze dispatcher. Return one JSON object containing both numerical plot data and an SVG string; callers can extract the string into a .svg artifact. Dedicated SQL aliases can be added only with complete argument documentation and actual loaded-extension tests.",
+    "matrix_columns": [
+      "value: finite number; if observed=0 this is an ignored finite placeholder, not a missing-value imputation",
+      "group_id: exactly representable integer, groups displayed in ascending numeric order",
+      "frequency: nonnegative integer replication count",
+      "excluded: 0 or 1",
+      "hidden: 0 or 1",
+      "observed: 0 or 1; explicit missingness flag because the existing ABI cannot carry nullable numerical cells",
+      "row_id: unique nonnegative exactly representable integer <= 2^53-1 for output provenance"
+    ],
+    "scope_limits": {
+      "source_rows": 100000,
+      "groups": 16,
+      "sum_frequency_per_call": 1000000,
+      "histogram_bins": 512,
+      "rendered_individual_markers": 20000,
+      "svg_utf8_bytes": 2097152,
+      "canvas_width_px": [320, 4096],
+      "canvas_height_px": [240, 4096]
+    },
+    "sample_selection": "For each group, analysis uses observed=1 AND excluded=0 AND frequency>0. Hidden alone stays in numerical summaries but suppresses individual row markers. Report physical row counts and frequency totals separately, plus excluded/missing/zero-frequency/hidden counts. Do not expand frequency into a large data vector. Empty groups return explicit empty status and null statistics; at least one nonempty group is required.",
+    "missing_input_rule": "SQL NULL, NaN, infinity, ragged matrices, noninteger flags/frequencies/IDs, duplicate row IDs and resource-limit violations return public NULL. To preserve a missing data row for report accounting, the caller supplies a finite placeholder with observed=0. Supporting natural SQL NULL values would require a distinct future bridge contract.",
+    "analytic_weight_rule": "No analytic Weight column in the first bounded contract. Requests for such semantics must be rejected or left explicitly unsupported; do not silently use frequency as analytic weight.",
+    "numerical_safety": "All returned numbers and SVG coordinates must be finite. Reject unrepresentable intermediate results/domains instead of serializing NaN/Inf, collapsing a nonconstant range, clipping outliers silently, truncating markers or wrapping counts. Use stable convex interpolation for quantiles and checked/count-safe cumulative frequencies.",
+    "output_fields": [
+      "schema='ducksmiles-cpu-plot-v1', operation, media_type='image/svg+xml', width, height, svg",
+      "selection_policy, quantile/bin policy name, applied limits, source-row and replicated-observation denominators",
+      "groups with numerical bins or five-number summaries, whiskers/fences, outlier row IDs/frequencies and rendering bounds",
+      "explicit implemented_options and remaining_options; no blanket JMP-equivalent flag"
+    ],
+    "svg_rules": "Self-contained UTF-8 SVG namespace, width/height/viewBox, title/description, deterministic numeric labels and group IDs, explicit plot bounds and clipping, readable axes/ticks, and row/bin provenance attributes. No script, event handlers, foreignObject, external references, network fonts or dependence on GPU/browser execution. Fixed built-in presentation defaults avoid adding a runtime graphics library."
+  },
+  "histogram_candidate": {
+    "status": "bounded_core_contract_ready_for_TDD",
+    "parameters": ["version=1", "width_px", "height_px", "response_scale:0=count,1=percent,2=density", "orientation:0=value-on-X,1=value-on-Y", "edge_count", "edge_0,...,edge_(edge_count-1)"],
+    "first_style": "bars only",
+    "bin_algorithm": [
+      "Require 2..513 finite strictly increasing explicit edges; no automatic bin mode in this first operation.",
+      "Require every selected observed value to lie in the closed domain [edge_0,edge_last]. Values outside this range invalidate the call instead of disappearing from the denominator.",
+      "Native explicit-edge policy: bins are [e_j,e_(j+1)) except the final bin is [e_lastminus1,e_last]. This is a declared native closure policy, not a verified claim about JMP boundary ties.",
+      "Accumulate integer frequency into each bin using comparison/ordered-edge search rather than floating floor((x-origin)/width); this supports unequal widths and exact edge comparisons.",
+      "For each group, count=c_j, probability=c_j/N, percent=100*c_j/N, density=c_j/(N*(e_(j+1)-e_j)). Use a stable equivalent ordering where needed, and reject nonrepresentable results.",
+      "Keep zero-count bins. Bin frequency sums must equal N and sum(probability)=1 within roundoff; density integrates to one across widths. Shared edges apply to every group."
+    ],
+    "render_contract": "One visible facet per nonempty group, shared value domain/edges and shared response maximum, ascending group order. Orientation changes coordinates only. Bars occupy the declared edge interval and start at zero response. Include axis scale/units, group label, and readable tick/count/percent annotations where selected. Geometry metadata must expose each plot rectangle and mapping so an independent parser can verify it.",
+    "independent_exact_fixtures": [
+      {"values":[-2,-1,-0.5,0,0.5,1,2],"frequency":[1,1,1,1,1,1,1],"edges":[-2,-1,0,1,2],"counts":[1,2,2,2],"N":7,"purpose":"Negative values and exact boundary assignment under the explicit native closure policy"},
+      {"values":[0,0.5,1,2,3],"frequency":[1,1,1,1,1],"edges":[0,1,3],"counts":[2,3],"probabilities":[0.4,0.6],"densities":[0.4,0.3],"N":5,"purpose":"Unequal-width density normalization"},
+      {"values":[0,0.5,1,2],"frequency":[2,1,3,1],"edges":[0,1,2],"counts":[3,4],"N":7,"purpose":"Replication frequency, final-edge inclusion and physical-row versus N distinction"},
+      {"values":[42],"frequency":[1],"edges":[41,43],"counts":[1],"N":1,"purpose":"Singleton/constant data do not trigger a fabricated automatic width"}
+    ],
+    "boundary_tests": "Compare every exact edge, nextafter(edge,-infinity) and nextafter(edge,+infinity), including first/final edges. Verify excluded/observed=0 out-of-range placeholders do not invalidate the selected domain, while selected out-of-range data do.",
+    "remaining_non_gui_options": [
+      "JMP automatic bin count, origin and tick rounding with observed reference evidence",
+      "JMP exact edge closure, fractional Freq and analytic Weight behavior",
+      "Polygon, KDE bandwidth/smoother, shadowgram width sequence and opacity",
+      "Fill response scale, overlays/overlap, categorical histogram and mixed-variable roles",
+      "Mean/SD, t-test/mean CI annotation, standard-error bars and fitted distribution curves",
+      "Full style/label/panel export configuration and exact element-specific hidden behavior"
+    ],
+    "completion_policy": "Numerical bins plus valid rendered SVG establish only the explicit-edge core sub-contract. Keep the master histogram feature partial while the listed non-GUI options remain."
+  },
+  "box_plot_candidate": {
+    "status": "bounded_core_contract_ready_for_TDD",
+    "parameters": ["version=1", "width_px", "height_px", "box_type:0=Tukey_outlier,1=quantile", "orientation:0=value-on-Y,1=value-on-X", "show_outliers:0|1", "show_five_number_labels:0|1"],
+    "first_style": "normal hollow box, no jitter",
+    "quantile_algorithm": [
+      "Sort selected rows by value, then row ID for deterministic provenance. Treat integer frequency as a virtual repeated sample of size N; locate order statistics by cumulative integer counts, without physical expansion.",
+      "For probability p in [0,1], calculate r=(N+1)*p. If r<=1 return the minimum; if r>=N return the maximum. Otherwise i=floor(r), f=r-i and return (1-f)*y_i+f*y_(i+1), using one-based order statistics.",
+      "Compute Q1, median and Q3 with p=.25,.5,.75. IQR=Q3-Q1. Quantile-box ticks additionally use .025,.10,.90,.975 and whiskers cover min..max.",
+      "Tukey lower/upper fences are Q1-1.5*IQR and Q3+1.5*IQR. Whiskers are the minimum/maximum selected observed values inside the closed fences, never the fence numbers unless actual data equal them.",
+      "Outliers are selected source rows strictly beyond a fence; preserve row ID and frequency. A hidden outlier remains numerically classified but is not drawn. show_outliers=0 changes visibility only, not quartiles or whiskers.",
+      "Singletons and constant groups have equal quartiles/whiskers and zero IQR. Do not request variance/CI for the core box. IQR=0 still allows nonzero-valued distant observations to be outliers."
+    ],
+    "render_contract": "Shared numerical value axis across groups; one box per nonempty group with median, whisker stems/caps, optional source-row outlier markers and five-number labels. Explicit geometry must expose the numerical-to-SVG mapping. A zero-height box remains visibly represented by its median/whisker lines. Draw each source-row marker once with its frequency retained in metadata; do not emit frequency-many identical circles.",
+    "independent_exact_fixtures": [
+      {"values":[1,2,3,4],"quartiles":[1.25,2.5,3.75],"IQR":2.5,"fences":[-2.5,7.5],"whiskers":[1,4],"outliers":[],"purpose":"Distinguishes JMP/type6 from existing type7 percentile; type7 would give Q1=1.75,Q3=3.25"},
+      {"values":[0,1,2,3,4,5,100],"quartiles":[1,3,5],"IQR":4,"fences":[-5,11],"whiskers":[0,5],"outliers":[100],"purpose":"Whiskers are observed values rather than fences"},
+      {"values":[-5,1,2,3,4,5,11],"quartiles":[1,3,5],"IQR":4,"fences":[-5,11],"whiskers":[-5,11],"outliers":[],"purpose":"Closed fence equality policy; verify independently against JMP before claiming exact platform tie parity"},
+      {"values":[0,0,0,0,0,0,10],"quartiles":[0,0,0],"IQR":0,"fences":[0,0],"whiskers":[0,0],"outliers":[10],"purpose":"Ties and zero IQR"},
+      {"values":[42],"quartiles":[42,42,42],"IQR":0,"whiskers":[42,42],"outliers":[],"purpose":"Singleton and finite degenerate geometry"},
+      {"values":[-1,1],"quartiles":[-1,0,1],"IQR":2,"whiskers":[-1,1],"outliers":[],"purpose":"Small N endpoint clamping"},
+      {"values":[1,2,10],"frequency":[1,2,1],"virtual_sample":[1,2,2,10],"N":4,"quartiles":[1.25,2,8],"IQR":6.75,"fences":[-8.875,18.125],"whiskers":[1,10],"outliers":[],"purpose":"Integer frequency replication oracle, independently expand only the tiny test fixture"}
+    ],
+    "remaining_non_gui_options": [
+      "Analytic Weight and fractional Freq conventions; direct JMP cross-platform fixtures",
+      "Mean CI confidence diamond and its weighted/pooled/platform-specific inference",
+      "Notches (documented formula already transcribed) and rendering when outside quartiles",
+      "Shortest-half exact size, interpolation and tie conventions",
+      "Solid/Thin styles, arbitrary width/proportional count width and align/offset placement",
+      "Uniform/normal/density jitter, packed/grid/hex/beeswarm placement, seed policy",
+      "Multiple response roles, wrapping/panels, labels/customization and exact hidden-state behavior"
+    ],
+    "completion_policy": "Core type6 summaries, actual-data whiskers and SVG establish partial implementation only. A basic box image does not complete all non-GUI box-plot options."
+  },
+  "independent_verification": {
+    "tdd_sequence": [
+      "Write failing numerical contracts with hand-derived literal fixtures before the new production module.",
+      "Use standard-library Fraction/Decimal and independently sorted/expanded tiny frequency fixtures as references; do not call the production quantile/bin helper to compute expected values.",
+      "Implement the bounded numerical outputs and SVG, then exercise the real public C ABI with ownership/free and error cases.",
+      "Exercise actual loaded-extension SQL through chem_analyze, including constants, varying row matrices/parameters, selected/dictionary vectors, top-level/nested NULL and invalid/resource-limited inputs.",
+      "Extract SVG from returned JSON, parse and render it independently, inspect the actual generated image, then write README/API and partial-status evidence. Do not replace runtime acceptance with source-text assertions."
+    ],
+    "numeric_oracles": "The literal fixtures above do not require NumPy/SciPy. For later confidence diamonds/KDE/error bars, use an independently versioned scientific reference with explicit parameter convention; do not accidentally use NumPy's default type7 quantile.",
+    "json_parser": "System Python json with parse_constant rejection and recursive finite-number checks. Verify schema, denominators and declared policies independently.",
+    "svg_parser": "System Python xml.etree.ElementTree. Verify SVG namespace, dimensions/viewBox, unique IDs, finite fully parsed geometry, expected element counts, labels and actual bin/whisker/outlier coordinates reconstructed from the independent fixture and returned plot bounds. Reject external references, scripts, foreignObject and event attributes.",
+    "rasterizer": {
+      "binary": "/opt/homebrew/bin/magick",
+      "version_at_probe": "ImageMagick 7.1.1-47 Q16-HDRI aarch64",
+      "available_delegates": "Built-in XML, freetype and fontconfig; no new package installed",
+      "smoke_method": "Parsed a self-contained rectangle/text SVG with ElementTree, piped UTF-8 SVG into magick svg:- png:-, inspected PNG signature and IHDR dimensions with Python struct",
+      "smoke_result": {"exit_code":0,"stderr":"","width":160,"height":120,"png_bytes":1651,"png_sha256":"679e62e04e43f04eb6aca2dafb09b3e1299e39b05bff7b306899ed7873577c6f"},
+      "limit": "This proves only local parser/render availability, not rendering of a new DuckSMILES report. Exact PNG hashes are not portable font/layout acceptance criteria."
+    },
+    "actual_artifact_acceptance": [
+      "Render actual C ABI/SQL-produced SVG, not a separately handcrafted approximation.",
+      "Decode PNG independently and check dimensions, nonblank plot regions, expected marker/bar locations and all content inside the canvas; inspect representative negative, constant, long-number, grouped and outlier cases visually.",
+      "Use pixel occupancy/bounding checks with antialias tolerance rather than global byte-identical PNG snapshots. Keep SVG numerical geometry checks exact where the fixture is exact.",
+      "Verify deterministic SVG across repeated calls and input permutations consistent with the declared source-row ordering; changed group/frequency/row-state input must change the relevant summaries and geometry.",
+      "Save source/version hashes, SQL text, independent expectations, produced JSON/SVG/PNG hashes and test output as release evidence; only then claim the bounded sub-contract passed."
+    ],
+    "runtime_dependencies_added": false,
+    "report_runtime_verified": false
+  }
+}

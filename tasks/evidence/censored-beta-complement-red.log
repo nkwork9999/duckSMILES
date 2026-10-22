@@ -1,0 +1,22 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.84s
+     Running tests/censored_regression_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/censored_regression_contracts-634035530fc990a7)
+
+running 1 test
+test beta_logit32_small_cdf_and_quantile_keep_complement_tail_precision ... FAILED
+
+failures:
+
+---- beta_logit32_small_cdf_and_quantile_keep_complement_tail_precision stdout ----
+
+thread 'beta_logit32_small_cdf_and_quantile_keep_complement_tail_precision' (229071) panicked at crates/analytics/tests/censored_regression_contracts.rs:782:9:
+cdf: 0.00000000000002842170943040364 != 0.00000000000002916031880855248
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    beta_logit32_small_cdf_and_quantile_keep_complement_tail_precision
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p ducksmiles_analytics --test censored_regression_contracts`

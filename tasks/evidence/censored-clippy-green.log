@@ -1,0 +1,68 @@
+    Checking ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+error: the loop variable `i` is used to index `a`
+  --> crates/analytics/src/spatial_estimation.rs:84:14
+   |
+84 |     for i in 0..n {
+   |              ^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#needless_range_loop
+   = note: `-D clippy::needless-range-loop` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::needless_range_loop)]`
+help: consider using an iterator and enumerate()
+   |
+84 -     for i in 0..n {
+84 +     for (i, <item>) in a.iter_mut().enumerate().take(n) {
+   |
+
+error: the loop variable `j` is only used to index `a`
+  --> crates/analytics/src/spatial_estimation.rs:85:18
+   |
+85 |         for j in 0..i {
+   |                  ^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#needless_range_loop
+help: consider using an iterator
+   |
+85 -         for j in 0..i {
+85 +         for <item> in a.iter_mut().take(i) {
+   |
+
+error: the loop variable `j` is used to index `ri`
+   --> crates/analytics/src/spatial_estimation.rs:281:14
+    |
+281 |     for j in 0..q {
+    |              ^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#needless_range_loop
+help: consider using an iterator and enumerate()
+    |
+281 -     for j in 0..q {
+281 +     for (j, <item>) in ri.iter_mut().enumerate().take(q) {
+    |
+
+error: the loop variable `j` is only used to index `points`
+   --> crates/analytics/src/spatial_estimation.rs:387:26
+    |
+387 |                 for j in 0..dim {
+    |                          ^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#needless_range_loop
+help: consider using an iterator
+    |
+387 -                 for j in 0..dim {
+387 +                 for <item> in points.iter_mut().take(dim) {
+    |
+
+error: manual `!RangeInclusive::contains` implementation
+   --> crates/analytics/src/spatial_estimation.rs:636:39
+    |
+636 |     let variance_boundary = nugget && (w < 1e-6 || w > 1. - 1e-6);
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `!(1e-6..=1. - 1e-6).contains(&w)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#manual_range_contains
+    = note: `-D clippy::manual-range-contains` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::manual_range_contains)]`
+
+error: could not compile `ducksmiles_analytics` (lib test) due to 5 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `ducksmiles_analytics` (lib) due to 5 previous errors

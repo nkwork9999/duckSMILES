@@ -178,7 +178,7 @@ docs:
     a build containing the analytics module; older community packages may not
     include them.
 
-    The current source registers 405 SQL overloads, including 254 CPU analytics
+    The current source registers 414 SQL overloads, including 263 CPU analytics
     functions for inference, regression, design, time series, functional/text
     preprocessing, spatial models, reliability and model evaluation. No GPU or
     Python runtime is required. Contracts and remaining gaps are documented in

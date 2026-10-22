@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "status": "FOCUSED_EXECUTE_PUBLIC_C_ABI_AND_NATIVE_SQL_GREEN",
+  "module": "spatial_estimation",
+  "baseline_revision": "442f54588d5882a3fc14f3f830c2d29d20701ace",
+  "red": [
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts -- --nocapture",
+      "exit_code": 101,
+      "passed": 1,
+      "failed": 2,
+      "reason": "execute spatial_fit: unknown optimization operation"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts spatial_profiles_range -- --nocapture",
+      "exit_code": 101,
+      "passed": 0,
+      "failed": 1,
+      "reason": "execute spatial_fit: unknown optimization operation; independently optimized 24-row ML/REML range/nugget/trend fixture"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts spatial_profiles_range -- --nocapture",
+      "exit_code": 101,
+      "passed": 0,
+      "failed": 1,
+      "reason": "missing projected_score_norm diagnostic"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts nonconverged_spatial -- --nocapture",
+      "exit_code": 101,
+      "passed": 0,
+      "failed": 1,
+      "reason": "maxiter1 nonconverged fit incorrectly returned covariance-parameter intervals instead of null"
+    }
+  ],
+  "green": [
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts -- --nocapture",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "seconds": 0.51,
+      "scope": "before projected-score addition; known dead-field warning subsequently removed"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts -- --nocapture",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "seconds": 0.58,
+      "scope": "including projected score diagnostic and actual evaluation-work budget guard; no compiler warning"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts -- --nocapture",
+      "exit_code": 0,
+      "passed": 5,
+      "failed": 0,
+      "seconds": 0.29,
+      "scope": "current source nonconverged covariance inference withholding, projected score, known closed-form and independent dense ML/REML fixtures; no compiler warnings"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test spatial_estimation_contracts -- --nocapture",
+      "exit_code": 0,
+      "passed": 5,
+      "failed": 0,
+      "seconds": 0.8,
+      "scope": "iterator-only Clippy refactor; no compiler warnings"
+    }
+  ],
+  "native_sql": {
+    "status": "PASS",
+    "evidence": "tasks/evidence/jmp-spatial-estimation-sql.json",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /private/tmp/ducksmiles-jmp-parity-20261022/reference-env/bin/python scripts/check_jmp_estimation_sql.py --duckdb /private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-spatial-estimation-sql.json",
+    "duckdb_version": "v2.0.0-alpha49307",
+    "extension_sha256": "aeff8a1200c2f72b24cc95d15f203eee0a834ba271df894367f186d9b79f8710",
+    "independent_ml_reml_fits": 16,
+    "numeric_fields": 130,
+    "saved_roundtrips": 3,
+    "invalid_null_cases": 15,
+    "queries": 13,
+    "strict_json_results": 46,
+    "reference_sha256": "f4d822c0d7a781998e38032320357c961dfdce2242bee680569ee3deb0faaf86",
+    "sql_evidence_sha256": "7d333d04351ec9f54c2f64bbf5d8c904c3075f1867ab82082ecaca672251bfb6"
+  },
+  "public_c_abi_independent_oracle": {
+    "status": "PASS",
+    "profile": "Release",
+    "evidence": "tasks/evidence/jmp-spatial-estimation-reference.json",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /private/tmp/ducksmiles-jmp-parity-20261022/reference-env/bin/python scripts/check_jmp_spatial_estimation.py --library /private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib --output tasks/evidence/jmp-spatial-estimation-reference.json",
+    "calls": 48,
+    "numeric_fields": 810,
+    "maximum_scaled_error": 3.6391999104765684e-07,
+    "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f",
+    "source_sha256": "b804eed49fbfe023cdc9350752587ea7cc13ff80f05e9827cf8db0dfbbe905cb",
+    "harness_sha256": "0918fbb102b96aca78a98a9a8d48c1899c9bf31fda0e31731f3f13a204cd4ceb",
+    "reference_sha256": "f4d822c0d7a781998e38032320357c961dfdce2242bee680569ee3deb0faaf86",
+    "layer": "production ds_analytics_run/ds_analytics_free public C ABI from actual production static archive; native SQL recorded separately",
+    "build_evidence": "tasks/evidence/jmp-parity-release-abi-build.json"
+  },
+  "limitations": [
+    "bounded isotropic estimation, no anisotropy/G-side/df corrections",
+    "interior untruncated normal Wald covariance parameter CI; not JMP bounded Satterthwaite",
+    "parameter estimation uncertainty not propagated into prediction",
+    "no installed-JMP comparison"
+  ],
+  "source_sha256": "b804eed49fbfe023cdc9350752587ea7cc13ff80f05e9827cf8db0dfbbe905cb",
+  "scoped_clippy": {
+    "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo clippy -p ducksmiles_analytics --all-targets -- -D warnings",
+    "exit_code": 101,
+    "spatial_warnings": 0,
+    "remaining_failure": "censored_regression_contracts.rs:716 approximate LN_2 literal; reported to owning agent",
+    "claim": "not an overall Clippy pass"
+  },
+  "source_sha256_after_iterator_refactor": "b804eed49fbfe023cdc9350752587ea7cc13ff80f05e9827cf8db0dfbbe905cb",
+  "public_abi_reference_revalidation": "PASS: final matching Release production exported ABI rerun replaces earlier debug reference and matches current iterator-refactored source hash.",
+  "metadata_label_correction": {
+    "change": "Checker C ABI layer wording changed from debug-specific to profile-neutral actual production static archive. Numerical logic unchanged.",
+    "verification": "Both full C ABI oracle and SQL harness rerun successfully; reference/harness/source/artifact hashes checked."
+  }
+}

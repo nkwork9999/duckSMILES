@@ -13,14 +13,14 @@
     "catalog_occurrences": 502,
     "feature_rows": 552,
     "status_counts": {
-      "partial": 254,
+      "partial": 275,
       "database_existing": 37,
-      "absent": 186,
+      "absent": 209,
       "external_plugin": 4,
-      "clarification_pending": 44,
       "implemented_verified": 6,
       "excluded_gui": 17,
-      "separate_product": 4
+      "separate_product": 4,
+      "clarification_pending": 0
     },
     "domain_counts": {
       "advanced-statistical-modeling": 74,
@@ -2270,17 +2270,26 @@
       "provider": "ducksmiles_extension",
       "scope": "in_scope",
       "implementation": [
-        "chem_elastic_net: Standardized coordinate-descent elastic net: [features...,target]; [lambda,alpha,max_iterations=10000,tolerance=1e-8]."
+        "chem_elastic_net: Standardized coordinate-descent elastic net: [features...,target]; [lambda,alpha,max_iterations=10000,tolerance=1e-8].",
+        "chem_censored_normal: Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_exponential: Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_gamma: Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_weibull: Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_lognormal: Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_beta: Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
       "tests": [
-        "crates/analytics/tests/glm.rs"
+        "crates/analytics/tests/glm.rs",
+        "crates/analytics/tests/censored_regression_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/jmp-model-reference.json",
-        "tasks/evidence/jmp-sql-validation.json"
+        "tasks/evidence/jmp-sql-validation.json",
+        "tasks/evidence/jmp-censored-reference.json"
       ],
       "remaining_contract": [
-        "登録した限定契約を current_implementation に記載。公式方法群の残る下位オプション、全推定/前処理/推論規約とJMP本体との一致は未達。"
+        "Elastic Netおよび6分布の非正則化censoring joint-MLEが限定対応。penalized分布別尤度・選択経路・validation・カテゴリ効果・profile/LR推論・JMP実機一致は未達。"
       ],
       "domain": "advanced-statistical-modeling:Advanced regression",
       "acceptance_contract": "regression",
@@ -2296,11 +2305,103 @@
           ],
           "verification_boundary": "Restricted Rust source/tests and linked direct reference checks; final loaded-extension macOS arm64 SQL gate passed. This is not whole-family JMP parity.",
           "native_sql_evidence": "tasks/evidence/jmp-sql-validation.json"
+        },
+        {
+          "sql_function": "chem_censored_normal",
+          "operation": "censored_normal",
+          "bounded_scope": "Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_exponential",
+          "operation": "censored_exponential",
+          "bounded_scope": "Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_gamma",
+          "operation": "censored_gamma",
+          "bounded_scope": "Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_weibull",
+          "operation": "censored_weibull",
+          "bounded_scope": "Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_lognormal",
+          "operation": "censored_lognormal",
+          "bounded_scope": "Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_beta",
+          "operation": "censored_beta",
+          "bounded_scope": "Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
         }
       ],
       "verification": {
-        "rust_layer": "final workspace passed; restricted behavior tests and linked direct oracles",
-        "native_sql": "passed final macOS arm64 loaded-extension gate; see tasks/evidence/jmp-sql-validation.json",
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
       }
     },
@@ -7034,17 +7135,41 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_one_sample_t; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_proportion_test; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_linear_model; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/inference.rs",
+        "crates/analytics/tests/glm.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Response, groups, frequency/analytic weights, row identity; statistic, interval kind/confidence.",
+        "Numerical/structured outputs: Per-group estimate, effective n, lower/upper bounds or undefined reason; bar/band geometry.",
+        "Required non-GUI options: Mean t, SE/SD/range and supplied custom endpoints; asymmetric bounds, orientation, caps/bands.",
+        "Independent acceptance: Hand/independent t and binomial calculations, n=1/constant groups, unequal weights, asymmetric bounds.",
+        "Distribution count-SE formula is image-based; inspect its equation before full histogram-error parity."
       ],
       "domain": "basic-data-analysis-and-modeling:Interval estimation",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "error_bars",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/points.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/bar.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-standard-error-bars.shtml"
+        ]
+      }
     },
     {
       "id": "sample_size_explorers",
@@ -7534,17 +7659,40 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_response_surface; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_response_surface_predict; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_glm_predict; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/glm.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Saved multiresponse formulas/models, swept factor pair/grids, fixed remaining inputs, response constraints.",
+        "Numerical/structured outputs: Response prediction grid, contour polylines/filled bands, constraint masks and current-setting predictions.",
+        "Required non-GUI options: Multiple factor pairs/responses, categorical/fixed input handling, response-constraint shading and reproducible resolution.",
+        "Independent acceptance: Analytic plane/quadratic contours, independent intersections; saddle/equal-level cells and constraint boundaries.",
+        "Detailed JMP interpolation/tie convention is not specified by overview; retain as an explicit implementation detail."
       ],
       "domain": "basic-data-analysis-and-modeling:Profiling",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "contour_profiler",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler-platform-options.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/constraint-shading-settings.shtml"
+        ]
+      }
     },
     {
       "id": "cube_plots",
@@ -7567,17 +7715,37 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_response_surface; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_response_surface_predict; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_glm_predict; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/glm.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Fitted models and observed factor minima/maxima, factor-to-axis mapping and extra factor levels.",
+        "Numerical/structured outputs: All corner settings/predictions, cube vertices/edges, extra-factor panels and multiresponse vertex labels.",
+        "Required non-GUI options: Factor/axis permutation, extra-factor panels and bounded 2^p enumeration with explicit workload limit.",
+        "Independent acceptance: Analytic linear-plus-interaction model evaluated at every corner; factor permutation preserves predictions."
       ],
       "domain": "basic-data-analysis-and-modeling:Profiling",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "cube_plots",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/cube-plots.shtml"
+        ]
+      }
     },
     {
       "id": "box_cox_y_transformation",
@@ -7659,17 +7827,38 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_response_surface; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_response_surface_predict; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_glm_predict; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/glm.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Saved model/formula, swept factor ranges/grid, fixed other inputs, projection/camera.",
+        "Numerical/structured outputs: CPU sampled mesh, optional points/contours and projected graphic with axes/legend.",
+        "Required non-GUI options: Multiple responses, mesh/filled surfaces, camera/light/style and explicit grid resolution.",
+        "Independent acceptance: Analytic plane/quadratic mesh; independent CPU projection and visible-edge/occlusion fixtures.",
+        "JMP uses OpenGL. GPU navigation is excluded; CPU geometry/static export is required."
       ],
       "domain": "basic-data-analysis-and-modeling:Profiling",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "surface_profiler",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-surface-plot-profiler.shtml"
+        ]
+      }
     },
     {
       "id": "design_space_profiling_operating_region",
@@ -11306,17 +11495,35 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_process_capability; feature-specific artifact/export remains unimplemented."
+      ],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Normal-process means, sigma method, specification limits, optional target/importance and goal p.",
+        "Numerical/structured outputs: Specification-normalized mean/sigma coordinates, capability indices, goal triangle/shading and one-sided markers.",
+        "Required non-GUI options: Overall/within/between-within sigma, missing targets, one-sided limits, importance sizing and defect contours.",
+        "Independent acceptance: Transcribe official equations, independently calculate symmetric/shifted and one-sided/missing-target cases.",
+        "Equation images need direct extraction; between-within sigma and defect-contour formulas need additional detailed references."
       ],
       "domain": "quality-and-process-engineering:Process capability (capability index)",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "goal_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/goal-plot.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-goal-plot.shtml"
+        ]
+      }
     },
     {
       "id": "capability",
@@ -11719,17 +11926,39 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_ir_chart; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_p_chart; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_c_chart; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_western_electric; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/quality.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Ordered process/time observations, control-chart type, enabled tests, limits and alert/action policies.",
+        "Numerical/structured outputs: Process/time alarm events with rule code/trigger and red-filled/black-open/gray marker identity; chart.",
+        "Required non-GUI options: Test 1/action, Alert Increasing and other enabled tests; simultaneous alarms and group/process order.",
+        "Independent acceptance: Independent rule fixtures, previous-alert/current-higher cases, equality boundaries and multiple simultaneous processes.",
+        "Full Nelson/nonnormal rules and alert limit estimation still need detailed Process Screening contracts."
       ],
       "domain": "quality-and-process-engineering:Quality assessment (process screening)",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "alarm_graph",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/process-screening-platform-options.shtml"
+        ]
+      }
     },
     {
       "id": "evaluate_measurement_process_emp",
@@ -11910,17 +12139,38 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_gage_rr; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_summarize; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_one_way_anova; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/quality.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Response, grouping/nesting categories, repeated measurements, measurement-system model selection.",
+        "Numerical/structured outputs: Per-category observations/n/mean/range/SD, hierarchy/panel geometry and selected variance-component tables.",
+        "Required non-GUI options: Crossed/nested/unbalanced groups, common scales, factor ordering, points/means/range/SD and labels.",
+        "Independent acceptance: Independent group summaries and crossed/nested/unbalanced variance references; check exact group labels/geometry.",
+        "Existing balanced crossed Gauge R&R is a bounded precursor, not all chart/model variants."
       ],
       "domain": "quality-and-process-engineering:Measurement system analysis",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "variability_chart",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-variability-charts.shtml"
+        ]
+      }
     },
     {
       "id": "linearity_bias",
@@ -12242,17 +12492,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Cause categories/counts or observations, zero/one/two comparison factors, optional denominator/combined-cause policy.",
+        "Numerical/structured outputs: Ordered counts/percentages/cumulative percentages and comparison-cell bar/line geometry.",
+        "Required non-GUI options: Stable ties, key-cell ordering shared by all comparison panels, counts/percentages and labels.",
+        "Independent acceptance: Independent sort/cumulative fractions; zero totals, tied counts and consistent ordering across panels.",
+        "Combined-cause thresholds and per-unit options require detailed Pareto pages."
       ],
       "domain": "quality-and-process-engineering:Quality improvement (Six Sigma)",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "pareto_chart",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/the-pareto-plot-report.shtml"
+        ]
+      }
     },
     {
       "id": "cause_and_effect_diagram_fishbone_ishikawa",
@@ -12275,17 +12540,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: UTF-8 Parent/Child edge table, effect/root, branch order and labels.",
+        "Numerical/structured outputs: Validated hierarchy, branch/label positions, fishbone graphic, reusable table/script representation.",
+        "Required non-GUI options: Nested causes, ordering/label/layout and export; explicit invalid-root/cycle behavior.",
+        "Independent acceptance: Hand-tree fixtures; every source edge appears once; long/Unicode labels remain legible/unclipped.",
+        "Native journal/script compatibility is separate from neutral diagram/table output."
       ],
       "domain": "quality-and-process-engineering:Quality improvement (Six Sigma)",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "cause_and_effect_diagram_fishbone_ishikawa",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/causeandeffect-diagrams.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/prepare-the-data.shtml"
+        ]
+      }
     },
     {
       "id": "six_sigma_quality_level_sample_size",
@@ -16849,17 +17130,43 @@
           "basis": "official_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_factor_analysis; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_factor_analysis_ml; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_cfa_model; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_sem_ram; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/latent.rs",
+        "crates/analytics/tests/latent_inference.rs",
+        "crates/analytics/tests/sem.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Observed/latent node IDs, directed/bidirected edges, fitted/standardized coefficients and layout; factor loadings may supply edges.",
+        "Numerical/structured outputs: Graph schema/layout with observed rectangles/latent ellipses, arrows/loops, coefficient labels and exportable diagram.",
+        "Required non-GUI options: Suppressed loadings, standardized/unstandardized estimates, residuals/means/intercepts, hidden edges and deterministic placement.",
+        "Independent acceptance: Independent edge extraction from loading/RAM fixtures; verify arrow direction, values, self-loops and layout.",
+        "Catalogue locates this under Factor Analysis; explicit diagram controls are documented under SEM. Loadings alone do not close it."
       ],
       "domain": "consumer-and-market-research:Factor analysis",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "path_diagram",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis-model-fit-options.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/customize-the-path-diagram.shtml"
+        ]
+      }
     },
     {
       "id": "subset",
@@ -19831,17 +20138,39 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_kde_gaussian; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_one_sample_t; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_summarize; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/distributions.rs",
+        "crates/analytics/tests/inference.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Numeric values, groups/frequencies/weights; declared origin/width/edges and scale/style.",
+        "Numerical/structured outputs: Bin edges/counts/percents/density and bars/polygon/KDE/shadowgram geometry; optional mean intervals.",
+        "Required non-GUI options: Count/percent/fill, styles, group overlay and orientation; edge-tie and hidden/excluded policies.",
+        "Independent acceptance: Independent exact-edge bin counts with conserved weight; KDE numerical reference and percent normalization.",
+        "Automatic tick/bin choice and shadowgram sequence require explicit detailed conventions."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "histogram",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml"
+        ]
+      }
     },
     {
       "id": "box_plot",
@@ -19864,17 +20193,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Numeric/grouped observations, frequencies, quantile convention and box/style settings.",
+        "Numerical/structured outputs: Q1/median/Q3/IQR, actual in-fence whisker observations, outlier row IDs or quantile whiskers, geometry/labels.",
+        "Required non-GUI options: Outlier/quantile type, five-number labels, widths, grouping and optional seeded jitter.",
+        "Independent acceptance: Hand-sorted/independent quantiles; odd/even n, ties, constants/singletons and distant outliers.",
+        "Extract JMP quantile interpolation convention; generic host quantiles are not evidence of box-plot parity."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "box_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml"
+        ]
+      }
     },
     {
       "id": "scatterplot",
@@ -19897,17 +20241,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: X/Y observations or summaries, row IDs, optional grouping/color/size/frequency and axes.",
+        "Numerical/structured outputs: Transformed point coordinates, row/label/legend correspondence, graphic and optional summary/error output.",
+        "Required non-GUI options: Axis transforms, grouping/facets, markers, seeded jitter, hidden/excluded and labels.",
+        "Independent acceptance: Independent coordinate transforms and seeded jitter; exact pairwise row exclusion and ID round trip."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "scatterplot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/points.shtml"
+        ]
+      }
     },
     {
       "id": "scatterplot_matrix",
@@ -19930,17 +20288,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Selected variable columns, grouping/color, row IDs and explicit per-pair missing policy.",
+        "Numerical/structured outputs: Ordered bivariate panels and optional global/group density ellipses, labels and static matrix.",
+        "Required non-GUI options: Variable order, triangle/matrix format, global/group ellipses and group-specific settings.",
+        "Independent acceptance: Independent pair extraction and covariance/eigen ellipses; per-pair missingness and group scale fixtures.",
+        "Density/smoother choices require detailed platform options. A correlation matrix alone is insufficient."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "scatterplot_matrix",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/scatterplot-matrix.shtml"
+        ]
+      }
     },
     {
       "id": "bar_chart",
@@ -19963,17 +20336,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Factor/response columns, aggregation, groups/frequencies, category order and style.",
+        "Numerical/structured outputs: Summary table and bars/ranges/interval geometry, labels, legend and error endpoints.",
+        "Required non-GUI options: Side-by-side/stacked/sorted/nested/range/interval plus other documented styles; response/count summaries.",
+        "Independent acceptance: Independent grouped sums/means/counts, stack conservation, signed values and category order.",
+        "A single simple bar is partial; the documented style catalogue remains required."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "bar_chart",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/bar.shtml"
+        ]
+      }
     },
     {
       "id": "area_chart",
@@ -19996,17 +20384,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: X/category and responses, group/order mode, baseline/stack and missing-value policies.",
+        "Numerical/structured outputs: Per-level summaries, connection vertices, closed area polygons/stack bounds and interval bands.",
+        "Required non-GUI options: Stack/area styles, linear/step/curve connections, row/summary order and missing-factor/value behavior.",
+        "Independent acceptance: Independent cumulative stacks, signed area fixtures and declared gap/zero/skip segment boundaries."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "area_chart",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/area.shtml"
+        ]
+      }
     },
     {
       "id": "heat_map",
@@ -20029,17 +20431,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: One/two categorical or continuous axes/bins, optional color/size measure, groups/frequencies.",
+        "Numerical/structured outputs: Cell ID/bounds, count or Color mean, color scale/legend, optional scaled cell geometry and labels.",
+        "Required non-GUI options: Rectangular/hex bins, scale range, empty cells, label options and hidden/excluded rules.",
+        "Independent acceptance: Independent crosstab/bin counts/means, exact boundary assignment and hex membership.",
+        "Hex assignment and size scaling need explicit conventions."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "heat_map",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/heatmap.shtml"
+        ]
+      }
     },
     {
       "id": "pie_chart",
@@ -20062,17 +20479,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Category counts or response summaries, optional overlay/hierarchy and category ordering.",
+        "Numerical/structured outputs: Normalized nonnegative slice/ring values, angles/radii, labels and legend.",
+        "Required non-GUI options: Pie/ring/coxcomb modes, hierarchy/overlay order and explicit negative/zero summary policy.",
+        "Independent acceptance: Independent normalization/full-circle totals; equal-angle coxcomb area encoding and concentric-ring fixtures."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "pie_chart",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/pie.shtml"
+        ]
+      }
     },
     {
       "id": "tree_map",
@@ -20095,17 +20526,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Categorical hierarchy, nonnegative size summaries, optional order/color variables and frame dimensions.",
+        "Numerical/structured outputs: Nested nonoverlapping rectangles with proportional areas, values, labels and colors.",
+        "Required non-GUI options: Split/Squarify/Mixed, specified order, aspect bias, nested labels and zero handling.",
+        "Independent acceptance: Independent area proportions, containment/nonoverlap/frame coverage and deterministic tie order."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "tree_map",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/treemap.shtml"
+        ]
+      }
     },
     {
       "id": "mosaic_plot",
@@ -20128,17 +20573,35 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_contingency_test; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/inference.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Categorical observations or contingency counts, category/axis order and group/labels.",
+        "Numerical/structured outputs: Marginals/conditional proportions, rectangle bounds, labels and optional Pearson annotation.",
+        "Required non-GUI options: Response orientation, count/percent/value labels, category order and hidden/excluded rules.",
+        "Independent acceptance: Independent marginal/conditional areas and Pearson expected counts; zero cells/margins and frequency cases."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "mosaic_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/mosaic.shtml"
+        ]
+      }
     },
     {
       "id": "parallel_plot",
@@ -20161,17 +20624,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Rows of continuous/categorical variables, category order, color/size and row IDs.",
+        "Numerical/structured outputs: Per-axis scales/intervals and polylines or categorical ribbons with frequency widths.",
+        "Required non-GUI options: Axis order/reversal, min/max scaling, categorical split/Combine Sets, straight/curved lines and smoothness.",
+        "Independent acceptance: Independent min/max transforms/joint counts, flow conservation, constant axes and missing-category fixtures."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "parallel_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parallel.shtml"
+        ]
+      }
     },
     {
       "id": "run_chart",
@@ -20194,17 +20671,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Ordered numeric columns, optional time/sample IDs and groups.",
+        "Numerical/structured outputs: Connected original-order coordinates, declared missing gaps and static chart.",
+        "Required non-GUI options: Order-preserving series/panels and labels; optional reference settings.",
+        "Independent acceptance: Hand ordered series with duplicate/nonmonotone time and gaps; verify exact adjacent-edge list.",
+        "Related control-chart kernels are not a dedicated run-chart artifact implementation."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "run_chart",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/example-of-a-run-chart.shtml"
+        ]
+      }
     },
     {
       "id": "line_chart",
@@ -20227,17 +20719,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: X/category and response series, row/factor/within-row order mode, grouping and missing policy.",
+        "Numerical/structured outputs: Per-series observations/summaries and ordered line/step/curve vertices, labels and uncertainty bands.",
+        "Required non-GUI options: Ordering modes, stacking/fill, connections, missing factors/values and group styles.",
+        "Independent acceptance: Independent edge lists, summary calculations, stack totals and duplicate-x/gap fixtures."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "line_chart",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/line.shtml"
+        ]
+      }
     },
     {
       "id": "line_of_fit",
@@ -20260,17 +20766,39 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_linear_model; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_polynomial_features; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_state_space_smoothing; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/glm.rs",
+        "crates/analytics/tests/state_space.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: X/Y data, group/frequency, degree/fit-family, transformed-axis flag and evaluation grid.",
+        "Numerical/structured outputs: Fit coefficients/statistics, sampled fitted curve, 95% mean/prediction bands and annotations.",
+        "Required non-GUI options: Linear/quadratic/cubic, robust Cauchy and documented state-space time-series choices; equation/RMSE/R2/F labels.",
+        "Independent acceptance: Independent OLS covariance/t bands, robust Cauchy numerical optimum and independent smoothing/forecast references.",
+        "Bounded state-space kernels do not establish JMP automatic smoothing-family selection."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "line_of_fit",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/line-of-fit.shtml"
+        ]
+      }
     },
     {
       "id": "formula_profiler_prediction_profiler",
@@ -20293,17 +20821,38 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_response_surface; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_response_surface_predict; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_glm_predict; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/glm.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Multiresponse formulas/models, current settings, ranges/categories/trace grid and optional uncertainty/desirability.",
+        "Numerical/structured outputs: One-factor-at-a-time traces/current predictions, available intervals/derivatives and static multipanel profile.",
+        "Required non-GUI options: Fixed other inputs; continuous/categorical traces, uncertainty, required optimization/desirability/simulation/importance operations.",
+        "Independent acceptance: Analytic separable/interaction traces, finite differences and independently validated uncertainty/optimization.",
+        "Overview does not define complete simulation/importance/optimization contracts; detailed subpages must drive those tests."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "formula_profiler_prediction_profiler",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-prediction-profiler.shtml"
+        ]
+      }
     },
     {
       "id": "comparative_box_plots",
@@ -20326,17 +20875,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Responses grouped by categorical variables, group order and common quantile/box styles.",
+        "Numerical/structured outputs: Per-group box statistics/outlier IDs and comparable shared-axis panels/labels.",
+        "Required non-GUI options: Outlier/quantile boxes, group widths, category ordering and optional seeded jitter.",
+        "Independent acceptance: Independent grouped quantiles/whiskers, within-group permutation invariance and common scale.",
+        "Same exact JMP quantile-convention research as box_plot remains required."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "comparative_box_plots",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml"
+        ]
+      }
     },
     {
       "id": "bubble_plot",
@@ -20359,17 +20923,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: X/Y/size/color, one/two ID hierarchy, optional time, aggregation and frame settings.",
+        "Numerical/structured outputs: Per-frame aggregated centers/areas/colors/IDs, static chart and dynamic animation.",
+        "Required non-GUI options: Static/time animation, ordered/interpolated frames, split/combine hierarchy, size and missing/zero policies.",
+        "Independent acceptance: Independent ID/time aggregation, area encoding, keyframe identity and decoded animation frame checks.",
+        "Exact aggregation/interpolation rules need detailed launch/platform documentation."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "bubble_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/bubble-plots.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/control-animation-for-dynamic-bubble-plots.shtml"
+        ]
+      }
     },
     {
       "id": "surface_plot",
@@ -20392,17 +20972,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: 3D points, polygon mesh or surface equation, grid/ranges and camera/projection.",
+        "Numerical/structured outputs: Validated CPU mesh/points and projected shaded/wireframe graphic, contours and axes.",
+        "Required non-GUI options: Points/surface/both, smooth/mesh, lighting/view, labels and color implemented without GPU.",
+        "Independent acceptance: Analytic plane/sphere mesh, independent projection/occlusion and degenerate/nonfinite rejection.",
+        "OpenGL GUI navigation is excluded; geometry/static output remains in scope."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "surface_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-surface-plot-profiler.shtml"
+        ]
+      }
     },
     {
       "id": "contour_plot",
@@ -20425,17 +21020,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Response samples/grid/formula and levels, or explicit bivariate-density mode, axes/color.",
+        "Numerical/structured outputs: Response/density grid, labeled contour polylines/filled bands with requested mode recorded.",
+        "Required non-GUI options: Explicit/automatic levels, lines/fills, labels/points, coloring and missing/extrapolation policy.",
+        "Independent acceptance: Analytic plane/quadratic/saddle contours and independent bivariate density; equal-level topology.",
+        "Graph Builder density and standalone response contours are different contracts. Exact triangulation/interpolation needs detailed rules."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "contour_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/contour-plots.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/contour.shtml"
+        ]
+      }
     },
     {
       "id": "ternary_plot",
@@ -20458,17 +21069,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Three nonnegative components, normalization, labels/colors and optional mixture constraints.",
+        "Numerical/structured outputs: Barycentric proportions, triangle coordinates, constraint region and static ternary graphic.",
+        "Required non-GUI options: Component order/orientation, grid/labels, mixture constraints and contour overlays.",
+        "Independent acceptance: Vertex/midpoint/centroid transforms, scale invariance, zero-total rejection and constraint vertices.",
+        "More-than-three-component and contour-function options need their detailed official subpages."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "ternary_plot",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/the-ternary-plot-in-jmp.shtml"
+        ]
+      }
     },
     {
       "id": "overlay",
@@ -20491,17 +21117,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Multiple response/group series sharing x/time, series IDs and element/axis/style settings.",
+        "Numerical/structured outputs: Aligned per-series points/lines/areas and composed shared-axis graphic with complete legend.",
+        "Required non-GUI options: Multiple Y/group levels, element overlays, missing rules and documented axis/style options.",
+        "Independent acceptance: Independent series alignment, equality to separate plot data and missing/tied x with differing ranges."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "overlay",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/compare-multiple-variables-by-using-overlay-plots.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/element-types-and-options.shtml"
+        ]
+      }
     },
     {
       "id": "mean",
@@ -20844,17 +21485,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: XY/latitude-longitude or region/value joins, boundaries/background, projection and extent.",
+        "Numerical/structured outputs: Projected point/polygon geometry, joined region summaries and static geographic map/legend.",
+        "Required non-GUI options: Geographic/nongeographic coordinates, boundaries/context, color/size, offline background data.",
+        "Independent acceptance: Independent projection/region joins, multipart/antimeridian/clipping and unmatched-name cases.",
+        "Exact projection/background services and bundled-boundary data/licensing require additional sources; catalogue label is not sufficient."
       ],
       "domain": "data-exploration-and-visualization:Geographic maps",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "x_y_map",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-mapping.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/maps-in-graph-builder.shtml"
+        ]
+      }
     },
     {
       "id": "shape_files",
@@ -20877,17 +21534,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: 2D Esri .shp/.dbf with needed index/CRS metadata or named Shape/Part/XY records.",
+        "Numerical/structured outputs: Ordered multipart geometry with Shape ID/name attributes, bounds and map-ready records.",
+        "Required non-GUI options: Preserve holes/disjoint parts/names; validate records and reject unsupported elevation.",
+        "Independent acceptance: Independent small Esri/parser fixtures, multipart/hole round trips, malformed/truncated records and attribute joins.",
+        "Native -Name.jmp/-XY.jmp interoperability and CRS treatment remain separate unverified contracts; plain XY input is insufficient."
       ],
       "domain": "data-exploration-and-visualization:Geographic maps",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "shape_files",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/custom-map-files.shtml"
+        ]
+      }
     },
     {
       "id": "subgrouping",
@@ -21056,17 +21728,37 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "status": "partial",
+      "provider": "ducksmiles_extension",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
+      "implementation": [
+        "Existing numerical backend only: chem_text_dtm; feature-specific artifact/export remains unimplemented.",
+        "Existing numerical backend only: chem_text_weight; feature-specific artifact/export remains unimplemented."
+      ],
+      "tests": [
+        "crates/analytics/tests/text_analysis.rs"
+      ],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: UTF-8 terms/counts or reproducibly tokenized corpus/vocabulary, optional scores/colors, font/frame/layout seed.",
+        "Numerical/structured outputs: Term counts/order/font sizes, measured collision-free glyph boxes/positions and static word cloud.",
+        "Required non-GUI options: Ordered/alphabetical/centered, frequency sizing, font/color modes and legend; vocabulary provenance.",
+        "Independent acceptance: Independent corpus totals/lexical ties and CPU font metrics; no collisions/clipping with Unicode fallback.",
+        "Supplied numeric token counts do not provide raw-text tokenization, string/font handling or layout."
       ],
       "domain": "data-exploration-and-visualization:Explore text",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "word_cloud",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/text-preparation-options.shtml"
+        ]
+      }
     },
     {
       "id": "unstructured_data",
@@ -21188,17 +21880,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Report/plot specification, numeric results, observation IDs/data and enabled linked/filter interactions/offline assets.",
+        "Numerical/structured outputs: Portable HTML/JS/CSS report working without JMP and offering documented enabled interactions.",
+        "Required non-GUI options: Tooltips, linked rows/filter controls, report sections and index/style metadata; artifact generation is separate from hosting.",
+        "Independent acceptance: Independent HTML/asset parsing plus headless browser tests verifying exact row/filter/linked selections.",
+        "No authoring GUI is required; generated interactive behavior remains in scope. Per-platform compatibility tables need review."
       ],
       "domain": "sharing-and-communicating-results:Share on web (cloud)",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "interactive_html",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-interactive-html.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/publish-reports-as-interactive-html.shtml"
+        ]
+      }
     },
     {
       "id": "journal_notebook",
@@ -21221,17 +21929,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Explicit kind: journal snapshots/dynamic links versus executable notebook, ordered sections/blocks/scripts/data.",
+        "Numerical/structured outputs: Versioned serializable document with rendered exports or executable notebook outputs/provenance.",
+        "Required non-GUI options: Keep catalogue alias but track journal and notebook as distinct acceptance contracts.",
+        "Independent acceptance: Independent serialization, source-independent snapshots and shared-context executable block tests.",
+        "Journal and Notebook differ in 19.2; implementing only one cannot close this merged label."
       ],
       "domain": "sharing-and-communicating-results:Journal (notebook)",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "journal_notebook",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/jmp-notebooks.shtml"
+        ]
+      }
     },
     {
       "id": "journal",
@@ -21254,17 +21978,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Ordered graph/table/report snapshots, annotations/outlines and optional scripts/dynamic links.",
+        "Numerical/structured outputs: Persistent journal and CPU-rendered document/graphic exports; static snapshots independent of source tables.",
+        "Required non-GUI options: Static/dynamic mode, append/reorder, outlines, reference resolution and portable assets.",
+        "Independent acceptance: Reload/move without originals for static content; exact content/order round trip and dynamic reference checks.",
+        "Native .jrn interoperability remains absent; generic HTML alone does not establish it."
       ],
       "domain": "sharing-and-communicating-results:Workflow",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "journal",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-journals-in-other-formats.shtml"
+        ]
+      }
     },
     {
       "id": "notebook",
@@ -21287,17 +22027,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Text notebook sections and JSL/Python/required platform script blocks, shared context, Jupyter input and data/report references.",
+        "Numerical/structured outputs: Save/reload document, captured outputs/logs/timing and headless execution by block/section/all.",
+        "Required non-GUI options: Named/collapsed/reordered stored blocks, shared variables, reruns and explicit failed-block state.",
+        "Independent acceptance: Independent multiblock shared-variable fixture, Jupyter round trip and subset/all execution/output equivalence.",
+        "No .jmpnb parser, JSL runtime or notebook executor exists. SQL markdown is only a narrower subset."
       ],
       "domain": "sharing-and-communicating-results:Workflow",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "notebook",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/jmp-notebooks.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/running-notebook-scripts.shtml"
+        ]
+      }
     },
     {
       "id": "reproducible_workflow",
@@ -21353,17 +22109,34 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Report tree of analyses/tables/charts/text/images, templates, visibility/order and page/style settings.",
+        "Numerical/structured outputs: Composed report, persisted customizations and exported human-readable files.",
+        "Required non-GUI options: Sections/order, labels/formats, axes/reference lines, fonts/colors/dimensions, template and pagination settings.",
+        "Independent acceptance: Independent tree/output content order, saved-template round trip and visual clipping/pagination inspection.",
+        "Full customization extends beyond overview sources. No generic report composer exists here."
       ],
       "domain": "sharing-and-communicating-results:Workflow",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "customizable_reports",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/customize-axes-and-axis-labels-in-graphs.shtml"
+        ]
+      }
     },
     {
       "id": "workflow_builder_with_reproducible_workflow",
@@ -21432,17 +22205,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Report tree/visible outlines, chart/image assets, page dimensions and optional PPTX template.",
+        "Numerical/structured outputs: Valid .pptx with editable headings/text/tables where applicable, graph images, outline-based slides and overflow pagination.",
+        "Required non-GUI options: Image format/template, omitted hidden outlines and promised append/insert/replace behavior.",
+        "Independent acceptance: Independent OOXML ZIP/relationships parsing and opening/rendering; editable headings, Unicode and multiscreen content."
       ],
       "domain": "sharing-and-communicating-results:Export results",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "save_to_powerpoint",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-powerpoint-presentations.shtml"
+        ]
+      }
     },
     {
       "id": "publication_quality_graphics",
@@ -21465,17 +22252,33 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Final plot/report, physical dimensions, raster DPI or vector format, fonts/styles and annotations.",
+        "Numerical/structured outputs: Scalable vectors and supported rasters with faithful labels/axes/legend, embedded bitmaps and exact dimensions.",
+        "Required non-GUI options: SVG/PDF/EPS plus documented raster formats, transparency/line widths, font fallback and pagination.",
+        "Independent acceptance: Independent SVG/PDF structure/size and raster decoder DPI; inspect dense/long-label output for clipping.",
+        "SVG-only is useful partial progress, not completion of all promised formats."
       ],
       "domain": "sharing-and-communicating-results:Export results",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "publication_quality_graphics",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-parts-of-a-report-in-a-graphic-format.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/customize-axes-and-axis-labels-in-graphs.shtml"
+        ]
+      }
     },
     {
       "id": "gifs",
@@ -21498,17 +22301,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Plot/report frame or ordered animation frames, dimensions, palette/transparency, delay and loop.",
+        "Numerical/structured outputs: Decodable static GIF and supported animated sequence retaining frame order/timing/loop/content.",
+        "Required non-GUI options: Static reports and bubble/time animation; palette reduction/disposal without GPU.",
+        "Independent acceptance: Independent GIF decoder checks frames/dimensions/timing and compares decoded fixture pixels."
       ],
       "domain": "sharing-and-communicating-results:Export results",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "gifs",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/control-animation-for-dynamic-bubble-plots.shtml"
+        ]
+      }
     },
     {
       "id": "combine_windows",
@@ -21597,17 +22415,32 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Report tree, analysis commands, embedded/referenced data, export type and dependency policy.",
+        "Numerical/structured outputs: Persistent reopenable .jrp-compatible report or explicitly tracked alternative, plus documented text/document/HTML/graphic exports.",
+        "Required non-GUI options: Replay with embedded/current data, references, visibility/order and format settings.",
+        "Independent acceptance: Independent save/reopen/reexecute equivalence; embedded report works after moving original; parse/render exports.",
+        "Native .jrp interoperation is absent/unverified. Numeric JSON or a static image alone is not a reopenable report."
       ],
       "domain": "content-organization:Reporting",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "save_report",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml"
+        ]
+      }
     },
     {
       "id": "save_jmp_journal",
@@ -21630,17 +22463,34 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "clarification_pending",
-      "provider": "renderer_required",
-      "scope": "graphical_output_pending",
+      "status": "absent",
+      "provider": "extension_required",
+      "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        "tasks/jmp-report-acceptance.json"
+      ],
       "remaining_contract": [
-        "GUI除外と静的図・帳票出力の除外は同じではない。数値データの生成契約と表示・出力契約を分けて決める。"
+        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+        "Inputs: Journal outline, frozen charts/tables/text, optional scripts/links, native and alternate format choice.",
+        "Numerical/structured outputs: Saved .jrn-compatible file with reload/append behavior plus supported alternate exports.",
+        "Required non-GUI options: Self-contained static/dynamic links, outline levels, annotations and documented compression.",
+        "Independent acceptance: Independent native-reader/JMP round trip without source data; append order and alternate export verification.",
+        "No native serializer/reader exists. Portable document output is partial progress for this explicitly named native-format row."
       ],
       "domain": "content-organization:Reporting",
-      "acceptance_contract": "rendering"
+      "acceptance_contract": "rendering",
+      "non_gui_acceptance": {
+        "record": "tasks/jmp-report-acceptance.json",
+        "id": "save_jmp_journal",
+        "artifact_completed": false,
+        "primary_urls": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-journals-in-other-formats.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml"
+        ]
+      }
     },
     {
       "id": "hierarchical_folders",
@@ -22643,19 +23493,28 @@
         "chem_spatial_covariance: Four isotropic JMP spatial kernels: locations in1..3 dimensions; [kind0spherical/1exponential/2Gaussian/3power,partial_sill,nugget,rho]. Independent record nugget; covariance and semivariance matrices.",
         "chem_spatial_variogram: Empirical isotropic Matheron semivariogram: rows[coordinates1..3,response]; [bins=10,lower=min_pair_distance,upper=max_pair_distance]. Pair counts,mean distance and half mean squared differences; empty classes null.",
         "chem_spatial_gls: Gaussian GLS with supplied absolute isotropic spatial covariance; rows[coordinates,fixed features,response]; [dimensions1..3,features0..12,kind,sill,nugget,rho]. Fixed effects,covariance,likelihood and reusable universal-kriging parameters; no covariance estimation.",
-        "chem_spatial_predict: Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance."
+        "chem_spatial_predict: Saved spatial GLS universal-kriging prediction: rows[coordinates,fixed features]; unchanged spatial_gls.predict_parameters. Mean,latent and independent-observation variances include fixed-effect uncertainty given supplied covariance.",
+        "chem_spatial_fit: Profile Gaussian ML/REML spatial regression with estimated total variance,range and optional nugget; independent subject blocks and numeric fixed trend.",
+        "chem_spatial_fit_predict: Saved estimated-spatial-model universal kriging,with conditional latent and independent-observation variances."
       ],
       "tests": [
-        "crates/analytics/tests/spatial.rs"
+        "crates/analytics/tests/spatial.rs",
+        "crates/analytics/tests/spatial_estimation_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/jmp-spatial-reference.json",
-        "tasks/evidence/jmp-streams-validation.json"
+        "tasks/evidence/jmp-streams-validation.json",
+        "tasks/evidence/jmp-spatial-estimation-reference.json",
+        "tasks/evidence/jmp-spatial-estimation-sql.json"
       ],
       "remaining_contract": [
-        "供給absolute sill/nugget/rangeの4isotropic kernel、empirical Matheron variogram、known-covariance GLS/universal-krigingのみ。",
-        "range/sill/nuggetのML/REML/NLS推定、anisotropic/directional fit、G-side random-effects統合、covariance parameter uncertainty・spatialF/df補正・自動選択は未対応。",
-        "nuggetはobservation recordに属する明示規約。JMP表示nugget/residual scalingや全自動bin調整・JMP実機結果との同一性は未確認。"
+        "anisotropy/directional covariance parameters, G-side random effects and general repeated covariance integration",
+        "no-intercept models, categorical metadata construction, general missingness and observation weights",
+        "JMP unbounded variance components and bounded Satterthwaite covariance-parameter intervals",
+        "small-sample fixed-effect df/F corrections, covariance-estimation uncertainty in predictions",
+        "automatic covariance family/model search, variogram nonlinear least-squares fitting",
+        "installed JMP numerical comparison and exact optimizer/default equivalence",
+        "ML/REML推定はchem_spatial_fit。従来chem_spatial_glsは供給Vでの既知共分散推論を保持。nugget/residual表示規約・全自動bin/実機一致は未確認。"
       ],
       "acceptance_contract": "regression",
       "current_implementation": [
@@ -22698,8 +23557,40 @@
           "evidence": "tasks/evidence/jmp-spatial-reference.json",
           "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
           "native_sql": "PASS matching254 CPU macOS arm64 checkpoint"
+        },
+        {
+          "sql_function": "chem_spatial_fit",
+          "operation": "spatial_fit",
+          "bounded_scope": "Profile Gaussian ML/REML spatial regression with estimated total variance,range and optional nugget; independent subject blocks and numeric fixed trend.",
+          "source": "crates/analytics/src/spatial_estimation.rs",
+          "tests": "crates/analytics/tests/spatial_estimation_contracts.rs",
+          "api": "tasks/jmp-spatial-estimation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-spatial-estimation-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-spatial-estimation-sql.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_spatial_fit_predict",
+          "operation": "spatial_fit_predict",
+          "bounded_scope": "Saved estimated-spatial-model universal kriging,with conditional latent and independent-observation variances.",
+          "source": "crates/analytics/src/spatial_estimation.rs",
+          "tests": "crates/analytics/tests/spatial_estimation_contracts.rs",
+          "api": "tasks/jmp-spatial-estimation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-spatial-estimation-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-spatial-estimation-sql.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
         }
-      ]
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "correlated_multiple_response_models",
@@ -24347,16 +25238,60 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_normal: Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "Normalのall-exactでもjoint-MLE scaleを使用。JMP uncensored least-squares RMSEとの規約差は残る。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_normal",
+          "operation": "censored_normal",
+          "bounded_scope": "Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "censored_exponential_regression",
@@ -24380,16 +25315,59 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_exponential: Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_exponential",
+          "operation": "censored_exponential",
+          "bounded_scope": "Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "censored_gamma_regression",
@@ -24413,16 +25391,59 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_gamma: Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_gamma",
+          "operation": "censored_gamma",
+          "bounded_scope": "Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "censored_weibull_regression",
@@ -24446,16 +25467,59 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_weibull: Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_weibull",
+          "operation": "censored_weibull",
+          "bounded_scope": "Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "censored_lognormal_regression",
@@ -24479,16 +25543,59 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_lognormal: Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_lognormal",
+          "operation": "censored_lognormal",
+          "bounded_scope": "Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "censored_beta_regression",
@@ -24512,16 +25619,59 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_beta: Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_beta",
+          "operation": "censored_beta",
+          "bounded_scope": "Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "cox_regression_in_generalized_regression",
@@ -24604,16 +25754,130 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_normal: Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_exponential: Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_gamma: Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_weibull: Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_lognormal: Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_beta: Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "この拡張は6parametric familiesに限定。Cox/他personality全般の左/区間打切りに自動適用するものではない。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_normal",
+          "operation": "censored_normal",
+          "bounded_scope": "Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_exponential",
+          "operation": "censored_exponential",
+          "bounded_scope": "Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_gamma",
+          "operation": "censored_gamma",
+          "bounded_scope": "Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_weibull",
+          "operation": "censored_weibull",
+          "bounded_scope": "Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_lognormal",
+          "operation": "censored_lognormal",
+          "bounded_scope": "Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_beta",
+          "operation": "censored_beta",
+          "bounded_scope": "Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "interval_censoring_likelihood",
@@ -24637,16 +25901,130 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_censored_normal: Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_exponential: Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_gamma: Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_weibull: Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_lognormal: Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_beta: Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
       ],
-      "acceptance_contract": "reliability"
+      "tests": [
+        "crates/analytics/tests/censored_regression_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "remaining_contract": [
+        "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
+        "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "この拡張は6parametric familiesに限定。Cox/他personality全般の左/区間打切りに自動適用するものではない。"
+      ],
+      "acceptance_contract": "reliability",
+      "current_implementation": [
+        {
+          "sql_function": "chem_censored_normal",
+          "operation": "censored_normal",
+          "bounded_scope": "Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_exponential",
+          "operation": "censored_exponential",
+          "bounded_scope": "Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_gamma",
+          "operation": "censored_gamma",
+          "bounded_scope": "Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_weibull",
+          "operation": "censored_weibull",
+          "bounded_scope": "Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_lognormal",
+          "operation": "censored_lognormal",
+          "bounded_scope": "Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_beta",
+          "operation": "censored_beta",
+          "bounded_scope": "Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_censored_predict",
+          "operation": "censored_predict",
+          "bounded_scope": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+          "source": "crates/analytics/src/censored_regression.rs",
+          "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+          "api": "tasks/jmp-censored-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-censored-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+          "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        }
+      ],
+      "verification": {
+        "rust_layer": "33censored +5spatial focused tests; full workspace1340passed/0failed/2existingignored",
+        "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
+        "public_C_ABI": "actual production Release exported ds_analytics_run/free",
+        "jmp_head_to_head": "not performed"
+      }
     },
     {
       "id": "partial_autocorrelation",
@@ -31648,15 +33026,203 @@
       ],
       "native_sql": "passed matching loaded macOS arm64 CPU extension",
       "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json"
+    },
+    {
+      "sql_function": "chem_censored_normal",
+      "operation": "censored_normal",
+      "module": "censored_regression",
+      "input_parameter_contract": "Normal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "example": "SELECT chem_censored_normal([[-2,-2,0,1],[-1,-1,0,1],[0,0,0,1],[1,1,0,1],[2,2,0,1]], []);",
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "feature_ids": [
+        "censored_gaussian_regression",
+        "left_censoring_likelihood",
+        "interval_censoring_likelihood",
+        "generalized_regression"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+      "bounded_api_contract": "tasks/jmp-censored-api.json"
+    },
+    {
+      "sql_function": "chem_censored_exponential",
+      "operation": "censored_exponential",
+      "module": "censored_regression",
+      "input_parameter_contract": "Exponential joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "example": "SELECT chem_censored_exponential([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);",
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "feature_ids": [
+        "censored_exponential_regression",
+        "left_censoring_likelihood",
+        "interval_censoring_likelihood",
+        "generalized_regression"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+      "bounded_api_contract": "tasks/jmp-censored-api.json"
+    },
+    {
+      "sql_function": "chem_censored_gamma",
+      "operation": "censored_gamma",
+      "module": "censored_regression",
+      "input_parameter_contract": "Gamma joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "example": "SELECT chem_censored_gamma([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);",
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "feature_ids": [
+        "censored_gamma_regression",
+        "left_censoring_likelihood",
+        "interval_censoring_likelihood",
+        "generalized_regression"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+      "bounded_api_contract": "tasks/jmp-censored-api.json"
+    },
+    {
+      "sql_function": "chem_censored_weibull",
+      "operation": "censored_weibull",
+      "module": "censored_regression",
+      "input_parameter_contract": "Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "example": "SELECT chem_censored_weibull([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);",
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "feature_ids": [
+        "censored_weibull_regression",
+        "left_censoring_likelihood",
+        "interval_censoring_likelihood",
+        "generalized_regression"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+      "bounded_api_contract": "tasks/jmp-censored-api.json"
+    },
+    {
+      "sql_function": "chem_censored_lognormal",
+      "operation": "censored_lognormal",
+      "module": "censored_regression",
+      "input_parameter_contract": "Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "example": "SELECT chem_censored_lognormal([[0.4,0.4,0,1],[0.8,0.8,0,1],[1.2,1.2,0,1],[2.0,2.0,0,1],[3.0,3.0,0,1]], []);",
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "feature_ids": [
+        "censored_lognormal_regression",
+        "left_censoring_likelihood",
+        "interval_censoring_likelihood",
+        "generalized_regression"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+      "bounded_api_contract": "tasks/jmp-censored-api.json"
+    },
+    {
+      "sql_function": "chem_censored_beta",
+      "operation": "censored_beta",
+      "module": "censored_regression",
+      "input_parameter_contract": "Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
+      "example": "SELECT chem_censored_beta([[0.15,0.15,0,1],[0.25,0.25,0,1],[0.4,0.4,0,1],[0.55,0.55,0,1],[0.75,0.75,0,1]], []);",
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "feature_ids": [
+        "censored_beta_regression",
+        "left_censoring_likelihood",
+        "interval_censoring_likelihood",
+        "generalized_regression"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+      "bounded_api_contract": "tasks/jmp-censored-api.json"
+    },
+    {
+      "sql_function": "chem_censored_predict",
+      "operation": "censored_predict",
+      "module": "censored_regression",
+      "input_parameter_contract": "Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+      "example": "SELECT chem_censored_predict([[0.0,0.5],[1.0,0.975]], [1.0,0.0,0.0,0.95,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]);",
+      "source": "crates/analytics/src/censored_regression.rs",
+      "tests": "crates/analytics/tests/censored_regression_contracts.rs",
+      "feature_ids": [
+        "censored_gaussian_regression",
+        "censored_exponential_regression",
+        "censored_gamma_regression",
+        "censored_weibull_regression",
+        "censored_lognormal_regression",
+        "censored_beta_regression",
+        "left_censoring_likelihood",
+        "interval_censoring_likelihood",
+        "generalized_regression"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-censored-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
+      "bounded_api_contract": "tasks/jmp-censored-api.json"
+    },
+    {
+      "sql_function": "chem_spatial_fit",
+      "operation": "spatial_fit",
+      "module": "spatial_estimation",
+      "input_parameter_contract": "Profile Gaussian ML/REML spatial regression with estimated total variance,range and optional nugget; independent subject blocks and numeric fixed trend.",
+      "example": "SELECT chem_spatial_fit([[0,0,1],[1,0,2],[2,0,6]], [1,0,0,0,0,100,1e-8,0.1,0.5]);",
+      "source": "crates/analytics/src/spatial_estimation.rs",
+      "tests": "crates/analytics/tests/spatial_estimation_contracts.rs",
+      "feature_ids": [
+        "spatial_covariance_models"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-spatial-estimation-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-spatial-estimation-sql.json",
+      "bounded_api_contract": "tasks/jmp-spatial-estimation-api.json"
+    },
+    {
+      "sql_function": "chem_spatial_fit_predict",
+      "operation": "spatial_fit_predict",
+      "module": "spatial_estimation",
+      "input_parameter_contract": "Saved estimated-spatial-model universal kriging,with conditional latent and independent-observation variances.",
+      "example": "SELECT chem_spatial_fit_predict([[10,0]], [1,1,0,3,0,4.666666666666667,0,0.1,0,0,1,1,0,2,2,0,6]);",
+      "source": "crates/analytics/src/spatial_estimation.rs",
+      "tests": "crates/analytics/tests/spatial_estimation_contracts.rs",
+      "feature_ids": [
+        "spatial_covariance_models"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-spatial-estimation-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-spatial-estimation-sql.json",
+      "bounded_api_contract": "tasks/jmp-spatial-estimation-api.json"
     }
   ],
   "current_implementation_snapshot": {
     "date": "2026-10-22",
-    "new_public_registry_entries": 230,
+    "new_public_registry_entries": 239,
     "prior_public_analytics_functions": 24,
-    "total_public_analytics_functions": 254,
+    "total_public_analytics_functions": 263,
     "sources_inspected": "Actual registered source/test/API and independent-reference evidence, plus matching loaded native extension. No whole-family JMP parity is inferred.",
-    "native_sql": "passed matching loaded254-function CPU extension",
+    "native_sql": "passed matching loaded263-function macOS arm64 Release CPU extension",
     "references": [
       "tasks/evidence/jmp-distribution-arima-reference.json",
       "tasks/evidence/jmp-model-reference.json",
@@ -31690,16 +33256,29 @@
       "tasks/evidence/jmp-text-analysis-reference.json",
       "tasks/evidence/jmp-spatial-reference.json",
       "tasks/evidence/jmp-state-space-public-reference.json",
-      "tasks/evidence/jmp-streams-validation.json"
+      "tasks/evidence/jmp-streams-validation.json",
+      "tasks/evidence/jmp-censored-reference.json",
+      "tasks/evidence/jmp-spatial-estimation-reference.json",
+      "tasks/evidence/jmp-spatial-estimation-sql.json",
+      "tasks/evidence/jmp-parity-estimation-validation.json"
     ],
     "counts_are_not_parity_percentages": true,
     "prior_verified_analytics_functions": 119,
     "continuation_target_operations": 62,
     "continuation_api_operations_documented": 62,
     "continuation_native_sql": "passed matching loaded-extension macOS arm64 CPU gate",
-    "latest_additional_operations": 29,
-    "latest_evidence": "tasks/evidence/jmp-streams-validation.json",
-    "work_status": "Finish current29-operation checkpoint,push,then stop per user;overall JMP parity incomplete"
+    "latest_additional_operations": 9,
+    "latest_evidence": "tasks/evidence/jmp-parity-estimation-validation.json",
+    "work_status": "active full JMP/JMP Pro19.2 non-GUI/non-GPU objective;9additional bounded operations verified; static report and other residual contracts remain",
+    "active_continuation_record": "tasks/jmp-parity-resume-20261022.json",
+    "report_scope_audit": {
+      "record": "tasks/jmp-report-acceptance.json",
+      "rows": 44,
+      "partial_existing_numeric_backend": 13,
+      "absent": 31,
+      "new_verified_implementations": 0,
+      "pure_gui_exclusions": 0
+    }
   },
   "version_audit": {
     "date": "2026-10-21",
@@ -31728,68 +33307,64 @@
     }
   },
   "final_validation": {
-    "status": "PASS current254 bounded contracts;overall JMP parity incomplete",
-    "platform": "macOS arm64 CPU",
+    "status": "PASS current263 bounded CPU contracts; overall JMP objective remains active and incomplete",
+    "platform": "macOS arm64 CPU; dev Rust tests and matching Release C ABI/DuckDB SQL",
     "workspace": {
-      "suites": 63,
-      "passed": 1302,
+      "suites": 65,
+      "passed": 1340,
       "failed": 0,
-      "ignored_existing": 2
+      "ignored_existing": 2,
+      "ignored_details": [
+        "diagnostic logP print helper",
+        "external unselected100k population acceptance requires explicit source"
+      ]
     },
     "catalog": {
       "status": "PASS",
-      "overloads": 405,
-      "examples_executed": 405,
-      "documented_overloads": 405,
-      "native_sql_queries": 2,
-      "analytics_sql_functions": 254,
-      "registry_operations": 230
+      "overloads": 414,
+      "examples_executed": 414,
+      "analytics_sql_functions": 263,
+      "registry_operations": 239
     },
     "native_sql_cases": {
-      "cases": 13,
-      "assertions": 439,
+      "cases": 16,
+      "assertions": 513,
       "skipped": 0
     },
-    "streams_sql_oracle": {
-      "status": "PASS",
-      "layer": "native DuckDB SQL -> C++ -> Rust",
-      "catalog_examples": 29,
-      "operations_with_numerical_fixtures": 29,
-      "numeric_fields_checked": 118,
-      "sql_saved_model_roundtrips": 6,
-      "invalid_inputs_returning_sql_null": 39,
-      "selected_rows": 6,
-      "interleaved_null_rows": 7,
-      "native_sql_queries": 11,
-      "strict_json_results": 45
-    },
-    "functional_sql_oracle": {
-      "status": "PASS",
-      "layer": "native DuckDB SQL -> C++ -> Rust",
-      "functional_catalog_examples": 8,
-      "api_known_fields_checked": 36,
-      "arwls_nonconvergence_contract_checks": 2,
-      "sql_saved_reference_roundtrips": 3,
-      "saved_reference_fields_checked": 18,
-      "invalid_inputs_returning_sql_null": 43,
-      "selected_dynamic_rows": 6,
-      "interleaved_null_rows": 7,
-      "native_sql_queries": 7,
-      "strict_json_results": 22
-    },
     "production_C_ABI": {
-      "status": "PASS",
-      "layer": "production exported ds_analytics_run/free",
-      "operations": 29,
-      "numeric_fields": 106,
-      "library_sha256": "1467b35b49579ad7a470a69483420e2e96b665456de7d1a54d1c21fd9026d3fb"
+      "documented_operations": 38,
+      "documented_fields": 128,
+      "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f"
+    },
+    "censored_reference": {
+      "families": 6,
+      "boundaries": [
+        "public C ABI",
+        "matching native DuckDB SQL"
+      ],
+      "assertions": 768,
+      "confirmed_edge_contracts": 4,
+      "edge_assertions": 46,
+      "native_sql_queries": 16,
+      "evidence": "tasks/evidence/jmp-censored-reference.json"
+    },
+    "spatial_reference": {
+      "calls": 48,
+      "numeric_fields": 810,
+      "native_independent_fits": 16,
+      "native_reference_fields": 130,
+      "saved_roundtrips": 3,
+      "evidence": [
+        "tasks/evidence/jmp-spatial-estimation-reference.json",
+        "tasks/evidence/jmp-spatial-estimation-sql.json"
+      ]
     },
     "strict_clippy": "passed",
-    "scoped_fmt_check": "passed",
+    "scoped_fmt_check": "passed after one whitespace-only dispatch brace correction",
     "git_diff_check": "passed",
-    "evidence": "tasks/evidence/jmp-streams-validation.json",
-    "previous_snapshot": "previous_specialized_final_validation",
-    "user_stop_condition": "Push this completed checkpoint,then stop;do not begin further features"
+    "evidence": "tasks/evidence/jmp-parity-estimation-validation.json",
+    "full_goal_complete": false,
+    "active_continuation_record": "tasks/jmp-parity-resume-20261022.json"
   },
   "previous_final_validation": {
     "platform": "macOS arm64",
@@ -31987,5 +33562,69 @@
     "evidence": "tasks/evidence/jmp-specialized-validation.json",
     "previous_snapshot": "previous_models_final_validation",
     "limitation": "No installed JMP oracle or other-platform validation; required absent/partial inventory remains active"
+  },
+  "previous_streams_final_validation": {
+    "status": "PASS current254 bounded contracts;overall JMP parity incomplete",
+    "platform": "macOS arm64 CPU",
+    "workspace": {
+      "suites": 63,
+      "passed": 1302,
+      "failed": 0,
+      "ignored_existing": 2
+    },
+    "catalog": {
+      "status": "PASS",
+      "overloads": 405,
+      "examples_executed": 405,
+      "documented_overloads": 405,
+      "native_sql_queries": 2,
+      "analytics_sql_functions": 254,
+      "registry_operations": 230
+    },
+    "native_sql_cases": {
+      "cases": 13,
+      "assertions": 439,
+      "skipped": 0
+    },
+    "streams_sql_oracle": {
+      "status": "PASS",
+      "layer": "native DuckDB SQL -> C++ -> Rust",
+      "catalog_examples": 29,
+      "operations_with_numerical_fixtures": 29,
+      "numeric_fields_checked": 118,
+      "sql_saved_model_roundtrips": 6,
+      "invalid_inputs_returning_sql_null": 39,
+      "selected_rows": 6,
+      "interleaved_null_rows": 7,
+      "native_sql_queries": 11,
+      "strict_json_results": 45
+    },
+    "functional_sql_oracle": {
+      "status": "PASS",
+      "layer": "native DuckDB SQL -> C++ -> Rust",
+      "functional_catalog_examples": 8,
+      "api_known_fields_checked": 36,
+      "arwls_nonconvergence_contract_checks": 2,
+      "sql_saved_reference_roundtrips": 3,
+      "saved_reference_fields_checked": 18,
+      "invalid_inputs_returning_sql_null": 43,
+      "selected_dynamic_rows": 6,
+      "interleaved_null_rows": 7,
+      "native_sql_queries": 7,
+      "strict_json_results": 22
+    },
+    "production_C_ABI": {
+      "status": "PASS",
+      "layer": "production exported ds_analytics_run/free",
+      "operations": 29,
+      "numeric_fields": 106,
+      "library_sha256": "1467b35b49579ad7a470a69483420e2e96b665456de7d1a54d1c21fd9026d3fb"
+    },
+    "strict_clippy": "passed",
+    "scoped_fmt_check": "passed",
+    "git_diff_check": "passed",
+    "evidence": "tasks/evidence/jmp-streams-validation.json",
+    "previous_snapshot": "previous_specialized_final_validation",
+    "user_stop_condition": "Push this completed checkpoint,then stop;do not begin further features"
   }
 }

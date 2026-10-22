@@ -1,0 +1,2643 @@
+{
+  "schema_version": 1,
+  "audited_on": "2026-10-22",
+  "reference_product": "JMP/JMP Pro 19.2",
+  "source_head_at_audit": "442f54588d5882a3fc14f3f830c2d29d20701ace",
+  "feature_matrix_path": "tasks/jmp-feature-matrix.json",
+  "feature_matrix_sha256_at_audit": "5968655f583d20b955ef9236c86de96088fc2c023ccc4f62e7f1dbeb13796a96",
+  "objective_scope": "Exclude GUI operations and GPU dependency only. Static/report export, data transforms, numerical backends and headless executable documents remain in scope.",
+  "audit_kind": "Source-based acceptance specification; no implementation or rendering/runtime completion claimed.",
+  "classification_policy": {
+    "partial": "A feature-specific bounded numeric precursor exists; complete chart/report data, options and file outputs remain missing.",
+    "absent": "No verified dedicated capability. Generic arithmetic/storage or raw input data do not establish chart support.",
+    "excluded_gui": "Only whole capabilities exclusively consisting of a GUI operation qualify. None of these 44 rows qualify.",
+    "inference": "The CPU inputs/outputs and acceptance gates are engineering requirements inferred from documented JMP behavior, not assertions of identical undocumented algorithms.",
+    "no_scope_reduction": "A basic chart or SVG-only renderer is partial progress. Other documented modes and native-format contracts stay visible until verified."
+  },
+  "features": [
+    {
+      "id": "error_bars",
+      "label": "Error bars",
+      "catalog_domain": "basic-data-analysis-and-modeling:Interval estimation",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/basic-data-analysis-and-modeling"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "points",
+        "bar",
+        "statistical-details-for-standard-error-bars"
+      ],
+      "cpu_contract": {
+        "inputs": "Response, groups, frequency/analytic weights, row identity; statistic, interval kind/confidence.",
+        "numeric_or_structured_outputs": "Per-group estimate, effective n, lower/upper bounds or undefined reason; bar/band geometry.",
+        "non_gui_options": "Mean t, SE/SD/range and supplied custom endpoints; asymmetric bounds, orientation, caps/bands."
+      },
+      "independent_reference_acceptance": "Hand/independent t and binomial calculations, n=1/constant groups, unequal weights, asymmetric bounds.",
+      "unresolved_details": [
+        "Distribution count-SE formula is image-based; inspect its equation before full histogram-error parity."
+      ],
+      "existing_backend": {
+        "operations": [
+          "one_sample_t",
+          "proportion_test",
+          "linear_model"
+        ],
+        "source_files": [
+          "crates/analytics/src/inference.rs",
+          "crates/analytics/src/glm.rs"
+        ],
+        "coverage_and_limits": "Selected inferential estimates/intervals only; no unified plotting/grouping/weight or error-bar output."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/points.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/bar.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-standard-error-bars.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "contour_profiler",
+      "label": "Contour Profiler",
+      "catalog_domain": "basic-data-analysis-and-modeling:Profiling",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/basic-data-analysis-and-modeling"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "contour-profiler",
+        "contour-profiler-platform-options",
+        "constraint-shading-settings"
+      ],
+      "cpu_contract": {
+        "inputs": "Saved multiresponse formulas/models, swept factor pair/grids, fixed remaining inputs, response constraints.",
+        "numeric_or_structured_outputs": "Response prediction grid, contour polylines/filled bands, constraint masks and current-setting predictions.",
+        "non_gui_options": "Multiple factor pairs/responses, categorical/fixed input handling, response-constraint shading and reproducible resolution."
+      },
+      "independent_reference_acceptance": "Analytic plane/quadratic contours, independent intersections; saddle/equal-level cells and constraint boundaries.",
+      "unresolved_details": [
+        "Detailed JMP interpolation/tie convention is not specified by overview; retain as an explicit implementation detail."
+      ],
+      "existing_backend": {
+        "operations": [
+          "response_surface",
+          "response_surface_predict",
+          "glm_predict"
+        ],
+        "source_files": [
+          "crates/analytics/src/design.rs",
+          "crates/analytics/src/glm.rs"
+        ],
+        "coverage_and_limits": "Saved full-quadratic response-surface/GLM point predictions only; no general formulas, trace/contour/mesh, constraints, propagation or renderer."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler-platform-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/constraint-shading-settings.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "cube_plots",
+      "label": "Cube Plots",
+      "catalog_domain": "basic-data-analysis-and-modeling:Profiling",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/basic-data-analysis-and-modeling"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "cube-plots"
+      ],
+      "cpu_contract": {
+        "inputs": "Fitted models and observed factor minima/maxima, factor-to-axis mapping and extra factor levels.",
+        "numeric_or_structured_outputs": "All corner settings/predictions, cube vertices/edges, extra-factor panels and multiresponse vertex labels.",
+        "non_gui_options": "Factor/axis permutation, extra-factor panels and bounded 2^p enumeration with explicit workload limit."
+      },
+      "independent_reference_acceptance": "Analytic linear-plus-interaction model evaluated at every corner; factor permutation preserves predictions.",
+      "unresolved_details": [],
+      "existing_backend": {
+        "operations": [
+          "response_surface",
+          "response_surface_predict",
+          "glm_predict"
+        ],
+        "source_files": [
+          "crates/analytics/src/design.rs",
+          "crates/analytics/src/glm.rs"
+        ],
+        "coverage_and_limits": "Saved full-quadratic response-surface/GLM point predictions only; no general formulas, trace/contour/mesh, constraints, propagation or renderer."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/cube-plots.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "surface_profiler",
+      "label": "Surface Profiler",
+      "catalog_domain": "basic-data-analysis-and-modeling:Profiling",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/basic-data-analysis-and-modeling"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "overview-of-the-surface-plot-profiler"
+      ],
+      "cpu_contract": {
+        "inputs": "Saved model/formula, swept factor ranges/grid, fixed other inputs, projection/camera.",
+        "numeric_or_structured_outputs": "CPU sampled mesh, optional points/contours and projected graphic with axes/legend.",
+        "non_gui_options": "Multiple responses, mesh/filled surfaces, camera/light/style and explicit grid resolution."
+      },
+      "independent_reference_acceptance": "Analytic plane/quadratic mesh; independent CPU projection and visible-edge/occlusion fixtures.",
+      "unresolved_details": [
+        "JMP uses OpenGL. GPU navigation is excluded; CPU geometry/static export is required."
+      ],
+      "existing_backend": {
+        "operations": [
+          "response_surface",
+          "response_surface_predict",
+          "glm_predict"
+        ],
+        "source_files": [
+          "crates/analytics/src/design.rs",
+          "crates/analytics/src/glm.rs"
+        ],
+        "coverage_and_limits": "Saved full-quadratic response-surface/GLM point predictions only; no general formulas, trace/contour/mesh, constraints, propagation or renderer."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-surface-plot-profiler.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "goal_plot",
+      "label": "Goal plot",
+      "catalog_domain": "quality-and-process-engineering:Process capability (capability index)",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/quality-and-process-engineering"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "goal-plot",
+        "statistical-details-for-the-goal-plot"
+      ],
+      "cpu_contract": {
+        "inputs": "Normal-process means, sigma method, specification limits, optional target/importance and goal p.",
+        "numeric_or_structured_outputs": "Specification-normalized mean/sigma coordinates, capability indices, goal triangle/shading and one-sided markers.",
+        "non_gui_options": "Overall/within/between-within sigma, missing targets, one-sided limits, importance sizing and defect contours."
+      },
+      "independent_reference_acceptance": "Transcribe official equations, independently calculate symmetric/shifted and one-sided/missing-target cases.",
+      "unresolved_details": [
+        "Equation images need direct extraction; between-within sigma and defect-contour formulas need additional detailed references."
+      ],
+      "existing_backend": {
+        "operations": [
+          "process_capability"
+        ],
+        "source_files": [
+          "crates/analytics/src/statistics.rs"
+        ],
+        "coverage_and_limits": "Two finite spec limits, overall sample SD and optional supplied within sigma; no goal coordinates/triangle, one-sided/missing-target behavior or graphic."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/goal-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-goal-plot.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "alarm_graph",
+      "label": "Alarm graph",
+      "catalog_domain": "quality-and-process-engineering:Quality assessment (process screening)",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/quality-and-process-engineering"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "process-screening-platform-options"
+      ],
+      "cpu_contract": {
+        "inputs": "Ordered process/time observations, control-chart type, enabled tests, limits and alert/action policies.",
+        "numeric_or_structured_outputs": "Process/time alarm events with rule code/trigger and red-filled/black-open/gray marker identity; chart.",
+        "non_gui_options": "Test 1/action, Alert Increasing and other enabled tests; simultaneous alarms and group/process order."
+      },
+      "independent_reference_acceptance": "Independent rule fixtures, previous-alert/current-higher cases, equality boundaries and multiple simultaneous processes.",
+      "unresolved_details": [
+        "Full Nelson/nonnormal rules and alert limit estimation still need detailed Process Screening contracts."
+      ],
+      "existing_backend": {
+        "operations": [
+          "ir_chart",
+          "p_chart",
+          "c_chart",
+          "western_electric"
+        ],
+        "source_files": [
+          "crates/analytics/src/quality.rs"
+        ],
+        "coverage_and_limits": "Selected limits/signals and four Western Electric rules; not all Process Screening action/alert/Nelson/nonnormal rules or alarm graphics."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/process-screening-platform-options.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "variability_chart",
+      "label": "Variability chart",
+      "catalog_domain": "quality-and-process-engineering:Measurement system analysis",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/quality-and-process-engineering",
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "overview-of-variability-charts"
+      ],
+      "cpu_contract": {
+        "inputs": "Response, grouping/nesting categories, repeated measurements, measurement-system model selection.",
+        "numeric_or_structured_outputs": "Per-category observations/n/mean/range/SD, hierarchy/panel geometry and selected variance-component tables.",
+        "non_gui_options": "Crossed/nested/unbalanced groups, common scales, factor ordering, points/means/range/SD and labels."
+      },
+      "independent_reference_acceptance": "Independent group summaries and crossed/nested/unbalanced variance references; check exact group labels/geometry.",
+      "unresolved_details": [
+        "Existing balanced crossed Gauge R&R is a bounded precursor, not all chart/model variants."
+      ],
+      "existing_backend": {
+        "operations": [
+          "gage_rr",
+          "summarize",
+          "one_way_anova"
+        ],
+        "source_files": [
+          "crates/analytics/src/quality.rs",
+          "crates/analytics/src/statistics.rs"
+        ],
+        "coverage_and_limits": "Balanced crossed Gauge R&R and summaries; no general crossed/nested/unbalanced chart and no chart output."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-variability-charts.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "pareto_chart",
+      "label": "Pareto chart",
+      "catalog_domain": "quality-and-process-engineering:Quality improvement (Six Sigma)",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/quality-and-process-engineering",
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "the-pareto-plot-report"
+      ],
+      "cpu_contract": {
+        "inputs": "Cause categories/counts or observations, zero/one/two comparison factors, optional denominator/combined-cause policy.",
+        "numeric_or_structured_outputs": "Ordered counts/percentages/cumulative percentages and comparison-cell bar/line geometry.",
+        "non_gui_options": "Stable ties, key-cell ordering shared by all comparison panels, counts/percentages and labels."
+      },
+      "independent_reference_acceptance": "Independent sort/cumulative fractions; zero totals, tied counts and consistent ordering across panels.",
+      "unresolved_details": [
+        "Combined-cause thresholds and per-unit options require detailed Pareto pages."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/the-pareto-plot-report.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "cause_and_effect_diagram_fishbone_ishikawa",
+      "label": "Cause-and-effect diagram (fishbone, Ishikawa)",
+      "catalog_domain": "quality-and-process-engineering:Quality improvement (Six Sigma)",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/quality-and-process-engineering"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "causeandeffect-diagrams",
+        "prepare-the-data"
+      ],
+      "cpu_contract": {
+        "inputs": "UTF-8 Parent/Child edge table, effect/root, branch order and labels.",
+        "numeric_or_structured_outputs": "Validated hierarchy, branch/label positions, fishbone graphic, reusable table/script representation.",
+        "non_gui_options": "Nested causes, ordering/label/layout and export; explicit invalid-root/cycle behavior."
+      },
+      "independent_reference_acceptance": "Hand-tree fixtures; every source edge appears once; long/Unicode labels remain legible/unclipped.",
+      "unresolved_details": [
+        "Native journal/script compatibility is separate from neutral diagram/table output."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/causeandeffect-diagrams.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/prepare-the-data.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "path_diagram",
+      "label": "Path diagram",
+      "catalog_domain": "consumer-and-market-research:Factor analysis",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/consumer-and-market-research"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "factor-analysis",
+        "factor-analysis-model-fit-options",
+        "customize-the-path-diagram"
+      ],
+      "cpu_contract": {
+        "inputs": "Observed/latent node IDs, directed/bidirected edges, fitted/standardized coefficients and layout; factor loadings may supply edges.",
+        "numeric_or_structured_outputs": "Graph schema/layout with observed rectangles/latent ellipses, arrows/loops, coefficient labels and exportable diagram.",
+        "non_gui_options": "Suppressed loadings, standardized/unstandardized estimates, residuals/means/intercepts, hidden edges and deterministic placement."
+      },
+      "independent_reference_acceptance": "Independent edge extraction from loading/RAM fixtures; verify arrow direction, values, self-loops and layout.",
+      "unresolved_details": [
+        "Catalogue locates this under Factor Analysis; explicit diagram controls are documented under SEM. Loadings alone do not close it."
+      ],
+      "existing_backend": {
+        "operations": [
+          "factor_analysis",
+          "factor_analysis_ml",
+          "cfa_model",
+          "sem_ram"
+        ],
+        "source_files": [
+          "crates/analytics/src/latent.rs",
+          "crates/analytics/src/latent_inference.rs",
+          "crates/analytics/src/sem.rs"
+        ],
+        "coverage_and_limits": "Bounded loadings/covariance/CFA/RAM kernels; no path graph/layout/export or general SEM fitting."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis-model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/customize-the-path-diagram.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "histogram",
+      "label": "Histogram",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "histogram"
+      ],
+      "cpu_contract": {
+        "inputs": "Numeric values, groups/frequencies/weights; declared origin/width/edges and scale/style.",
+        "numeric_or_structured_outputs": "Bin edges/counts/percents/density and bars/polygon/KDE/shadowgram geometry; optional mean intervals.",
+        "non_gui_options": "Count/percent/fill, styles, group overlay and orientation; edge-tie and hidden/excluded policies."
+      },
+      "independent_reference_acceptance": "Independent exact-edge bin counts with conserved weight; KDE numerical reference and percent normalization.",
+      "unresolved_details": [
+        "Automatic tick/bin choice and shadowgram sequence require explicit detailed conventions."
+      ],
+      "existing_backend": {
+        "operations": [
+          "kde_gaussian",
+          "one_sample_t",
+          "summarize"
+        ],
+        "source_files": [
+          "crates/analytics/src/distributions.rs",
+          "crates/analytics/src/inference.rs",
+          "crates/analytics/src/statistics.rs"
+        ],
+        "coverage_and_limits": "Univariate Gaussian KDE and mean/SD/interval kernels only; no histogram bin, polygon/shadowgram geometry or renderer."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "box_plot",
+      "label": "Box plot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "box-plot"
+      ],
+      "cpu_contract": {
+        "inputs": "Numeric/grouped observations, frequencies, quantile convention and box/style settings.",
+        "numeric_or_structured_outputs": "Q1/median/Q3/IQR, actual in-fence whisker observations, outlier row IDs or quantile whiskers, geometry/labels.",
+        "non_gui_options": "Outlier/quantile type, five-number labels, widths, grouping and optional seeded jitter."
+      },
+      "independent_reference_acceptance": "Hand-sorted/independent quantiles; odd/even n, ties, constants/singletons and distant outliers.",
+      "unresolved_details": [
+        "Extract JMP quantile interpolation convention; generic host quantiles are not evidence of box-plot parity."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "scatterplot",
+      "label": "Scatterplot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "points"
+      ],
+      "cpu_contract": {
+        "inputs": "X/Y observations or summaries, row IDs, optional grouping/color/size/frequency and axes.",
+        "numeric_or_structured_outputs": "Transformed point coordinates, row/label/legend correspondence, graphic and optional summary/error output.",
+        "non_gui_options": "Axis transforms, grouping/facets, markers, seeded jitter, hidden/excluded and labels."
+      },
+      "independent_reference_acceptance": "Independent coordinate transforms and seeded jitter; exact pairwise row exclusion and ID round trip.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/points.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "scatterplot_matrix",
+      "label": "Scatterplot matrix",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "scatterplot-matrix"
+      ],
+      "cpu_contract": {
+        "inputs": "Selected variable columns, grouping/color, row IDs and explicit per-pair missing policy.",
+        "numeric_or_structured_outputs": "Ordered bivariate panels and optional global/group density ellipses, labels and static matrix.",
+        "non_gui_options": "Variable order, triangle/matrix format, global/group ellipses and group-specific settings."
+      },
+      "independent_reference_acceptance": "Independent pair extraction and covariance/eigen ellipses; per-pair missingness and group scale fixtures.",
+      "unresolved_details": [
+        "Density/smoother choices require detailed platform options. A correlation matrix alone is insufficient."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/scatterplot-matrix.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "bar_chart",
+      "label": "Bar chart",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "bar"
+      ],
+      "cpu_contract": {
+        "inputs": "Factor/response columns, aggregation, groups/frequencies, category order and style.",
+        "numeric_or_structured_outputs": "Summary table and bars/ranges/interval geometry, labels, legend and error endpoints.",
+        "non_gui_options": "Side-by-side/stacked/sorted/nested/range/interval plus other documented styles; response/count summaries."
+      },
+      "independent_reference_acceptance": "Independent grouped sums/means/counts, stack conservation, signed values and category order.",
+      "unresolved_details": [
+        "A single simple bar is partial; the documented style catalogue remains required."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/bar.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "area_chart",
+      "label": "Area chart",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "area"
+      ],
+      "cpu_contract": {
+        "inputs": "X/category and responses, group/order mode, baseline/stack and missing-value policies.",
+        "numeric_or_structured_outputs": "Per-level summaries, connection vertices, closed area polygons/stack bounds and interval bands.",
+        "non_gui_options": "Stack/area styles, linear/step/curve connections, row/summary order and missing-factor/value behavior."
+      },
+      "independent_reference_acceptance": "Independent cumulative stacks, signed area fixtures and declared gap/zero/skip segment boundaries.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/area.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "heat_map",
+      "label": "Heat map",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "heatmap"
+      ],
+      "cpu_contract": {
+        "inputs": "One/two categorical or continuous axes/bins, optional color/size measure, groups/frequencies.",
+        "numeric_or_structured_outputs": "Cell ID/bounds, count or Color mean, color scale/legend, optional scaled cell geometry and labels.",
+        "non_gui_options": "Rectangular/hex bins, scale range, empty cells, label options and hidden/excluded rules."
+      },
+      "independent_reference_acceptance": "Independent crosstab/bin counts/means, exact boundary assignment and hex membership.",
+      "unresolved_details": [
+        "Hex assignment and size scaling need explicit conventions."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/heatmap.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "pie_chart",
+      "label": "Pie chart",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "pie"
+      ],
+      "cpu_contract": {
+        "inputs": "Category counts or response summaries, optional overlay/hierarchy and category ordering.",
+        "numeric_or_structured_outputs": "Normalized nonnegative slice/ring values, angles/radii, labels and legend.",
+        "non_gui_options": "Pie/ring/coxcomb modes, hierarchy/overlay order and explicit negative/zero summary policy."
+      },
+      "independent_reference_acceptance": "Independent normalization/full-circle totals; equal-angle coxcomb area encoding and concentric-ring fixtures.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/pie.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "tree_map",
+      "label": "Tree map",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "treemap"
+      ],
+      "cpu_contract": {
+        "inputs": "Categorical hierarchy, nonnegative size summaries, optional order/color variables and frame dimensions.",
+        "numeric_or_structured_outputs": "Nested nonoverlapping rectangles with proportional areas, values, labels and colors.",
+        "non_gui_options": "Split/Squarify/Mixed, specified order, aspect bias, nested labels and zero handling."
+      },
+      "independent_reference_acceptance": "Independent area proportions, containment/nonoverlap/frame coverage and deterministic tie order.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/treemap.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "mosaic_plot",
+      "label": "Mosaic plot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "mosaic"
+      ],
+      "cpu_contract": {
+        "inputs": "Categorical observations or contingency counts, category/axis order and group/labels.",
+        "numeric_or_structured_outputs": "Marginals/conditional proportions, rectangle bounds, labels and optional Pearson annotation.",
+        "non_gui_options": "Response orientation, count/percent/value labels, category order and hidden/excluded rules."
+      },
+      "independent_reference_acceptance": "Independent marginal/conditional areas and Pearson expected counts; zero cells/margins and frequency cases.",
+      "unresolved_details": [],
+      "existing_backend": {
+        "operations": [
+          "contingency_test"
+        ],
+        "source_files": [
+          "crates/analytics/src/inference.rs"
+        ],
+        "coverage_and_limits": "Pearson/expected counts from a supplied matrix only; no category cell geometry, labeling or output."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/mosaic.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "parallel_plot",
+      "label": "Parallel plot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "parallel"
+      ],
+      "cpu_contract": {
+        "inputs": "Rows of continuous/categorical variables, category order, color/size and row IDs.",
+        "numeric_or_structured_outputs": "Per-axis scales/intervals and polylines or categorical ribbons with frequency widths.",
+        "non_gui_options": "Axis order/reversal, min/max scaling, categorical split/Combine Sets, straight/curved lines and smoothness."
+      },
+      "independent_reference_acceptance": "Independent min/max transforms/joint counts, flow conservation, constant axes and missing-category fixtures.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/parallel.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "run_chart",
+      "label": "Run chart",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "example-of-a-run-chart"
+      ],
+      "cpu_contract": {
+        "inputs": "Ordered numeric columns, optional time/sample IDs and groups.",
+        "numeric_or_structured_outputs": "Connected original-order coordinates, declared missing gaps and static chart.",
+        "non_gui_options": "Order-preserving series/panels and labels; optional reference settings."
+      },
+      "independent_reference_acceptance": "Hand ordered series with duplicate/nonmonotone time and gaps; verify exact adjacent-edge list.",
+      "unresolved_details": [
+        "Related control-chart kernels are not a dedicated run-chart artifact implementation."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-a-run-chart.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "line_chart",
+      "label": "Line chart",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "line"
+      ],
+      "cpu_contract": {
+        "inputs": "X/category and response series, row/factor/within-row order mode, grouping and missing policy.",
+        "numeric_or_structured_outputs": "Per-series observations/summaries and ordered line/step/curve vertices, labels and uncertainty bands.",
+        "non_gui_options": "Ordering modes, stacking/fill, connections, missing factors/values and group styles."
+      },
+      "independent_reference_acceptance": "Independent edge lists, summary calculations, stack totals and duplicate-x/gap fixtures.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/line.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "line_of_fit",
+      "label": "Line of fit",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "line-of-fit"
+      ],
+      "cpu_contract": {
+        "inputs": "X/Y data, group/frequency, degree/fit-family, transformed-axis flag and evaluation grid.",
+        "numeric_or_structured_outputs": "Fit coefficients/statistics, sampled fitted curve, 95% mean/prediction bands and annotations.",
+        "non_gui_options": "Linear/quadratic/cubic, robust Cauchy and documented state-space time-series choices; equation/RMSE/R2/F labels."
+      },
+      "independent_reference_acceptance": "Independent OLS covariance/t bands, robust Cauchy numerical optimum and independent smoothing/forecast references.",
+      "unresolved_details": [
+        "Bounded state-space kernels do not establish JMP automatic smoothing-family selection."
+      ],
+      "existing_backend": {
+        "operations": [
+          "linear_model",
+          "polynomial_features",
+          "state_space_smoothing"
+        ],
+        "source_files": [
+          "crates/analytics/src/glm.rs",
+          "crates/analytics/src/regression.rs",
+          "crates/analytics/src/state_space.rs"
+        ],
+        "coverage_and_limits": "OLS/polyfeatures and bounded smoothing only; no robust Cauchy, full transform/interval/selection product or plot output."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/line-of-fit.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "formula_profiler_prediction_profiler",
+      "label": "Formula profiler (Prediction profiler)",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "overview-of-the-prediction-profiler"
+      ],
+      "cpu_contract": {
+        "inputs": "Multiresponse formulas/models, current settings, ranges/categories/trace grid and optional uncertainty/desirability.",
+        "numeric_or_structured_outputs": "One-factor-at-a-time traces/current predictions, available intervals/derivatives and static multipanel profile.",
+        "non_gui_options": "Fixed other inputs; continuous/categorical traces, uncertainty, required optimization/desirability/simulation/importance operations."
+      },
+      "independent_reference_acceptance": "Analytic separable/interaction traces, finite differences and independently validated uncertainty/optimization.",
+      "unresolved_details": [
+        "Overview does not define complete simulation/importance/optimization contracts; detailed subpages must drive those tests."
+      ],
+      "existing_backend": {
+        "operations": [
+          "response_surface",
+          "response_surface_predict",
+          "glm_predict"
+        ],
+        "source_files": [
+          "crates/analytics/src/design.rs",
+          "crates/analytics/src/glm.rs"
+        ],
+        "coverage_and_limits": "Saved full-quadratic response-surface/GLM point predictions only; no general formulas, trace/contour/mesh, constraints, propagation or renderer."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-prediction-profiler.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "comparative_box_plots",
+      "label": "Comparative box plots",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "box-plot"
+      ],
+      "cpu_contract": {
+        "inputs": "Responses grouped by categorical variables, group order and common quantile/box styles.",
+        "numeric_or_structured_outputs": "Per-group box statistics/outlier IDs and comparable shared-axis panels/labels.",
+        "non_gui_options": "Outlier/quantile boxes, group widths, category ordering and optional seeded jitter."
+      },
+      "independent_reference_acceptance": "Independent grouped quantiles/whiskers, within-group permutation invariance and common scale.",
+      "unresolved_details": [
+        "Same exact JMP quantile-convention research as box_plot remains required."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "bubble_plot",
+      "label": "Bubble plot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "bubble-plots",
+        "control-animation-for-dynamic-bubble-plots"
+      ],
+      "cpu_contract": {
+        "inputs": "X/Y/size/color, one/two ID hierarchy, optional time, aggregation and frame settings.",
+        "numeric_or_structured_outputs": "Per-frame aggregated centers/areas/colors/IDs, static chart and dynamic animation.",
+        "non_gui_options": "Static/time animation, ordered/interpolated frames, split/combine hierarchy, size and missing/zero policies."
+      },
+      "independent_reference_acceptance": "Independent ID/time aggregation, area encoding, keyframe identity and decoded animation frame checks.",
+      "unresolved_details": [
+        "Exact aggregation/interpolation rules need detailed launch/platform documentation."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/bubble-plots.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/control-animation-for-dynamic-bubble-plots.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "surface_plot",
+      "label": "Surface plot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "overview-of-the-surface-plot-profiler"
+      ],
+      "cpu_contract": {
+        "inputs": "3D points, polygon mesh or surface equation, grid/ranges and camera/projection.",
+        "numeric_or_structured_outputs": "Validated CPU mesh/points and projected shaded/wireframe graphic, contours and axes.",
+        "non_gui_options": "Points/surface/both, smooth/mesh, lighting/view, labels and color implemented without GPU."
+      },
+      "independent_reference_acceptance": "Analytic plane/sphere mesh, independent projection/occlusion and degenerate/nonfinite rejection.",
+      "unresolved_details": [
+        "OpenGL GUI navigation is excluded; geometry/static output remains in scope."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-surface-plot-profiler.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "contour_plot",
+      "label": "Contour plot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "contour-plots",
+        "contour"
+      ],
+      "cpu_contract": {
+        "inputs": "Response samples/grid/formula and levels, or explicit bivariate-density mode, axes/color.",
+        "numeric_or_structured_outputs": "Response/density grid, labeled contour polylines/filled bands with requested mode recorded.",
+        "non_gui_options": "Explicit/automatic levels, lines/fills, labels/points, coloring and missing/extrapolation policy."
+      },
+      "independent_reference_acceptance": "Analytic plane/quadratic/saddle contours and independent bivariate density; equal-level topology.",
+      "unresolved_details": [
+        "Graph Builder density and standalone response contours are different contracts. Exact triangulation/interpolation needs detailed rules."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/contour-plots.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/contour.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "ternary_plot",
+      "label": "Ternary plot",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "the-ternary-plot-in-jmp"
+      ],
+      "cpu_contract": {
+        "inputs": "Three nonnegative components, normalization, labels/colors and optional mixture constraints.",
+        "numeric_or_structured_outputs": "Barycentric proportions, triangle coordinates, constraint region and static ternary graphic.",
+        "non_gui_options": "Component order/orientation, grid/labels, mixture constraints and contour overlays."
+      },
+      "independent_reference_acceptance": "Vertex/midpoint/centroid transforms, scale invariance, zero-total rejection and constraint vertices.",
+      "unresolved_details": [
+        "More-than-three-component and contour-function options need their detailed official subpages."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/the-ternary-plot-in-jmp.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "overlay",
+      "label": "Overlay",
+      "catalog_domain": "data-exploration-and-visualization:Graphing",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "compare-multiple-variables-by-using-overlay-plots",
+        "element-types-and-options"
+      ],
+      "cpu_contract": {
+        "inputs": "Multiple response/group series sharing x/time, series IDs and element/axis/style settings.",
+        "numeric_or_structured_outputs": "Aligned per-series points/lines/areas and composed shared-axis graphic with complete legend.",
+        "non_gui_options": "Multiple Y/group levels, element overlays, missing rules and documented axis/style options."
+      },
+      "independent_reference_acceptance": "Independent series alignment, equality to separate plot data and missing/tied x with differing ranges.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/compare-multiple-variables-by-using-overlay-plots.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/element-types-and-options.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "x_y_map",
+      "label": "X-Y map",
+      "catalog_domain": "data-exploration-and-visualization:Geographic maps",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "overview-of-mapping",
+        "maps-in-graph-builder"
+      ],
+      "cpu_contract": {
+        "inputs": "XY/latitude-longitude or region/value joins, boundaries/background, projection and extent.",
+        "numeric_or_structured_outputs": "Projected point/polygon geometry, joined region summaries and static geographic map/legend.",
+        "non_gui_options": "Geographic/nongeographic coordinates, boundaries/context, color/size, offline background data."
+      },
+      "independent_reference_acceptance": "Independent projection/region joins, multipart/antimeridian/clipping and unmatched-name cases.",
+      "unresolved_details": [
+        "Exact projection/background services and bundled-boundary data/licensing require additional sources; catalogue label is not sufficient."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-mapping.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/maps-in-graph-builder.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "shape_files",
+      "label": "Shape files",
+      "catalog_domain": "data-exploration-and-visualization:Geographic maps",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "custom-map-files"
+      ],
+      "cpu_contract": {
+        "inputs": "2D Esri .shp/.dbf with needed index/CRS metadata or named Shape/Part/XY records.",
+        "numeric_or_structured_outputs": "Ordered multipart geometry with Shape ID/name attributes, bounds and map-ready records.",
+        "non_gui_options": "Preserve holes/disjoint parts/names; validate records and reject unsupported elevation."
+      },
+      "independent_reference_acceptance": "Independent small Esri/parser fixtures, multipart/hole round trips, malformed/truncated records and attribute joins.",
+      "unresolved_details": [
+        "Native -Name.jmp/-XY.jmp interoperability and CRS treatment remain separate unverified contracts; plain XY input is insufficient."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/custom-map-files.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "word_cloud",
+      "label": "Word cloud",
+      "catalog_domain": "data-exploration-and-visualization:Explore text",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "partial",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "text-preparation-options"
+      ],
+      "cpu_contract": {
+        "inputs": "UTF-8 terms/counts or reproducibly tokenized corpus/vocabulary, optional scores/colors, font/frame/layout seed.",
+        "numeric_or_structured_outputs": "Term counts/order/font sizes, measured collision-free glyph boxes/positions and static word cloud.",
+        "non_gui_options": "Ordered/alphabetical/centered, frequency sizing, font/color modes and legend; vocabulary provenance."
+      },
+      "independent_reference_acceptance": "Independent corpus totals/lexical ties and CPU font metrics; no collisions/clipping with Unicode fallback.",
+      "unresolved_details": [
+        "Supplied numeric token counts do not provide raw-text tokenization, string/font handling or layout."
+      ],
+      "existing_backend": {
+        "operations": [
+          "text_dtm",
+          "text_weight"
+        ],
+        "source_files": [
+          "crates/analytics/src/text_analysis.rs"
+        ],
+        "coverage_and_limits": "Numeric supplied-token aggregation only; caller controls dictionary, no raw-text tokenizer, strings/fonts, cloud layout or export."
+      },
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/text-preparation-options.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "interactive_html",
+      "label": "Interactive HTML",
+      "catalog_domain": "sharing-and-communicating-results:Share on web (cloud)",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "save-reports-as-interactive-html",
+        "publish-reports-as-interactive-html"
+      ],
+      "cpu_contract": {
+        "inputs": "Report/plot specification, numeric results, observation IDs/data and enabled linked/filter interactions/offline assets.",
+        "numeric_or_structured_outputs": "Portable HTML/JS/CSS report working without JMP and offering documented enabled interactions.",
+        "non_gui_options": "Tooltips, linked rows/filter controls, report sections and index/style metadata; artifact generation is separate from hosting."
+      },
+      "independent_reference_acceptance": "Independent HTML/asset parsing plus headless browser tests verifying exact row/filter/linked selections.",
+      "unresolved_details": [
+        "No authoring GUI is required; generated interactive behavior remains in scope. Per-platform compatibility tables need review."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-interactive-html.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/publish-reports-as-interactive-html.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "journal_notebook",
+      "label": "Journal (notebook)",
+      "catalog_domain": "sharing-and-communicating-results:Journal (notebook)",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "create-journals",
+        "jmp-notebooks"
+      ],
+      "cpu_contract": {
+        "inputs": "Explicit kind: journal snapshots/dynamic links versus executable notebook, ordered sections/blocks/scripts/data.",
+        "numeric_or_structured_outputs": "Versioned serializable document with rendered exports or executable notebook outputs/provenance.",
+        "non_gui_options": "Keep catalogue alias but track journal and notebook as distinct acceptance contracts."
+      },
+      "independent_reference_acceptance": "Independent serialization, source-independent snapshots and shared-context executable block tests.",
+      "unresolved_details": [
+        "Journal and Notebook differ in 19.2; implementing only one cannot close this merged label."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/jmp-notebooks.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "journal",
+      "label": "Journal",
+      "catalog_domain": "sharing-and-communicating-results:Workflow",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "create-journals",
+        "save-journals-in-other-formats"
+      ],
+      "cpu_contract": {
+        "inputs": "Ordered graph/table/report snapshots, annotations/outlines and optional scripts/dynamic links.",
+        "numeric_or_structured_outputs": "Persistent journal and CPU-rendered document/graphic exports; static snapshots independent of source tables.",
+        "non_gui_options": "Static/dynamic mode, append/reorder, outlines, reference resolution and portable assets."
+      },
+      "independent_reference_acceptance": "Reload/move without originals for static content; exact content/order round trip and dynamic reference checks.",
+      "unresolved_details": [
+        "Native .jrn interoperability remains absent; generic HTML alone does not establish it."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-journals-in-other-formats.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "notebook",
+      "label": "Notebook",
+      "catalog_domain": "sharing-and-communicating-results:Workflow",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "jmp-notebooks",
+        "running-notebook-scripts"
+      ],
+      "cpu_contract": {
+        "inputs": "Text notebook sections and JSL/Python/required platform script blocks, shared context, Jupyter input and data/report references.",
+        "numeric_or_structured_outputs": "Save/reload document, captured outputs/logs/timing and headless execution by block/section/all.",
+        "non_gui_options": "Named/collapsed/reordered stored blocks, shared variables, reruns and explicit failed-block state."
+      },
+      "independent_reference_acceptance": "Independent multiblock shared-variable fixture, Jupyter round trip and subset/all execution/output equivalence.",
+      "unresolved_details": [
+        "No .jmpnb parser, JSL runtime or notebook executor exists. SQL markdown is only a narrower subset."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/jmp-notebooks.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/running-notebook-scripts.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "customizable_reports",
+      "label": "Customizable Reports",
+      "catalog_domain": "sharing-and-communicating-results:Workflow",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "save-reports",
+        "create-journals",
+        "customize-axes-and-axis-labels-in-graphs"
+      ],
+      "cpu_contract": {
+        "inputs": "Report tree of analyses/tables/charts/text/images, templates, visibility/order and page/style settings.",
+        "numeric_or_structured_outputs": "Composed report, persisted customizations and exported human-readable files.",
+        "non_gui_options": "Sections/order, labels/formats, axes/reference lines, fonts/colors/dimensions, template and pagination settings."
+      },
+      "independent_reference_acceptance": "Independent tree/output content order, saved-template round trip and visual clipping/pagination inspection.",
+      "unresolved_details": [
+        "Full customization extends beyond overview sources. No generic report composer exists here."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/customize-axes-and-axis-labels-in-graphs.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "save_to_powerpoint",
+      "label": "Save to PowerPoint",
+      "catalog_domain": "sharing-and-communicating-results:Export results",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results",
+        "https://www.jmp.com/en/fragments/capabilities/content-organization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "save-reports-as-powerpoint-presentations"
+      ],
+      "cpu_contract": {
+        "inputs": "Report tree/visible outlines, chart/image assets, page dimensions and optional PPTX template.",
+        "numeric_or_structured_outputs": "Valid .pptx with editable headings/text/tables where applicable, graph images, outline-based slides and overflow pagination.",
+        "non_gui_options": "Image format/template, omitted hidden outlines and promised append/insert/replace behavior."
+      },
+      "independent_reference_acceptance": "Independent OOXML ZIP/relationships parsing and opening/rendering; editable headings, Unicode and multiscreen content.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-powerpoint-presentations.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "publication_quality_graphics",
+      "label": "Publication quality graphics",
+      "catalog_domain": "sharing-and-communicating-results:Export results",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "save-parts-of-a-report-in-a-graphic-format",
+        "customize-axes-and-axis-labels-in-graphs"
+      ],
+      "cpu_contract": {
+        "inputs": "Final plot/report, physical dimensions, raster DPI or vector format, fonts/styles and annotations.",
+        "numeric_or_structured_outputs": "Scalable vectors and supported rasters with faithful labels/axes/legend, embedded bitmaps and exact dimensions.",
+        "non_gui_options": "SVG/PDF/EPS plus documented raster formats, transparency/line widths, font fallback and pagination."
+      },
+      "independent_reference_acceptance": "Independent SVG/PDF structure/size and raster decoder DPI; inspect dense/long-label output for clipping.",
+      "unresolved_details": [
+        "SVG-only is useful partial progress, not completion of all promised formats."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-parts-of-a-report-in-a-graphic-format.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/customize-axes-and-axis-labels-in-graphs.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "gifs",
+      "label": "GIFs",
+      "catalog_domain": "sharing-and-communicating-results:Export results",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/sharing-and-communicating-results"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "save-reports",
+        "control-animation-for-dynamic-bubble-plots"
+      ],
+      "cpu_contract": {
+        "inputs": "Plot/report frame or ordered animation frames, dimensions, palette/transparency, delay and loop.",
+        "numeric_or_structured_outputs": "Decodable static GIF and supported animated sequence retaining frame order/timing/loop/content.",
+        "non_gui_options": "Static reports and bubble/time animation; palette reduction/disposal without GPU."
+      },
+      "independent_reference_acceptance": "Independent GIF decoder checks frames/dimensions/timing and compares decoded fixture pixels.",
+      "unresolved_details": [],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/control-animation-for-dynamic-bubble-plots.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "save_report",
+      "label": "Save report",
+      "catalog_domain": "content-organization:Reporting",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/content-organization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "save-reports"
+      ],
+      "cpu_contract": {
+        "inputs": "Report tree, analysis commands, embedded/referenced data, export type and dependency policy.",
+        "numeric_or_structured_outputs": "Persistent reopenable .jrp-compatible report or explicitly tracked alternative, plus documented text/document/HTML/graphic exports.",
+        "non_gui_options": "Replay with embedded/current data, references, visibility/order and format settings."
+      },
+      "independent_reference_acceptance": "Independent save/reopen/reexecute equivalence; embedded report works after moving original; parse/render exports.",
+      "unresolved_details": [
+        "Native .jrp interoperation is absent/unverified. Numeric JSON or a static image alone is not a reopenable report."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    },
+    {
+      "id": "save_jmp_journal",
+      "label": "Save JMP journal",
+      "catalog_domain": "content-organization:Reporting",
+      "ledger_status_at_audit": "clarification_pending",
+      "recommended_status": "absent",
+      "scope_decision": "included_cpu_backend_and_artifact",
+      "catalog_primary_urls": [
+        "https://www.jmp.com/en/fragments/capabilities/content-organization"
+      ],
+      "completion_evidence_present": false,
+      "primary_source_ids": [
+        "create-journals",
+        "save-journals-in-other-formats",
+        "save-reports"
+      ],
+      "cpu_contract": {
+        "inputs": "Journal outline, frozen charts/tables/text, optional scripts/links, native and alternate format choice.",
+        "numeric_or_structured_outputs": "Saved .jrn-compatible file with reload/append behavior plus supported alternate exports.",
+        "non_gui_options": "Self-contained static/dynamic links, outline levels, annotations and documented compression."
+      },
+      "independent_reference_acceptance": "Independent native-reader/JMP round trip without source data; append order and alternate export verification.",
+      "unresolved_details": [
+        "No native serializer/reader exists. Portable document output is partial progress for this explicitly named native-format row."
+      ],
+      "existing_backend": null,
+      "primary_urls": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-journals-in-other-formats.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml"
+      ],
+      "excluded_operations": [
+        "Mouse/drag/brush/menu/window authoring or navigation operations; GPU rendering acceleration. Output generation, static files and required generated interactivity remain in scope."
+      ],
+      "artifact_contract": "CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
+      "required_acceptance_gates": [
+        "Failing contract test before implementation.",
+        "Independent numerical/structured reference specified above.",
+        "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
+        "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
+        "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ]
+    }
+  ],
+  "primary_sources": {
+    "area": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/area.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Areas fill beneath summary values, support stacking and varied connection/missing policies.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/area.shtml",
+      "html_sha256": "a8836bba90a29afa8b2a3b8ac25b08498f85aeb827f97bcc41321cc17b9bbe14",
+      "title": "Area",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "bar": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/bar.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Categories use counts or requested response summaries, with multiple bar/interval/stack styles.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/bar.shtml",
+      "html_sha256": "6d8cbcb5222477e88445857481f1e88c5005b030822062e930d11460257ad272",
+      "title": "Bar",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "box-plot": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Boxes use quartiles/median; outlier whiskers end at actual observations within 1.5 IQR fences, while quantile boxes use a different full-range definition.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml",
+      "html_sha256": "9c977f9f20e50af1831c410b656aa090bfc422e1ac6ba953fd7ada394f157320",
+      "title": "Box Plot",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "bubble-plots": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/bubble-plots.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Bubbles encode x/y/size/color, optionally grouped IDs and time; both static and animated versions are documented.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/bubble-plots.shtml",
+      "html_sha256": "37462801653f6cddcb147c9b48754ac9fcda7eb833f3ddd59b2f83193da43893",
+      "title": "Bubble Plots",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "causeandeffect-diagrams": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/causeandeffect-diagrams.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Fishbones organize proposed causes and can be saved as table, journal or script; this is not causal inference.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/causeandeffect-diagrams.shtml",
+      "html_sha256": "b235762873d70b6617822e85cd032d2555f067a476f9f86e475c9a0012493b25",
+      "title": "Cause-and-Effect Diagrams",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "compare-multiple-variables-by-using-overlay-plots": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/compare-multiple-variables-by-using-overlay-plots.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Shared-axis response series show relationships and time trends, using points or connected lines and series legends.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/compare-multiple-variables-by-using-overlay-plots.shtml",
+      "html_sha256": "5d0586bf6be88df29435d24e792d757f7ba04457356699c6579763651d2c4d84",
+      "title": "Compare Multiple Variables by Using Overlay Plots",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "constraint-shading-settings": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/constraint-shading-settings.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Response constraints determine regions to shade as infeasible.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/constraint-shading-settings.shtml",
+      "html_sha256": "c0e83cdfc0a638e6fef79762b2912b5537aa070e11d7069ed7988971e6409706",
+      "title": "Constraint Shading Settings",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "contour": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/contour.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Graph Builder contours represent bivariate density, distinct from standalone response-surface contours.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/contour.shtml",
+      "html_sha256": "8e808a5ddb3b5c4ae9db41e6c15ed9274db977e8ed4a866fc039781d53d53055",
+      "title": "Contour",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "contour-plots": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/contour-plots.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Standalone contours represent a response surface through lines or filled bands with configurable levels/labels/colors.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/contour-plots.shtml",
+      "html_sha256": "66835a381161ab012e09c102f66d0468736d8d8dc86bce6cacc1494882284cc5",
+      "title": "Contour Plots",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "contour-profiler": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Model response contours are viewed across two factors, holding the others fixed; multiple pairs/responses are supported.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler.shtml",
+      "html_sha256": "9b59ffbd76e5d90d22360bf2221ea9892a23ba1750ac4066f88322935175156b",
+      "title": "Contour Profiler",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "contour-profiler-platform-options": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler-platform-options.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Profiler offers multiple contour frames and saved settings; the report has fixed-factor/response controls.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/contour-profiler-platform-options.shtml",
+      "html_sha256": "8fd3dea9020dde506ae21aea0449d23c02991e88e16f0739a1ffff8ac299d2bb",
+      "title": "Contour Profiler Platform Options",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "control-animation-for-dynamic-bubble-plots": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/control-animation-for-dynamic-bubble-plots.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Time frames can be recorded/exported to animated GIF on Windows; two IDs support split/combine.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/control-animation-for-dynamic-bubble-plots.shtml",
+      "html_sha256": "fa9a7a61100680075becdc45f512bf2d7b3fce6cd4e1b6eccfa17b30b77c1745",
+      "title": "Control Animation for Dynamic Bubble Plots",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "create-journals": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Static journals embed fixed reports without source-table dependencies; dynamic journals use links/scripts. Reports can be composed and exported.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/create-journals.shtml",
+      "html_sha256": "c0cbeadc792f3a5165caa783ba7fba4e48040087177bde62987d330b7cf324a3",
+      "title": "Create Journals",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "cube-plots": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/cube-plots.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Predictions at observed factor minima/maxima are attached to cube vertices; extra factors create more cubes and multiple responses stack at a vertex.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/cube-plots.shtml",
+      "html_sha256": "d63b3fb666ec1e763f0be0307554dc6ff7da27eef922659835875f94558511d3",
+      "title": "Cube Plots",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "custom-map-files": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/custom-map-files.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Shape names/IDs link ordered Part/XY polygons. JMP imports two-dimensional Esri SHP and DBF attributes, retaining separate parts.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/custom-map-files.shtml",
+      "html_sha256": "dfb2fc948b4c173f3137f1f0934b1cdee7d2ac43ae3443d255291af03b39d874",
+      "title": "Custom Map Files",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "customize-axes-and-axis-labels-in-graphs": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/customize-axes-and-axis-labels-in-graphs.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Axes support transformations, limits/ticks/bin increments, formatting/reference lines and label styles.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/customize-axes-and-axis-labels-in-graphs.shtml",
+      "html_sha256": "4b8f055dc78a1df106e321193efdaef1ae112ef16ebb426a089e1df3aa092c5e",
+      "title": "Customize Axes and Axis Labels in Graphs",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "customize-the-path-diagram": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/customize-the-path-diagram.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "SEM diagrams use observed/latent nodes and directed/bidirected arrows with optional standardized/unstandardized estimates and other annotations.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/customize-the-path-diagram.shtml",
+      "html_sha256": "74e6cf06900bfae09569354a1c62e43a8f20cbed365ddc33f74e5b49b9ee7f3c",
+      "title": "Customize the Path Diagram",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "element-types-and-options": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/element-types-and-options.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Hidden/excluded observations have different display/fit behavior; multiple graph elements can be combined.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/element-types-and-options.shtml",
+      "html_sha256": "e3c60dc51b33e0c93467fd1ecaefd1c7285dc89fb15e79a4fdba0c34ad3e304f",
+      "title": "Element Types and Options",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "example-of-a-run-chart": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/example-of-a-run-chart.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "A run chart connects a column of data as ordered points.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/example-of-a-run-chart.shtml",
+      "html_sha256": "b997ccdbafa5afd1458385209692cff6af854a607843f12cd50f72c44893ebbd",
+      "title": "Example of a Run Chart",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "factor-analysis": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Latent factors/loading estimates describe common variation among observed variables.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis.shtml",
+      "html_sha256": "04b551279c1e0e8f24e4896c79e6159f4c08c5d469f1f4d7d1c32e4c902dde5c",
+      "title": "Factor Analysis",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "factor-analysis-model-fit-options": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis-model-fit-options.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Loading matrices and factor scores are numerical results; factor specifications can be copied for SEM.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/factor-analysis-model-fit-options.shtml",
+      "html_sha256": "6ebe26390966cdb33b39bea8d7794027431fdca3114e1c80b7d12cadd62d6bad",
+      "title": "Factor Analysis Model Fit Options",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "goal-plot": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/goal-plot.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Axes represent specification-normalized mean shift and sigma. Normal-model processes can show overall/within estimates and goal/capability shading.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/goal-plot.shtml",
+      "html_sha256": "7188767eeecc43e74cef1cf78aef8cc0c53b4dcd864023c4db8cb07bdbded96a",
+      "title": "Goal Plot",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "heatmap": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/heatmap.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Categorical levels or numerical bins form cells; intensity is count without Color or cell mean with Color, with rectangular/hex bin options.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/heatmap.shtml",
+      "html_sha256": "87727f520986e075c64b7d227a4ff8048dfbfc7684699bcde38f4d3f3d7f2007",
+      "title": "Heatmap",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "histogram": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Binned data can use count/percent/fill scales and bar/polygon/KDE/shadowgram styles with group options.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml",
+      "html_sha256": "65c1eb3fdacf4a7d234269290dfd5fbceca70947e5b09d5201941b2b3a29d2d5",
+      "title": "Histogram",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "jmp-notebooks": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/jmp-notebooks.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Text .jmpnb documents contain sections and shared-context script blocks, including JSL/Python/platform scripts, with Jupyter import.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/jmp-notebooks.shtml",
+      "html_sha256": "010e99ea6be9785d8b52b991cfb81d591d76255828247f50169bb7a83120df8e",
+      "title": "JMP Notebooks",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "line": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/line.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Row, summary-level or within-row order changes connections; stacking, fills, steps and missing policies are offered.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/line.shtml",
+      "html_sha256": "65e64ba73f601962ceb2da971263b4a88435b960954a85a527a5c57a0c96d98c",
+      "title": "Line",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "line-of-fit": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/line-of-fit.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Fit choices include polynomial degrees one to three, robust Cauchy and selected time-series smoothing; 95% fit/prediction bands and statistics are available.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/line-of-fit.shtml",
+      "html_sha256": "75f29614e7ded7c483d0dfaeb99fd7df440c40e79ee64ac18e8bb5fd93cd43b3",
+      "title": "Line of Fit",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "maps-in-graph-builder": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/maps-in-graph-builder.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Named boundaries join to data, with Color and Size encoding and built-in or custom geography.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/maps-in-graph-builder.shtml",
+      "html_sha256": "81d91def7f6a2af8302696868d01e33091ee903a10a9755e6e92c03d15190cc4",
+      "title": "Maps in Graph Builder",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "mosaic": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/mosaic.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Rectangle areas show categorical proportions with optional Pearson test annotations.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/mosaic.shtml",
+      "html_sha256": "84eda9ef37610f32378ab9b10a363eb639b2b9d7a5a6ed77d38d41f5e8dadc1a",
+      "title": "Mosaic",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "overview-of-mapping": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-mapping.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Shapes may display data while background maps provide context; custom maps are possible.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-mapping.shtml",
+      "html_sha256": "e62c28b3ffba6222180104c85c324032dcda7c4d9a94abf27f3fd7a829a31a4b",
+      "title": "Overview of Mapping",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "overview-of-the-prediction-profiler": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-prediction-profiler.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "A profile trace changes one input while others are fixed, including categorical inputs and model-dependent intervals.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-prediction-profiler.shtml",
+      "html_sha256": "0f71bd030605131ca48d19ed3ba1dda9d7c51c8651db7e661f6745c2e6aad3fb",
+      "title": "Overview of the Prediction Profiler",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "overview-of-the-surface-plot-profiler": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-surface-plot-profiler.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Surface Plot and Surface Profiler use points, equation surfaces or polygon meshes. JMP implements the view with OpenGL.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-the-surface-plot-profiler.shtml",
+      "html_sha256": "a427f2a7d2108c6bf5aad7e0ec68d27fda13efe571a8218de057795b0d8db799",
+      "title": "Overview of the Surface Plot Profiler",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "overview-of-variability-charts": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-variability-charts.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Charts display grouped observations, means, ranges and SDs across categories; Gauge R&R includes crossed/nested and unbalanced structures.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/overview-of-variability-charts.shtml",
+      "html_sha256": "c80470a73433aac9f22b942d2350818a0020ac9a9995bc1e8f175ef4a2701d21",
+      "title": "Overview of Variability Charts",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "parallel": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/parallel.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Variable axes connect rows or categorical frequency bands; continuous axes scale to min/max and categorical sets may split/combine.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/parallel.shtml",
+      "html_sha256": "9e64b84a374ca190a1ffb6ea298d447d87b0b165abc0eec33b93323760de283b",
+      "title": "Parallel",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "pie": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/pie.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Counts or summaries size slices/rings; coxcomb uses equal angles and different sizing geometry.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/pie.shtml",
+      "html_sha256": "645f88c2b461f25c2886e7e9396434122345fb4114a6601a5a78a7a5a8c80da0",
+      "title": "Pie",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "points": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/points.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Observations or summaries can be drawn as points, with selectable error intervals and jitter strategies.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/points.shtml",
+      "html_sha256": "f1651521ecab5cc712c32893f3ba04ba0d76fe7b9f2130dc725e3b9f1a5dc442",
+      "title": "Points",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "prepare-the-data": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/prepare-the-data.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Fishbone input has Parent/Child columns and permits nested causes.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/prepare-the-data.shtml",
+      "html_sha256": "3c69416adf332c1cdea0ea2c64d631f48c8174246e2f9af66e0565cf1786242a",
+      "title": "Prepare the Data",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "process-screening-platform-options": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/process-screening-platform-options.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Alarm events have process on y and time on x; red fill identifies control/action limits, black open identifies Alert Increasing, gray identifies other enabled tests.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/process-screening-platform-options.shtml",
+      "html_sha256": "5af25f4ba68401bdd33ec660322a78a82d5ff6074074484aada72dcc8cb2d95b",
+      "title": "Process Screening Platform Options",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "publish-reports-as-interactive-html": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/publish-reports-as-interactive-html.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Export may compose reports/index/thumbnails/text, styles, logo and relative support assets.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/publish-reports-as-interactive-html.shtml",
+      "html_sha256": "1a3cff306bb158e283e51eda45fcd876f0342f284a6629154dd0f1c39801fae6",
+      "title": "Publish Reports as Interactive HTML",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "running-notebook-scripts": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/running-notebook-scripts.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Blocks, sections or the entire notebook can execute, with results/logs and elapsed time.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/running-notebook-scripts.shtml",
+      "html_sha256": "8e0eb74c36ff3e63aaa92e045ec476d6ffecb6dee10895e81b746b02887ecf94",
+      "title": "Running Notebook Scripts",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "save-journals-in-other-formats": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/save-journals-in-other-formats.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Journals can be saved to document/graphic formats as well as native journals.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/save-journals-in-other-formats.shtml",
+      "html_sha256": "d1e8636e108bb62cb7fc54a534bdb5e2d2fad9b6181e01cb2e7f87f579b88195",
+      "title": "Save Journals in Other Formats",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "save-parts-of-a-report-in-a-graphic-format": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/save-parts-of-a-report-in-a-graphic-format.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Report/selection output supports vector and raster formats with size/DPI/pagination considerations, including static GIF.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/save-parts-of-a-report-in-a-graphic-format.shtml",
+      "html_sha256": "ee32f304fe02a1a7f5f928e9c746787afea4a7b7b179ce729a02a92b31af70e0",
+      "title": "Save Parts of a Report in a Graphic Format",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "save-reports": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Native JRP stores script plus embedded/referenced data; JRN stores journal output. Text, HTML, document and image exports are also offered.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/save-reports.shtml",
+      "html_sha256": "bba37b128a92c5a1b4f9f93ec157d9729f3565d0b055ce05a1f4c4594a2a2c3d",
+      "title": "Save Reports",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "save-reports-as-interactive-html": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-interactive-html.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Export produces interactive web pages that users can explore without JMP.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-interactive-html.shtml",
+      "html_sha256": "e1e786eb0e9531700fe268887243adf75f59b271af7374d98f9395b395f36453",
+      "title": "Save Reports as Interactive HTML",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "save-reports-as-powerpoint-presentations": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-powerpoint-presentations.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "PPTX uses editable headings and graph images, outline-based slides, overflow pagination and templates.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/save-reports-as-powerpoint-presentations.shtml",
+      "html_sha256": "4d2b0bf2625e9ecb917d12d526d02f5b7f81e73a1a20c13d8a02fa006ed726c4",
+      "title": "Save Reports as PowerPoint Presentations",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "scatterplot-matrix": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/scatterplot-matrix.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "An ordered set of bivariate graphs can include global/group density ellipses.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/scatterplot-matrix.shtml",
+      "html_sha256": "c0500b540ce9f09809eb1f2e6631c810cc7debd3a256f9fccd0db2d0021da079",
+      "title": "Scatterplot Matrix",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "statistical-details-for-standard-error-bars": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-standard-error-bars.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Distribution count standard errors are defined by a formula based on category proportion and sample size; equation is an image.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-standard-error-bars.shtml",
+      "html_sha256": "2839f8cfe7a9affc27efa73acbf6660f939eca675374a204a248d0c9f00fd212",
+      "title": "Statistical Details for Standard Error Bars",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "statistical-details-for-the-goal-plot": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-goal-plot.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Targets/specifications determine coordinate normalization. Missing targets use midpoint or special one-sided capability rules; lower capability inputs are bounded at -0.6.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-the-goal-plot.shtml",
+      "html_sha256": "640d70200af350a1a88f07fb0911b4395f78192928f7444f0b5733b1870c7143",
+      "title": "Statistical Details for the Goal Plot",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "text-preparation-options": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/text-preparation-options.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Cloud layout can be count-ordered, alphabetical or centered/frequency-sized, with font/color/legend settings.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/text-preparation-options.shtml",
+      "html_sha256": "212b4c290eafdd5e6d9015afc1b0da2824017230e6e62944cbd8c337cec190a6",
+      "title": "Text Preparation Options",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "the-pareto-plot-report": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/the-pareto-plot-report.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Counts/percentage bars accompany cumulative percentages; comparative cells retain ordering from the key cell.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/the-pareto-plot-report.shtml",
+      "html_sha256": "c1ac011346bda2c594e5fce9c78aabb864f964c390ca4069a926b52368cfb957",
+      "title": "The Pareto Plot Report",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "the-ternary-plot-in-jmp": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/the-ternary-plot-in-jmp.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Triangle sides represent zero and opposite vertices full proportions for three-part compositions.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/the-ternary-plot-in-jmp.shtml",
+      "html_sha256": "c3a21d32367b55bb7cfe0f8d3cf023cad0b84c5e84a1ba62b53b1b845aaa4c3b",
+      "title": "The Ternary Plot in JMP",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    },
+    "treemap": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/treemap.shtml",
+      "publisher": "JMP Statistical Discovery",
+      "version": "19.2",
+      "retrieved_on": "2026-10-22",
+      "evidence_paraphrase": "Nested rectangles encode summaries; Split, Squarify and Mixed layouts have different ordering rules.",
+      "http_status": 200,
+      "effective_url": "https://www.jmp.com/support/help/en/19.2/jmp/treemap.shtml",
+      "html_sha256": "1d1cc5207612fcc25d7cd48277d59d918ad788365adfce42eb024cbb7ff281ab",
+      "title": "Treemap",
+      "retrieval": "Direct HTTPS verified; researched using web.run and inspected primary text. Some web.run opens failed; direct urllib retrieval supplied those texts."
+    }
+  },
+  "code_audit": {
+    "discovery": "Tsubame fs_status/find/list and metadata-filtered fs_grep on tracked source. Ryer catalog empty.",
+    "evidence_files": [
+      {
+        "path": "crates/analytics/src/lib.rs",
+        "sha256": "46344b3a5f44dcb738eb0ea1c3941f0f7403269baf2dc4d03290a30ef53acf92"
+      },
+      {
+        "path": "crates/analytics/src/statistics.rs",
+        "sha256": "9f27bb4d08ff08ef1517896d850e8559ecf0f568252a49d159aa10039365a1a6"
+      },
+      {
+        "path": "crates/analytics/src/design.rs",
+        "sha256": "ef321449399727e186fec5eb8c9b858443bb072b6be24030851959b8d7fd4415"
+      },
+      {
+        "path": "crates/analytics/src/quality.rs",
+        "sha256": "2b7411de07bdef8b61ea1acd1c00608dd293ea604e5430dc5de78e55a2cbbf37"
+      },
+      {
+        "path": "crates/analytics/src/glm.rs",
+        "sha256": "6195fefd5e1e1e2c117ae54a1179b2607dff98539210f9492bf304a2f72218eb"
+      },
+      {
+        "path": "crates/analytics/src/text_analysis.rs",
+        "sha256": "e807750e02519a62fb6e14e3d388af2c6e769928898f0aa365ba4a87c19eb7e4"
+      },
+      {
+        "path": "crates/analytics/src/latent.rs",
+        "sha256": "c98a82f87b0011f485d19c3d6eb9c517d02a2e5577d4bf6b660c5662b62dcfd0"
+      },
+      {
+        "path": "crates/analytics/src/latent_inference.rs",
+        "sha256": "3dfde230db062653d11b2d67bac47f81af054c9ed1283d8ece3ad0a38af19f0a"
+      },
+      {
+        "path": "crates/analytics/src/sem.rs",
+        "sha256": "dbbced0129ede7c93e24396cd3a799ab5a8ad1417718c91b778e408b3611125c"
+      },
+      {
+        "path": "src/analytics_functions.cpp",
+        "sha256": "89358f41889e581285cdd54b317b7ef97091b7607b106caec243bfdfab57e30e"
+      },
+      {
+        "path": "src/include/analytics_registry.inc",
+        "sha256": "61c8b5a2486819be5ee8aed919dafb7be630650348bef8aff4698f933ebe6cf0"
+      }
+    ],
+    "findings": [
+      "The current public ds_analytics_run takes finite numeric matrices/parameters and returns JSON bytes; ds_analytics_free releases them. UTF-8 labels, report styles, binary files and artifact bytes require an explicit additional ABI/SQL design.",
+      "Inspected dispatcher/registry and tracked analytics Rust/C++ code have no dedicated generic chart renderer or PPTX/GIF/report/journal/notebook serialization stack.",
+      "Existing kernels are bounded precursors. No runtime/build tests were run in this acceptance audit, and no artifact was validated as implemented."
+    ],
+    "related_test_locations": [
+      "crates/analytics/tests/design.rs",
+      "crates/analytics/tests/inference.rs",
+      "crates/analytics/tests/glm.rs",
+      "crates/analytics/tests/quality.rs",
+      "crates/analytics/tests/statistics.rs",
+      "crates/analytics/tests/latent.rs",
+      "crates/analytics/tests/latent_inference.rs",
+      "crates/analytics/tests/sem.rs",
+      "crates/analytics/tests/distributions.rs",
+      "crates/analytics/tests/text_analysis.rs",
+      "crates/analytics/tests/ffi.rs"
+    ]
+  },
+  "shared_output_acceptance": {
+    "renderer": "CPU layout/plotting with explicit axes/scales, grouping/facets/series identity, labels/legends, dimensions and missing/hidden/excluded semantics. Human-readable artifact plus inspectable plot data is required.",
+    "errors": "Stable rejection of malformed/nonfinite/unsupported specifications. Never silently substitute a different plot, model, algorithm or file format. Document public ABI/SQL invalid/NULL behavior.",
+    "reproducibility": "Persist input/formula/parameter/style/seed/format provenance. Validate with independent parsers and representative rendered inspection.",
+    "runtime": "The implemented feature must run through the public C ABI and actual loaded DuckDB SQL, not only a detached Python/CLI wrapper."
+  },
+  "summary": {
+    "audited_rows": 44,
+    "recommended_status_counts": {
+      "partial": 13,
+      "absent": 31
+    },
+    "excluded_gui_rows": 0,
+    "implemented_verified_rows": 0,
+    "goal_complete": false
+  },
+  "open_research": [
+    "Distribution count-SE formula is image-based; inspect its equation before full histogram-error parity.",
+    "Detailed JMP interpolation/tie convention is not specified by overview; retain as an explicit implementation detail.",
+    "JMP uses OpenGL. GPU navigation is excluded; CPU geometry/static export is required.",
+    "Equation images need direct extraction; between-within sigma and defect-contour formulas need additional detailed references.",
+    "Full Nelson/nonnormal rules and alert limit estimation still need detailed Process Screening contracts.",
+    "Existing balanced crossed Gauge R&R is a bounded precursor, not all chart/model variants.",
+    "Combined-cause thresholds and per-unit options require detailed Pareto pages.",
+    "Native journal/script compatibility is separate from neutral diagram/table output.",
+    "Catalogue locates this under Factor Analysis; explicit diagram controls are documented under SEM. Loadings alone do not close it.",
+    "Automatic tick/bin choice and shadowgram sequence require explicit detailed conventions.",
+    "Extract JMP quantile interpolation convention; generic host quantiles are not evidence of box-plot parity.",
+    "Density/smoother choices require detailed platform options. A correlation matrix alone is insufficient.",
+    "A single simple bar is partial; the documented style catalogue remains required.",
+    "Hex assignment and size scaling need explicit conventions.",
+    "Related control-chart kernels are not a dedicated run-chart artifact implementation.",
+    "Bounded state-space kernels do not establish JMP automatic smoothing-family selection.",
+    "Overview does not define complete simulation/importance/optimization contracts; detailed subpages must drive those tests.",
+    "Same exact JMP quantile-convention research as box_plot remains required.",
+    "Exact aggregation/interpolation rules need detailed launch/platform documentation.",
+    "OpenGL GUI navigation is excluded; geometry/static output remains in scope.",
+    "Graph Builder density and standalone response contours are different contracts. Exact triangulation/interpolation needs detailed rules.",
+    "More-than-three-component and contour-function options need their detailed official subpages.",
+    "Exact projection/background services and bundled-boundary data/licensing require additional sources; catalogue label is not sufficient.",
+    "Native -Name.jmp/-XY.jmp interoperability and CRS treatment remain separate unverified contracts; plain XY input is insufficient.",
+    "Supplied numeric token counts do not provide raw-text tokenization, string/font handling or layout.",
+    "No authoring GUI is required; generated interactive behavior remains in scope. Per-platform compatibility tables need review.",
+    "Journal and Notebook differ in 19.2; implementing only one cannot close this merged label.",
+    "Native .jrn interoperability remains absent; generic HTML alone does not establish it.",
+    "No .jmpnb parser, JSL runtime or notebook executor exists. SQL markdown is only a narrower subset.",
+    "Full customization extends beyond overview sources. No generic report composer exists here.",
+    "SVG-only is useful partial progress, not completion of all promised formats.",
+    "Native .jrp interoperation is absent/unverified. Numeric JSON or a static image alone is not a reopenable report.",
+    "No native serializer/reader exists. Portable document output is partial progress for this explicitly named native-format row."
+  ]
+}
