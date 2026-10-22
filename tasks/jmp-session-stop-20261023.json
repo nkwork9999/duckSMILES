@@ -1,0 +1,29 @@
+{
+  "requested_stop_local": "2026-10-23T08:30:00+09:00",
+  "status": "Stop prepared; goal will be paused at requestedtime",
+  "source_pushed_to_main": "46f357e7c6c2cd28dbf8a7d11dfe1c7f7c141dbc",
+  "community_pr": "https://github.com/duckdb/community-extensions/pull/3310",
+  "CI_snapshot": "tasks/evidence/jmp-061-ci-stop-snapshot.json",
+  "full_JMP_goal_complete": false,
+  "verified_analytics_functions": 267,
+  "SQL_overloads": 418,
+  "workspace_tests": 1366,
+  "workspace_existing_ignored": 2,
+  "SQL_cases": 18,
+  "SQL_assertions": 603,
+  "SQL_skips": 0,
+  "catalog_examples": 418,
+  "temporary_build_cleanup": {
+    "exact_task_owned_path": "/private/tmp/ducksmiles-jmp-parity-20261022",
+    "rejected_symlink": true,
+    "removed": true,
+    "artifact_hashes_and_rebuild_commands_preserved": "tasks/evidence/jmp-report-ordinal-native-build.json"
+  },
+  "local_processes": "All Cargo,C ABI,SQL,render/checker jobs finished; agents reported no active processes",
+  "resume_order": [
+    "Audit source CI39871706714 and39871706912 and community PR3310 stable/development checks against exact source46f357e; fix concrete failures ifany",
+    "Continue remaining JMP/JMP Pro19.2 CPU non-GUI contracts, including allfive zero-inflated families from tasks/jmp-generalized-next-contracts.json and remaining plot/report options",
+    "Keep full goal incomplete until all required residuals satisfied; chemical DQ/DuckOrch implementation remains deferred until full JMP completion"
+  ],
+  "chemical_DQ_research": "tasks/chemistry-dq-research-20261022.json"
+}

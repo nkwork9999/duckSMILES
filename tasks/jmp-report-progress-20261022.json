@@ -10,7 +10,7 @@
     "report_box_plot_svg"
   ],
   "production_implemented": true,
-  "current_stage": "All4 bounded operations verified at actual Release C ABI and loaded DuckDB SQL; README/ledger/evidence checkpoint in preparation",
+  "current_stage": "Verified4operation source46f357e pushed to main; sourceRustCIpassed; source distribution and communityPR3310 CIpending; scheduledstop08:30JST",
   "cargo_target_dir": "/private/tmp/ducksmiles-jmp-parity-20261022",
   "profile_transition": {
     "removed_exact_task_owned_path": "/private/tmp/ducksmiles-jmp-parity-20261022",
@@ -78,5 +78,9 @@
   "dev_abi_sha256": "953819e84c0d75a1ad5c1fce6a4ebf14af1803aaad4bcfb20b5963cf7891b0f6",
   "verified_analytics_functions": 267,
   "verified_sql_overloads": 418,
-  "verification": "tasks/evidence/jmp-report-ordinal-validation.json"
+  "verification": "tasks/evidence/jmp-report-ordinal-validation.json",
+  "source_pushed_to_main": "46f357e7c6c2cd28dbf8a7d11dfe1c7f7c141dbc",
+  "community_update_061": "tasks/evidence/jmp-community-061-update.json",
+  "current_CI_snapshot": "tasks/evidence/jmp-061-ci-stop-snapshot.json",
+  "stop_handoff": "tasks/jmp-session-stop-20261023.json"
 }

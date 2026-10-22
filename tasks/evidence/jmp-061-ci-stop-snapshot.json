@@ -1,0 +1,67 @@
+{
+  "source_commit": "46f357e7c6c2cd28dbf8a7d11dfe1c7f7c141dbc",
+  "source_runs": [
+    {
+      "id": 39871706912,
+      "name": "Main Extension Distribution Pipeline",
+      "event": "push",
+      "head_sha": "46f357e7c6c2cd28dbf8a7d11dfe1c7f7c141dbc",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39871706912"
+    },
+    {
+      "id": 39871706714,
+      "name": "Rust descriptor regression tests",
+      "event": "push",
+      "head_sha": "46f357e7c6c2cd28dbf8a7d11dfe1c7f7c141dbc",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39871706714"
+    }
+  ],
+  "community_pr": 3310,
+  "community_url": "https://github.com/duckdb/community-extensions/pull/3310",
+  "community_head": "0f749e0389bfe23b2f22269ec81f4ce886f90891",
+  "community_merge_test_sha": "7a910366d2d868a45fa8fbee33903f9107074c0f",
+  "community_checks_at_capture": [
+    {
+      "name": "build / linux_amd64",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/duckdb/community-extensions/actions/runs/39871844921/job/120148098314"
+    },
+    {
+      "name": "build / Generate matrix",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/duckdb/community-extensions/actions/runs/39871844921/job/120147959833"
+    },
+    {
+      "name": "test_against_latest",
+      "status": "completed",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/duckdb/community-extensions/actions/runs/39871844936/job/120147891415"
+    },
+    {
+      "name": "test_against_latest",
+      "status": "completed",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/duckdb/community-extensions/actions/runs/39871845040/job/120147890792"
+    },
+    {
+      "name": "prepare",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/duckdb/community-extensions/actions/runs/39871844921/job/120147889826"
+    },
+    {
+      "name": "forward",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/duckdb/community-extensions/actions/runs/39871844283/job/120147888623"
+    }
+  ],
+  "CI_complete": false,
+  "note": "Point-in-time snapshot before user-requested08:30JST stop. Unknown/pending checks are not passed; stable/development workflows and required actual native/Wasm boundaries must be audited on resume."
+}

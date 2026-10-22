@@ -1,0 +1,14 @@
+{
+  "source_repository": "nkwork9999/duckSMILES",
+  "source_commit": "46f357e7c6c2cd28dbf8a7d11dfe1c7f7c141dbc",
+  "community_repository": "duckdb/community-extensions",
+  "community_base_commit": "066ab4d69cfd8fab651e9cd9b32a483365684806",
+  "community_head_commit": "0f749e0389bfe23b2f22269ec81f4ce886f90891",
+  "community_branch": "community/ducksmiles-reports-20261023",
+  "pr": 3310,
+  "url": "https://github.com/duckdb/community-extensions/pull/3310",
+  "version": "0.6.1",
+  "state": "open",
+  "CI": "pending; not yet observed complete",
+  "full_JMP_goal_complete": false
+}
