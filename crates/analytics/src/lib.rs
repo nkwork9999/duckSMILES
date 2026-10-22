@@ -12,6 +12,7 @@ pub mod evaluation;
 pub mod explore;
 pub mod functional_preprocess;
 pub mod genomics;
+pub mod genreg_ordinal;
 pub mod glm;
 pub mod glmm;
 pub mod inference;
@@ -37,6 +38,7 @@ pub mod spatial;
 pub mod spatial_estimation;
 pub mod spectral;
 pub mod state_space;
+pub mod static_reports;
 pub mod statistics;
 pub mod survival;
 pub mod text_analysis;
@@ -116,6 +118,12 @@ pub unsafe extern "C" fn ds_analytics_free(data: *mut u8, len: usize) {
 
 pub fn execute(operation: &str, data: &[Vec<f64>], parameters: &[f64]) -> Result<String, String> {
     match operation {
+        "genreg_ordinal_fit" | "genreg_ordinal_predict" => {
+            genreg_ordinal::run(operation, data, parameters)
+        }
+        "report_histogram_svg" | "report_box_plot_svg" => {
+            static_reports::run(operation, data, parameters)
+        }
         "censored_normal"
         | "censored_exponential"
         | "censored_gamma"

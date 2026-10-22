@@ -1,0 +1,8 @@
+Captured development tool transcript excerpt; initial work guard omitted axis searches.
+$ CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test genreg_ordinal_contracts all_preprocessing
+running1test
+FAILED all_preprocessing_and_separation_searches_share_the_cumulative_work_budget
+unwrap_err on Ok:algorithm=genreg_ordinal_fit,n_samples52000,n_features16,effective_sample_size52000,iterations0,work_units105300008
+result:FAILED.0passed;1failed;0ignored;11filtered;0.87s
+exit101
+Fix charges all axis searches before evaluating them and checks accumulated budget before returning,including optional-inversion/line-search errors.

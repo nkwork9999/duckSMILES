@@ -1,0 +1,13 @@
+{
+  "from": "dev/default features",
+  "to": "Release/default features",
+  "removed_exact_task_owned_path": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "rejected_symlink": true,
+  "source_evidence_preserved": [
+    "tasks/evidence/jmp-report-ordinal-dev-validation.json",
+    "tasks/evidence/jmp-reports-dev-fixed-reference.json",
+    "tasks/evidence/jmp-ordinal-dev-abi-reference.json",
+    "tasks/evidence/jmp-ordinal-independent-reference.json"
+  ],
+  "time_utc": "2026-10-22T23:18:37.527740+00:00"
+}

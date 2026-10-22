@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "module": "static_reports",
+  "source": "crates/analytics/src/static_reports.rs",
+  "tests": "crates/analytics/tests/report_artifact_contracts.rs",
+  "scope": "Partial bounded CPU static SVG and numerical cores; neither complete JMP histogram nor complete JMP box plot parity.",
+  "integration_status": "PASS: dev/default14focused execute tests and strictClippy; matching macOS arm64 Release/default actual publicCABI and loadedDuckDBSQL each36 independent fixtures,fullJSON/SVG equality,105438combinedchecks,69nativecalls,90requestedSQLscalar evaluations across8queries,69invalidNULLresults and58actualPNG renders. Parent formal18SQLfiles/603assertions/0skips and418catalogexamplesPASS. Bounded cores only; whole JMP histogram/box families remain partial.",
+  "common_contract": {
+    "status": "implemented_bounded_core_verified_matching_release_cabi_sql_svg_raster",
+    "operations": [
+      "report_histogram_svg",
+      "report_box_plot_svg"
+    ],
+    "transport": "Use the existing public numeric C ABI and chem_analyze dispatcher. Return one JSON object containing both numerical plot data and an SVG string; callers can extract the string into a .svg artifact. Dedicated SQL aliases can be added only with complete argument documentation and actual loaded-extension tests.",
+    "matrix_columns": [
+      "value: finite number; if observed=0 this is an ignored finite placeholder, not a missing-value imputation",
+      "group_id: exact integer in[-(2^53-1),2^53-1], groups displayed in ascending numeric order",
+      "frequency: nonnegative integer replication count",
+      "excluded: 0 or 1",
+      "hidden: 0 or 1",
+      "observed: 0 or 1; explicit missingness flag because the existing ABI cannot carry nullable numerical cells",
+      "row_id: unique nonnegative exactly representable integer <= 2^53-1 for output provenance"
+    ],
+    "scope_limits": {
+      "source_rows": 100000,
+      "groups": 16,
+      "sum_frequency_per_call": 1000000,
+      "histogram_bins": 512,
+      "rendered_individual_markers": 20000,
+      "svg_utf8_bytes": 2097152,
+      "canvas_width_px": [
+        320,
+        4096
+      ],
+      "canvas_height_px": [
+        240,
+        4096
+      ]
+    },
+    "sample_selection": "For each group, analysis uses observed=1 AND excluded=0 AND frequency>0. Hidden alone stays in numerical summaries but suppresses individual row markers. Report physical row counts and frequency totals separately, plus excluded/missing/zero-frequency/hidden counts. Do not expand frequency into a large data vector. Empty groups return explicit empty status and null statistics; at least one nonempty group is required.",
+    "missing_input_rule": "SQL NULL, NaN, infinity, ragged matrices, noninteger flags/frequencies/IDs, duplicate row IDs and resource-limit violations return public NULL. To preserve a missing data row for report accounting, the caller supplies a finite placeholder with observed=0. Supporting natural SQL NULL values would require a distinct future bridge contract.",
+    "analytic_weight_rule": "No analytic Weight column in the first bounded contract. Requests for such semantics must be rejected or left explicitly unsupported; do not silently use frequency as analytic weight.",
+    "numerical_safety": "All returned numbers and SVG coordinates must be finite. Reject unrepresentable intermediate results/domains instead of serializing NaN/Inf, collapsing a nonconstant range, clipping outliers silently, truncating markers or wrapping counts. Use stable convex interpolation for quantiles and checked/count-safe cumulative frequencies.",
+    "output_fields": [
+      "schema='ducksmiles-cpu-plot-v1', operation, media_type='image/svg+xml', width, height, svg",
+      "selection_policy, quantile/bin policy name, applied limits, source-row and replicated-observation denominators",
+      "groups with numerical bins or five-number summaries, whiskers/fences, outlier row IDs/frequencies and rendering bounds",
+      "explicit implemented_options and remaining_options; no blanket JMP-equivalent flag"
+    ],
+    "svg_rules": "Self-contained UTF-8 SVG namespace, width/height/viewBox, title/description, deterministic numeric labels and group IDs, explicit plot bounds and clipping, readable axes/ticks, and row/bin provenance attributes. No script, event handlers, foreignObject, external references, network fonts or dependence on GPU/browser execution. Fixed built-in presentation defaults avoid adding a runtime graphics library.",
+    "rendering_contract": {
+      "font_px": 12,
+      "histogram_plot_min_px": [
+        100,
+        80
+      ],
+      "histogram_bin_min_px": 2,
+      "box_plot_min_px": [
+        100,
+        80
+      ],
+      "box_group_band_min_px": 50,
+      "five_number_table_min_canvas_width_px": 650,
+      "quantile_outliers": "JSON always retains closed-Tukey classifications independent of box_type; quantile full-range style never draws outlier circles; explicit outlier_visibility=not_applicable_quantile.",
+      "state_counters": "All state counters independently count source flags, including overlaps. Raw frequency sum limit includes excluded and missing rows.",
+      "geometry": "Each nonempty group has panel left/top/width/height and shared value_domain; affine value_origin=domain minimum,svg_origin=left for horizontal or top+height for vertical,value_scale signed pixels/value; stable reconstruction svg_origin+value_scale*(value-value_origin). Conventional value_offset is descriptive; direct scale*value+offset can cancel for large-offset/small-range data. Histogram also response_domain and affine response_scale,response_offset; box group_coordinate,box_half_width.",
+      "axis_labels": "Adaptive2..5 distinct numeric ticks per axis: concise5decimal/scientific5digit labels unless they collide, then shortest-roundtrip plain/scientific; tick subdivisions4,2,1 and actual text-width margins adapt. One subdivision always includes both endpoints. Reject only if readable geometry cannot fit. Width estimate7px per character at12px sans-serif.",
+      "box_clip": "Shared clip expands panel4px on each side; outlier radius3px and stroke1.5px remain whole, including min/max endpoints; no markers truncated.",
+      "accessibility": "SVG title/desc, readable labelled numeric axes and per-bin titles; each box group title retains full-precision five-number,whisker,N statistics even when visible five-number table is off. Five-number option renders a visible labelled table.",
+      "empty_groups": "Keep all source groups sorted ascending, status empty, panel null and numerical summary fields null; box outliers empty. Empty groups do not consume plot panels; at least one nonempty group required.",
+      "group_labels": "Vertical box band must fit full Group id text plus8px and be at least50px; horizontal box left margin adapts to full Group id. Histogram facet title must fit cell width. At least100x80px plot area; histogram each bin at least2px.",
+      "five_number_precision": "Visible table uses concise labels unless distinct values would collapse to the same text; then shortest-roundtrip plain/scientific labels per row. Columns must fit actual estimated label width+8px. Each cell exposes data-role=five-number-value,data-group-id,data-statistic,data-value; hidden title does not replace visible precision.",
+      "canvas": "Integer width320..4096 and integer height240..4096; particular options must also satisfy actual readable layout constraints."
+    }
+  },
+  "operations": [
+    {
+      "operation": "report_histogram_svg",
+      "symbol": "ReportHistogramSvg",
+      "sql_name": "chem_report_histogram_svg",
+      "description": "Bounded explicit-edge count, percent and density histograms with integer-frequency summaries and deterministic self-contained SVG.",
+      "data": [
+        "value: finite number; if observed=0 this is an ignored finite placeholder, not a missing-value imputation",
+        "group_id: exactly representable integer, groups displayed in ascending numeric order",
+        "frequency: nonnegative integer replication count",
+        "excluded: 0 or 1",
+        "hidden: 0 or 1",
+        "observed: 0 or 1; explicit missingness flag because the existing ABI cannot carry nullable numerical cells",
+        "row_id: unique nonnegative exactly representable integer <= 2^53-1 for output provenance"
+      ],
+      "args": [
+        "version=1",
+        "width_px",
+        "height_px",
+        "response_scale:0=count,1=percent,2=density",
+        "orientation:0=value-on-X,1=value-on-Y",
+        "edge_count",
+        "edge_0,...,edge_(edge_count-1)"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            2,
+            0,
+            1,
+            0,
+            0,
+            1,
+            2
+          ]
+        ],
+        "args": [
+          1,
+          900,
+          600,
+          0,
+          0,
+          3,
+          0,
+          1,
+          2
+        ]
+      },
+      "known_value": {
+        "counts": [
+          1,
+          2
+        ],
+        "N": 3
+      },
+      "sql_example": "chem_report_histogram_svg([[0,0,1,0,0,1,0],[1,0,1,0,0,1,1],[2,0,1,0,0,1,2]], [1,900,600,0,0,3,0,1,2])",
+      "unsupported": [
+        "JMP automatic bin count, origin and tick rounding with observed reference evidence",
+        "JMP exact edge closure, fractional Freq and analytic Weight behavior",
+        "Polygon, KDE bandwidth/smoother, shadowgram width sequence and opacity",
+        "Fill response scale, overlays/overlap, categorical histogram and mixed-variable roles",
+        "Mean/SD, t-test/mean CI annotation, standard-error bars and fitted distribution curves",
+        "Full style/label/panel export configuration and exact element-specific hidden behavior"
+      ],
+      "source": "crates/analytics/src/static_reports.rs",
+      "tests": "crates/analytics/tests/report_artifact_contracts.rs",
+      "evidence": [
+        "tasks/evidence/jmp-reports-tdd.json",
+        "tasks/evidence/jmp-reports-native-reference.json",
+        "tasks/evidence/jmp-report-ordinal-native-sql-validation.json"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-quantiles.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/outlier-box-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/quantile-box-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/histograms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/options-for-continuous-variables.shtml#ww1257611",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-distribution-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-statistics.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/hide-rows-in-data-tables.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/hide-and-exclude-rows-in-data-tables.shtml"
+      ]
+    },
+    {
+      "operation": "report_box_plot_svg",
+      "symbol": "ReportBoxPlotSvg",
+      "sql_name": "chem_report_box_plot_svg",
+      "description": "Bounded type6 Tukey or quantile box plots with numerical provenance and deterministic self-contained SVG.",
+      "data": [
+        "value: finite number; if observed=0 this is an ignored finite placeholder, not a missing-value imputation",
+        "group_id: exactly representable integer, groups displayed in ascending numeric order",
+        "frequency: nonnegative integer replication count",
+        "excluded: 0 or 1",
+        "hidden: 0 or 1",
+        "observed: 0 or 1; explicit missingness flag because the existing ABI cannot carry nullable numerical cells",
+        "row_id: unique nonnegative exactly representable integer <= 2^53-1 for output provenance"
+      ],
+      "args": [
+        "version=1",
+        "width_px",
+        "height_px",
+        "box_type:0=Tukey_outlier,1=quantile",
+        "orientation:0=value-on-Y,1=value-on-X",
+        "show_outliers:0|1",
+        "show_five_number_labels:0|1"
+      ],
+      "fixture": {
+        "data": [
+          [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            2,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            3,
+            0,
+            1,
+            0,
+            0,
+            1,
+            2
+          ],
+          [
+            4,
+            0,
+            1,
+            0,
+            0,
+            1,
+            3
+          ]
+        ],
+        "args": [
+          1,
+          900,
+          650,
+          0,
+          0,
+          1,
+          1
+        ]
+      },
+      "known_value": {
+        "five_number": [
+          1,
+          1.25,
+          2.5,
+          3.75,
+          4
+        ],
+        "whiskers": [
+          1,
+          4
+        ]
+      },
+      "sql_example": "chem_report_box_plot_svg([[1,0,1,0,0,1,0],[2,0,1,0,0,1,1],[3,0,1,0,0,1,2],[4,0,1,0,0,1,3]], [1,900,650,0,0,1,1])",
+      "unsupported": [
+        "Analytic Weight and fractional Freq conventions; direct JMP cross-platform fixtures",
+        "Mean CI confidence diamond and its weighted/pooled/platform-specific inference",
+        "Notches (documented formula already transcribed) and rendering when outside quartiles",
+        "Shortest-half exact size, interpolation and tie conventions",
+        "Solid/Thin styles, arbitrary width/proportional count width and align/offset placement",
+        "Uniform/normal/density jitter, packed/grid/hex/beeswarm placement, seed policy",
+        "Multiple response roles, wrapping/panels, labels/customization and exact hidden-state behavior"
+      ],
+      "source": "crates/analytics/src/static_reports.rs",
+      "tests": "crates/analytics/tests/report_artifact_contracts.rs",
+      "evidence": [
+        "tasks/evidence/jmp-reports-tdd.json",
+        "tasks/evidence/jmp-reports-native-reference.json",
+        "tasks/evidence/jmp-report-ordinal-native-sql-validation.json"
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-quantiles.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/outlier-box-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/quantile-box-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/histograms.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/options-for-continuous-variables.shtml#ww1257611",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-distribution-platform.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-summary-statistics.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/hide-rows-in-data-tables.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/hide-and-exclude-rows-in-data-tables.shtml"
+      ]
+    }
+  ],
+  "verification": {
+    "focused_execute": {
+      "status": "PASS",
+      "tests": 14,
+      "profile": "dev/default features",
+      "log": "tasks/evidence/jmp-reports-focused-green.log"
+    },
+    "scoped_clippy": {
+      "status": "PASS",
+      "warnings": 0,
+      "log": "tasks/evidence/jmp-reports-clippy.log"
+    },
+    "source_sha256": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+    "test_sha256": "4ee544d59edbe184a75e85a3729c3a38d85591978bb074e60c64f79cb5a5ec0b",
+    "public_c_abi": {
+      "status": "PASS",
+      "profile": "Release/default features",
+      "evidence": "tasks/evidence/jmp-reports-native-reference.json",
+      "evidence_sha256": "10b0096fa66878b6b258ff786480a003a0c8d0fd8926c6ceaf4bc9e56f7d17c7",
+      "harness": "scripts/check_jmp_reports.py",
+      "harness_sha256": "d510df9acf861151bf1ae30b6def43ffa483e32dd6a8e6bcc03a6bc5fbc89905",
+      "library_sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe",
+      "native_invocations": 69,
+      "independent_positive_fixtures": 36,
+      "invalid_inputs_returning_NULL": 32
+    },
+    "native_sql": {
+      "status": "PASS",
+      "profile": "Release/default features",
+      "evidence": "tasks/evidence/jmp-reports-native-reference.json",
+      "evidence_sha256": "10b0096fa66878b6b258ff786480a003a0c8d0fd8926c6ceaf4bc9e56f7d17c7",
+      "harness": "scripts/check_jmp_reports.py",
+      "harness_sha256": "d510df9acf861151bf1ae30b6def43ffa483e32dd6a8e6bcc03a6bc5fbc89905",
+      "duckdb_sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2",
+      "extension_sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f",
+      "independent_positive_fixtures": 36,
+      "requested_scalar_evaluations": 90,
+      "SQL_queries": 8,
+      "invalid_inputs_returning_NULL": 37,
+      "selected_vector_outputs": 8,
+      "aliases_verified": 2,
+      "full_JSON_and_SVG_equal_to_public_C_ABI": true,
+      "call_count_method": "C ABI counts native invocations. SQL counts requested scalar evaluations/selected rows, not unobservable optimizer callbacks."
+    },
+    "raster_artifacts": {
+      "status": "PASS",
+      "profile": "Release/default features",
+      "evidence": "tasks/evidence/jmp-reports-native-reference.json",
+      "evidence_sha256": "10b0096fa66878b6b258ff786480a003a0c8d0fd8926c6ceaf4bc9e56f7d17c7",
+      "harness": "scripts/check_jmp_reports.py",
+      "harness_sha256": "d510df9acf861151bf1ae30b6def43ffa483e32dd6a8e6bcc03a6bc5fbc89905",
+      "actual_PNGs": 58,
+      "method": "Original actual C ABI/SQL SVG to macOS sips PNG; ImageMagick independent RGBA mark-anchor/canvas checks. XML geometry checked against independent numerical oracles.",
+      "visual_qa": "REVIEWED_PASS",
+      "retained_reviewed_artifact_records": 14,
+      "retained_directory": "tasks/evidence/jmp-report-artifacts-release",
+      "renderer_differential": "ImageMagick built-in SVG renderer lost valid hollow marks; original actual SVGs render correctly with sips and QuickLook. Renderer differential is retained in evidence; production SVG was not rewritten."
+    },
+    "whole_JMP_family_parity": false,
+    "installed_JMP_comparison": "not performed",
+    "combined_reference_checks": 105438,
+    "repository_SQL_gate": {
+      "status": "PASS",
+      "evidence": "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+      "evidence_sha256": "372a7e2886c6fef1a2d7012b8549b36d471b9760e6a3f048893a9d5b7c7bf5b7",
+      "repository_SQL_files": 18,
+      "assertions": 603,
+      "skipped": 0,
+      "catalog_examples": 418,
+      "scope": "Whole repository gates, including both new report aliases; counts are not report-only."
+    },
+    "release_build": {
+      "path": "tasks/evidence/jmp-report-ordinal-native-build.json",
+      "sha256": "b12d41c9ba4eff293eed52252ab7c1f23fb38353ac19f0e0dd08f566b01c0358",
+      "bytes": 6339
+    }
+  },
+  "output_contract": {
+    "common": [
+      "version=1",
+      "schema=ducksmiles-cpu-plot-v1",
+      "operation",
+      "media_type=image/svg+xml",
+      "width",
+      "height",
+      "source_rows",
+      "selected_rows",
+      "N",
+      "selection_policy",
+      "policy",
+      "limits",
+      "implemented_options",
+      "remaining_options",
+      "groups",
+      "svg"
+    ],
+    "group_counts": [
+      "group_id",
+      "status=ok|empty",
+      "source_rows",
+      "selected_rows",
+      "N",
+      "excluded_rows",
+      "missing_rows",
+      "zero_frequency_rows",
+      "hidden_rows"
+    ],
+    "histogram": [
+      "orientation",
+      "response_scale",
+      "edges",
+      "groups[].counts",
+      "probabilities",
+      "percents",
+      "densities",
+      "responses",
+      "bins objects(left,right,count,probability,percent,density,response)",
+      "panel",
+      "value_domain",
+      "response_domain",
+      "affine"
+    ],
+    "box": [
+      "outlier_classification=closed_Tukey_fences_independent_of_box_type",
+      "outlier_visibility=shown|suppressed|not_applicable_quantile",
+      "box_type",
+      "orientation",
+      "show_outliers",
+      "show_five_number_labels",
+      "groups[].five_number=[minimum,Q1,median,Q3,maximum]",
+      "iqr",
+      "fences",
+      "whiskers",
+      "quantile_ticks=[.025,.10,.90,.975]",
+      "outliers objects(row_id,value,frequency,hidden)",
+      "panel",
+      "value_domain",
+      "affine",
+      "group_coordinate",
+      "box_half_width"
+    ],
+    "svg_roles": [
+      "histogram-bin(group-id,bin-index,count)",
+      "box(group-id)",
+      "median(group-id)",
+      "whisker-stem(group-id)",
+      "whisker-cap(group-id,end=lower|upper)",
+      "quantile-tick(group-id,probability)",
+      "outlier(group-id,row-id,frequency,value)",
+      "value-tick-label(value)",
+      "response-tick-label(value)",
+      "five-number-value(group-id,statistic=minimum|q1|median|q3|maximum,value)"
+    ]
+  }
+}

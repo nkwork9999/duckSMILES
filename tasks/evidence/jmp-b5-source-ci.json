@@ -1,0 +1,155 @@
+{
+  "source_revision": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "rust_workflow": {
+    "run": 39771638705,
+    "job": 119800356110,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39771638705",
+    "suites": 65,
+    "passed": 1340,
+    "failed": 0,
+    "ignored": 2,
+    "log_sha256": "ccc4b46dff1c1150116ef0be89df265aac6e915c3ab5e42fb03b1bb2693f660b",
+    "python_unittest_counts": [
+      "13"
+    ],
+    "node_test_count": [
+      "6"
+    ]
+  },
+  "distribution_workflow": {
+    "run": 39771639283,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39771639283",
+    "build_targets": [
+      {
+        "name": "Build extension binaries / Linux (linux_amd64, ubuntu-24.04, x64-linux-release, x64-linux-release, true, false)",
+        "job": 119800425894,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / Linux (linux_arm64, ubuntu-24.04-arm, arm64-linux-release, arm64-linux-release, false, false)",
+        "job": 119800425997,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / Windows (windows_amd64, windows-latest, x64-windows-static-release, x64-windows-static-release, t...",
+        "job": 119803687230,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / DuckDB-Wasm (wasm_eh, wasm32-emscripten, x64-linux, false, false)",
+        "job": 119803687336,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / Windows (windows_amd64_mingw, windows-latest, x64-mingw-static, x64-mingw-static, true, false)",
+        "job": 119803687346,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / DuckDB-Wasm (wasm_threads, wasm32-emscripten, x64-linux, false, false)",
+        "job": 119803687352,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / DuckDB-Wasm (wasm_mvp, wasm32-emscripten, x64-linux, true, false)",
+        "job": 119803687383,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / MacOS (osx_amd64, macos-15, x86_64, x64-osx-release, arm64-osx-release, false, false)",
+        "job": 119803687389,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build extension binaries / MacOS (osx_arm64, macos-15, arm64, arm64-osx-release, arm64-osx-release, true, false)",
+        "job": 119803687394,
+        "conclusion": "success"
+      }
+    ],
+    "inspected_runtime_and_wasm_logs": [
+      {
+        "job": 119800425894,
+        "name": "Build extension binaries / Linux (linux_amd64, ubuntu-24.04, x64-linux-release, x64-linux-release, true, false)",
+        "conclusion": "success",
+        "sql_summaries": [
+          {
+            "assertions": 513,
+            "test_cases": 16
+          }
+        ],
+        "wasm_linkage_verified_messages": 0,
+        "log_sha256": "275ebc3e6935bcdf59effa6bfe4db6b4a81114c94f44aba064edea06c4cbc10f"
+      },
+      {
+        "job": 119803687230,
+        "name": "Build extension binaries / Windows (windows_amd64, windows-latest, x64-windows-static-release, x64-windows-static-release, t...",
+        "conclusion": "success",
+        "sql_summaries": [
+          {
+            "assertions": 513,
+            "test_cases": 16
+          }
+        ],
+        "wasm_linkage_verified_messages": 0,
+        "log_sha256": "c3a59d1789db4e37757bf463ce68244f11fb7a43f9dd95321c3e0a41f288b3f9"
+      },
+      {
+        "job": 119803687336,
+        "name": "Build extension binaries / DuckDB-Wasm (wasm_eh, wasm32-emscripten, x64-linux, false, false)",
+        "conclusion": "success",
+        "sql_summaries": [],
+        "wasm_linkage_verified_messages": 1,
+        "log_sha256": "9429528cdf578e57a8576fd79d196ce4016880dd5dd48a3b22eaad5299fedd61"
+      },
+      {
+        "job": 119803687346,
+        "name": "Build extension binaries / Windows (windows_amd64_mingw, windows-latest, x64-mingw-static, x64-mingw-static, true, false)",
+        "conclusion": "success",
+        "sql_summaries": [
+          {
+            "assertions": 513,
+            "test_cases": 16
+          }
+        ],
+        "wasm_linkage_verified_messages": 0,
+        "log_sha256": "427159f7ee33ef8f8583d3eb93a8cf24ed3a0faac0a2daab637a2e56cd41397a"
+      },
+      {
+        "job": 119803687352,
+        "name": "Build extension binaries / DuckDB-Wasm (wasm_threads, wasm32-emscripten, x64-linux, false, false)",
+        "conclusion": "success",
+        "sql_summaries": [],
+        "wasm_linkage_verified_messages": 1,
+        "log_sha256": "fa279583d318cb7839ac06949ad0e1b47f49d6079511238d8e451b2c0531ff26"
+      },
+      {
+        "job": 119803687383,
+        "name": "Build extension binaries / DuckDB-Wasm (wasm_mvp, wasm32-emscripten, x64-linux, true, false)",
+        "conclusion": "success",
+        "sql_summaries": [],
+        "wasm_linkage_verified_messages": 1,
+        "log_sha256": "58494c7621d81fd16bdfc9ec0e7e6dc46c1471238e3e1759e474ea068580da49"
+      },
+      {
+        "job": 119803687394,
+        "name": "Build extension binaries / MacOS (osx_arm64, macos-15, arm64, arm64-osx-release, arm64-osx-release, true, false)",
+        "conclusion": "success",
+        "sql_summaries": [
+          {
+            "assertions": 513,
+            "test_cases": 16
+          }
+        ],
+        "wasm_linkage_verified_messages": 0,
+        "log_sha256": "f4f2c64539bec48f8f2b6f67512a28c41779a0d7b5d74d440b2018d4490285ea"
+      }
+    ],
+    "intentional_dispatcher_skip": "umbrella Build extension binaries job skipped; actual9matrixbuildjobs passed",
+    "wasm_runtime_sql": "not executed;3side-modulelinkagechecks only"
+  },
+  "full_jmp_objective_complete": false
+}

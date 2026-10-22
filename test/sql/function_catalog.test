@@ -10,7 +10,7 @@ SELECT count(*), count(description), count(*) FILTER (WHERE len(examples) > 0),
 FROM duckdb_functions()
 WHERE list_contains(categories, 'ducksmiles');
 ----
-414	414	414	414
+418	418	418	418
 
 query I
 SELECT count(*)

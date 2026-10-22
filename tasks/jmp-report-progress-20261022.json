@@ -1,0 +1,82 @@
+{
+  "status": "active",
+  "baseline_revision": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "full_jmp_goal_complete": false,
+  "baseline_verified_analytics_functions": 263,
+  "baseline_verified_sql_overloads": 414,
+  "contracts": "tasks/jmp-report-next-contracts.json",
+  "operations": [
+    "report_histogram_svg",
+    "report_box_plot_svg"
+  ],
+  "production_implemented": true,
+  "current_stage": "All4 bounded operations verified at actual Release C ABI and loaded DuckDB SQL; README/ledger/evidence checkpoint in preparation",
+  "cargo_target_dir": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "profile_transition": {
+    "removed_exact_task_owned_path": "/private/tmp/ducksmiles-jmp-parity-20261022",
+    "rejected_symlink": true,
+    "from": "Release/default features",
+    "to": "dev/default features",
+    "preserved_evidence": "tasks/evidence/jmp-parity-estimation-validation.json"
+  },
+  "chemical_DQ": "Research complete; user reconfirmed on2026-10-23 that implementation starts only after full JMP completion. DuckOrch reuse/embedding remains an option, not a decision.",
+  "remote_ci": {
+    "source_commit": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+    "distribution_run": 39771639283,
+    "rust_run": 39771638705,
+    "status": "sourceb5completed9builds/4native16cases513assertions/3WasmLinkchecks",
+    "rust_status": "completed success",
+    "rust_evidence": "tasks/evidence/jmp-b5-source-ci.json"
+  },
+  "baseline_check": {
+    "command": "cargo check -p ducksmiles_analytics --locked",
+    "exit_code": 0,
+    "seconds": 14.90096799999992
+  },
+  "active_stage": "Behavioral edge TDD, independent actual C ABI numerical and SVG render checks; no overall parity completion",
+  "reports": {
+    "stage": "14focusedGREEN; finalReleaseCABI+SQL105438checks/36positiveperboundary/69NULL/58PNGsPASS; formal18SLT603assertions/418catalogPASS",
+    "source": "crates/analytics/src/static_reports.rs",
+    "tests": "crates/analytics/tests/report_artifact_contracts.rs",
+    "initial_behavioral_red": "6valid-operationfailures unknownoptimizationoperation;1invalidtestvacuousnotcounted",
+    "independent_verification": "scripts/check_jmp_reports.py; initial immutableDevABI cfa277a3718c33feb6eeb2dacfbb5311991beb8c09f8bc3d894f98f3ba43d4a7",
+    "glyph_guidance": "VerifiedBoxPlotguidance:directrolesandstatisticsdata,no coloronlyroles;Histogram-specificsearchhadnomatchafterretrysoapplygeneralaxes/contrastguidance"
+  },
+  "parallel_ordinal": {
+    "stage": "12focusedGREEN; finalReleaseCABI+SQL1082checks plus independentmp80Release1321checksPASS",
+    "operations": [
+      "genreg_ordinal_fit",
+      "genreg_ordinal_predict"
+    ],
+    "contract": "tasks/jmp-generalized-next-contracts.json",
+    "source": "crates/analytics/src/genreg_ordinal.rs",
+    "non_equivalence_residual": "ExplicitnativeML/observedinformation; JMPdefaultLasso/M-estimationsandwich exactequivalenceremainsunverified"
+  },
+  "community_update": {
+    "headRefName": "community/ducksmiles-analytics-20261022",
+    "headRefOid": "383988b71ffbf32076777a2c5c5e871232c5fca1",
+    "mergeCommit": {
+      "oid": "d1b37dae62446b862e1a9dbf29a3d357c14a3349"
+    },
+    "mergedAt": "2026-10-22T21:13:44Z",
+    "state": "MERGED",
+    "title": "Update ducksmiles to 0.6.0: CPU numerical analytics",
+    "url": "https://github.com/duckdb/community-extensions/pull/3183",
+    "pinned_source_at_merge": "442f54588d5882a3fc14f3f830c2d29d20701ace",
+    "newer_verified_source": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+    "next_update": "new PR after active report/ordinal batch verification; do not mutate merged PR branch"
+  },
+  "scheduled_stop": {
+    "requested_by_user": true,
+    "local_date": "2026-10-23",
+    "local_time": "08:30",
+    "timezone": "Asia/Tokyo",
+    "utc": "2026-10-22T23:30:00Z",
+    "policy": "Stop local work and all agents; save evidence and exact resume position; preserve full JMP as unfinished; chemical DQ remains deferred."
+  },
+  "dev_abi_build": "tasks/evidence/jmp-report-ordinal-dev-abi-build.json",
+  "dev_abi_sha256": "953819e84c0d75a1ad5c1fce6a4ebf14af1803aaad4bcfb20b5963cf7891b0f6",
+  "verified_analytics_functions": 267,
+  "verified_sql_overloads": 418,
+  "verification": "tasks/evidence/jmp-report-ordinal-validation.json"
+}

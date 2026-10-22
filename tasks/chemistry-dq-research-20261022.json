@@ -286,6 +286,9 @@
     "sequence": "JMP objective first, chemical DQ implementation afterward",
     "additional_architecture_option": "Embed reusable DuckOrch orchestration foundation into DuckSMILES",
     "implementation_started": false,
-    "status": "deferred until JMP objective completion"
+    "status": "deferred until JMP objective completion",
+    "sequence_reconfirmed_date": "2026-10-23",
+    "sequence_reconfirmed_text": "JMPが終わったら始めるか",
+    "start_gate": "Full JMP objective completion, not a limited implementation batch or CI checkpoint"
   }
 }

@@ -1,0 +1,120 @@
+# name: test/sql/genreg_ordinal.test
+# description: Native ML ordered logits, exact information, saved inference and nullable vectors
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+query IIII
+SELECT count(*),count(description),count(*) FILTER(WHERE len(examples)>0),
+       count(*) FILTER(WHERE parameters=['data','parameters'] AND parameter_types=['DOUBLE[][]','DOUBLE[]'])
+FROM duckdb_functions()
+WHERE function_name IN ('chem_genreg_ordinal_fit','chem_genreg_ordinal_predict');
+----
+2	2	2	2
+
+# Saturated intercept-only multinomial occurrence fractions give cumulative
+# probabilities1/4,3/4. Joint cut covariance comes from multinomial delta algebra.
+query IIIIIII
+WITH fit AS (SELECT chem_genreg_ordinal_fit([[30.,1.],[10.,1.],[20.,2.]],[]) AS m)
+SELECT json_extract(m,'$.ordered_labels')::DOUBLE[]=[10.,20.,30.],
+ abs(json_extract(m,'$.cutpoints[0]')::DOUBLE+1.0986122886681098)<1e-8,
+ abs(json_extract(m,'$.cutpoints[1]')::DOUBLE-1.0986122886681098)<1e-8,
+ abs(json_extract(m,'$.genreg_intercepts[1]')::DOUBLE-2.1972245773362196)<1e-8,
+ abs(json_extract(m,'$.log_likelihood')::DOUBLE+4.1588830833596715)<1e-8,
+ abs(json_extract(m,'$.covariance[0][1]')::DOUBLE-.4444444444444444)<1e-7,
+ json_extract_string(m,'$.covariance_method')='observed_information'
+FROM fit;
+----
+true	true	true	true	true	true	true
+
+# A second independent closed-form covariance fixture guards against a single
+# symmetric special case. N100 counts40/35/25: raw covariance1/24,1/45,4/75.
+query IIIII
+WITH fit AS (SELECT chem_genreg_ordinal_fit([[10.,40.],[20.,35.],[30.,25.]],[]) AS m)
+SELECT abs(json_extract(m,'$.cutpoints[0]')::DOUBLE+.4054651081081643)<1e-8,
+ abs(json_extract(m,'$.covariance[0][0]')::DOUBLE-1./24.)<1e-8,
+ abs(json_extract(m,'$.covariance[0][1]')::DOUBLE-1./45.)<1e-8,
+ abs(json_extract(m,'$.covariance[1][1]')::DOUBLE-4./75.)<1e-8,
+ abs(json_extract(m,'$.genreg_covariance[1][1]')::DOUBLE-.050555555555555555)<1e-8
+FROM fit;
+----
+true	true	true	true	true
+
+# Actual fitted carrier is extracted and reused through native SQL. A q column
+# permits intercept-only prediction through the existing nonzero-column ABI.
+query IIIIII
+WITH fit AS (SELECT chem_genreg_ordinal_fit([[30.,1.],[10.,1.],[20.,2.]],[]) AS m),
+pred AS (SELECT chem_genreg_ordinal_predict([[.2],[.43],[.81]],json_extract(m,'$.predict_parameters')::DOUBLE[]) AS p FROM fit)
+SELECT json_extract(p,'$.most_likely')::DOUBLE[]=[20.,20.,20.],
+ json_extract(p,'$.quantiles')::DOUBLE[]=[10.,20.,30.],
+ abs(json_extract(p,'$.probabilities[0][0]')::DOUBLE-.25)<1e-8,
+ abs(json_extract(p,'$.probabilities[0][1]')::DOUBLE-.5)<1e-8,
+ abs(json_extract(p,'$.probability_standard_errors[0][0]')::DOUBLE-.21650635094610965)<1e-8,
+ abs(json_extract(p,'$.probability_standard_errors[0][1]')::DOUBLE-.25)<1e-8
+FROM pred;
+----
+true	true	true	true	true	true
+
+# Exactly specified3x3 probabilities make beta=+ln3 under JMP's cumulative sign.
+# Predictor origin/units are changed; original Xbeta must not become centered eta.
+query IIIII
+WITH fit AS (
+ SELECT chem_genreg_ordinal_fit([[7.,10.,2.],[7.,20.,8.],[7.,30.,10.],
+ [10.,10.,5.],[10.,20.,10.],[10.,30.,5.],[13.,10.,10.],[13.,20.,8.],[13.,30.,2.]],[]) AS m
+), pred AS (
+ SELECT m,chem_genreg_ordinal_predict([[10.,.43]],json_extract(m,'$.predict_parameters')::DOUBLE[]) AS p FROM fit
+)
+SELECT abs(json_extract(m,'$.coefficients[0]')::DOUBLE-.3662040962227033)<1e-6,
+ abs(json_extract(m,'$.cutpoints[0]')::DOUBLE+4.760653250895143)<1e-5,
+ abs(json_extract(p,'$.linear_predictor[0]')::DOUBLE-3.662040962227033)<1e-5,
+ abs(json_extract(p,'$.probabilities[0][0]')::DOUBLE-.25)<1e-6,
+ json_extract(m,'$.jmp_sandwich_equivalence_verified')::BOOLEAN=false
+FROM pred;
+----
+true	true	true	true	true
+
+# A valid tiny covariance must be validated without inverting it. Its probability
+# variance underflows,while its standard deviation remains representable.
+query II
+WITH pred AS (
+ SELECT chem_genreg_ordinal_predict([[.43]],
+ [1.,0.,3.,.95,1.,10.,20.,30.,-1.0986122886681098,1.0986122886681098,1e-320,0.,0.,1e-320]) AS p
+)
+SELECT json_extract(p,'$.probability_standard_errors[0][0]')::DOUBLE>0.,
+ abs(json_extract(p,'$.probability_standard_errors[0][0]')::DOUBLE/1.8749895629547167e-161-1.)<1e-7
+FROM pred;
+----
+true	true
+
+query IIII
+SELECT chem_genreg_ordinal_predict([[.43]],[1.,0.,3.,.95,1.,10.,20.,30.,-1.,1.,1e-200,1e-201,0.,1e-200]) IS NULL,
+ chem_genreg_ordinal_predict([[.43]],[1.,0.,3.,.95,1.,10.,20.,30.,-1.,1.,1.7e308,1.1e308,1e308,1.7e308]) IS NULL,
+ chem_genreg_ordinal_fit([[-1.,10.,1.],[0.,10.,1.],[0.,20.,1.],[1.,20.,1.]],[]) IS NULL,
+ chem_genreg_ordinal_fit([[10.,-1.],[20.,3.]],[]) IS NULL;
+----
+true	true	true	true
+
+# maxiter0 diagnostics are valid points with no fitted uncertainty.
+query III
+WITH fit AS (
+ SELECT chem_genreg_ordinal_fit([[-1.,10.,2.],[-1.,20.,8.],[-1.,30.,10.],
+ [0.,10.,5.],[0.,20.,10.],[0.,30.,5.],[1.,10.,10.],[1.,20.,8.],[1.,30.,2.]],[0.]) AS m
+), pred AS (SELECT m,chem_genreg_ordinal_predict([[0.,.43]],json_extract(m,'$.predict_parameters')::DOUBLE[]) AS p FROM fit)
+SELECT json_extract(m,'$.converged')::BOOLEAN=false,
+ json_extract(m,'$.covariance')::VARCHAR='null',
+ json_extract(p,'$.probability_standard_errors')::VARCHAR='[[null,null,null]]'
+FROM pred;
+----
+true	true	true
+
+# Dictionary/selection vectors and natural NULL inputs use the actual C++ bridge.
+query III
+WITH rows(d) AS (VALUES ([[10.,1.],[20.,2.],[30.,1.]]),
+                        (NULL::DOUBLE[][]),([[10.,-1.],[20.,3.]]))
+SELECT count(*),count(chem_genreg_ordinal_fit(d,[])),
+ count(*) FILTER(WHERE chem_genreg_ordinal_fit(d,[]) IS NULL)
+FROM rows;
+----
+3	1	2

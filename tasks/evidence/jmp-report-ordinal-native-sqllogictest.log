@@ -1,0 +1,24 @@
+Filters: /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*
+
+[0/18] (0%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test
+[1/18] (5%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test took 0.058s
+[2/18] (11%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_specialized.test took 0.028s
+[3/18] (16%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_continuation.test took 0.029s
+[4/18] (22%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/report_artifacts.test took 0.040s
+[5/18] (27%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/spatial_estimation.test took 0.045s
+[6/18] (33%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_models.test took 0.024s
+[7/18] (38%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/fallibility.test took 0.017s
+[8/18] (44%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test took 0.045s
+[9/18] (50%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/mass_context.test took 0.031s
+[10/18] (55%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_streams.test took 0.013s
+[11/18] (61%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_analytics.test took 0.062s
+[12/18] (66%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/native_graph.test took 0.013s
+[13/18] (72%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/vector_compat.test took 0.017s
+[14/18] (77%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test took 0.020sReplacing deprecated __BUILD_DIRECTORY__ in test /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test - please replace with {BUILD_DIRECTORY}
+
+[15/18] (83%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test took 0.010s
+[16/18] (88%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/censored_regression.test took 0.039s
+[17/18] (94%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test took 0.069s
+[18/18] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/genreg_ordinal.test took 0.037s
+===============================================================================
+All tests passed (603 assertions in 18 test cases)

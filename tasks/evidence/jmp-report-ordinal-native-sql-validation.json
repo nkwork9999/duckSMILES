@@ -1,0 +1,93 @@
+{
+  "status": "PASS",
+  "profile": "Release/default features",
+  "checks": [
+    {
+      "name": "sqllogictest",
+      "command": [
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/test/unittest",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+        "--test-dir",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk",
+        "--require",
+        "ducksmiles",
+        "--require",
+        "json",
+        "--emit-on-skip",
+        "--reporter",
+        "console"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6616982079995068,
+      "log": "tasks/evidence/jmp-report-ordinal-native-sqllogictest.log",
+      "log_sha256": "505700b89a089313685e3d160a75bfeb352efa360864da8af68d69571186c451",
+      "assertions": 603,
+      "cases": 18,
+      "skipped": 0,
+      "test_names": [
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_specialized.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_continuation.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/report_artifacts.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/spatial_estimation.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_models.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/fallibility.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/mass_context.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_streams.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_analytics.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/native_graph.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/vector_compat.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/censored_regression.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/genreg_ordinal.test"
+      ],
+      "listing_exit_code": 18
+    },
+    {
+      "name": "catalog",
+      "command": [
+        "python3",
+        "/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_function_catalog.py",
+        "--duckdb",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+        "--extension",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3260792920000313,
+      "log": "tasks/evidence/jmp-report-ordinal-native-catalog.log",
+      "log_sha256": "de6b0142ec075019da858d030a158236a5b71de6a9f4881ef60b0b03e8c70703"
+    }
+  ],
+  "artifacts": {
+    "cli": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+      "sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2"
+    },
+    "extension": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+    },
+    "C_ABI": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+      "sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe"
+    },
+    "archive": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
+      "sha256": "3eef21aa686946a0134a60e9d84c6270455f898bf9ee1c3a970c088baf520337"
+    }
+  },
+  "source_hashes": {
+    "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
+    "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+    "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+    "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+  },
+  "catalog_examples_executed": 418,
+  "analytics_functions": 267,
+  "registry_operations": 243,
+  "full_JMP_goal_complete": false
+}

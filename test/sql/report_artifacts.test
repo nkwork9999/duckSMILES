@@ -1,0 +1,174 @@
+# name: test/sql/report_artifacts.test
+# description: CPU histogram/box report artifacts, type6 quantiles and selected vectors
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+# Real catalog registration and named parameters; independent XML/raster checks
+# live in scripts/check_jmp_reports.py and consume actual ABI/SQL SVG output.
+query IIII
+SELECT count(*), count(description), count(*) FILTER (WHERE len(examples)>0),
+       count(*) FILTER (WHERE parameters=['data','parameters'] AND parameter_types=['DOUBLE[][]','DOUBLE[]'])
+FROM duckdb_functions()
+WHERE function_name IN ('chem_report_histogram_svg','chem_report_box_plot_svg');
+----
+2	2	2	2
+
+# Explicit native bins are left-closed, right-open except the final edge.
+# Negative values and observations exactly on interior/final edges catch the
+# wrong floor/origin/edge branch; source rows and replication N are separate.
+query IIIIII
+WITH report AS (
+ SELECT chem_analyze('report_histogram_svg',
+ [[-2.,0.,1.,0.,0.,1.,0.],[-1.,0.,1.,0.,0.,1.,1.],[-.5,0.,1.,0.,0.,1.,2.],
+  [0.,0.,1.,0.,0.,1.,3.],[.5,0.,1.,0.,0.,1.,4.],[1.,0.,1.,0.,0.,1.,5.],
+  [2.,0.,1.,0.,0.,1.,6.]], [1.,800.,500.,0.,0.,5.,-2.,-1.,0.,1.,2.]) AS r
+)
+SELECT json_extract(r,'$.groups[0].counts')::DOUBLE[]=[1.,2.,2.,2.],
+       json_extract(r,'$.N')::DOUBLE=7.,
+       json_extract(r,'$.selected_rows')::DOUBLE=7.,
+       json_extract_string(r,'$.schema')='ducksmiles-cpu-plot-v1',
+       json_extract_string(r,'$.media_type')='image/svg+xml',
+       len(json_extract_string(r,'$.svg'))>0
+FROM report;
+----
+true	true	true	true	true	true
+
+# Unequal bin widths distinguish probability mass from density height:
+# [0,1) has2/5 mass and width1; [1,3] has3/5 mass and width2.
+query IIII
+WITH report AS (
+ SELECT chem_report_histogram_svg(
+ [[0.,0.,1.,0.,0.,1.,0.],[.5,0.,1.,0.,0.,1.,1.],[1.,0.,1.,0.,0.,1.,2.],
+  [2.,0.,1.,0.,0.,1.,3.],[3.,0.,1.,0.,0.,1.,4.]],
+ [1.,800.,500.,2.,0.,3.,0.,1.,3.]) AS r
+)
+SELECT json_extract(r,'$.groups[0].counts')::DOUBLE[]=[2.,3.],
+       json_extract(r,'$.groups[0].probabilities')::DOUBLE[]=[.4,.6],
+       abs(json_extract(r,'$.groups[0].densities[0]')::DOUBLE-.4)<1e-12,
+       abs(json_extract(r,'$.groups[0].densities[1]')::DOUBLE-.3)<1e-12
+FROM report;
+----
+true	true	true	true
+
+# JMP type6 differs from default type7: Q1=1.25,Q3=3.75 for1,2,3,4.
+query IIII
+WITH report AS (
+ SELECT chem_report_box_plot_svg(
+ [[1.,0.,1.,0.,0.,1.,0.],[2.,0.,1.,0.,0.,1.,1.],
+  [3.,0.,1.,0.,0.,1.,2.],[4.,0.,1.,0.,0.,1.,3.]],
+ [1.,800.,500.,0.,0.,1.,1.]) AS r
+)
+SELECT json_extract(r,'$.groups[0].five_number')::DOUBLE[]=[1.,1.25,2.5,3.75,4.],
+       json_extract(r,'$.groups[0].whiskers')::DOUBLE[]=[1.,4.],
+       json_extract(r,'$.groups[0].fences')::DOUBLE[]=[-2.5,7.5],
+       json_extract(r,'$.groups[0].iqr')::DOUBLE=2.5
+FROM report;
+----
+true	true	true	true
+
+# Actual whisker observations stop at5 rather than the computed upper fence11.
+# Hiding100 suppresses its marker only; classification and quartiles remain.
+query IIIII
+WITH report AS (
+ SELECT chem_analyze('report_box_plot_svg',
+ [[0.,0.,1.,0.,0.,1.,0.],[1.,0.,1.,0.,0.,1.,1.],[2.,0.,1.,0.,0.,1.,2.],
+  [3.,0.,1.,0.,0.,1.,3.],[4.,0.,1.,0.,0.,1.,4.],[5.,0.,1.,0.,0.,1.,5.],
+  [100.,0.,1.,0.,1.,1.,6.]], [1.,800.,500.,0.,0.,1.,1.]) AS r
+)
+SELECT json_extract(r,'$.groups[0].whiskers')::DOUBLE[]=[0.,5.],
+       json_extract(r,'$.groups[0].fences')::DOUBLE[]=[-5.,11.],
+       json_extract(r,'$.groups[0].outliers[0].row_id')::DOUBLE=6.,
+       json_extract(r,'$.groups[0].outliers[0].hidden')::BOOLEAN,
+       json_extract(r,'$.N')::DOUBLE=7.
+FROM report;
+----
+true	true	true	true	true
+
+# Quantile boxes use the full range. These41 observations give interior type6
+# ticks .05,3.2,36.8,39.95, not merely endpoint-clamped small-sample ticks.
+query IIIII
+WITH data AS (
+ SELECT list([i::DOUBLE,0.,1.,0.,0.,1.,i::DOUBLE] ORDER BY i) AS d FROM range(41) t(i)
+), report AS (
+ SELECT chem_report_box_plot_svg(d,[1.,800.,500.,1.,0.,1.,1.]) AS r FROM data
+)
+SELECT json_extract(r,'$.groups[0].whiskers')::DOUBLE[]=[0.,40.],
+       abs(json_extract(r,'$.groups[0].quantile_ticks[0]')::DOUBLE-.05)<1e-12,
+       abs(json_extract(r,'$.groups[0].quantile_ticks[1]')::DOUBLE-3.2)<1e-12,
+       abs(json_extract(r,'$.groups[0].quantile_ticks[2]')::DOUBLE-36.8)<1e-12,
+       abs(json_extract(r,'$.groups[0].quantile_ticks[3]')::DOUBLE-39.95)<1e-12
+FROM report;
+----
+true	true	true	true	true
+
+# Integer frequency is replication. Hidden, excluded, observed and zero-frequency
+# counters are independent source flags, including an excluded+hidden+missing row.
+# The selected sample is1,2,2,10, so median2 and N4 with3 selected physical rows.
+query IIIIIIII
+WITH report AS (
+ SELECT chem_report_box_plot_svg(
+ [[1.,0.,1.,0.,0.,1.,1.],[2.,0.,2.,0.,0.,1.,2.],[10.,0.,1.,0.,1.,1.,3.],
+  [999.,0.,1.,1.,0.,1.,4.],[888.,0.,1.,0.,0.,0.,5.],
+  [777.,0.,0.,0.,0.,1.,6.],[666.,0.,2.,1.,1.,0.,7.]],
+ [1.,800.,500.,0.,0.,1.,1.]) AS r
+)
+SELECT json_extract(r,'$.groups[0].source_rows')::BIGINT,
+       json_extract(r,'$.groups[0].selected_rows')::BIGINT,
+       json_extract(r,'$.groups[0].N')::BIGINT,
+       json_extract(r,'$.groups[0].excluded_rows')::BIGINT,
+       json_extract(r,'$.groups[0].missing_rows')::BIGINT,
+       json_extract(r,'$.groups[0].zero_frequency_rows')::BIGINT,
+       json_extract(r,'$.groups[0].hidden_rows')::BIGINT,
+       json_extract(r,'$.groups[0].five_number')::DOUBLE[]=[1.,1.25,2.,8.,10.]
+FROM report;
+----
+7	3	4	2	2	1	2	true
+
+# Small but nonzero domains must generate a usable report, with exact numerical
+# edges retained. The independent XML/raster verifier checks distinct tick text.
+query III
+WITH report AS (
+ SELECT chem_report_histogram_svg(
+ [[1.,0.,1.,0.,0.,1.,0.],[1.00000001,0.,1.,0.,0.,1.,1.],[1.00000002,0.,1.,0.,0.,1.,2.]],
+ [1.,1000.,600.,0.,0.,3.,1.,1.00000001,1.00000002]) AS r
+)
+SELECT r IS NOT NULL,
+       json_extract(r,'$.groups[0].counts')::DOUBLE[]=[1.,2.],
+       json_extract(r,'$.groups[0].value_domain[1]')::DOUBLE>json_extract(r,'$.groups[0].value_domain[0]')::DOUBLE
+FROM report;
+----
+true	true	true
+
+# Preserve nullable nested-list semantics and reject malformed contracts.
+query IIIIIIII
+SELECT chem_analyze('report_histogram_svg',NULL::DOUBLE[][],[1.,800.,500.,0.,0.,3.,0.,1.,2.]) IS NULL,
+       chem_analyze('report_histogram_svg',[[0.,0.,1.,0.,0.,1.,0.]],NULL::DOUBLE[]) IS NULL,
+       chem_analyze('report_histogram_svg',[[NULL::DOUBLE,0.,1.,0.,0.,1.,0.]],[1.,800.,500.,0.,0.,3.,0.,1.,2.]) IS NULL,
+       chem_analyze('report_histogram_svg',[[0.,0.,-1.,0.,0.,1.,0.]],[1.,800.,500.,0.,0.,3.,0.,1.,2.]) IS NULL,
+       chem_analyze('report_histogram_svg',[[0.,0.,1.,0.,0.,1.,0.],[1.,0.,1.,0.,0.,1.,0.]],[1.,800.,500.,0.,0.,3.,0.,1.,2.]) IS NULL,
+       chem_analyze('report_histogram_svg',[[0.,0.,1.,0.,0.,1.,0.]],[1.,800.,500.,0.,0.,3.,0.,1.,1.]) IS NULL,
+       chem_analyze('report_box_plot_svg',[[0.,0.,1.,0.,0.,1.,0.]],[1.,800.,500.,2.,0.,1.,1.]) IS NULL,
+       chem_analyze('report_box_plot_svg',[[0.,0.,1.,0.,0.,1.,0.]],[1.,50.,50.,0.,0.,1.,1.]) IS NULL;
+----
+true	true	true	true	true	true	true	true
+
+# Nonconstant selected nested matrices/parameters interleave three NULL rows
+# with four valid reports. Count predicates retain the full denominator and
+# cannot silently pass by bool_and ignoring per-row NULL results.
+query IIII
+WITH selected AS (
+ SELECT i,chem_analyze('report_histogram_svg',
+   CASE WHEN i%3=0 THEN NULL::DOUBLE[][] ELSE
+    [[i::DOUBLE,0.,1.,0.,0.,1.,i::DOUBLE],[i+1.,0.,1.,0.,0.,1.,i+100.]] END,
+   [1.,800.,500.,0.,0.,3.,i-1.,i+.5,i+2.]) AS r
+ FROM range(8) t(i) WHERE i<>4
+)
+SELECT count(*),count(*) FILTER (WHERE r IS NULL),
+       count(*) FILTER (WHERE json_extract(r,'$.groups[0].counts')::DOUBLE[]=[1.,1.]),
+       count(*) FILTER (WHERE json_extract(r,'$.N')::DOUBLE=2.)
+FROM selected;
+----
+7	3	4	4

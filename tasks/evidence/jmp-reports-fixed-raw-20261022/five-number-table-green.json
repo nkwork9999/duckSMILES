@@ -1,0 +1,2384 @@
+{
+  "schema": "jmp-report-independent-verification-v1",
+  "status": "PASS",
+  "checked_at_utc": "2026-10-22T23:14:04.626275+00:00",
+  "python": "3.14.3 (main, Feb  3 2026, 15:32:20) [Clang 17.0.0 (clang-1700.6.3.2)]",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "primary_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-quantiles.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/outlier-box-plot.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/quantile-box-plot.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-distribution-platform.shtml"
+  ],
+  "verifier": {
+    "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_reports.py",
+    "sha256": "d510df9acf861151bf1ae30b6def43ffa483e32dd6a8e6bcc03a6bc5fbc89905"
+  },
+  "reference_only": false,
+  "reference_method": "11 hand-derived literal cases; origin-centered standard Python statistics.quantiles exclusive with JMP endpoint clamps; tiny physically expanded integer frequency samples; independently counted intervals; Decimal90 audit of large-offset rounding",
+  "verification_boundaries": [
+    "public_c_abi"
+  ],
+  "cases": [
+    {
+      "name": "large_offset_small_range_labels",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1000000000000.0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1000000000000.005,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1000000000000.01,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          1000000000000.015,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          1000000000000.02,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        600,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.json",
+        "sha256": "3934ea40762d8c0298454433e44d3acd97d2d1e5a2233412f08c61609f5e0744"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.svg",
+        "sha256": "fb7e90c3dee99b5b2c96de6e537e8dfe4f1c5f01ae4952440b90cdbdb6281e18"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.svg",
+          "sha256": "fb7e90c3dee99b5b2c96de6e537e8dfe4f1c5f01ae4952440b90cdbdb6281e18"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.png",
+          "sha256": "ad636741b9474ca8dff932f7a8f8859ec822da779fcca97f41a49663b45b6e28"
+        },
+        "width": 1000,
+        "height": 600,
+        "nonwhite_pixels": 10941,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    }
+  ],
+  "nullable_cases": [
+    {
+      "name": "negative_frequency",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "fractional_frequency",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonboolean_excluded",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonboolean_hidden",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonboolean_observed",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "fractional_group",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "negative_row_id",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "fractional_row_id",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "frequency_budget",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonfinite_value",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "duplicate_row_id",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "empty_matrix",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "wrong_column_count",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "extra_column",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "no_observations",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "all_excluded",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "all_zero_frequency",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "too_many_groups",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "wrong_version",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "small_canvas",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "unsupported_scale",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "bad_orientation",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "duplicate_edges",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "decreasing_edges",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "truncated_edges",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "selected_outside_domain",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonfinite_parameter",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "unreadably_many_bins",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "invalid_box_type",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "invalid_box_visibility",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "truncated_box_arguments",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "unknown_operation",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    }
+  ],
+  "call_count_method": "C ABI counts native invocations. SQL counts requested scalar evaluations/selected rows, not unobservable optimizer callbacks.",
+  "visual_qa": {
+    "status": "pending_human_or_agent_image_inspection",
+    "note": "XML/pixel checks do not substitute for viewing the produced artifacts."
+  },
+  "whole_JMP_feature_equivalence_claim": false,
+  "literal_reference_fixtures": 11,
+  "large_offset_reference_audit": {
+    "method": "Decimal90, exact Decimal.from_float inputs, official type6 ranks; round each output quantile once to f64",
+    "input_hex": [
+      "0x1.d1a94a2000000p+39",
+      "0x1.d1a94a2000029p+39",
+      "0x1.d1a94a2000052p+39",
+      "0x1.d1a94a200007bp+39",
+      "0x1.d1a94a20000a4p+39"
+    ],
+    "quantiles": [
+      {
+        "probability": "0.25",
+        "exact_real_quantile": "1000000000000.002502441406250",
+        "rounded_f64": 1000000000000.0024,
+        "rounded_f64_hex": "0x1.d1a94a2000014p+39"
+      },
+      {
+        "probability": "0.5",
+        "exact_real_quantile": "1000000000000.01000976562500",
+        "rounded_f64": 1000000000000.01,
+        "rounded_f64_hex": "0x1.d1a94a2000052p+39"
+      },
+      {
+        "probability": "0.75",
+        "exact_real_quantile": "1000000000000.017517089843750",
+        "rounded_f64": 1000000000000.0176,
+        "rounded_f64_hex": "0x1.d1a94a2000090p+39"
+      }
+    ],
+    "rounded_quantile_IQR": 0.01513671875,
+    "uncentered_statistics_quartiles": [
+      1000000000000.0024,
+      1000000000000.01,
+      1000000000000.0176
+    ],
+    "lesson": "The uncentered Python reference Q1 is one ULP wrong here; production matched the Decimal90-rounded quartiles. No tolerance was loosened to accept the difference."
+  },
+  "independent_expected_summaries": [
+    {
+      "name": "negative_edge_ties",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "probabilities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ],
+          "percents": [
+            14.285714285714286,
+            28.571428571428573,
+            28.571428571428573,
+            28.571428571428573
+          ],
+          "densities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unequal_bin_density",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.4,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "replication_frequency",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            4
+          ],
+          "probabilities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ],
+          "percents": [
+            42.857142857142854,
+            57.142857142857146
+          ],
+          "densities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ]
+        }
+      ]
+    },
+    {
+      "name": "singleton_histogram",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 1,
+          "selected_rows": 1,
+          "N": 1,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1
+          ],
+          "probabilities": [
+            1.0
+          ],
+          "percents": [
+            100.0
+          ],
+          "densities": [
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unequal_density_response",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.4,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "frequency_percent_response",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            4
+          ],
+          "probabilities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ],
+          "percents": [
+            42.857142857142854,
+            57.142857142857146
+          ],
+          "densities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ]
+        }
+      ]
+    },
+    {
+      "name": "type6_not_type7",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.5,
+            3.75,
+            4
+          ],
+          "quartiles": [
+            1.25,
+            2.5,
+            3.75
+          ],
+          "IQR": 2.5,
+          "fences": [
+            -2.5,
+            7.5
+          ],
+          "whiskers": [
+            1,
+            4
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.5,
+            "0.75": 3.75,
+            "0.9": 4,
+            "0.975": 4
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "actual_data_whiskers",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fence_equalities",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -5,
+            1.0,
+            3.0,
+            5.0,
+            11
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            -5,
+            11
+          ],
+          "quantiles": {
+            "0.025": -5,
+            "0.1": -5,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 11,
+            "0.975": 11
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "zero_iqr_outlier",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            0,
+            0,
+            0,
+            10
+          ],
+          "quartiles": [
+            0,
+            0,
+            0
+          ],
+          "IQR": 0,
+          "fences": [
+            0.0,
+            0.0
+          ],
+          "whiskers": [
+            0,
+            0
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 0,
+            "0.5": 0,
+            "0.75": 0,
+            "0.9": 10,
+            "0.975": 10
+          },
+          "outliers": [
+            [
+              10,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "singleton_box",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 1,
+          "selected_rows": 1,
+          "N": 1,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            42,
+            42,
+            42,
+            42,
+            42
+          ],
+          "quartiles": [
+            42,
+            42,
+            42
+          ],
+          "IQR": 0,
+          "fences": [
+            42.0,
+            42.0
+          ],
+          "whiskers": [
+            42,
+            42
+          ],
+          "quantiles": {
+            "0.025": 42,
+            "0.1": 42,
+            "0.25": 42,
+            "0.5": 42,
+            "0.75": 42,
+            "0.9": 42,
+            "0.975": 42
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "two_observations",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 2,
+          "selected_rows": 2,
+          "N": 2,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -1,
+            -1,
+            0.0,
+            1,
+            1
+          ],
+          "quartiles": [
+            -1,
+            0.0,
+            1
+          ],
+          "IQR": 2,
+          "fences": [
+            -4.0,
+            4.0
+          ],
+          "whiskers": [
+            -1,
+            1
+          ],
+          "quantiles": {
+            "0.025": -1,
+            "0.1": -1,
+            "0.25": -1,
+            "0.5": 0.0,
+            "0.75": 1,
+            "0.9": 1,
+            "0.975": 1
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "frequency_box",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 3,
+          "selected_rows": 3,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.0,
+            8.0,
+            10
+          ],
+          "quartiles": [
+            1.25,
+            2.0,
+            8.0
+          ],
+          "IQR": 6.75,
+          "fences": [
+            -8.875,
+            18.125
+          ],
+          "whiskers": [
+            1,
+            10
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.0,
+            "0.75": 8.0,
+            "0.9": 10,
+            "0.975": 10
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "quantile_full_range_and_four_ticks",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "interior_quantile_ticks",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 41,
+          "selected_rows": 41,
+          "N": 41,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            9.5,
+            20.0,
+            30.5,
+            40
+          ],
+          "quartiles": [
+            9.5,
+            20.0,
+            30.5
+          ],
+          "IQR": 21.0,
+          "fences": [
+            -22.0,
+            62.0
+          ],
+          "whiskers": [
+            0,
+            40
+          ],
+          "quantiles": {
+            "0.025": 0.05,
+            "0.1": 3.2,
+            "0.25": 9.5,
+            "0.5": 20.0,
+            "0.75": 30.5,
+            "0.9": 36.8,
+            "0.975": 39.95
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "suppressed_outlier_keeps_statistics",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "grouped_source_states",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "counts": [
+            0,
+            2,
+            4,
+            1
+          ],
+          "probabilities": [
+            0.0,
+            0.2857142857142857,
+            0.5714285714285714,
+            0.14285714285714285
+          ],
+          "percents": [
+            0.0,
+            28.571428571428573,
+            57.142857142857146,
+            14.285714285714286
+          ],
+          "densities": [
+            0.0,
+            0.14285714285714285,
+            0.07142857142857142,
+            0.0015698587127158554
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            0.6,
+            0.2,
+            0.2,
+            0.0
+          ],
+          "percents": [
+            60.0,
+            20.0,
+            20.0,
+            0.0
+          ],
+          "densities": [
+            0.06,
+            0.1,
+            0.025,
+            0.0
+          ]
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_horizontal_density",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "counts": [
+            0,
+            2,
+            4,
+            1
+          ],
+          "probabilities": [
+            0.0,
+            0.2857142857142857,
+            0.5714285714285714,
+            0.14285714285714285
+          ],
+          "percents": [
+            0.0,
+            28.571428571428573,
+            57.142857142857146,
+            14.285714285714286
+          ],
+          "densities": [
+            0.0,
+            0.14285714285714285,
+            0.07142857142857142,
+            0.0015698587127158554
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            0.6,
+            0.2,
+            0.2,
+            0.0
+          ],
+          "percents": [
+            60.0,
+            20.0,
+            20.0,
+            0.0
+          ],
+          "densities": [
+            0.06,
+            0.1,
+            0.025,
+            0.0
+          ]
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind0_orientation0",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind0_orientation1",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind1_orientation0",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind1_orientation1",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "adjacent_floating_edge_membership",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 11,
+          "N": 11,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3,
+            3,
+            3
+          ],
+          "probabilities": [
+            0.18181818181818182,
+            0.2727272727272727,
+            0.2727272727272727,
+            0.2727272727272727
+          ],
+          "percents": [
+            18.181818181818183,
+            27.272727272727273,
+            27.272727272727273,
+            27.272727272727273
+          ],
+          "densities": [
+            0.18181818181818182,
+            0.2727272727272727,
+            0.2727272727272727,
+            0.2727272727272727
+          ]
+        }
+      ]
+    },
+    {
+      "name": "narrow_distinct_axis_labels",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 3,
+          "selected_rows": 3,
+          "N": 3,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2
+          ],
+          "probabilities": [
+            0.3333333333333333,
+            0.6666666666666666
+          ],
+          "percents": [
+            33.333333333333336,
+            66.66666666666667
+          ],
+          "densities": [
+            33333333.5359157,
+            66666665.59153405
+          ]
+        }
+      ]
+    },
+    {
+      "name": "large_offset_small_range_labels",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1000000000000.0,
+            1000000000000.0024,
+            1000000000000.01,
+            1000000000000.0176,
+            1000000000000.02
+          ],
+          "quartiles": [
+            1000000000000.0024,
+            1000000000000.01,
+            1000000000000.0176
+          ],
+          "IQR": 0.01513671875,
+          "fences": [
+            999999999999.9797,
+            1000000000000.0403
+          ],
+          "whiskers": [
+            1000000000000.0,
+            1000000000000.02
+          ],
+          "quantiles": {
+            "0.025": 1000000000000.0,
+            "0.1": 1000000000000.0,
+            "0.25": 1000000000000.0024,
+            "0.5": 1000000000000.01,
+            "0.75": 1000000000000.0176,
+            "0.9": 1000000000000.02,
+            "0.975": 1000000000000.02
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "large_offset_ulp_spaced_labels",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1e+16,
+            1e+16,
+            1.0000000000000004e+16,
+            1.0000000000000008e+16,
+            1.0000000000000008e+16
+          ],
+          "quartiles": [
+            1e+16,
+            1.0000000000000004e+16,
+            1.0000000000000008e+16
+          ],
+          "IQR": 8.0,
+          "fences": [
+            9999999999999988.0,
+            1.000000000000002e+16
+          ],
+          "whiskers": [
+            1e+16,
+            1.0000000000000008e+16
+          ],
+          "quantiles": {
+            "0.025": 1e+16,
+            "0.1": 1e+16,
+            "0.25": 1e+16,
+            "0.5": 1.0000000000000004e+16,
+            "0.75": 1.0000000000000008e+16,
+            "0.9": 1.0000000000000008e+16,
+            "0.975": 1.0000000000000008e+16
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "long_group_identifiers",
+      "groups": [
+        {
+          "group_id": 9007199254740000,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2,
+            1
+          ],
+          "probabilities": [
+            0.25,
+            0.5,
+            0.25
+          ],
+          "percents": [
+            25.0,
+            50.0,
+            25.0
+          ],
+          "densities": [
+            0.125,
+            0.25,
+            0.125
+          ]
+        },
+        {
+          "group_id": 9007199254740002,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            0,
+            2,
+            2
+          ],
+          "probabilities": [
+            0.0,
+            0.5,
+            0.5
+          ],
+          "percents": [
+            0.0,
+            50.0,
+            50.0
+          ],
+          "densities": [
+            0.0,
+            0.25,
+            0.25
+          ]
+        }
+      ]
+    },
+    {
+      "name": "long_horizontal_group_identifiers",
+      "groups": [
+        {
+          "group_id": 9007199254740000,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.5,
+            3.75,
+            4
+          ],
+          "quartiles": [
+            1.25,
+            2.5,
+            3.75
+          ],
+          "IQR": 2.5,
+          "fences": [
+            -2.5,
+            7.5
+          ],
+          "whiskers": [
+            1,
+            4
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.5,
+            "0.75": 3.75,
+            "0.9": 4,
+            "0.975": 4
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9007199254740002,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            2,
+            2.25,
+            3.5,
+            5.5,
+            6
+          ],
+          "quartiles": [
+            2.25,
+            3.5,
+            5.5
+          ],
+          "IQR": 3.25,
+          "fences": [
+            -2.625,
+            10.375
+          ],
+          "whiskers": [
+            2,
+            6
+          ],
+          "quantiles": {
+            "0.025": 2,
+            "0.1": 2,
+            "0.25": 2.25,
+            "0.5": 3.5,
+            "0.75": 5.5,
+            "0.9": 6,
+            "0.975": 6
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "horizontal_histogram",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "probabilities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ],
+          "percents": [
+            14.285714285714286,
+            28.571428571428573,
+            28.571428571428573,
+            28.571428571428573
+          ],
+          "densities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ]
+        }
+      ]
+    },
+    {
+      "name": "horizontal_box_with_outlier",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "resized_histogram",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.4,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "resized_box",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.5,
+            3.75,
+            4
+          ],
+          "quartiles": [
+            1.25,
+            2.5,
+            3.75
+          ],
+          "IQR": 2.5,
+          "fences": [
+            -2.5,
+            7.5
+          ],
+          "whiskers": [
+            1,
+            4
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.5,
+            "0.75": 3.75,
+            "0.9": 4,
+            "0.975": 4
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "affine_histogram_density",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.1,
+            0.075
+          ]
+        }
+      ]
+    },
+    {
+      "name": "affine_box_summary_and_fences",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            7,
+            11.0,
+            19.0,
+            27.0,
+            407
+          ],
+          "quartiles": [
+            11.0,
+            19.0,
+            27.0
+          ],
+          "IQR": 16.0,
+          "fences": [
+            -13.0,
+            51.0
+          ],
+          "whiskers": [
+            7,
+            27
+          ],
+          "quantiles": {
+            "0.025": 7,
+            "0.1": 7,
+            "0.25": 11.0,
+            "0.5": 19.0,
+            "0.75": 27.0,
+            "0.9": 407,
+            "0.975": 407
+          },
+          "outliers": [
+            [
+              407,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "permuted_histogram_rows",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "counts": [
+            0,
+            2,
+            4,
+            1
+          ],
+          "probabilities": [
+            0.0,
+            0.2857142857142857,
+            0.5714285714285714,
+            0.14285714285714285
+          ],
+          "percents": [
+            0.0,
+            28.571428571428573,
+            57.142857142857146,
+            14.285714285714286
+          ],
+          "densities": [
+            0.0,
+            0.14285714285714285,
+            0.07142857142857142,
+            0.0015698587127158554
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            0.6,
+            0.2,
+            0.2,
+            0.0
+          ],
+          "percents": [
+            60.0,
+            20.0,
+            20.0,
+            0.0
+          ],
+          "densities": [
+            0.06,
+            0.1,
+            0.025,
+            0.0
+          ]
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "permuted_box_rows",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    }
+  ],
+  "full_positive_suite": false,
+  "renderer": {
+    "path": "/opt/homebrew/bin/magick",
+    "version": "Version: ImageMagick 7.1.1-47 Q16-HDRI aarch64 22763 https://imagemagick.org",
+    "svg_rasterizer": "sips",
+    "original_svg_used_without_rewriting": true,
+    "png_decoder": "ImageMagick_RGBA"
+  },
+  "library": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/all4-check/analytics_abi.dylib",
+    "sha256": "953819e84c0d75a1ad5c1fce6a4ebf14af1803aaad4bcfb20b5963cf7891b0f6"
+  },
+  "public_c_abi_calls": 34,
+  "positive_fixtures": 1,
+  "assertions": 1512,
+  "full_public_boundaries_verified": false,
+  "rasterized_artifacts": 1
+}

@@ -1,0 +1,22 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.15s
+     Running tests/report_artifact_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/report_artifact_contracts-1725ce7301979cbb)
+
+running 1 test
+test visible_five_number_table_preserves_distinct_large_offset_values ... FAILED
+
+failures:
+
+---- visible_five_number_table_preserves_distinct_large_offset_values stdout ----
+
+thread 'visible_five_number_table_preserves_distinct_large_offset_values' (719464) panicked at crates/analytics/tests/report_artifact_contracts.rs:248:5:
+five different values collapsed in visible table: [1000000000000.0, 1000000000000.0, 1000000000000.0, 1000000000000.0, 1000000000000.0]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    visible_five_number_table_preserves_distinct_large_offset_values
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p ducksmiles_analytics --test report_artifact_contracts`

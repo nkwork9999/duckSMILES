@@ -1,0 +1,71 @@
+{
+  "profile": "dev/default features",
+  "status": "PASS",
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 95.4446857920002,
+      "log": "tasks/evidence/jmp-report-ordinal-dev-gate-0.log",
+      "log_sha256": "cc2503d1977e23e15b5524192564338ff446603dd0b518ba7bf3ef9bef8db52f",
+      "suites": 67,
+      "passed": 1366,
+      "failed": 0,
+      "ignored": 2,
+      "ignored_test_lines": [
+        "test logp_crippen::print_values::print_logp_table ... ignored",
+        "test workbench::tests::supplied_population_preparation_acceptance ... ignored, external unselected100k source is supplied explicitly"
+      ],
+      "ignored_details": [
+        "logP diagnostic print helper",
+        "supplied population preparation acceptance needs explicit unselected100k external data source"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "ducksmiles_analytics",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.2319640830000935,
+      "log": "tasks/evidence/jmp-report-ordinal-dev-gate-1.log",
+      "log_sha256": "0ce606cfb7f9087e2fa51154159f4320bb1e74dc60c671a8651e9ecacdcfb493"
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/analytics/src/lib.rs",
+        "crates/analytics/src/static_reports.rs",
+        "crates/analytics/src/genreg_ordinal.rs",
+        "crates/analytics/tests/report_artifact_contracts.rs",
+        "crates/analytics/tests/genreg_ordinal_contracts.rs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5164764159999322,
+      "log": "tasks/evidence/jmp-report-ordinal-dev-gate-2.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    }
+  ],
+  "source_hashes": {
+    "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
+    "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+    "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+    "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+  },
+  "library_sha256": "953819e84c0d75a1ad5c1fce6a4ebf14af1803aaad4bcfb20b5963cf7891b0f6"
+}

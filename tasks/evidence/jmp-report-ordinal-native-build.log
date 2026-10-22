@@ -1,0 +1,42 @@
+[0/2] Re-checking globbed directories...
+[1/35] Building CXX object CMakeFiles/duckdb_platform_binary.dir/tools/utils/test_platform.cpp.o
+[2/35] Linking CXX executable duckdb_platform_binary
+[3/35] Generating duckdb_platform_out
+[4/35] Building CXX object extension/core_functions/CMakeFiles/core_functions_extension.dir/__/__/codegen/prebuilt_extension.cpp.o
+[5/35] Building CXX object extension/json/CMakeFiles/json_extension.dir/__/__/codegen/prebuilt_extension.cpp.o
+[6/35] Building CXX object src/main/extension/local_extension_repository/CMakeFiles/duckdb_local_extension_repository.dir/local_extension_repository.cpp.o
+[7/35] Building CXX object tools/cpp/CMakeFiles/duckdb_cpp_api.dir/duckdb_cpp.cpp.o
+[8/35] Building CXX object test/helpers/CMakeFiles/test_helpers.dir/test_helpers.cpp.o
+[9/35] Building CXX object test/helpers/CMakeFiles/test_helpers.dir/capi_tester.cpp.o
+[10/35] Building CXX object test/helpers/CMakeFiles/test_helpers.dir/pid.cpp.o
+[11/35] Building CXX object test/helpers/CMakeFiles/test_helpers.dir/test_config.cpp.o
+[12/35] Building CXX object test/helpers/CMakeFiles/test_helpers.dir/test_reporter.cpp.o
+[13/35] Building CXX object test/helpers/CMakeFiles/test_helpers.dir/extension_test_paths.cpp.o
+[14/35] Linking CXX static library extension/core_functions/libcore_functions_extension.a
+[15/35] Linking CXX static library extension/json/libjson_extension.a
+[16/35] Linking CXX static library src/main/extension/local_extension_repository/libduckdb_local_extension_repository.a
+[17/35] Building CXX object tools/shell/CMakeFiles/shell.dir/shell_main.cpp.o
+[18/35] Building C object tools/shell/CMakeFiles/shell.dir/shell_static_extension_loader.c.o
+[19/35] Building CXX object tools/shell/CMakeFiles/shell.dir/__/__/extension/loader/static_extension_autoregister.cpp.o
+[20/35] Linking CXX static library tools/cpp/libduckdb_cpp_api.a
+[21/35] Building Rust workspace (duckSmiles crates)
+   Compiling ducksmiles_mol v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/mol)
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+   Compiling ducksmiles_pdb v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/pdb)
+   Compiling ducksmiles_selfies v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/selfies)
+   Compiling ducksmiles_inchi v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/inchi)
+   Compiling ducksmiles_smiles v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/smiles)
+    Finished `release` profile [optimized] target(s) in 26.57s
+[22/35] Building CXX object test/CMakeFiles/unittest.dir/unittest.cpp.o
+[23/35] Building CXX object extension/ducksmiles/CMakeFiles/ducksmiles_loadable_extension.dir/src/analytics_functions.cpp.o
+[24/35] Building C object test/CMakeFiles/unittest.dir/unittest_static_extension_loader.c.o
+[25/35] Building CXX object test/CMakeFiles/unittest.dir/__/extension/loader/static_extension_autoregister.cpp.o
+[26/35] Building CXX object test/extension/CMakeFiles/test_debug_fs_extension.dir/debug_fs/debug_fs_extension.cpp.o
+[27/35] Building CXX object extension/ducksmiles/CMakeFiles/ducksmiles_loadable_extension.dir/src/ducksmiles_extension.cpp.o
+[28/35] Building CXX object test/extension/CMakeFiles/test_debug_fs_extension.dir/debug_fs/io_latency_model.cpp.o
+[29/35] Linking CXX static library test/helpers/libtest_helpers.a
+[30/35] Building CXX object test/extension/CMakeFiles/test_debug_fs_extension.dir/debug_fs/debug_file_system.cpp.o
+[31/35] Linking CXX shared library extension/ducksmiles/ducksmiles.duckdb_extension
+[32/35] Linking CXX executable duckdb
+[33/35] Building CXX object test/sqlite/CMakeFiles/test_sqlite.dir/ub_test_sqlite.cpp.o
+[34/35] Linking CXX executable test/unittest

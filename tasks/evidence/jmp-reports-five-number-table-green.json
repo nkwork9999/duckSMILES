@@ -1,0 +1,129 @@
+{
+  "schema": "ducksmiles-report-visible-table-regression-v1",
+  "status": "GREEN",
+  "checked_at_utc": "2026-10-22T23:14:04.626275+00:00",
+  "boundary": "public_c_abi",
+  "library": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/all4-check/analytics_abi.dylib",
+    "sha256": "953819e84c0d75a1ad5c1fce6a4ebf14af1803aaad4bcfb20b5963cf7891b0f6"
+  },
+  "linked_build_manifest": {
+    "path": "tasks/evidence/jmp-report-ordinal-dev-abi-build.json",
+    "sha256": "9a9e8e863635e9e8b74bf423a3b4f952629a6a222bdd946b9ab9547b71ad148a",
+    "bytes": 1899
+  },
+  "command": "python3 scripts/check_jmp_reports.py --library /private/tmp/ducksmiles-jmp-parity-20261022/all4-check/analytics_abi.dylib --rasterizer sips --case large_offset_small_range_labels --output /private/tmp/ducksmiles-jmp-parity-20261022/report-check/five-number-table-green.json",
+  "exit_code": 0,
+  "assertions": 1512,
+  "positive_fixtures": 1,
+  "malformed_NULL_cases": 32,
+  "public_c_abi_calls": 34,
+  "full_positive_suite": false,
+  "previous_expected_RED": {
+    "path": "tasks/evidence/jmp-reports-five-number-table-red.json",
+    "sha256": "d9982f600991f98127ed3da7b27d345cca37f055d455a367c1b2837875aebc0b",
+    "bytes": 4650
+  },
+  "input": [
+    [
+      1000000000000.0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1000000000000.005,
+      0,
+      1,
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      1000000000000.01,
+      0,
+      1,
+      0,
+      0,
+      1,
+      2
+    ],
+    [
+      1000000000000.015,
+      0,
+      1,
+      0,
+      0,
+      1,
+      3
+    ],
+    [
+      1000000000000.02,
+      0,
+      1,
+      0,
+      0,
+      1,
+      4
+    ]
+  ],
+  "actual_visible_cells": [
+    {
+      "statistic": "minimum",
+      "value": 1000000000000.0,
+      "text": "1e12"
+    },
+    {
+      "statistic": "q1",
+      "value": 1000000000000.0024,
+      "text": "1000000000000.0024"
+    },
+    {
+      "statistic": "median",
+      "value": 1000000000000.01,
+      "text": "1000000000000.01"
+    },
+    {
+      "statistic": "q3",
+      "value": 1000000000000.0176,
+      "text": "1000000000000.0176"
+    },
+    {
+      "statistic": "maximum",
+      "value": 1000000000000.02,
+      "text": "1000000000000.02"
+    }
+  ],
+  "actual_SVG": {
+    "path": "tasks/evidence/jmp-report-artifacts-dev-fixed/box-large-offset.svg",
+    "sha256": "fb7e90c3dee99b5b2c96de6e537e8dfe4f1c5f01ae4952440b90cdbdb6281e18",
+    "bytes": 4048
+  },
+  "actual_render": {
+    "path": "tasks/evidence/jmp-report-artifacts-dev-fixed/box-large-offset.png",
+    "sha256": "ad636741b9474ca8dff932f7a8f8859ec822da779fcca97f41a49663b45b6e28",
+    "bytes": 28710
+  },
+  "raw_focused_run": {
+    "path": "tasks/evidence/jmp-reports-fixed-raw-20261022/five-number-table-green.json",
+    "sha256": "dd5f98289197daf34d395810b2fb1e2a6562bc0e87ac158add6bf6a273d3a5c1",
+    "bytes": 51883
+  },
+  "complete_fixed_reference_run": {
+    "path": "tasks/evidence/jmp-reports-dev-fixed-reference.json",
+    "sha256": "d7d985eb104ff232de437a7ae8f31e3fd95fea345d8d0f60c46a3537b64995f3",
+    "bytes": 147753
+  },
+  "visual_qa": {
+    "status": "REVIEWED_PASS",
+    "method": "view_image",
+    "observation": "All five cells are distinguishable; complete table and full axis labels fit within the1000x600 canvas."
+  },
+  "whole_JMP_feature_equivalence_claim": false,
+  "SQL_status": "PENDING_matching_Release_CLI_and_extension_actual_run",
+  "production_source_modified_by_this_agent": false
+}

@@ -1,0 +1,3838 @@
+{
+  "schema": "jmp19.2-ordinal-independent-reference-v1",
+  "primary_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/ordinal-responses.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml"
+  ],
+  "scope": "Native unpenalized ML/observed-information alternative; not JMP default Lasso or verified sandwich.",
+  "reference_versions": {
+    "python": "3.12.10 (main, Apr  9 2025, 03:49:38) [Clang 20.1.0 ]",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1"
+  },
+  "platform": "macOS-26.2-arm64-arm-64bit",
+  "source_revision": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "boundaries": [
+    "public_c_abi",
+    "native_duckdb_sql"
+  ],
+  "reference_only": false,
+  "cases": [
+    {
+      "name": "intercept_exact",
+      "data": [
+        [
+          30,
+          1
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          20,
+          2
+        ]
+      ],
+      "reference": {
+        "labels": [
+          10.0,
+          20.0,
+          30.0
+        ],
+        "theta": [
+          -1.0986122886681098,
+          1.0986122886681098
+        ],
+        "log_likelihood": -4.1588830833596715,
+        "covariance": [
+          [
+            1.3333333333333333,
+            0.4444444444444444
+          ],
+          [
+            0.4444444444444444,
+            1.3333333333333333
+          ]
+        ],
+        "genreg_theta": [
+          -1.0986122886681098,
+          2.1972245773362196
+        ],
+        "genreg_covariance": [
+          [
+            1.3333333333333333,
+            -0.8888888888888888
+          ],
+          [
+            -0.8888888888888888,
+            1.7777777777777777
+          ]
+        ],
+        "reference_method": "Closed-form empirical multinomial cumulative logits; exact delta covariance at observed occurrence fractions.",
+        "optimizer": null
+      },
+      "results": {
+        "public_c_abi": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 3,
+            "effective_sample_size": 4,
+            "n_features": 0,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              1,
+              2,
+              1
+            ],
+            "cutpoints": [
+              -1.0986122886681096,
+              1.0986122886681096
+            ],
+            "coefficients": [],
+            "genreg_intercepts": [
+              -1.0986122886681096,
+              2.197224577336219
+            ],
+            "log_likelihood": -4.158883083359672,
+            "aic": 12.317766166719345,
+            "bic": 11.090354888959126,
+            "covariance": [
+              [
+                1.3333333333333333,
+                0.44444444444444453
+              ],
+              [
+                0.44444444444444453,
+                1.3333333333333333
+              ]
+            ],
+            "standard_errors": [
+              1.1547005383792515,
+              1.1547005383792515
+            ],
+            "confidence_intervals": [
+              [
+                -3.3617837586450423,
+                1.1645591813088232
+              ],
+              [
+                -1.1645591813088232,
+                3.3617837586450423
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                1.3333333333333333,
+                -0.8888888888888886
+              ],
+              [
+                -0.8888888888888886,
+                1.7777777777777772
+              ]
+            ],
+            "genreg_standard_errors": [
+              1.1547005383792515,
+              1.333333333333333
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -3.3617837586450423,
+                1.1645591813088232
+              ],
+              [
+                -0.41606073749070704,
+                4.810509892163145
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 0,
+            "gradient_max": 5.551115123125783e-17,
+            "confidence": 0.95,
+            "work_units": 568,
+            "predict_parameters": [
+              1,
+              0,
+              3,
+              0.95,
+              1,
+              10,
+              20,
+              30,
+              -1.0986122886681096,
+              1.0986122886681096,
+              1.3333333333333333,
+              0.44444444444444464,
+              0.44444444444444464,
+              1.3333333333333333
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.25,
+                0.49999999999999994,
+                0.25
+              ],
+              [
+                0.25,
+                0.49999999999999994,
+                0.25
+              ],
+              [
+                0.25,
+                0.49999999999999994,
+                0.25
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.25,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.25,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.25,
+                0.7499999999999999,
+                1
+              ]
+            ],
+            "most_likely": [
+              20,
+              20,
+              20
+            ],
+            "quantiles": [
+              10,
+              20,
+              30
+            ],
+            "linear_predictor": [
+              0,
+              0,
+              0
+            ],
+            "probability_standard_errors": [
+              [
+                0.21650635094610965,
+                0.24999999999999994,
+                0.21650635094610965
+              ],
+              [
+                0.21650635094610965,
+                0.24999999999999994,
+                0.21650635094610965
+              ],
+              [
+                0.21650635094610965,
+                0.24999999999999994,
+                0.21650635094610965
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ],
+                [
+                  0.010009003469951316,
+                  0.9899909965300486
+                ],
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ]
+              ],
+              [
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ],
+                [
+                  0.010009003469951316,
+                  0.9899909965300486
+                ],
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ]
+              ],
+              [
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ],
+                [
+                  0.010009003469951316,
+                  0.9899909965300486
+                ],
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 852
+          },
+          "independent_average_nll_score": [
+            0.0,
+            -1.6688566568579902e-11
+          ]
+        },
+        "native_duckdb_sql": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 3,
+            "effective_sample_size": 4,
+            "n_features": 0,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              1,
+              2,
+              1
+            ],
+            "cutpoints": [
+              -1.0986122886681096,
+              1.0986122886681096
+            ],
+            "coefficients": [],
+            "genreg_intercepts": [
+              -1.0986122886681096,
+              2.197224577336219
+            ],
+            "log_likelihood": -4.158883083359672,
+            "aic": 12.317766166719345,
+            "bic": 11.090354888959126,
+            "covariance": [
+              [
+                1.3333333333333333,
+                0.44444444444444453
+              ],
+              [
+                0.44444444444444453,
+                1.3333333333333333
+              ]
+            ],
+            "standard_errors": [
+              1.1547005383792515,
+              1.1547005383792515
+            ],
+            "confidence_intervals": [
+              [
+                -3.3617837586450423,
+                1.1645591813088232
+              ],
+              [
+                -1.1645591813088232,
+                3.3617837586450423
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                1.3333333333333333,
+                -0.8888888888888886
+              ],
+              [
+                -0.8888888888888886,
+                1.7777777777777772
+              ]
+            ],
+            "genreg_standard_errors": [
+              1.1547005383792515,
+              1.333333333333333
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -3.3617837586450423,
+                1.1645591813088232
+              ],
+              [
+                -0.41606073749070704,
+                4.810509892163145
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 0,
+            "gradient_max": 5.551115123125783e-17,
+            "confidence": 0.95,
+            "work_units": 568,
+            "predict_parameters": [
+              1,
+              0,
+              3,
+              0.95,
+              1,
+              10,
+              20,
+              30,
+              -1.0986122886681096,
+              1.0986122886681096,
+              1.3333333333333333,
+              0.44444444444444464,
+              0.44444444444444464,
+              1.3333333333333333
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.25,
+                0.49999999999999994,
+                0.25
+              ],
+              [
+                0.25,
+                0.49999999999999994,
+                0.25
+              ],
+              [
+                0.25,
+                0.49999999999999994,
+                0.25
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.25,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.25,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.25,
+                0.7499999999999999,
+                1
+              ]
+            ],
+            "most_likely": [
+              20,
+              20,
+              20
+            ],
+            "quantiles": [
+              10,
+              20,
+              30
+            ],
+            "linear_predictor": [
+              0,
+              0,
+              0
+            ],
+            "probability_standard_errors": [
+              [
+                0.21650635094610965,
+                0.24999999999999994,
+                0.21650635094610965
+              ],
+              [
+                0.21650635094610965,
+                0.24999999999999994,
+                0.21650635094610965
+              ],
+              [
+                0.21650635094610965,
+                0.24999999999999994,
+                0.21650635094610965
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ],
+                [
+                  0.010009003469951316,
+                  0.9899909965300486
+                ],
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ]
+              ],
+              [
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ],
+                [
+                  0.010009003469951316,
+                  0.9899909965300486
+                ],
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ]
+              ],
+              [
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ],
+                [
+                  0.010009003469951316,
+                  0.9899909965300486
+                ],
+                [
+                  -0.1743446506206749,
+                  0.674344650620675
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 852
+          },
+          "independent_average_nll_score": [
+            0.0,
+            -1.6688566568579902e-11
+          ]
+        }
+      }
+    },
+    {
+      "name": "intercept_40_35_25",
+      "data": [
+        [
+          10,
+          40
+        ],
+        [
+          20,
+          35
+        ],
+        [
+          30,
+          25
+        ]
+      ],
+      "reference": {
+        "labels": [
+          10.0,
+          20.0,
+          30.0
+        ],
+        "theta": [
+          -0.4054651081081643,
+          1.0986122886681098
+        ],
+        "log_likelihood": -108.05276266041719,
+        "covariance": [
+          [
+            0.041666666666666664,
+            0.02222222222222222
+          ],
+          [
+            0.02222222222222222,
+            0.05333333333333333
+          ]
+        ],
+        "genreg_theta": [
+          -0.4054651081081643,
+          1.5040773967762742
+        ],
+        "genreg_covariance": [
+          [
+            0.041666666666666664,
+            -0.019444444444444445
+          ],
+          [
+            -0.019444444444444445,
+            0.050555555555555555
+          ]
+        ],
+        "reference_method": "Closed-form empirical multinomial cumulative logits; exact delta covariance at observed occurrence fractions.",
+        "optimizer": null
+      },
+      "results": {
+        "public_c_abi": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 3,
+            "effective_sample_size": 100,
+            "n_features": 0,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              40,
+              35,
+              25
+            ],
+            "cutpoints": [
+              -0.4054651081081643,
+              1.0986122886681096
+            ],
+            "coefficients": [],
+            "genreg_intercepts": [
+              -0.4054651081081643,
+              1.5040773967762737
+            ],
+            "log_likelihood": -108.05276266041719,
+            "aic": 220.10552532083437,
+            "bic": 225.31586569281055,
+            "covariance": [
+              [
+                0.04166666666666668,
+                0.022222222222222233
+              ],
+              [
+                0.022222222222222233,
+                0.05333333333333334
+              ]
+            ],
+            "standard_errors": [
+              0.20412414523193154,
+              0.23094010767585033
+            ],
+            "confidence_intervals": [
+              [
+                -0.8055410814603183,
+                -0.005389134756010161
+              ],
+              [
+                0.6459779946727229,
+                1.5512465826634962
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                0.04166666666666668,
+                -0.019444444444444445
+              ],
+              [
+                -0.019444444444444445,
+                0.05055555555555553
+              ]
+            ],
+            "genreg_standard_errors": [
+              0.20412414523193154,
+              0.2248456260538673
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -0.8055410814603183,
+                -0.005389134756010161
+              ],
+              [
+                1.0633880672740452,
+                1.9447667262785022
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 0,
+            "gradient_max": 8.326672684688674e-17,
+            "confidence": 0.95,
+            "work_units": 568,
+            "predict_parameters": [
+              1,
+              0,
+              3,
+              0.95,
+              1,
+              10,
+              20,
+              30,
+              -0.4054651081081643,
+              1.0986122886681096,
+              0.04166666666666667,
+              0.022222222222222233,
+              0.022222222222222233,
+              0.05333333333333333
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.4,
+                0.3499999999999999,
+                0.25
+              ],
+              [
+                0.4,
+                0.3499999999999999,
+                0.25
+              ],
+              [
+                0.4,
+                0.3499999999999999,
+                0.25
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.4,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.4,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.4,
+                0.7499999999999999,
+                1
+              ]
+            ],
+            "most_likely": [
+              10,
+              10,
+              10
+            ],
+            "quantiles": [
+              10,
+              20,
+              30
+            ],
+            "linear_predictor": [
+              0,
+              0,
+              0
+            ],
+            "probability_standard_errors": [
+              [
+                0.04898979485566356,
+                0.04769696007084727,
+                0.04330127018922194
+              ],
+              [
+                0.04898979485566356,
+                0.04769696007084727,
+                0.04330127018922194
+              ],
+              [
+                0.04898979485566356,
+                0.04769696007084727,
+                0.04330127018922194
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.303981766395483,
+                  0.496018233604517
+                ],
+                [
+                  0.2565156760137263,
+                  0.4434843239862735
+                ],
+                [
+                  0.165131069875865,
+                  0.334868930124135
+                ]
+              ],
+              [
+                [
+                  0.303981766395483,
+                  0.496018233604517
+                ],
+                [
+                  0.2565156760137263,
+                  0.4434843239862735
+                ],
+                [
+                  0.165131069875865,
+                  0.334868930124135
+                ]
+              ],
+              [
+                [
+                  0.303981766395483,
+                  0.496018233604517
+                ],
+                [
+                  0.2565156760137263,
+                  0.4434843239862735
+                ],
+                [
+                  0.165131069875865,
+                  0.334868930124135
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 852
+          },
+          "independent_average_nll_score": [
+            1.8334264312577532e-11,
+            1.6688566568579902e-11
+          ]
+        },
+        "native_duckdb_sql": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 3,
+            "effective_sample_size": 100,
+            "n_features": 0,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              40,
+              35,
+              25
+            ],
+            "cutpoints": [
+              -0.4054651081081643,
+              1.0986122886681096
+            ],
+            "coefficients": [],
+            "genreg_intercepts": [
+              -0.4054651081081643,
+              1.5040773967762737
+            ],
+            "log_likelihood": -108.05276266041719,
+            "aic": 220.10552532083437,
+            "bic": 225.31586569281055,
+            "covariance": [
+              [
+                0.04166666666666668,
+                0.022222222222222233
+              ],
+              [
+                0.022222222222222233,
+                0.05333333333333334
+              ]
+            ],
+            "standard_errors": [
+              0.20412414523193154,
+              0.23094010767585033
+            ],
+            "confidence_intervals": [
+              [
+                -0.8055410814603183,
+                -0.005389134756010161
+              ],
+              [
+                0.6459779946727229,
+                1.5512465826634962
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                0.04166666666666668,
+                -0.019444444444444445
+              ],
+              [
+                -0.019444444444444445,
+                0.05055555555555553
+              ]
+            ],
+            "genreg_standard_errors": [
+              0.20412414523193154,
+              0.2248456260538673
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -0.8055410814603183,
+                -0.005389134756010161
+              ],
+              [
+                1.0633880672740452,
+                1.9447667262785022
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 0,
+            "gradient_max": 8.326672684688674e-17,
+            "confidence": 0.95,
+            "work_units": 568,
+            "predict_parameters": [
+              1,
+              0,
+              3,
+              0.95,
+              1,
+              10,
+              20,
+              30,
+              -0.4054651081081643,
+              1.0986122886681096,
+              0.04166666666666667,
+              0.022222222222222233,
+              0.022222222222222233,
+              0.05333333333333333
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.4,
+                0.3499999999999999,
+                0.25
+              ],
+              [
+                0.4,
+                0.3499999999999999,
+                0.25
+              ],
+              [
+                0.4,
+                0.3499999999999999,
+                0.25
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.4,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.4,
+                0.7499999999999999,
+                1
+              ],
+              [
+                0.4,
+                0.7499999999999999,
+                1
+              ]
+            ],
+            "most_likely": [
+              10,
+              10,
+              10
+            ],
+            "quantiles": [
+              10,
+              20,
+              30
+            ],
+            "linear_predictor": [
+              0,
+              0,
+              0
+            ],
+            "probability_standard_errors": [
+              [
+                0.04898979485566356,
+                0.04769696007084727,
+                0.04330127018922194
+              ],
+              [
+                0.04898979485566356,
+                0.04769696007084727,
+                0.04330127018922194
+              ],
+              [
+                0.04898979485566356,
+                0.04769696007084727,
+                0.04330127018922194
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.303981766395483,
+                  0.496018233604517
+                ],
+                [
+                  0.2565156760137263,
+                  0.4434843239862735
+                ],
+                [
+                  0.165131069875865,
+                  0.334868930124135
+                ]
+              ],
+              [
+                [
+                  0.303981766395483,
+                  0.496018233604517
+                ],
+                [
+                  0.2565156760137263,
+                  0.4434843239862735
+                ],
+                [
+                  0.165131069875865,
+                  0.334868930124135
+                ]
+              ],
+              [
+                [
+                  0.303981766395483,
+                  0.496018233604517
+                ],
+                [
+                  0.2565156760137263,
+                  0.4434843239862735
+                ],
+                [
+                  0.165131069875865,
+                  0.334868930124135
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 852
+          },
+          "independent_average_nll_score": [
+            1.8334264312577532e-11,
+            1.6688566568579902e-11
+          ]
+        }
+      }
+    },
+    {
+      "name": "known_common_slope",
+      "data": [
+        [
+          -1,
+          10,
+          2
+        ],
+        [
+          -1,
+          20,
+          8
+        ],
+        [
+          -1,
+          30,
+          10
+        ],
+        [
+          0,
+          10,
+          5
+        ],
+        [
+          0,
+          20,
+          10
+        ],
+        [
+          0,
+          30,
+          5
+        ],
+        [
+          1,
+          10,
+          10
+        ],
+        [
+          1,
+          20,
+          8
+        ],
+        [
+          1,
+          30,
+          2
+        ]
+      ],
+      "reference": {
+        "labels": [
+          10.0,
+          20.0,
+          30.0
+        ],
+        "theta": [
+          -1.0986122951887936,
+          1.0986122666089244,
+          1.0986122836268357
+        ],
+        "log_likelihood": -58.52835110995993,
+        "covariance": [
+          [
+            0.09897803716148083,
+            0.022787562474486177,
+            -0.025396824753400694
+          ],
+          [
+            0.022787562474486177,
+            0.09897803719928273,
+            0.02539682450400563
+          ],
+          [
+            -0.025396824753400698,
+            0.02539682450400563,
+            0.10952380819611988
+          ]
+        ],
+        "genreg_theta": [
+          -1.0986122951887936,
+          2.197224561797718,
+          1.0986122836268357
+        ],
+        "genreg_covariance": [
+          [
+            0.09897803716148083,
+            -0.07619047468699466,
+            -0.025396824753400694
+          ],
+          [
+            -0.07619047468699466,
+            0.15238094941179123,
+            0.05079364925740633
+          ],
+          [
+            -0.025396824753400698,
+            0.05079364925740633,
+            0.10952380819611988
+          ]
+        ],
+        "reference_method": "SciPy Powell plus independent finite-difference BFGS on log-gap coordinates; raw-coordinate Richardson Hessian.",
+        "optimizer": {
+          "success": true,
+          "message": "Optimization terminated successfully."
+        }
+      },
+      "results": {
+        "public_c_abi": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 9,
+            "effective_sample_size": 60,
+            "n_features": 1,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              17,
+              26,
+              17
+            ],
+            "cutpoints": [
+              -1.0986122871165305,
+              1.0986122871165305
+            ],
+            "coefficients": [
+              1.0986122872177464
+            ],
+            "genreg_intercepts": [
+              -1.0986122871165305,
+              2.197224574233061
+            ],
+            "log_likelihood": -58.52835110995993,
+            "aic": 123.05670221991986,
+            "bic": 129.33973590658616,
+            "covariance": [
+              [
+                0.0989780385657794,
+                0.022787562587479018,
+                -0.025396825300686873
+              ],
+              [
+                0.022787562587479018,
+                0.0989780385657794,
+                0.025396825300686852
+              ],
+              [
+                -0.025396825300686873,
+                0.025396825300686852,
+                0.10952380940571395
+              ]
+            ],
+            "standard_errors": [
+              0.31460775350550313,
+              0.31460775350550313,
+              0.33094381608622625
+            ],
+            "confidence_intervals": [
+              [
+                -1.7152321537414963,
+                -0.48199242049156477
+              ],
+              [
+                0.48199242049156477,
+                1.7152321537414963
+              ],
+              [
+                0.4499743262595577,
+                1.747250248175935
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                0.0989780385657794,
+                -0.07619047597830039,
+                -0.025396825300686873
+              ],
+              [
+                -0.07619047597830039,
+                0.15238095195660079,
+                0.05079365060137373
+              ],
+              [
+                -0.025396825300686873,
+                0.05079365060137373,
+                0.10952380940571395
+              ]
+            ],
+            "genreg_standard_errors": [
+              0.31460775350550313,
+              0.39036002863587455,
+              0.33094381608622625
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -1.7152321537414963,
+                -0.48199242049156477
+              ],
+              [
+                1.4321329764858988,
+                2.9623161719802233
+              ],
+              [
+                0.4499743262595577,
+                1.747250248175935
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 4,
+            "gradient_max": 3.1444931380963936e-10,
+            "confidence": 0.95,
+            "work_units": 6783,
+            "predict_parameters": [
+              1,
+              1,
+              3,
+              0.95,
+              1,
+              -1,
+              1,
+              0.816496580927726,
+              10,
+              20,
+              30,
+              -1.0986122871165305,
+              1.0986122871165305,
+              0.8970131762784789,
+              0.0989780385657794,
+              0.022787562587479014,
+              -0.020736421024429595,
+              0.022787562587479014,
+              0.0989780385657794,
+              0.020736421024429585,
+              -0.020736421024429595,
+              0.020736421024429585,
+              0.07301587293714265
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.13381492748889615,
+                0.44784315031280364,
+                0.4183419221983003
+              ],
+              [
+                0.293407886284649,
+                0.495496631708694,
+                0.21109548200665706
+              ],
+              [
+                0.4588950189558233,
+                0.42526545403972127,
+                0.1158395270044555
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.13381492748889615,
+                0.5816580778016998,
+                1
+              ],
+              [
+                0.293407886284649,
+                0.7889045179933429,
+                1
+              ],
+              [
+                0.4588950189558233,
+                0.8841604729955446,
+                1
+              ]
+            ],
+            "most_likely": [
+              20,
+              20,
+              10
+            ],
+            "quantiles": [
+              20,
+              20,
+              20
+            ],
+            "linear_predictor": [
+              -0.7690286010524224,
+              0.2197224574435493,
+              0.9338204441350844
+            ],
+            "probability_standard_errors": [
+              [
+                0.05028348483657008,
+                0.07175417907590467,
+                0.0832640396799667
+              ],
+              [
+                0.06329204563641413,
+                0.0726506129176237,
+                0.056109346883407164
+              ],
+              [
+                0.0912128859810723,
+                0.07387182715253611,
+                0.048179521142679496
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.035261108112597875,
+                  0.23236874686519443
+                ],
+                [
+                  0.30720754347041124,
+                  0.588478757155196
+                ],
+                [
+                  0.2551474030866827,
+                  0.5815364413099179
+                ]
+              ],
+              [
+                [
+                  0.16935775622940144,
+                  0.41745801633989654
+                ],
+                [
+                  0.35310404682059293,
+                  0.6378892165967951
+                ],
+                [
+                  0.10112318283045361,
+                  0.3210677811828605
+                ]
+              ],
+              [
+                [
+                  0.28012104736283394,
+                  0.6376689905488127
+                ],
+                [
+                  0.28047933323185453,
+                  0.5700515748475881
+                ],
+                [
+                  0.02140940069628719,
+                  0.21026965331262382
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 1108
+          },
+          "independent_average_nll_score": [
+            3.0873848195153006e-10,
+            -3.0039419865554274e-10,
+            -8.344283295430282e-11
+          ]
+        },
+        "native_duckdb_sql": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 9,
+            "effective_sample_size": 60,
+            "n_features": 1,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              17,
+              26,
+              17
+            ],
+            "cutpoints": [
+              -1.0986122871165305,
+              1.0986122871165305
+            ],
+            "coefficients": [
+              1.0986122872177464
+            ],
+            "genreg_intercepts": [
+              -1.0986122871165305,
+              2.197224574233061
+            ],
+            "log_likelihood": -58.52835110995993,
+            "aic": 123.05670221991986,
+            "bic": 129.33973590658616,
+            "covariance": [
+              [
+                0.0989780385657794,
+                0.022787562587479018,
+                -0.025396825300686873
+              ],
+              [
+                0.022787562587479018,
+                0.0989780385657794,
+                0.025396825300686852
+              ],
+              [
+                -0.025396825300686873,
+                0.025396825300686852,
+                0.10952380940571395
+              ]
+            ],
+            "standard_errors": [
+              0.31460775350550313,
+              0.31460775350550313,
+              0.33094381608622625
+            ],
+            "confidence_intervals": [
+              [
+                -1.7152321537414963,
+                -0.48199242049156477
+              ],
+              [
+                0.48199242049156477,
+                1.7152321537414963
+              ],
+              [
+                0.4499743262595577,
+                1.747250248175935
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                0.0989780385657794,
+                -0.07619047597830039,
+                -0.025396825300686873
+              ],
+              [
+                -0.07619047597830039,
+                0.15238095195660079,
+                0.05079365060137373
+              ],
+              [
+                -0.025396825300686873,
+                0.05079365060137373,
+                0.10952380940571395
+              ]
+            ],
+            "genreg_standard_errors": [
+              0.31460775350550313,
+              0.39036002863587455,
+              0.33094381608622625
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -1.7152321537414963,
+                -0.48199242049156477
+              ],
+              [
+                1.4321329764858988,
+                2.9623161719802233
+              ],
+              [
+                0.4499743262595577,
+                1.747250248175935
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 4,
+            "gradient_max": 3.1444931380963936e-10,
+            "confidence": 0.95,
+            "work_units": 6783,
+            "predict_parameters": [
+              1,
+              1,
+              3,
+              0.95,
+              1,
+              -1,
+              1,
+              0.816496580927726,
+              10,
+              20,
+              30,
+              -1.0986122871165305,
+              1.0986122871165305,
+              0.8970131762784789,
+              0.0989780385657794,
+              0.022787562587479014,
+              -0.020736421024429595,
+              0.022787562587479014,
+              0.0989780385657794,
+              0.020736421024429585,
+              -0.020736421024429595,
+              0.020736421024429585,
+              0.07301587293714265
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.13381492748889615,
+                0.44784315031280364,
+                0.4183419221983003
+              ],
+              [
+                0.293407886284649,
+                0.495496631708694,
+                0.21109548200665706
+              ],
+              [
+                0.4588950189558233,
+                0.42526545403972127,
+                0.1158395270044555
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.13381492748889615,
+                0.5816580778016998,
+                1
+              ],
+              [
+                0.293407886284649,
+                0.7889045179933429,
+                1
+              ],
+              [
+                0.4588950189558233,
+                0.8841604729955446,
+                1
+              ]
+            ],
+            "most_likely": [
+              20,
+              20,
+              10
+            ],
+            "quantiles": [
+              20,
+              20,
+              20
+            ],
+            "linear_predictor": [
+              -0.7690286010524224,
+              0.2197224574435493,
+              0.9338204441350844
+            ],
+            "probability_standard_errors": [
+              [
+                0.05028348483657008,
+                0.07175417907590467,
+                0.0832640396799667
+              ],
+              [
+                0.06329204563641413,
+                0.0726506129176237,
+                0.056109346883407164
+              ],
+              [
+                0.0912128859810723,
+                0.07387182715253611,
+                0.048179521142679496
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.035261108112597875,
+                  0.23236874686519443
+                ],
+                [
+                  0.30720754347041124,
+                  0.588478757155196
+                ],
+                [
+                  0.2551474030866827,
+                  0.5815364413099179
+                ]
+              ],
+              [
+                [
+                  0.16935775622940144,
+                  0.41745801633989654
+                ],
+                [
+                  0.35310404682059293,
+                  0.6378892165967951
+                ],
+                [
+                  0.10112318283045361,
+                  0.3210677811828605
+                ]
+              ],
+              [
+                [
+                  0.28012104736283394,
+                  0.6376689905488127
+                ],
+                [
+                  0.28047933323185453,
+                  0.5700515748475881
+                ],
+                [
+                  0.02140940069628719,
+                  0.21026965331262382
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 1108
+          },
+          "independent_average_nll_score": [
+            3.0873848195153006e-10,
+            -3.0039419865554274e-10,
+            -8.344283295430282e-11
+          ]
+        }
+      }
+    },
+    {
+      "name": "shifted_predictor",
+      "data": [
+        [
+          7,
+          10,
+          2
+        ],
+        [
+          7,
+          20,
+          8
+        ],
+        [
+          7,
+          30,
+          10
+        ],
+        [
+          10,
+          10,
+          5
+        ],
+        [
+          10,
+          20,
+          10
+        ],
+        [
+          10,
+          30,
+          5
+        ],
+        [
+          13,
+          10,
+          10
+        ],
+        [
+          13,
+          20,
+          8
+        ],
+        [
+          13,
+          30,
+          2
+        ]
+      ],
+      "reference": {
+        "labels": [
+          10.0,
+          20.0,
+          30.0
+        ],
+        "theta": [
+          -4.760653354936978,
+          -2.5634287556953033,
+          0.3662041051542345
+        ],
+        "log_likelihood": -58.52835110995993,
+        "covariance": [
+          [
+            1.4852214274179791,
+            1.2397187768741371,
+            -0.1301587301712797
+          ],
+          [
+            1.239718776874137,
+            1.1465970816730449,
+            -0.11322751288319755
+          ],
+          [
+            -0.13015873017127969,
+            -0.11322751288319755,
+            0.0121693121572763
+          ]
+        ],
+        "genreg_theta": [
+          -4.760653354936978,
+          2.197224599241675,
+          0.3662041051542345
+        ],
+        "genreg_covariance": [
+          [
+            1.4852214274179791,
+            -0.24550265054384202,
+            -0.1301587301712797
+          ],
+          [
+            -0.24550265054384224,
+            0.15238095534274998,
+            0.016931217288082168
+          ],
+          [
+            -0.13015873017127969,
+            0.01693121728808214,
+            0.0121693121572763
+          ]
+        ],
+        "reference_method": "SciPy Powell plus independent finite-difference BFGS on log-gap coordinates; raw-coordinate Richardson Hessian.",
+        "optimizer": {
+          "success": true,
+          "message": "Optimization terminated successfully."
+        }
+      },
+      "results": {
+        "public_c_abi": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 9,
+            "effective_sample_size": 60,
+            "n_features": 1,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              17,
+              26,
+              17
+            ],
+            "cutpoints": [
+              -4.760653244509018,
+              -2.5634286702759566
+            ],
+            "coefficients": [
+              0.3662040957392487
+            ],
+            "genreg_intercepts": [
+              -4.760653244509018,
+              2.197224574233061
+            ],
+            "log_likelihood": -58.52835110995992,
+            "aic": 123.05670221991984,
+            "bic": 129.33973590658616,
+            "covariance": [
+              [
+                1.4852214228560685,
+                1.2397187782065227,
+                -0.13015872999546668
+              ],
+              [
+                1.2397187782065227,
+                1.1465970855135776,
+                -0.11322751312834212
+              ],
+              [
+                -0.13015872999546668,
+                -0.11322751312834212,
+                0.012169312156190437
+              ]
+            ],
+            "standard_errors": [
+              1.2186966082073374,
+              1.070792736954065,
+              0.11031460536207541
+            ],
+            "confidence_intervals": [
+              [
+                -7.149254706602232,
+                -2.3720517824158036
+              ],
+              [
+                -4.662143871304999,
+                -0.4647134692469139
+              ],
+              [
+                0.14999144208651918,
+                0.5824167493919783
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                1.4852214228560685,
+                -0.2455026446495461,
+                -0.13015872999546668
+              ],
+              [
+                -0.2455026446495461,
+                0.15238095195660076,
+                0.01693121686712458
+              ],
+              [
+                -0.13015872999546668,
+                0.01693121686712458,
+                0.012169312156190437
+              ]
+            ],
+            "genreg_standard_errors": [
+              1.2186966082073374,
+              0.3903600286358745,
+              0.11031460536207541
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -7.149254706602232,
+                -2.3720517824158036
+              ],
+              [
+                1.432132976485899,
+                2.962316171980223
+              ],
+              [
+                0.14999144208651918,
+                0.5824167493919783
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 4,
+            "gradient_max": 3.1444930687074546e-10,
+            "confidence": 0.95,
+            "work_units": 6783,
+            "predict_parameters": [
+              1,
+              1,
+              3,
+              0.95,
+              1,
+              7,
+              3,
+              2.449489742783178,
+              10,
+              20,
+              30,
+              -1.0986122871165305,
+              1.0986122871165305,
+              0.8970131762784787,
+              0.09897803856577941,
+              0.02278756258747901,
+              -0.02073642102442959,
+              0.02278756258747901,
+              0.09897803856577939,
+              0.020736421024429585,
+              -0.02073642102442959,
+              0.020736421024429585,
+              0.07301587293714264
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.13381492748889615,
+                0.44784315031280364,
+                0.41834192219830024
+              ],
+              [
+                0.29340788628464887,
+                0.495496631708694,
+                0.2110954820066571
+              ],
+              [
+                0.4588950189558233,
+                0.42526545403972127,
+                0.1158395270044555
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.13381492748889615,
+                0.5816580778016998,
+                1
+              ],
+              [
+                0.29340788628464887,
+                0.7889045179933429,
+                1
+              ],
+              [
+                0.4588950189558233,
+                0.8841604729955446,
+                1
+              ]
+            ],
+            "most_likely": [
+              20,
+              20,
+              10
+            ],
+            "quantiles": [
+              20,
+              20,
+              20
+            ],
+            "linear_predictor": [
+              2.893012356340065,
+              3.8817634148360365,
+              4.595861401527571
+            ],
+            "probability_standard_errors": [
+              [
+                0.05028348483657008,
+                0.07175417907590467,
+                0.0832640396799667
+              ],
+              [
+                0.06329204563641413,
+                0.07265061291762373,
+                0.056109346883407143
+              ],
+              [
+                0.09121288598107237,
+                0.07387182715253614,
+                0.04817952114267952
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.035261108112597875,
+                  0.23236874686519443
+                ],
+                [
+                  0.30720754347041124,
+                  0.588478757155196
+                ],
+                [
+                  0.2551474030866826,
+                  0.5815364413099179
+                ]
+              ],
+              [
+                [
+                  0.16935775622940133,
+                  0.41745801633989643
+                ],
+                [
+                  0.3531040468205929,
+                  0.6378892165967951
+                ],
+                [
+                  0.10112318283045368,
+                  0.3210677811828605
+                ]
+              ],
+              [
+                [
+                  0.28012104736283383,
+                  0.6376689905488128
+                ],
+                [
+                  0.2804793332318545,
+                  0.5700515748475881
+                ],
+                [
+                  0.021409400696287148,
+                  0.21026965331262387
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 1108
+          },
+          "independent_average_nll_score": [
+            3.2735265236086893e-10,
+            -3.2185092709410736e-10,
+            -3.4835102193897307e-10
+          ]
+        },
+        "native_duckdb_sql": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 9,
+            "effective_sample_size": 60,
+            "n_features": 1,
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "level_counts": [
+              17,
+              26,
+              17
+            ],
+            "cutpoints": [
+              -4.760653244509018,
+              -2.5634286702759566
+            ],
+            "coefficients": [
+              0.3662040957392487
+            ],
+            "genreg_intercepts": [
+              -4.760653244509018,
+              2.197224574233061
+            ],
+            "log_likelihood": -58.52835110995992,
+            "aic": 123.05670221991984,
+            "bic": 129.33973590658616,
+            "covariance": [
+              [
+                1.4852214228560685,
+                1.2397187782065227,
+                -0.13015872999546668
+              ],
+              [
+                1.2397187782065227,
+                1.1465970855135776,
+                -0.11322751312834212
+              ],
+              [
+                -0.13015872999546668,
+                -0.11322751312834212,
+                0.012169312156190437
+              ]
+            ],
+            "standard_errors": [
+              1.2186966082073374,
+              1.070792736954065,
+              0.11031460536207541
+            ],
+            "confidence_intervals": [
+              [
+                -7.149254706602232,
+                -2.3720517824158036
+              ],
+              [
+                -4.662143871304999,
+                -0.4647134692469139
+              ],
+              [
+                0.14999144208651918,
+                0.5824167493919783
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                1.4852214228560685,
+                -0.2455026446495461,
+                -0.13015872999546668
+              ],
+              [
+                -0.2455026446495461,
+                0.15238095195660076,
+                0.01693121686712458
+              ],
+              [
+                -0.13015872999546668,
+                0.01693121686712458,
+                0.012169312156190437
+              ]
+            ],
+            "genreg_standard_errors": [
+              1.2186966082073374,
+              0.3903600286358745,
+              0.11031460536207541
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -7.149254706602232,
+                -2.3720517824158036
+              ],
+              [
+                1.432132976485899,
+                2.962316171980223
+              ],
+              [
+                0.14999144208651918,
+                0.5824167493919783
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 4,
+            "gradient_max": 3.1444930687074546e-10,
+            "confidence": 0.95,
+            "work_units": 6783,
+            "predict_parameters": [
+              1,
+              1,
+              3,
+              0.95,
+              1,
+              7,
+              3,
+              2.449489742783178,
+              10,
+              20,
+              30,
+              -1.0986122871165305,
+              1.0986122871165305,
+              0.8970131762784787,
+              0.09897803856577941,
+              0.02278756258747901,
+              -0.02073642102442959,
+              0.02278756258747901,
+              0.09897803856577939,
+              0.020736421024429585,
+              -0.02073642102442959,
+              0.020736421024429585,
+              0.07301587293714264
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              10,
+              20,
+              30
+            ],
+            "probabilities": [
+              [
+                0.13381492748889615,
+                0.44784315031280364,
+                0.41834192219830024
+              ],
+              [
+                0.29340788628464887,
+                0.495496631708694,
+                0.2110954820066571
+              ],
+              [
+                0.4588950189558233,
+                0.42526545403972127,
+                0.1158395270044555
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.13381492748889615,
+                0.5816580778016998,
+                1
+              ],
+              [
+                0.29340788628464887,
+                0.7889045179933429,
+                1
+              ],
+              [
+                0.4588950189558233,
+                0.8841604729955446,
+                1
+              ]
+            ],
+            "most_likely": [
+              20,
+              20,
+              10
+            ],
+            "quantiles": [
+              20,
+              20,
+              20
+            ],
+            "linear_predictor": [
+              2.893012356340065,
+              3.8817634148360365,
+              4.595861401527571
+            ],
+            "probability_standard_errors": [
+              [
+                0.05028348483657008,
+                0.07175417907590467,
+                0.0832640396799667
+              ],
+              [
+                0.06329204563641413,
+                0.07265061291762373,
+                0.056109346883407143
+              ],
+              [
+                0.09121288598107237,
+                0.07387182715253614,
+                0.04817952114267952
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.035261108112597875,
+                  0.23236874686519443
+                ],
+                [
+                  0.30720754347041124,
+                  0.588478757155196
+                ],
+                [
+                  0.2551474030866826,
+                  0.5815364413099179
+                ]
+              ],
+              [
+                [
+                  0.16935775622940133,
+                  0.41745801633989643
+                ],
+                [
+                  0.3531040468205929,
+                  0.6378892165967951
+                ],
+                [
+                  0.10112318283045368,
+                  0.3210677811828605
+                ]
+              ],
+              [
+                [
+                  0.28012104736283383,
+                  0.6376689905488128
+                ],
+                [
+                  0.2804793332318545,
+                  0.5700515748475881
+                ],
+                [
+                  0.021409400696287148,
+                  0.21026965331262387
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 1108
+          },
+          "independent_average_nll_score": [
+            3.2735265236086893e-10,
+            -3.2185092709410736e-10,
+            -3.4835102193897307e-10
+          ]
+        }
+      }
+    },
+    {
+      "name": "four_levels_two_features",
+      "data": [
+        [
+          -1,
+          0.4,
+          -5,
+          4
+        ],
+        [
+          -1,
+          0.4,
+          0,
+          7
+        ],
+        [
+          -1,
+          0.4,
+          20,
+          5
+        ],
+        [
+          -1,
+          0.4,
+          90,
+          2
+        ],
+        [
+          -0.6,
+          -0.7,
+          -5,
+          3
+        ],
+        [
+          -0.6,
+          -0.7,
+          0,
+          6
+        ],
+        [
+          -0.6,
+          -0.7,
+          20,
+          8
+        ],
+        [
+          -0.6,
+          -0.7,
+          90,
+          3
+        ],
+        [
+          -0.1,
+          0.2,
+          -5,
+          6
+        ],
+        [
+          -0.1,
+          0.2,
+          0,
+          7
+        ],
+        [
+          -0.1,
+          0.2,
+          20,
+          6
+        ],
+        [
+          -0.1,
+          0.2,
+          90,
+          5
+        ],
+        [
+          0.3,
+          0.9,
+          -5,
+          8
+        ],
+        [
+          0.3,
+          0.9,
+          0,
+          7
+        ],
+        [
+          0.3,
+          0.9,
+          20,
+          5
+        ],
+        [
+          0.3,
+          0.9,
+          90,
+          4
+        ],
+        [
+          0.8,
+          -0.4,
+          -5,
+          10
+        ],
+        [
+          0.8,
+          -0.4,
+          0,
+          9
+        ],
+        [
+          0.8,
+          -0.4,
+          20,
+          6
+        ],
+        [
+          0.8,
+          -0.4,
+          90,
+          3
+        ],
+        [
+          1.2,
+          0.6,
+          -5,
+          13
+        ],
+        [
+          1.2,
+          0.6,
+          0,
+          7
+        ],
+        [
+          1.2,
+          0.6,
+          20,
+          5
+        ],
+        [
+          1.2,
+          0.6,
+          90,
+          2
+        ]
+      ],
+      "reference": {
+        "labels": [
+          -5.0,
+          0.0,
+          20.0,
+          90.0
+        ],
+        "theta": [
+          -0.9337024982241854,
+          0.3824362368850803,
+          1.7915453896541318,
+          0.44479553060846505,
+          0.2051011450133295
+        ],
+        "log_likelihood": -186.15329316991972,
+        "covariance": [
+          [
+            0.03827003996071879,
+            0.019302207409109342,
+            0.013290190912087097,
+            -0.008928218603951895,
+            -0.011647369144711883
+          ],
+          [
+            0.01930220740910934,
+            0.032581037489254124,
+            0.022684161921917724,
+            -0.004211854438733487,
+            -0.0090922262669206
+          ],
+          [
+            0.013290190912087095,
+            0.022684161921917724,
+            0.062439504308635964,
+            -0.0014111380443387403,
+            -0.00746957637090883
+          ],
+          [
+            -0.008928218603951895,
+            -0.004211854438733488,
+            -0.0014111380443387405,
+            0.04395543828515135,
+            -0.012030644052771175
+          ],
+          [
+            -0.011647369144711879,
+            -0.009092226266920597,
+            -0.007469576370908827,
+            -0.012030644052771173,
+            0.07903032628038568
+          ]
+        ],
+        "genreg_theta": [
+          -0.9337024982241854,
+          1.3161387351092657,
+          1.4091091527690516,
+          0.44479553060846505,
+          0.2051011450133295
+        ],
+        "genreg_covariance": [
+          [
+            0.03827003996071879,
+            -0.018967832551609446,
+            -0.006012016497022245,
+            -0.008928218603951895,
+            -0.011647369144711883
+          ],
+          [
+            -0.01896783255160945,
+            0.03224666263175423,
+            -0.0038848590703141547,
+            0.004716364165218408,
+            0.002555142877791282
+          ],
+          [
+            -0.006012016497022243,
+            -0.0038848590703141565,
+            0.04965221795405464,
+            0.002800716394394747,
+            0.0016226498960117703
+          ],
+          [
+            -0.008928218603951895,
+            0.004716364165218407,
+            0.0028007163943947477,
+            0.04395543828515135,
+            -0.012030644052771175
+          ],
+          [
+            -0.011647369144711879,
+            0.002555142877791282,
+            0.0016226498960117694,
+            -0.012030644052771173,
+            0.07903032628038568
+          ]
+        ],
+        "reference_method": "SciPy Powell plus independent finite-difference BFGS on log-gap coordinates; raw-coordinate Richardson Hessian.",
+        "optimizer": {
+          "success": true,
+          "message": "Optimization terminated successfully."
+        }
+      },
+      "results": {
+        "public_c_abi": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 24,
+            "effective_sample_size": 141,
+            "n_features": 2,
+            "ordered_labels": [
+              -5,
+              0,
+              20,
+              90
+            ],
+            "level_counts": [
+              44,
+              43,
+              35,
+              19
+            ],
+            "cutpoints": [
+              -0.9337025139620088,
+              0.38243621170827413,
+              1.7915453527166996
+            ],
+            "coefficients": [
+              0.44479553079061845,
+              0.20510115408262716
+            ],
+            "genreg_intercepts": [
+              -0.9337025139620088,
+              1.316138725670283,
+              1.4091091410084253
+            ],
+            "log_likelihood": -186.15329316991975,
+            "aic": 382.3065863398395,
+            "bic": 397.0503857917303,
+            "covariance": [
+              [
+                0.038270040756097946,
+                0.019302208166095788,
+                0.013290191589961156,
+                -0.00892821925348823,
+                -0.01164736947226198
+              ],
+              [
+                0.019302208166095788,
+                0.03258103827705938,
+                0.02268416279082632,
+                -0.004211854789088078,
+                -0.0090922264880444
+              ],
+              [
+                0.013290191589961156,
+                0.02268416279082632,
+                0.062439504749162,
+                -0.0014111380490363337,
+                -0.007469576735358117
+              ],
+              [
+                -0.00892821925348823,
+                -0.004211854789088078,
+                -0.0014111380490363337,
+                0.043955440938054466,
+                -0.012030645591146347
+              ],
+              [
+                -0.01164736947226198,
+                -0.0090922264880444,
+                -0.007469576735358117,
+                -0.012030645591146347,
+                0.07903033074299294
+              ]
+            ],
+            "standard_errors": [
+              0.19562730064103515,
+              0.18050218357975448,
+              0.2498789802067433,
+              0.20965552923320308,
+              0.28112333724362504
+            ],
+            "confidence_intervals": [
+              [
+                -1.3171249779203458,
+                -0.5502800500036718
+              ],
+              [
+                0.02865843247589933,
+                0.7362139909406489
+              ],
+              [
+                1.3017915506230417,
+                2.2812991548103576
+              ],
+              [
+                0.03387824400257067,
+                0.8557128175786662
+              ],
+              [
+                -0.3458904625728,
+                0.7560927707380544
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                0.038270040756097946,
+                -0.01896783259000217,
+                -0.00601201657613463,
+                -0.00892821925348823,
+                -0.01164736947226198
+              ],
+              [
+                -0.01896783259000217,
+                0.03224666270096576,
+                -0.003884858910098427,
+                0.004716364464400158,
+                0.002555142984217587
+              ],
+              [
+                -0.00601201657613463,
+                -0.003884858910098427,
+                0.049652217444568755,
+                0.002800716740051742,
+                0.001622649752686282
+              ],
+              [
+                -0.00892821925348823,
+                0.004716364464400158,
+                0.002800716740051742,
+                0.043955440938054466,
+                -0.012030645591146347
+              ],
+              [
+                -0.01164736947226198,
+                0.002555142984217587,
+                0.001622649752686282,
+                -0.012030645591146347,
+                0.07903033074299294
+              ]
+            ],
+            "genreg_standard_errors": [
+              0.19562730064103515,
+              0.17957355791141902,
+              0.22282777529870185,
+              0.20965552923320308,
+              0.28112333724362504
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -1.3171249779203458,
+                -0.5502800500036718
+              ],
+              [
+                0.9641810193044325,
+                1.6680964320361336
+              ],
+              [
+                0.9723747263156866,
+                1.845843555701164
+              ],
+              [
+                0.03387824400257067,
+                0.8557128175786662
+              ],
+              [
+                -0.3458904625728,
+                0.7560927707380544
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 3,
+            "gradient_max": 3.685771021721962e-09,
+            "confidence": 0.95,
+            "work_units": 24448,
+            "predict_parameters": [
+              1,
+              2,
+              4,
+              0.95,
+              1,
+              -1,
+              0.4,
+              1.2099290780141845,
+              -0.22553191489361707,
+              0.7446551836170904,
+              0.5521594300702308,
+              -5,
+              0,
+              20,
+              90,
+              -0.8045433926723993,
+              0.5115953329978836,
+              1.920704474006309,
+              0.33121929765294916,
+              0.11324853634501002,
+              0.03391873856011809,
+              0.016386798917335757,
+              0.011245834819368604,
+              -0.0013401244816094399,
+              -0.00021240542894102076,
+              0.016386798917335757,
+              0.031101521975519183,
+              0.022075698967453605,
+              0.0021719407646335767,
+              0.0011984408649725108,
+              0.011245834819368604,
+              0.022075698967453605,
+              0.06270209340395677,
+              0.004257509002956265,
+              0.002094402227619369,
+              -0.0013401244816094399,
+              0.0021719407646335767,
+              0.004257509002956265,
+              0.024373790564203895,
+              -0.004946621079538752,
+              -0.00021240542894102076,
+              0.0011984408649725108,
+              0.002094402227619369,
+              -0.004946621079538752,
+              0.024094770099045208
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              -5,
+              0,
+              20,
+              90
+            ],
+            "probabilities": [
+              [
+                0.23075745280691307,
+                0.29723812930164445,
+                0.29272081851160364,
+                0.1792835993798389
+              ],
+              [
+                0.2877629472192663,
+                0.31329255391989447,
+                0.25938748201434747,
+                0.1395570168464918
+              ],
+              [
+                0.3935138518258758,
+                0.31404825691680743,
+                0.20070706098326713,
+                0.09173083027404977
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.23075745280691307,
+                0.5279955821085575,
+                0.8207164006201612,
+                1
+              ],
+              [
+                0.2877629472192663,
+                0.6010555011391607,
+                0.8604429831535083,
+                1
+              ],
+              [
+                0.3935138518258758,
+                0.7075621087426832,
+                0.9082691697259503,
+                1
+              ]
+            ],
+            "most_likely": [
+              0,
+              0,
+              -5
+            ],
+            "quantiles": [
+              -5,
+              0,
+              20
+            ],
+            "linear_predictor": [
+              -0.27033664073690744,
+              0.027428759933335545,
+              0.501136893621602
+            ],
+            "probability_standard_errors": [
+              [
+                0.04834574229725752,
+                0.04008183565251782,
+                0.045572978420238594,
+                0.04401833514906542
+              ],
+              [
+                0.04673783841618099,
+                0.040041444927141186,
+                0.04082999288001676,
+                0.033249914231483775
+              ],
+              [
+                0.05700579129454662,
+                0.04018077022102591,
+                0.03786101073685694,
+                0.026216782700055705
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.13600153902204049,
+                  0.32551336659178565
+                ],
+                [
+                  0.21867917492512107,
+                  0.37579708367816783
+                ],
+                [
+                  0.20339942206770317,
+                  0.3820422149555041
+                ],
+                [
+                  0.09300924775870195,
+                  0.26555795100097584
+                ]
+              ],
+              [
+                [
+                  0.19615846713444665,
+                  0.379367427304086
+                ],
+                [
+                  0.23481276391048256,
+                  0.3917723439293064
+                ],
+                [
+                  0.17936216641597064,
+                  0.3394127976127243
+                ],
+                [
+                  0.07438838241119826,
+                  0.20472565128178533
+                ]
+              ],
+              [
+                [
+                  0.2817845538882803,
+                  0.5052431497634713
+                ],
+                [
+                  0.23529539434902585,
+                  0.392801119484589
+                ],
+                [
+                  0.1265008434609175,
+                  0.27491327850561675
+                ],
+                [
+                  0.04034688035000162,
+                  0.14311478019809792
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 2057
+          },
+          "independent_average_nll_score": [
+            3.6851871267943012e-09,
+            -2.5851312680734316e-09,
+            -1.4941305200806825e-09,
+            -2.7501396468866297e-10,
+            -9.167132156246747e-11
+          ]
+        },
+        "native_duckdb_sql": {
+          "fit": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_fit",
+            "n_samples": 24,
+            "effective_sample_size": 141,
+            "n_features": 2,
+            "ordered_labels": [
+              -5,
+              0,
+              20,
+              90
+            ],
+            "level_counts": [
+              44,
+              43,
+              35,
+              19
+            ],
+            "cutpoints": [
+              -0.9337025139620088,
+              0.38243621170827413,
+              1.7915453527166996
+            ],
+            "coefficients": [
+              0.44479553079061845,
+              0.20510115408262716
+            ],
+            "genreg_intercepts": [
+              -0.9337025139620088,
+              1.316138725670283,
+              1.4091091410084253
+            ],
+            "log_likelihood": -186.15329316991975,
+            "aic": 382.3065863398395,
+            "bic": 397.0503857917303,
+            "covariance": [
+              [
+                0.038270040756097946,
+                0.019302208166095788,
+                0.013290191589961156,
+                -0.00892821925348823,
+                -0.01164736947226198
+              ],
+              [
+                0.019302208166095788,
+                0.03258103827705938,
+                0.02268416279082632,
+                -0.004211854789088078,
+                -0.0090922264880444
+              ],
+              [
+                0.013290191589961156,
+                0.02268416279082632,
+                0.062439504749162,
+                -0.0014111380490363337,
+                -0.007469576735358117
+              ],
+              [
+                -0.00892821925348823,
+                -0.004211854789088078,
+                -0.0014111380490363337,
+                0.043955440938054466,
+                -0.012030645591146347
+              ],
+              [
+                -0.01164736947226198,
+                -0.0090922264880444,
+                -0.007469576735358117,
+                -0.012030645591146347,
+                0.07903033074299294
+              ]
+            ],
+            "standard_errors": [
+              0.19562730064103515,
+              0.18050218357975448,
+              0.2498789802067433,
+              0.20965552923320308,
+              0.28112333724362504
+            ],
+            "confidence_intervals": [
+              [
+                -1.3171249779203458,
+                -0.5502800500036718
+              ],
+              [
+                0.02865843247589933,
+                0.7362139909406489
+              ],
+              [
+                1.3017915506230417,
+                2.2812991548103576
+              ],
+              [
+                0.03387824400257067,
+                0.8557128175786662
+              ],
+              [
+                -0.3458904625728,
+                0.7560927707380544
+              ]
+            ],
+            "genreg_covariance": [
+              [
+                0.038270040756097946,
+                -0.01896783259000217,
+                -0.00601201657613463,
+                -0.00892821925348823,
+                -0.01164736947226198
+              ],
+              [
+                -0.01896783259000217,
+                0.03224666270096576,
+                -0.003884858910098427,
+                0.004716364464400158,
+                0.002555142984217587
+              ],
+              [
+                -0.00601201657613463,
+                -0.003884858910098427,
+                0.049652217444568755,
+                0.002800716740051742,
+                0.001622649752686282
+              ],
+              [
+                -0.00892821925348823,
+                0.004716364464400158,
+                0.002800716740051742,
+                0.043955440938054466,
+                -0.012030645591146347
+              ],
+              [
+                -0.01164736947226198,
+                0.002555142984217587,
+                0.001622649752686282,
+                -0.012030645591146347,
+                0.07903033074299294
+              ]
+            ],
+            "genreg_standard_errors": [
+              0.19562730064103515,
+              0.17957355791141902,
+              0.22282777529870185,
+              0.20965552923320308,
+              0.28112333724362504
+            ],
+            "genreg_confidence_intervals": [
+              [
+                -1.3171249779203458,
+                -0.5502800500036718
+              ],
+              [
+                0.9641810193044325,
+                1.6680964320361336
+              ],
+              [
+                0.9723747263156866,
+                1.845843555701164
+              ],
+              [
+                0.03387824400257067,
+                0.8557128175786662
+              ],
+              [
+                -0.3458904625728,
+                0.7560927707380544
+              ]
+            ],
+            "covariance_method": "observed_information",
+            "jmp_sandwich_equivalence_verified": false,
+            "converged": true,
+            "information_identified": true,
+            "inference_valid": true,
+            "finite_mle_existence_verified": false,
+            "global_optimum_verified": false,
+            "boundary_reached": false,
+            "information_singular": false,
+            "line_search_failed": false,
+            "iterations": 3,
+            "gradient_max": 3.685771021721962e-09,
+            "confidence": 0.95,
+            "work_units": 24448,
+            "predict_parameters": [
+              1,
+              2,
+              4,
+              0.95,
+              1,
+              -1,
+              0.4,
+              1.2099290780141845,
+              -0.22553191489361707,
+              0.7446551836170904,
+              0.5521594300702308,
+              -5,
+              0,
+              20,
+              90,
+              -0.8045433926723993,
+              0.5115953329978836,
+              1.920704474006309,
+              0.33121929765294916,
+              0.11324853634501002,
+              0.03391873856011809,
+              0.016386798917335757,
+              0.011245834819368604,
+              -0.0013401244816094399,
+              -0.00021240542894102076,
+              0.016386798917335757,
+              0.031101521975519183,
+              0.022075698967453605,
+              0.0021719407646335767,
+              0.0011984408649725108,
+              0.011245834819368604,
+              0.022075698967453605,
+              0.06270209340395677,
+              0.004257509002956265,
+              0.002094402227619369,
+              -0.0013401244816094399,
+              0.0021719407646335767,
+              0.004257509002956265,
+              0.024373790564203895,
+              -0.004946621079538752,
+              -0.00021240542894102076,
+              0.0011984408649725108,
+              0.002094402227619369,
+              -0.004946621079538752,
+              0.024094770099045208
+            ]
+          },
+          "prediction": {
+            "version": 1,
+            "algorithm": "genreg_ordinal_predict",
+            "ordered_labels": [
+              -5,
+              0,
+              20,
+              90
+            ],
+            "probabilities": [
+              [
+                0.23075745280691307,
+                0.29723812930164445,
+                0.29272081851160364,
+                0.1792835993798389
+              ],
+              [
+                0.2877629472192663,
+                0.31329255391989447,
+                0.25938748201434747,
+                0.1395570168464918
+              ],
+              [
+                0.3935138518258758,
+                0.31404825691680743,
+                0.20070706098326713,
+                0.09173083027404977
+              ]
+            ],
+            "cumulative_probabilities": [
+              [
+                0.23075745280691307,
+                0.5279955821085575,
+                0.8207164006201612,
+                1
+              ],
+              [
+                0.2877629472192663,
+                0.6010555011391607,
+                0.8604429831535083,
+                1
+              ],
+              [
+                0.3935138518258758,
+                0.7075621087426832,
+                0.9082691697259503,
+                1
+              ]
+            ],
+            "most_likely": [
+              0,
+              0,
+              -5
+            ],
+            "quantiles": [
+              -5,
+              0,
+              20
+            ],
+            "linear_predictor": [
+              -0.27033664073690744,
+              0.027428759933335545,
+              0.501136893621602
+            ],
+            "probability_standard_errors": [
+              [
+                0.04834574229725752,
+                0.04008183565251782,
+                0.045572978420238594,
+                0.04401833514906542
+              ],
+              [
+                0.04673783841618099,
+                0.040041444927141186,
+                0.04082999288001676,
+                0.033249914231483775
+              ],
+              [
+                0.05700579129454662,
+                0.04018077022102591,
+                0.03786101073685694,
+                0.026216782700055705
+              ]
+            ],
+            "probability_confidence_intervals": [
+              [
+                [
+                  0.13600153902204049,
+                  0.32551336659178565
+                ],
+                [
+                  0.21867917492512107,
+                  0.37579708367816783
+                ],
+                [
+                  0.20339942206770317,
+                  0.3820422149555041
+                ],
+                [
+                  0.09300924775870195,
+                  0.26555795100097584
+                ]
+              ],
+              [
+                [
+                  0.19615846713444665,
+                  0.379367427304086
+                ],
+                [
+                  0.23481276391048256,
+                  0.3917723439293064
+                ],
+                [
+                  0.17936216641597064,
+                  0.3394127976127243
+                ],
+                [
+                  0.07438838241119826,
+                  0.20472565128178533
+                ]
+              ],
+              [
+                [
+                  0.2817845538882803,
+                  0.5052431497634713
+                ],
+                [
+                  0.23529539434902585,
+                  0.392801119484589
+                ],
+                [
+                  0.1265008434609175,
+                  0.27491327850561675
+                ],
+                [
+                  0.04034688035000162,
+                  0.14311478019809792
+                ]
+              ]
+            ],
+            "confidence": 0.95,
+            "covariance_method": "observed_information_delta_wald",
+            "jmp_sandwich_equivalence_verified": false,
+            "work_units": 2057
+          },
+          "independent_average_nll_score": [
+            3.6851871267943012e-09,
+            -2.5851312680734316e-09,
+            -1.4941305200806825e-09,
+            -2.7501396468866297e-10,
+            -9.167132156246747e-11
+          ]
+        }
+      }
+    }
+  ],
+  "edge_contracts": {
+    "tiny_valid_covariance": {
+      "public_c_abi": {
+        "version": 1,
+        "algorithm": "genreg_ordinal_predict",
+        "ordered_labels": [
+          10,
+          20,
+          30
+        ],
+        "probabilities": [
+          [
+            0.25,
+            0.5000000000000001,
+            0.25
+          ]
+        ],
+        "cumulative_probabilities": [
+          [
+            0.25,
+            0.75,
+            1
+          ]
+        ],
+        "most_likely": [
+          20
+        ],
+        "quantiles": [
+          20
+        ],
+        "linear_predictor": [
+          0
+        ],
+        "probability_standard_errors": [
+          [
+            1.874989562954667e-161,
+            2.6516356692384194e-161,
+            1.874989562954667e-161
+          ]
+        ],
+        "probability_confidence_intervals": [
+          [
+            [
+              0.25,
+              0.25
+            ],
+            [
+              0.5000000000000001,
+              0.5000000000000001
+            ],
+            [
+              0.25,
+              0.25
+            ]
+          ]
+        ],
+        "confidence": 0.95,
+        "covariance_method": "observed_information_delta_wald",
+        "jmp_sandwich_equivalence_verified": false,
+        "work_units": 364
+      },
+      "native_duckdb_sql": {
+        "version": 1,
+        "algorithm": "genreg_ordinal_predict",
+        "ordered_labels": [
+          10,
+          20,
+          30
+        ],
+        "probabilities": [
+          [
+            0.25,
+            0.5000000000000001,
+            0.25
+          ]
+        ],
+        "cumulative_probabilities": [
+          [
+            0.25,
+            0.75,
+            1
+          ]
+        ],
+        "most_likely": [
+          20
+        ],
+        "quantiles": [
+          20
+        ],
+        "linear_predictor": [
+          0
+        ],
+        "probability_standard_errors": [
+          [
+            1.874989562954667e-161,
+            2.6516356692384194e-161,
+            1.874989562954667e-161
+          ]
+        ],
+        "probability_confidence_intervals": [
+          [
+            [
+              0.25,
+              0.25
+            ],
+            [
+              0.5000000000000001,
+              0.5000000000000001
+            ],
+            [
+              0.25,
+              0.25
+            ]
+          ]
+        ],
+        "confidence": 0.95,
+        "covariance_method": "observed_information_delta_wald",
+        "jmp_sandwich_equivalence_verified": false,
+        "work_units": 364
+      }
+    },
+    "asymmetric_covariance_rejected": {
+      "public_c_abi": [
+        {
+          "covariance": [
+            1e-200,
+            1e-201,
+            0,
+            1e-200
+          ],
+          "returned_null": true
+        },
+        {
+          "covariance": [
+            1.7e+308,
+            1.1e+308,
+            1e+308,
+            1.7e+308
+          ],
+          "returned_null": true
+        }
+      ],
+      "native_duckdb_sql": [
+        {
+          "covariance": [
+            1e-200,
+            1e-201,
+            0,
+            1e-200
+          ],
+          "returned_null": true
+        },
+        {
+          "covariance": [
+            1.7e+308,
+            1.1e+308,
+            1e+308,
+            1.7e+308
+          ],
+          "returned_null": true
+        }
+      ]
+    },
+    "nonconverged_inference": {
+      "public_c_abi": {
+        "fit": {
+          "version": 1,
+          "algorithm": "genreg_ordinal_fit",
+          "n_samples": 9,
+          "effective_sample_size": 60,
+          "n_features": 1,
+          "ordered_labels": [
+            10,
+            20,
+            30
+          ],
+          "level_counts": [
+            17,
+            26,
+            17
+          ],
+          "cutpoints": [
+            -0.9279867716373464,
+            0.9279867716373464
+          ],
+          "coefficients": [
+            0
+          ],
+          "genreg_intercepts": [
+            -0.9279867716373464,
+            1.8559735432746929
+          ],
+          "log_likelihood": -64.62091004685617,
+          "aic": 135.24182009371233,
+          "bic": 141.52485378037863,
+          "covariance": null,
+          "standard_errors": null,
+          "confidence_intervals": null,
+          "genreg_covariance": null,
+          "genreg_standard_errors": null,
+          "genreg_confidence_intervals": null,
+          "covariance_method": "observed_information",
+          "jmp_sandwich_equivalence_verified": false,
+          "converged": false,
+          "information_identified": false,
+          "inference_valid": false,
+          "finite_mle_existence_verified": false,
+          "global_optimum_verified": false,
+          "boundary_reached": false,
+          "information_singular": false,
+          "line_search_failed": false,
+          "iterations": 0,
+          "gradient_max": 0.2340623531992814,
+          "confidence": 0.95,
+          "work_units": 1671,
+          "predict_parameters": [
+            1,
+            1,
+            3,
+            0.95,
+            0,
+            -1,
+            1,
+            0.816496580927726,
+            10,
+            20,
+            30,
+            -0.9279867716373464,
+            0.9279867716373464,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "prediction": {
+          "version": 1,
+          "algorithm": "genreg_ordinal_predict",
+          "ordered_labels": [
+            10,
+            20,
+            30
+          ],
+          "probabilities": [
+            [
+              0.2833333333333333,
+              0.43333333333333335,
+              0.2833333333333333
+            ]
+          ],
+          "cumulative_probabilities": [
+            [
+              0.2833333333333333,
+              0.7166666666666667,
+              1
+            ]
+          ],
+          "most_likely": [
+            20
+          ],
+          "quantiles": [
+            20
+          ],
+          "linear_predictor": [
+            0
+          ],
+          "probability_standard_errors": [
+            [
+              null,
+              null,
+              null
+            ]
+          ],
+          "probability_confidence_intervals": [
+            [
+              null,
+              null,
+              null
+            ]
+          ],
+          "confidence": 0.95,
+          "covariance_method": "observed_information_delta_wald",
+          "jmp_sandwich_equivalence_verified": false,
+          "work_units": 483
+        }
+      },
+      "native_duckdb_sql": {
+        "fit": {
+          "version": 1,
+          "algorithm": "genreg_ordinal_fit",
+          "n_samples": 9,
+          "effective_sample_size": 60,
+          "n_features": 1,
+          "ordered_labels": [
+            10,
+            20,
+            30
+          ],
+          "level_counts": [
+            17,
+            26,
+            17
+          ],
+          "cutpoints": [
+            -0.9279867716373464,
+            0.9279867716373464
+          ],
+          "coefficients": [
+            0
+          ],
+          "genreg_intercepts": [
+            -0.9279867716373464,
+            1.8559735432746929
+          ],
+          "log_likelihood": -64.62091004685617,
+          "aic": 135.24182009371233,
+          "bic": 141.52485378037863,
+          "covariance": null,
+          "standard_errors": null,
+          "confidence_intervals": null,
+          "genreg_covariance": null,
+          "genreg_standard_errors": null,
+          "genreg_confidence_intervals": null,
+          "covariance_method": "observed_information",
+          "jmp_sandwich_equivalence_verified": false,
+          "converged": false,
+          "information_identified": false,
+          "inference_valid": false,
+          "finite_mle_existence_verified": false,
+          "global_optimum_verified": false,
+          "boundary_reached": false,
+          "information_singular": false,
+          "line_search_failed": false,
+          "iterations": 0,
+          "gradient_max": 0.2340623531992814,
+          "confidence": 0.95,
+          "work_units": 1671,
+          "predict_parameters": [
+            1,
+            1,
+            3,
+            0.95,
+            0,
+            -1,
+            1,
+            0.816496580927726,
+            10,
+            20,
+            30,
+            -0.9279867716373464,
+            0.9279867716373464,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "prediction": {
+          "version": 1,
+          "algorithm": "genreg_ordinal_predict",
+          "ordered_labels": [
+            10,
+            20,
+            30
+          ],
+          "probabilities": [
+            [
+              0.2833333333333333,
+              0.43333333333333335,
+              0.2833333333333333
+            ]
+          ],
+          "cumulative_probabilities": [
+            [
+              0.2833333333333333,
+              0.7166666666666667,
+              1
+            ]
+          ],
+          "most_likely": [
+            20
+          ],
+          "quantiles": [
+            20
+          ],
+          "linear_predictor": [
+            0
+          ],
+          "probability_standard_errors": [
+            [
+              null,
+              null,
+              null
+            ]
+          ],
+          "probability_confidence_intervals": [
+            [
+              null,
+              null,
+              null
+            ]
+          ],
+          "confidence": 0.95,
+          "covariance_method": "observed_information_delta_wald",
+          "jmp_sandwich_equivalence_verified": false,
+          "work_units": 483
+        }
+      }
+    }
+  },
+  "assertions": 1082,
+  "assertion_count_method": "Numeric scalar comparisons plus explicit convergence,independent-score,NULL and inference predicates; all decoded JSON is recursively finite.",
+  "library": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+    "sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe"
+  },
+  "extension": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+    "sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+  }
+}

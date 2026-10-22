@@ -1,0 +1,58 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 29.23s
+     Running tests/report_artifact_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/report_artifact_contracts-1725ce7301979cbb)
+
+running 7 tests
+test reports_reject_invalid_states_unrepresentable_ranges_and_dense_layouts ... ok
+test singleton_and_permuted_rows_have_deterministic_finite_artifacts ... FAILED
+test box_quartiles_use_type6_and_observed_tukey_whiskers ... FAILED
+test hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks ... FAILED
+test quantile_box_has_full_range_and_four_additional_type6_ticks ... FAILED
+test explicit_histogram_edges_include_final_edge_and_preserve_density_units ... FAILED
+test frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n ... FAILED
+
+failures:
+
+---- singleton_and_permuted_rows_have_deterministic_finite_artifacts stdout ----
+
+thread 'singleton_and_permuted_rows_have_deterministic_finite_artifacts' (542851) panicked at crates/analytics/tests/report_artifact_contracts.rs:17:89:
+called `Result::unwrap()` on an `Err` value: "unknown optimization operation"
+
+---- box_quartiles_use_type6_and_observed_tukey_whiskers stdout ----
+
+thread 'box_quartiles_use_type6_and_observed_tukey_whiskers' (542845) panicked at crates/analytics/tests/report_artifact_contracts.rs:17:89:
+called `Result::unwrap()` on an `Err` value: "unknown optimization operation"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks stdout ----
+
+thread 'hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks' (542848) panicked at crates/analytics/tests/report_artifact_contracts.rs:17:89:
+called `Result::unwrap()` on an `Err` value: "unknown optimization operation"
+
+---- quantile_box_has_full_range_and_four_additional_type6_ticks stdout ----
+
+thread 'quantile_box_has_full_range_and_four_additional_type6_ticks' (542849) panicked at crates/analytics/tests/report_artifact_contracts.rs:17:89:
+called `Result::unwrap()` on an `Err` value: "unknown optimization operation"
+
+---- explicit_histogram_edges_include_final_edge_and_preserve_density_units stdout ----
+
+thread 'explicit_histogram_edges_include_final_edge_and_preserve_density_units' (542846) panicked at crates/analytics/tests/report_artifact_contracts.rs:14:45:
+called `Result::unwrap()` on an `Err` value: "unknown optimization operation"
+
+---- frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n stdout ----
+
+thread 'frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n' (542847) panicked at crates/analytics/tests/report_artifact_contracts.rs:17:89:
+called `Result::unwrap()` on an `Err` value: "unknown optimization operation"
+
+
+failures:
+    box_quartiles_use_type6_and_observed_tukey_whiskers
+    explicit_histogram_edges_include_final_edge_and_preserve_density_units
+    frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n
+    hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks
+    quantile_box_has_full_range_and_four_additional_type6_ticks
+    singleton_and_permuted_rows_have_deterministic_finite_artifacts
+
+test result: FAILED. 1 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p ducksmiles_analytics --test report_artifact_contracts`

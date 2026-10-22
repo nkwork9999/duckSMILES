@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "module": "genreg_ordinal",
+  "source": "crates/analytics/src/genreg_ordinal.rs",
+  "scope": "Bounded native unpenalized ordered-logit ML and portable prediction; partial generalized_regression_ordinal_outcome only.",
+  "integration_status": "PASS for bounded native ML/observed-information contracts:12focused public tests; parent fullworkspace1366passed/0failed/2existingignored across67suites plus strictalltargetClippy/fmt; actual finalRelease exported C ABI and matching loaded native DuckDB SQL independent5fitfixture1082checks. Separate independent reviewer finalRelease1321checksPASS. This does not establish full ordinal GenReg/JMP default Lasso or sandwich parity.",
+  "common_contract": {
+    "model": "Native unpenalized cumulative-logit ML: P(Y<=j)=logistic(alpha_j+Xbeta),K-1 strictly ordered cutpoints and shared slopes. Not the default GenReg Lasso.",
+    "ordering": "Infer ascending distinct numeric labels from positive-frequency rows. Numeric distances between labels are unused. Zero-frequency rows do not create outcome levels or train feature transformations.",
+    "estimation": "Analytic average-log-likelihood score and observed information,damped Newton with Armijo backtracking. Cutpoint order and normalized parameter absolute1e6 are explicit guards. maxiter0 gives initial point diagnostics. Nonconvergence or singular information withholds covariance/SE/CI. No variable selection,categorical predictor expansion,missing handling,or alternate links.",
+    "identification": "Weighted centered QR rejects constant/aliased slopes at norm tolerance1e-10. All levels need positive frequency. Univariate complete/quasi separation directions are checked before optimization,and the fitted ray is checked again. Certified directions error; the complete multivariate finite-MLE existence problem is not solved. finite_mle_existence_verified=false and global_optimum_verified=false always. A numerical guard boundary is never convergence.",
+    "scaling": "Training-only weighted origin,mean offset,and population scale; magnitudes rescaled before variance squaring. Saved normalized cutpoints/slopes and all three transforms are unchanged at prediction. Physical coefficients and cutpoints are returned in original predictor units. GenReg intercepts are first rawcut then successive normalized cutpoint differences (avoids subtraction loss after origin shift).",
+    "uncertainty": "Observed summed-likelihood information inverse in joint order[cutpoints(K-1),slopes(p)]. This is an explicit native alternative: JMP GenReg documents M-estimation sandwich covariance; exact construction/finite-sample correction is unverified. No HC0/sandwich identity is claimed. Report joint raw covariance/SE/normal WaldCI plus transformed GenReg-display covariance/SE/CI. Original-unit covariance over/underflow withholds raw inference while retaining finite normalized saved covariance.",
+    "prediction": "Rows[features...,quantile_probability],strict0<q<1. Return category probabilities,cumulative probabilities including final1,first ordered maximum as most_likely,left generalized-inverse quantile label,original Xbeta linear predictor,observed-information delta probability SE and untruncated normal WaldCI. q supplies a meaningful column for intercept-only models across the public ABI. Quantile/tie/probability-Wald behavior is a native declared contract,not verified JMP saved-column identity.",
+    "support": "Natural categorical outcomes only; no censoring or probability-floor likelihood replacement. Every declared value must be finite and rectangular; all data absolute<=1e150.",
+    "bounds": {
+      "features": 16,
+      "levels": [
+        2,
+        16
+      ],
+      "rows": 100000,
+      "input_cells": 1000000,
+      "columns": 1024,
+      "frequency_per_row": [
+        0,
+        1000000
+      ],
+      "total_frequency_max": 1000000000,
+      "total_frequency_min": "strictly greater than d=K-1+p; at leastp+1active source rows",
+      "fit_maxiter": [
+        0,
+        2000
+      ],
+      "fit_tolerance": [
+        1e-10,
+        0.001
+      ],
+      "confidence": "[.5,.999999)",
+      "prediction_probability_cells": 200000,
+      "args": 16384,
+      "normalized_parameter_absolute": 1000000,
+      "relative_cholesky_pivot_min": 1e-12
+    },
+    "work_budget": "One thread-local cumulative200M-unit budget per public call. Charges8per input/argument scalar; active_rows*(p^2+12p+16) for preprocessing/QR;8*active_rows*p*(K-1) for all axis separation searches;active_rows*(p+4) for each checked recession direction;active_rows*(d^2+12d+64) per likelihood/score/information evaluation including every rejected line-search candidate;d^3 for scaled Cholesky plus3d^3 for inversion;4d^4 for each covariance transformation;32+8p+K*(d^2+8d+48) per predicted row. Counters are algorithmic units,not CPU-instruction counts. Exhaustion errors even if caught during optional inversion or line search.",
+    "saved_model": "[1,p,K,confidence,has_covariance,feature_origins(p),feature_mean_offsets(p),feature_scales(p),sorted_labels(K),theta(d),normalized_covariance_flat(d*d)] where d=K-1+p,theta=[normalized cutpoints(K-1),normalized slopes(p)]. Length5+3p+K+d+d*d<=1061. Exact length/version/integer dimensions,positive feature scales,strictly ordered labels/cuts,finite entries,relative symmetric PD covariance are validated. Disabled covariance must be all zero. No input training rows needed.",
+    "finite_outputs": "Reject unrepresentable raw cutpoint order,coefficients,linear predictor,or likelihood. Covariance validation uses scaled Cholesky without inverting it. Delta SD rescales gradients/covariance to preserve a representable SD when variance underflows. Zero/underflowed numerical derivative yields nullSE; no fabricated zero uncertainty. All JSON numbers finite."
+  },
+  "operations": [
+    {
+      "operation": "genreg_ordinal_fit",
+      "symbol": "GenregOrdinalFit",
+      "sql_name": "chem_genreg_ordinal_fit",
+      "description": "Unpenalized ordered cumulative-logit ML with sorted numeric outcome levels,integer replication frequencies,and joint observed-information inference.",
+      "data": "[features...,numeric_label,integer_frequency]",
+      "args": [
+        "maxiter default200",
+        "tolerance default1e-7",
+        "confidence default.95"
+      ],
+      "source": "crates/analytics/src/genreg_ordinal.rs",
+      "tests": "crates/analytics/tests/genreg_ordinal_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/ordinal-responses.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/estimation-method-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+      ],
+      "fixture": {
+        "data": [
+          [
+            30,
+            1
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            20,
+            2
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "ordered_labels": [
+          10,
+          20,
+          30
+        ],
+        "cutpoints": [
+          -1.0986122886681098,
+          1.0986122886681098
+        ],
+        "genreg_intercepts": [
+          -1.0986122886681098,
+          2.1972245773362196
+        ],
+        "log_likelihood": -4.1588830833596715,
+        "covariance": [
+          [
+            1.3333333333333333,
+            0.4444444444444444
+          ],
+          [
+            0.4444444444444444,
+            1.3333333333333333
+          ]
+        ]
+      },
+      "known_value_reference": "Independent saturated multinomial occurrence probabilities[1/4,1/2,1/4],cumulative-logit transform and exact delta covariance at N4.",
+      "sql_example": "chem_genreg_ordinal_fit([[30,1],[10,1],[20,2]], [])",
+      "evidence": "tasks/evidence/jmp-ordinal-reference.json",
+      "unsupported": [
+        "JMP default Lasso/selection/validation paths",
+        "Exact JMP sandwich/finite-sample uncertainty convention",
+        "String labels,column Value Ordering,categorical predictor contrasts and informative missing",
+        "General finite-MLE existence proof,other ordinal links and censoring",
+        "Installed-JMP comparison and exact saved categorical tie/uncertainty behavior"
+      ]
+    },
+    {
+      "operation": "genreg_ordinal_predict",
+      "symbol": "GenregOrdinalPredict",
+      "sql_name": "chem_genreg_ordinal_predict",
+      "description": "Saved ordinal probability,CDF,mode,quantile-label and observed-information delta prediction with original training transforms.",
+      "data": "[features...,quantile_probability]",
+      "args": [
+        "Complete unchanged predict_parameters vector from fit."
+      ],
+      "source": "crates/analytics/src/genreg_ordinal.rs",
+      "tests": "crates/analytics/tests/genreg_ordinal_contracts.rs",
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/ordinal-responses.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/estimation-method-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0.2
+          ],
+          [
+            0.43
+          ],
+          [
+            0.81
+          ]
+        ],
+        "args": [
+          1,
+          0,
+          3,
+          0.95,
+          1,
+          10,
+          20,
+          30,
+          -1.0986122886681098,
+          1.0986122886681098,
+          1.3333333333333333,
+          0.4444444444444444,
+          0.4444444444444444,
+          1.3333333333333333
+        ]
+      },
+      "known_value": {
+        "probabilities": [
+          [
+            0.25,
+            0.5,
+            0.25
+          ],
+          [
+            0.25,
+            0.5,
+            0.25
+          ],
+          [
+            0.25,
+            0.5,
+            0.25
+          ]
+        ],
+        "most_likely": [
+          20,
+          20,
+          20
+        ],
+        "quantiles": [
+          10,
+          20,
+          30
+        ],
+        "linear_predictor": [
+          0,
+          0,
+          0
+        ]
+      },
+      "known_value_reference": "Independent saturated multinomial occurrence probabilities[1/4,1/2,1/4],cumulative-logit transform and exact delta covariance at N4.",
+      "sql_example": "chem_genreg_ordinal_predict([[0.2],[0.43],[0.81]], [1.0,0.0,3.0,0.95,1.0,10.0,20.0,30.0,-1.0986122886681098,1.0986122886681098,1.3333333333333333,0.4444444444444444,0.4444444444444444,1.3333333333333333])",
+      "evidence": "tasks/evidence/jmp-ordinal-reference.json",
+      "unsupported": [
+        "JMP default Lasso/selection/validation paths",
+        "Exact JMP sandwich/finite-sample uncertainty convention",
+        "String labels,column Value Ordering,categorical predictor contrasts and informative missing",
+        "General finite-MLE existence proof,other ordinal links and censoring",
+        "Installed-JMP comparison and exact saved categorical tie/uncertainty behavior"
+      ]
+    }
+  ],
+  "research": "tasks/jmp-generalized-next-contracts.json",
+  "independent_review": {
+    "path": "tasks/evidence/jmp-ordinal-independent-release-reference.json",
+    "sha256": "cc4c8175feed8491bcaa798c2eb20f5811f584ca8e9e91700752b1ef75e5cbbb",
+    "checker": "scripts/check_jmp_ordinal_reference.py",
+    "calls": 35,
+    "checks": 1321,
+    "profile": "Release",
+    "scope": "Independent reviewer:4MLfits/directmpmath80 fullobservedHessians,savedpredictions12queries+singles,23NULLcases at actual final exported Release C ABI; no JMP executable comparison."
+  },
+  "verification_evidence": {
+    "path": "tasks/evidence/jmp-ordinal-reference.json",
+    "sha256": "7a04234faf2289bff7ccd6e7854909abeee38eaaeb463d604bb4736a7f9f0aad",
+    "cases": 5,
+    "assertions": 1082,
+    "boundaries": [
+      "public_c_abi",
+      "native_duckdb_sql"
+    ],
+    "library_sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe",
+    "extension_sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f",
+    "profile": "Release",
+    "source_sha256": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90"
+  },
+  "independent_review_dev": {
+    "path": "tasks/evidence/jmp-ordinal-independent-reference.json",
+    "sha256": "237092b56c2b5df7417095b483eea13ae1c303b77a107ae691e881d9c517c1e3",
+    "checker": "scripts/check_jmp_ordinal_reference.py",
+    "calls": 35,
+    "checks": 1321,
+    "scope": "Independent reviewer:4MLfits/directmpmath80 fullobservedHessians,savedpredictions12queries+singles,23NULLcases; development actual public C ABI only,not JMP executable comparison."
+  }
+}

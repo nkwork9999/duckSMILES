@@ -1,0 +1,14 @@
+{
+  "source_revision": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "job": 119800425894,
+  "platform": "linux_amd64",
+  "sql_summaries": [
+    {
+      "assertions": 513,
+      "test_cases": 16
+    }
+  ],
+  "actual_log_sha256": "275ebc3e6935bcdf59effa6bfe4db6b4a81114c94f44aba064edea06c4cbc10f",
+  "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39771639283/job/119800425894",
+  "other_platforms": "still in progress; not inferred from this job"
+}

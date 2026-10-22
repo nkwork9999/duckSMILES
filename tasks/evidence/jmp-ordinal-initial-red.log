@@ -1,0 +1,14 @@
+Captured development tool transcript excerpt; before production module/dispatch.
+$ CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test genreg_ordinal_contracts
+Finished test profile in2.27s
+running5tests
+FAILED intercept_only_ordered_mle_reports_cutpoints_jmp_differences_and_information
+FAILED replication_frequencies_and_zero_weight_categories_preserve_likelihood_and_fit
+FAILED exported_ordinal_c_abi_owns_finite_json_and_rejects_malformed_carrier
+FAILED common_slope_has_jmp_positive_cumulative_sign_and_portable_prediction
+FAILED nonconverged_fit_withholds_uncertainty_and_invalid_design_is_rejected
+Four execute failures: ordinal: unknown optimization operation
+Exported ABI failure: exported ABI returned NULL
+result:FAILED.0passed;5failed;0ignored;0filtered
+exit101
+Additional separation wrong-reason RED: expected separation,actual unknown optimization operation;0passed1failed exit101.

@@ -529,7 +529,12 @@
       },
       "independent_reference_acceptance": "Independent exact-edge bin counts with conserved weight; KDE numerical reference and percent normalization.",
       "unresolved_details": [
-        "Automatic tick/bin choice and shadowgram sequence require explicit detailed conventions."
+        "JMP automatic bin count, origin and tick rounding with observed reference evidence",
+        "JMP exact edge closure, fractional Freq and analytic Weight behavior",
+        "Polygon, KDE bandwidth/smoother, shadowgram width sequence and opacity",
+        "Fill response scale, overlays/overlap, categorical histogram and mixed-variable roles",
+        "Mean/SD, t-test/mean CI annotation, standard-error bars and fitted distribution curves",
+        "Full style/label/panel export configuration and exact element-specific hidden behavior"
       ],
       "existing_backend": {
         "operations": [
@@ -557,6 +562,13 @@
         "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
         "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
         "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ],
+      "bounded_artifact_evidence_present": true,
+      "bounded_artifact_evidence": "tasks/evidence/jmp-reports-native-reference.json",
+      "whole_family_complete": false,
+      "resolved_details": [
+        "JMP Distribution type6quantiles transcribed from official19.2equations and independently verified",
+        "Bounded self-contained SVG and full numeric/provenance data validated at actual C ABI and loaded SQL; independent XML/raster and visual QA passed"
       ]
     },
     {
@@ -564,7 +576,7 @@
       "label": "Box plot",
       "catalog_domain": "data-exploration-and-visualization:Graphing",
       "ledger_status_at_audit": "clarification_pending",
-      "recommended_status": "absent",
+      "recommended_status": "partial",
       "scope_decision": "included_cpu_backend_and_artifact",
       "catalog_primary_urls": [
         "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
@@ -580,7 +592,13 @@
       },
       "independent_reference_acceptance": "Hand-sorted/independent quantiles; odd/even n, ties, constants/singletons and distant outliers.",
       "unresolved_details": [
-        "Extract JMP quantile interpolation convention; generic host quantiles are not evidence of box-plot parity."
+        "Analytic Weight and fractional Freq conventions; direct JMP cross-platform fixtures",
+        "Mean CI confidence diamond and its weighted/pooled/platform-specific inference",
+        "Notches (documented formula already transcribed) and rendering when outside quartiles",
+        "Shortest-half exact size, interpolation and tie conventions",
+        "Solid/Thin styles, arbitrary width/proportional count width and align/offset placement",
+        "Uniform/normal/density jitter, packed/grid/hex/beeswarm placement, seed policy",
+        "Multiple response roles, wrapping/panels, labels/customization and exact hidden-state behavior"
       ],
       "existing_backend": null,
       "primary_urls": [
@@ -596,6 +614,13 @@
         "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
         "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
         "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ],
+      "bounded_artifact_evidence_present": true,
+      "bounded_artifact_evidence": "tasks/evidence/jmp-reports-native-reference.json",
+      "whole_family_complete": false,
+      "resolved_details": [
+        "JMP Distribution type6quantiles transcribed from official19.2equations and independently verified",
+        "Bounded self-contained SVG and full numeric/provenance data validated at actual C ABI and loaded SQL; independent XML/raster and visual QA passed"
       ]
     },
     {
@@ -1127,7 +1152,7 @@
       "label": "Comparative box plots",
       "catalog_domain": "data-exploration-and-visualization:Graphing",
       "ledger_status_at_audit": "clarification_pending",
-      "recommended_status": "absent",
+      "recommended_status": "partial",
       "scope_decision": "included_cpu_backend_and_artifact",
       "catalog_primary_urls": [
         "https://www.jmp.com/en/fragments/capabilities/data-exploration-and-visualization"
@@ -1143,7 +1168,13 @@
       },
       "independent_reference_acceptance": "Independent grouped quantiles/whiskers, within-group permutation invariance and common scale.",
       "unresolved_details": [
-        "Same exact JMP quantile-convention research as box_plot remains required."
+        "Analytic Weight and fractional Freq conventions; direct JMP cross-platform fixtures",
+        "Mean CI confidence diamond and its weighted/pooled/platform-specific inference",
+        "Notches (documented formula already transcribed) and rendering when outside quartiles",
+        "Shortest-half exact size, interpolation and tie conventions",
+        "Solid/Thin styles, arbitrary width/proportional count width and align/offset placement",
+        "Uniform/normal/density jitter, packed/grid/hex/beeswarm placement, seed policy",
+        "Multiple response roles, wrapping/panels, labels/customization and exact hidden-state behavior"
       ],
       "existing_backend": null,
       "primary_urls": [
@@ -1159,6 +1190,13 @@
         "Public C ABI ownership/errors plus loaded DuckDB SQL including NULL, invalid inputs and row selections.",
         "Independent artifact parser/decoder and visual inspection for clipping/legibility; save reproducible evidence.",
         "README and master feature ledger record every argument, SQL example, format, limit, validation and remaining option."
+      ],
+      "bounded_artifact_evidence_present": true,
+      "bounded_artifact_evidence": "tasks/evidence/jmp-reports-native-reference.json",
+      "whole_family_complete": false,
+      "resolved_details": [
+        "JMP Distribution type6quantiles transcribed from official19.2equations and independently verified",
+        "Bounded self-contained SVG and full numeric/provenance data validated at actual C ABI and loaded SQL; independent XML/raster and visual QA passed"
       ]
     },
     {
@@ -2598,12 +2636,14 @@
   "summary": {
     "audited_rows": 44,
     "recommended_status_counts": {
-      "partial": 13,
-      "absent": 31
+      "partial": 15,
+      "absent": 29
     },
     "excluded_gui_rows": 0,
     "implemented_verified_rows": 0,
-    "goal_complete": false
+    "goal_complete": false,
+    "bounded_artifact_rows": 3,
+    "latest_bounded_evidence": "tasks/evidence/jmp-report-ordinal-validation.json"
   },
   "open_research": [
     "Distribution count-SE formula is image-based; inspect its equation before full histogram-error parity.",
@@ -2616,14 +2656,12 @@
     "Native journal/script compatibility is separate from neutral diagram/table output.",
     "Catalogue locates this under Factor Analysis; explicit diagram controls are documented under SEM. Loadings alone do not close it.",
     "Automatic tick/bin choice and shadowgram sequence require explicit detailed conventions.",
-    "Extract JMP quantile interpolation convention; generic host quantiles are not evidence of box-plot parity.",
     "Density/smoother choices require detailed platform options. A correlation matrix alone is insufficient.",
     "A single simple bar is partial; the documented style catalogue remains required.",
     "Hex assignment and size scaling need explicit conventions.",
     "Related control-chart kernels are not a dedicated run-chart artifact implementation.",
     "Bounded state-space kernels do not establish JMP automatic smoothing-family selection.",
     "Overview does not define complete simulation/importance/optimization contracts; detailed subpages must drive those tests.",
-    "Same exact JMP quantile-convention research as box_plot remains required.",
     "Exact aggregation/interpolation rules need detailed launch/platform documentation.",
     "OpenGL GUI navigation is excluded; geometry/static output remains in scope.",
     "Graph Builder density and standalone response contours are different contracts. Exact triangulation/interpolation needs detailed rules.",
@@ -2638,6 +2676,7 @@
     "Full customization extends beyond overview sources. No generic report composer exists here.",
     "SVG-only is useful partial progress, not completion of all promised formats.",
     "Native .jrp interoperation is absent/unverified. Numeric JSON or a static image alone is not a reopenable report.",
-    "No native serializer/reader exists. Portable document output is partial progress for this explicitly named native-format row."
+    "No native serializer/reader exists. Portable document output is partial progress for this explicitly named native-format row.",
+    "Type6 Distribution quantiles are documented and verified; direct installed-JMP platform,analytic Weight/fractional Freq and exact histogram boundary comparisons remain outstanding."
   ]
 }

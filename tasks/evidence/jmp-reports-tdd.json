@@ -1,0 +1,103 @@
+{
+  "schema": "jmp-reports-tdd-v1",
+  "recorded_utc": "2026-10-22T23:22:43.373635+00:00",
+  "status": "bounded_core_release_verified_whole_JMP_families_partial",
+  "baseline": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "operations": [
+    "report_histogram_svg",
+    "report_box_plot_svg"
+  ],
+  "source": "crates/analytics/src/static_reports.rs",
+  "source_sha256": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+  "tests": "crates/analytics/tests/report_artifact_contracts.rs",
+  "tests_sha256": "4ee544d59edbe184a75e85a3729c3a38d85591978bb074e60c64f79cb5a5ec0b",
+  "api": "tasks/jmp-report-api.json",
+  "api_sha256": "311ac3ed032b1ed7a562b90e13ad13bbc7387b14cd824aef39b412687aed6df6",
+  "target_dir": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "profile": "dev; default features; no new dependencies or lockfile changes",
+  "sequence": [
+    {
+      "stage": "initial RED before production source existed",
+      "observed": "7 tests;6 valid-operation failures,all unknown optimization operation;1 negative-only test passed vacuously",
+      "log": "jmp-reports-initial-red.log"
+    },
+    {
+      "stage": "first focused GREEN",
+      "observed": "7/7 pass; initial literal Type6/frequency/bin/selection fixtures",
+      "note": "An incorrect drafted hidden-outlier test frequency was corrected to twelve zero replications and three outlier replications; independent expected quartile0 is exact."
+    },
+    {
+      "stage": "axis and group-label behavioral RED",
+      "observed": "7pass,2fail; narrow-domain distinct ticks rounded identically and long group labels overlapped",
+      "log": "jmp-reports-adaptive-axis-red.log",
+      "note": "Earlier axis-labels-red.log tested provisional narrow-domain rejection. Parent clarified ordinary narrow scientific ranges must succeed; adaptive-axis-red.log is the accepted final successful-artifact requirement."
+    },
+    {
+      "stage": "adaptive-axis GREEN",
+      "observed": "10/10 pass including exact nextafter edges and one million virtual-frequency singleton; narrow range and large-offset small span artifacts succeed"
+    },
+    {
+      "stage": "stable transform/accessibility/empty-stat metadata RED",
+      "observed": "10pass,3fail: missing value_origin; missing accessible per-group statistics; missing explicit null empty whiskers",
+      "log": "jmp-reports-stable-metadata-red.log"
+    },
+    {
+      "stage": "pre-artifact focused GREEN",
+      "observed": "13/13 pass,0ignored; dev/default",
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test report_artifact_contracts"
+    },
+    {
+      "stage": "scoped strict Clippy",
+      "observed": "PASS no warnings; one helper too-many-arguments warning refactored using canvas/options tuples without allow suppression",
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo clippy -p ducksmiles_analytics --lib --test report_artifact_contracts -- -D warnings",
+      "log": "jmp-reports-clippy.log"
+    },
+    {
+      "stage": "actual raster visual review confirmed visible five-number precision defect",
+      "observed": "NumericalJSON/axis/title correct; five distinct large-offset values displayed identically in optional visible table. Both focused Rust actual-output RED and frozen production public C ABI SVG text RED were observed before fix.",
+      "rust_red": "tasks/evidence/jmp-reports-visible-table-red.log",
+      "actual_c_abi_red": "tasks/evidence/jmp-reports-five-number-table-red.json",
+      "before_fix_svg": "tasks/evidence/jmp-report-artifacts-dev/box-large-offset-before-fix.svg",
+      "fix": "Adaptive shortest-roundtrip visible table cells when concise labels collide; actual text widths checked in existing columns; numerical quantities and resource limits unchanged.",
+      "focused_green": "14/14 PASS;0ignored",
+      "log": "tasks/evidence/jmp-reports-focused-green.log"
+    },
+    {
+      "stage": "post table-fix strict Clippy",
+      "observed": "PASS no warnings1.91sec; ordinal trailing-zero literal warning fixed by producer without changing f64 value. Reportsourceunchanged from14GREEN.",
+      "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo clippy -p ducksmiles_analytics --lib --test report_artifact_contracts -- -D warnings",
+      "log": "tasks/evidence/jmp-reports-clippy.log"
+    },
+    {
+      "stage": "matching Release public C ABI plus loaded native SQL and original SVG/raster acceptance",
+      "observed": "PASS independent36positive fixtures perboundary,69NULLcases,fullJSON/SVG equality,58actualPNG and representative visual review. Parent full18fileSQLrunner603assertions0skip;418catalogexamplesPASS.",
+      "evidence": "tasks/evidence/jmp-reports-native-reference.json",
+      "source_sha256": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+      "library_sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe",
+      "extension_sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+    }
+  ],
+  "logs": {
+    "jmp-reports-initial-red.log": "974f58f5119323efcdbfc5b862d12e55b22f151d4cab7b7f08dc6bbf14d71107",
+    "jmp-reports-axis-labels-red.log": "4b41aeb91b3fa290d51a3ed49d3b308fcf6cb565437e91848e01766bcbf75077",
+    "jmp-reports-adaptive-axis-red.log": "f5a18583037f0033ab9c0bcd4b400d0deeaa0c09ec9f8b81df175f1c30b14d70",
+    "jmp-reports-stable-metadata-red.log": "e81787eb341882e319607530d771b11d58db5ec3f5b1894b78b4f1f6b712808e",
+    "jmp-reports-focused-green.log": "b499e59618c6bd7cb4225af7cd50d28c6b5eaffd94dcae15e70d3d4e8f1619e2",
+    "jmp-reports-clippy.log": "6a285af43fee1cf80b3d6de3de67b6920977341d75468437592546db292b8640",
+    "jmp-reports-visible-table-red.log": "93fa117cc9ca22202347e9b177ab7323d7cc96cf26b6ccbeaf82254e8d1062b6"
+  },
+  "independent_runtime": {
+    "status": "PASS",
+    "evidence": "tasks/evidence/jmp-reports-native-reference.json",
+    "sha256": "10b0096fa66878b6b258ff786480a003a0c8d0fd8926c6ceaf4bc9e56f7d17c7",
+    "matching_Release_C_ABI_and_SQL": true,
+    "independent_positive_fixtures_per_boundary": 36,
+    "combined_checks": 105438,
+    "C_ABI_native_calls": 69,
+    "requested_SQL_scalar_evaluations": 90,
+    "invalid_NULL_results": 69,
+    "actual_PNGs": 58,
+    "formal_repository_SQL_gate": "tasks/evidence/jmp-report-ordinal-native-sql-validation.json"
+  },
+  "whole_JMP_family_parity": false
+}

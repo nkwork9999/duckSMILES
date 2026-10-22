@@ -1,0 +1,677 @@
+{
+  "schema": "jmp19.2-generalized-next-contract-research-v1",
+  "researched_on": "2026-10-22",
+  "status": "research_only_unimplemented_proposals_not_a_parity_completion_claim",
+  "scope": {
+    "ledger": "tasks/jmp-feature-matrix.json",
+    "ledger_ids": [
+      "generalized_regression_zero_inflation",
+      "generalized_regression_ordinal_outcome"
+    ],
+    "observed_status": "both absent,pro,in_scope,extension_required",
+    "edition": "JMP Pro19.2 Generalized Regression personality",
+    "writes": "This research JSON only; no Cargo,production source,README,master-ledger,or censored API edits.",
+    "DQ": "Data-quality implementation remains after JMP work."
+  },
+  "evidence_levels": {
+    "documented": "Explicit official19.2 prose or equation image.",
+    "inference": "Reasoned interpretation of the cited primary material; not executed against installed JMP.",
+    "proposal": "A future bounded DuckSMILES contract,not a claim that JMP uses these API,numeric limits,optimizer,or finite-sample conventions."
+  },
+  "primary_sources": {
+    "overview": "https://www.jmp.com/support/help/en/19.2/jmp/generalized-regression-models.shtml",
+    "launch": "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml",
+    "distribution_choices": "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+    "distribution_equations": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml",
+    "estimation": "https://www.jmp.com/support/help/en/19.2/jmp/estimation-method-options.shtml",
+    "estimation_equations": "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-estimation-methods.shtml",
+    "parameters": "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+    "fit_options": "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+    "ordinal_equations": "https://www.jmp.com/support/help/en/19.2/jmp/ordinal-responses.shtml",
+    "ordinary_ordinal_personality": "https://www.jmp.com/support/help/en/19.2/jmp/options-for-nominal-and-ordinal-fits.shtml",
+    "fishing_example": "https://www.jmp.com/support/help/en/19.2/jmp/example-of-zeroinflated-poisson-regression.shtml"
+  },
+  "critical_personality_distinctions": [
+    {
+      "fact": "Generalized Regression is Pro-only; its default observational-data method is Lasso. Unpenalized ML is a separate baseline fit. DOE-script defaults may instead use Forward Selection or Two Stage Forward Selection.",
+      "evidence": "documented",
+      "sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/generalized-regression-models.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/estimation-method-options.shtml"
+      ]
+    },
+    {
+      "fact": "All five ZI families are offered:Binomial,Beta Binomial,Poisson,Negative Binomial,Gamma. Censoring is listed only for Normal,Exponential,Gamma,Weibull,Lognormal,Beta,Cox,so none of these ZI/ordinal families supports the censored-response launch contract.",
+      "evidence": "documented",
+      "sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml"
+      ]
+    },
+    {
+      "fact": "Ordinal slopes are common across cumulative logits. Generalized Regression reports the first cutpoint and then successive cutpoint differences; the ordinary Ordinal Logistic personality reports cutpoints directly.",
+      "evidence": "documented",
+      "sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/ordinal-responses.shtml"
+      ]
+    },
+    {
+      "fact": "Do not transfer ordinary Ordinal Logistic default LR/profile-likelihood inference into Generalized Regression. GenReg parameter and covariance report pages say M-estimation sandwich; the ordinary personality has its own LR/Wald/profile options.",
+      "evidence": "documented",
+      "sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/options-for-nominal-and-ordinal-fits.shtml"
+      ]
+    }
+  ],
+  "uncertainty_research": {
+    "genreg_parameter_source": "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+    "exact_short_quote": "This is obtained using M-estimation and a sandwich formula",
+    "quote_context": "Std Error under Generalized Regression Parameter Estimates for Original Predictors. The same page separates uncensored,unpenalized Normal t tests from other Wald output.",
+    "genreg_covariance_source": "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+    "covariance_short_quote": "These are calculated using M-estimation and a sandwich formula",
+    "references_named_by_JMP": [
+      "Zou2006",
+      "Huber and Ronchetti2009"
+    ],
+    "equation_in_primary_pages": "No explicit bread/meat equation or finite-sample correction is supplied on these GenReg report pages or its Statistical Details for Estimation Methods page.",
+    "not_established": [
+      "Whether a particular unpenalized/censored fit uses an observed or expected bread.",
+      "Exact score contributions for auxiliary dispersion and zero-inflation parameters.",
+      "Whether and how an HC1,n/(n-d),effective-df,or other finite-sample multiplier is applied.",
+      "Score aggregation and finite-sample correction with Freq versus Weight roles.",
+      "Exact transformation used for auxiliary-parameter confidence limits and saved categorical probability intervals."
+    ],
+    "six_censored_family_application": {
+      "evidence": "inference",
+      "reason": "These are unrestricted Generalized Regression report definitions,not another personality. Launch documentation permits the six censored families; the parameter report explicitly distinguishes censoring for the Normal t/Wald case. No special censored sandwich exception was found.",
+      "sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-generalized-regression-personality.shtml"
+      ],
+      "certainty": "Broad documentation supports a residual difference; no installed-JMP numeric or exact finite-sample formula was obtained."
+    },
+    "existing_censored_residual_wording": "The six censored-family operations return inverse observed-information covariance. JMP19.2 Generalized Regression documents M-estimation sandwich standard errors/covariance; exact sandwich construction and finite-sample correction have not been established here,so uncertainty equivalence remains unverified.",
+    "future_bounded_convention": {
+      "evidence": "proposal",
+      "definition": "Expose model_based inverse-Hessian and explicitly named sandwich_HC0 separately. For replication frequencies w_i,use H=-sum_i w_i*d2logf_i and M=sum_i w_i*s_i*s_i^T,then H^-1*M*H^-1. Do not silently replace w_i by w_i^2. No finite-sample multiplier by default.",
+      "limitation": "This is a mathematically explicit implementation/oracle contract,not a verified reconstruction of JMP sandwich details. Keep that exact-parity item open.",
+      "acceptance": "Compare each covariance against independently differentiated original likelihood and individual-row replication. Do not infer covariance equivalence from matching point estimates."
+    }
+  },
+  "zero_inflation": {
+    "ledger_id": "generalized_regression_zero_inflation",
+    "inflation_model": {
+      "pi": "One shared auxiliary zero-inflation probability,not a predictor-specific second regression in the initial proposal.",
+      "evidence": "inference",
+      "primary_basis": "The official Fishing example reports one Zero Inflation line and reuses estimate0.781522155 in both saved formulas; the parameter report places inflation with auxiliary distribution parameters.",
+      "sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/example-of-zeroinflated-poisson-regression.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml"
+      ],
+      "report_image": {
+        "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/Fishing_ParamEsts.png",
+        "sha256": "985daf23b179fbf3a1a0c2a7b6400843fdbed344c50a8e6db7ce14f3c2f9c356",
+        "inspection": "downloaded from official19.2 page and visually inspected"
+      },
+      "not_documented": "No primary19.2 user-selectable pi link,pi predictor design,or separate inflation formula was found. Logit(pi) may be an internal numerical transform; it must not be represented as a documented JMP second-model link."
+    },
+    "mixture_definition": {
+      "evidence": "documented_equations_plus_algebra",
+      "discrete": "P(Y=0)=pi+(1-pi)*g(0); P(Y=y>0)=(1-pi)*g(y).",
+      "gamma": "P(Y=0)=pi; density for y>0 is (1-pi)*GammaPDF(y;shape=mu/sigma,scale=sigma).",
+      "unconditional_moments": "If base mean=m and variance=v,mixture mean=(1-pi)*m and variance=(1-pi)*v+pi*(1-pi)*m^2.",
+      "warning": "A zero mass is not a continuous density. ZI Gamma must expose zero probability separately from its positive-response density."
+    },
+    "families": [
+      {
+        "name": "ZI Binomial",
+        "mean_link": "logit(p)=Xbeta",
+        "base": "g(y)=choose(n,y)*p^y*(1-p)^(n-y)",
+        "native_parameters": [
+          "n",
+          "p",
+          "pi"
+        ],
+        "natural_support": "y in{0,...,n}; integer n>=1",
+        "base_mean": "n*p",
+        "base_variance": "n*p*(1-p)",
+        "mixture_mean": "(1-pi)*n*p",
+        "mixture_variance": "(1-pi)*n*p*(1-p)+pi*(1-pi)*(n*p)^2",
+        "likelihood_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/44-2.png",
+          "sha256": "df4aaedf92a81d2c55469c408f930b0ad950e2f6fde62b8b2b439a2a9f60071a",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        },
+        "variance_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/46-2.png",
+          "sha256": "bb420ef4325b2c8f91d608456d213f081227123d110e65440207617096e8b2d7",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        }
+      },
+      {
+        "name": "ZI Beta Binomial",
+        "mean_link": "logit(p)=Xbeta",
+        "base": "g(y)=choose(n,y)*B(y+a,n-y+b)/B(a,b); a=p*(1/delta-1),b=(1-p)*(1/delta-1)",
+        "native_parameters": [
+          "n",
+          "p",
+          "delta",
+          "pi"
+        ],
+        "natural_support": "y in{0,...,n}; JMP requires sample-size column with n>1",
+        "parameter_domain_inference": "p in(0,1),delta in(0,1) gives positive a,b; delta->0 is the Binomial limit.",
+        "base_mean": "n*p",
+        "base_variance": "n*p*(1-p)*(1+(n-1)*delta)",
+        "mixture_mean": "(1-pi)*n*p",
+        "mixture_variance": "(1-pi)*n*p*(1-p)*(1+(n-1)*delta)+pi*(1-pi)*(n*p)^2",
+        "likelihood_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/47-2.png",
+          "sha256": "4a42239b2ad94921d60b6134e012e76b9cbc380a2122fec55737b9f533cdc69d",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        },
+        "variance_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/49-2.png",
+          "sha256": "496dfa030a37da6998fe7c634a17048076f092767fd69a15b4a2f09612096ba9",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        }
+      },
+      {
+        "name": "ZI Poisson",
+        "mean_link": "log(lambda)=Xbeta",
+        "base": "g(y)=exp(-lambda)*lambda^y/Gamma(y+1)",
+        "native_parameters": [
+          "lambda",
+          "pi"
+        ],
+        "natural_support": "y in{0,1,...}",
+        "base_mean": "lambda",
+        "base_variance": "lambda",
+        "mixture_mean": "(1-pi)*lambda",
+        "mixture_variance": "lambda*(1-pi)*(1+lambda*pi)",
+        "likelihood_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/50-2.png",
+          "sha256": "f8d9dd7f2292e903e48e43ec65ca16b1c29cc4545113923286a52f78f7fcaeb7",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        },
+        "variance_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/52-2.png",
+          "sha256": "096dd5f5f01ea3f43479435a819fa8ef289f87bbe0079d745eb406963b74139a",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        }
+      },
+      {
+        "name": "ZI Negative Binomial",
+        "mean_link": "log(mu)=Xbeta",
+        "base": "g(y)=Gamma(y+1/sigma)/(Gamma(y+1)*Gamma(1/sigma))*(mu*sigma)^y/(1+mu*sigma)^(y+1/sigma)",
+        "native_parameters": [
+          "mu",
+          "sigma",
+          "pi"
+        ],
+        "natural_support": "y in{0,1,...}; sigma>0",
+        "base_mean": "mu",
+        "base_variance": "mu*(1+mu*sigma)",
+        "mixture_mean": "(1-pi)*mu",
+        "mixture_variance": "mu*(1-pi)*(1+mu*(sigma+pi))",
+        "likelihood_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/53-2.png",
+          "sha256": "df25b1c9d3ee21952904218b8a648755da3b63411dec72e783dc355b5f962174",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        },
+        "variance_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/55-2.png",
+          "sha256": "b4fa03e914c70415f2eede8752148508206555fbee1a98a8f3ba0bf00736b293",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        }
+      },
+      {
+        "name": "ZI Gamma",
+        "mean_link": "log(mu)=Xbeta",
+        "base": "Gamma(shape=mu/sigma,scale=sigma),not Gamma(shape=1/sigma,scale=mu*sigma)",
+        "native_parameters": [
+          "mu",
+          "sigma",
+          "pi"
+        ],
+        "natural_support": "zero atom plus continuous y>0; sigma>0",
+        "base_mean": "mu",
+        "base_variance": "mu*sigma",
+        "mixture_mean": "(1-pi)*mu",
+        "mixture_variance": "mu*(1-pi)*(sigma+mu*pi)",
+        "likelihood_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/56-2.png",
+          "sha256": "0c42bb88dba564594aae43ddc34df6219a55d6c96dc65cf047b99207e0315355",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        },
+        "variance_image": {
+          "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/58-2.png",
+          "sha256": "5a6240996d8ae68b8eada9b6131a2d4c985114c3cc9405b70cc3a87c7c26d100",
+          "inspection": "downloaded from official19.2 page and visually inspected"
+        }
+      }
+    ],
+    "support_notes": {
+      "documented": "Generalized Regression permits noninteger responses for its discrete distributions. ZIP and ZINB also explicitly permit a data set with no observed zeros.",
+      "sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml"
+      ],
+      "critical_oracle_difference": "SciPy discrete pmf/logpmf rejects noninteger observations. Matching JMP fitting there needs an explicit Gamma-function likelihood continuation,not SciPy pmf. This does not create a normalized continuous probability distribution. Exact JMP fractional-count CDF/quantile and fractional-trial behavior remains unverified.",
+      "boundary": "pi belongs to[0,1]. pi=0 is the noninflated boundary; pi=1 makes base parameters unidentified. Zero-only data must not receive fabricated finite base estimates. sigma->0 for ZINB and delta->0 for ZI Beta Binomial are other lower-model limits.",
+      "hurdle": "ZIP/ZINB/ZIB/ZIBB are mixtures retaining base-component zeros,not zero-truncated hurdle models. ZI Gamma happens to separate zero/nonzero outcomes because Gamma has no atom at zero."
+    },
+    "estimation": {
+      "documented_options": "Unpenalized ML baseline plus step-based and penalized GenReg techniques; observational default Lasso. SVEM Forward Selection/Lasso are unavailable for ZI Binomial and ZI Beta Binomial.",
+      "source": "https://www.jmp.com/support/help/en/19.2/jmp/estimation-method-options.shtml",
+      "proposal": "Fit all five unpenalized families before claiming any full row. Use stable logaddexp(log(pi),log1p(-pi)+logg0) for zero counts,log1p(-pi)+logg(y) otherwise; ZI Gamma zero contribution is log(pi). Shared auxiliary parameters are jointly estimated.",
+      "identification": "Include exact pi=0 candidate as well as multiple interior starts. An unconstrained finite logit transform cannot attain the boundary. Report boundary status and withhold unjustified Wald inference; do not fake a positive floor. All-zero data,rank-deficient design,n=1 ZIB intercept confounding,and zero-dispersion suprema need explicit diagnostics. Local convergence never proves global optimality."
+    },
+    "saved_prediction": {
+      "documented_source": "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+      "documented": "Saved mean prediction,distribution variance,linear predictor,CDF,mean SE/CI and simulation formulas are offered as applicable; saved mean uses the unconditional mixture mean.",
+      "formulae": {
+        "mean": "(1-pi)*base_mean",
+        "variance": "(1-pi)*base_variance+pi*(1-pi)*base_mean^2",
+        "zero_probability_counts": "pi+(1-pi)*g(0)",
+        "zero_probability_gamma": "pi",
+        "cdf_at_y_ge_zero": "pi+(1-pi)*G(y)",
+        "cdf_at_y_negative": "0"
+      },
+      "derived_quantile_proposal": "Return0 when u<=pi; otherwise base_quantile((u-pi)/(1-pi)). A discrete base may still return0 above pi. For Gamma,positive result begins strictly above pi. Use left-continuous generalized inverse inf{y:F(y)>=u}.",
+      "not_documented_as_JMP_save_option": "A generic saved quantile formula is not listed in Save Columns; quantile output here is a proposed CPU convenience based on the distribution,not a claim of identical saved-column behavior."
+    },
+    "bounded_api_proposal": {
+      "evidence": "proposal",
+      "fit_operations": [
+        "zi_binomial",
+        "zi_beta_binomial",
+        "zi_poisson",
+        "zi_negative_binomial",
+        "zi_gamma"
+      ],
+      "prediction_operation": "zi_predict",
+      "fit_rows": "[numeric_features...,response,trials,frequency]; trials=1 placeholder for nontrial families; each binomial-family row supplies its own trials.",
+      "initial_supported_support": "Natural integer count/trial support and zero+positive Gamma. Noninteger JMP fitting remains an explicitly active residual until Gamma-extension likelihood and its prediction semantics are specified/tested. No censor-kind field.",
+      "frequency": "Nonnegative integer replication counts,zero rows ignored; sum<=1e9; weights are not analytic/survey weights.",
+      "fit_args": "[maxiter=600,tolerance=1e-7,confidence=.95,covariance_kind0model_based/1sandwich_HC0,optional original-unit beta and native auxiliary starts]. No automatic category expansion.",
+      "bounds": "p<=16,n_rows<=100000,n_cells<=1e6; initial integer trials<=1e6; finite inputs abs<=1e150; joint cumulative special-function/optimizer/prediction work budget. Exceeding limits or unrepresentable outputs errors explicitly.",
+      "prediction_rows": "[features...,trials,query_response,quantile_probability]; probability strictly(0,1); trials=1 for nontrial families.",
+      "prediction_outputs": [
+        "conditional_base_mean",
+        "mixture_mean",
+        "mixture_variance",
+        "zero_probability",
+        "query_probability_mass",
+        "query_positive_density",
+        "cdf",
+        "survival",
+        "quantile",
+        "mean_standard_error",
+        "mean_confidence_interval",
+        "linear_predictor",
+        "boundary_and_convergence_diagnostics"
+      ],
+      "uncertainty": "Use named covariance_kind throughout saved predictions; retain joint auxiliary-parameter uncertainty. Do not apply a GLM covariance to the entire mixture.",
+      "portable_layout": "[1,family0ZIB/1ZIBB/2ZIP/3ZINB/4ZIG,p,confidence,covariance_kind,has_covariance,at_boundary,beta(p+1),native_dispersion_or0,pi,feature_origins(p),feature_mean_offsets(p),feature_scales(p),covariance_flat(d*d)] with d=p+2+[family has dispersion]; length10+4p+d*d<=435 atp16. Covariance coordinates are normalized beta,physical native dispersion if present,and physical pi. has_covariance0 requires zero covariance entries. A pi boundary or nonconverged fit withholds inference instead of storing an infinite logit in a finite carrier.",
+      "finite_validation": "Require exact carrier length,family,p,positive feature scales,0<=pi<1,valid native dispersion,symmetric PSD/PD covariance as its flag requires; reject malformed and all nonfinite output.",
+      "remaining_for_full_parity": [
+        "Default Lasso/Elastic Net and other selection/validation paths for each family.",
+        "Fractional discrete response/trials and exact JMP continued-likelihood prediction behavior.",
+        "Exact JMP sandwich details/finite-sample correction and auxiliary CI transformations.",
+        "Informative missing/categorical effects/validation-role and coding semantics.",
+        "Installed-JMP comparative fixtures,all boundary families,and full global identification."
+      ]
+    }
+  },
+  "ordinal_outcome": {
+    "ledger_id": "generalized_regression_ordinal_outcome",
+    "response": "Ordered category labels; only order matters,not numeric distances.",
+    "family": "Cumulative proportional-odds logistic; not nominal multinomial,adjacent-category,continuation-ratio,probit,or a set of independent binary logits.",
+    "equation": "P(Y<=j|X)=F(alpha_j+Xbeta),j=1,...,K-1; F(t)=1/(1+exp(-t)); alpha_1<...<alpha_(K-1).",
+    "category_probabilities": "p1=F(alpha1+Xbeta); pj=F(alphaj+Xbeta)-F(alpha_(j-1)+Xbeta); pK=1-F(alpha_(K-1)+Xbeta).",
+    "equation_image": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/1-372.png",
+      "sha256": "b32f1764937ccf8f6a4698889bae7278211cb652c7c7f539f64efddea1e1cc8b",
+      "inspection": "downloaded from official19.2 page and visually inspected"
+    },
+    "logistic_image": {
+      "url": "https://www.jmp.com/support/help/en/19.2/jmp/images/3-120.png",
+      "sha256": "baf0051074496250b391c65157ace0b0975a4471564f06b8dbeffcde02a314aa",
+      "inspection": "downloaded from official19.2 page and visually inspected"
+    },
+    "sources": [
+      "https://www.jmp.com/support/help/en/19.2/jmp/ordinal-responses.shtml",
+      "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml"
+    ],
+    "jmp_report_parameterization": {
+      "documented": "First GenReg intercept is alpha1; later intercepts are alpha_j-alpha_(j-1),rather than the raw cutpoints reported by Ordinal Logistic personality.",
+      "inference": "There are K-1 finite cutpoints for Kcategories. The distribution-choice prose says an intercept for each level,but its p1..p(K-1) table and the cited ordinal equation fix the finite count.",
+      "sign": "Positive JMP beta raises lower-tail cumulative probabilities. Statsmodels OrderedModel uses F(cut-Xbeta); negate its fitted slope to compare JMP signs.",
+      "no_intercept": "The launch No Intercept option is unavailable for Ordinal Logistic. Thresholds play the intercept role; adding a free common intercept to predictors would be unidentified.",
+      "censoring": "Not in the launch censoring-supported family list."
+    },
+    "estimation": "Joint multinomial likelihood sum_i w_i*log(p_(observed category,i)),not sum of K-1 independent binary likelihoods. ML baseline exists; default observational GenReg selection remains Lasso. SVEM Lasso/Forward Selection are unavailable for Ordinal Logistic.",
+    "uncertainty": "Use the GenReg sandwich research above. Cutpoint covariance must be linearly transformed into first-cutpoint/successive-difference report covariance; exponentiated internal gap parameters are not the displayed intercepts. Ordinary Ordinal Logistic profile-LR intervals are not automatically a GenReg contract.",
+    "saved_prediction": {
+      "documented": "For categorical responses Save Prediction Formula creates one probability per response level and the most-likely level.",
+      "source": "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml",
+      "proposal": "Expose ordered labels,cumulative probabilities,category probabilities,and most_likely. A tie rule must be explicitly specified; first ordered maximum is an API choice until JMP ties are checked.",
+      "avoid": "Do not return a numerical mean of category codes as a JMP prediction; numeric distances are semantically irrelevant. Per-category probability delta SE/CI can be offered as an explicitly named extension,but the exact JMP categorical saved mean-SE/CI construction was not established."
+    },
+    "bounded_api_proposal": {
+      "evidence": "proposal",
+      "operations": [
+        "genreg_ordinal",
+        "genreg_ordinal_predict"
+      ],
+      "fit_rows": "[features...,numeric_ordered_label,frequency]",
+      "fit_args": "[maxiter=600,tolerance=1e-7,confidence=.95,covariance_kind0model_based/1sandwich_HC0,K,ordered_label_values(K),optional raw JMP intercepts(K-1) and original slopes(p)]. Explicit level order must survive fitting and prediction.",
+      "bounds": "2<=K<=16,0<=p<=16,n_rows<=100000,n_cells<=1e6,sum integer frequencies<=1e9,all observed labels exactly listed; every listed category has positive effective frequency. Numeric finite labels arbitrary and need not be equally spaced or numerically ascending. Strings require caller encoding.",
+      "optimizer": "Use ordered thresholds,for example alpha1 plus log positive gaps internally; report physical successive differences. Evaluate category log-probabilities with stable logistic differences and direct tails. No minimum-probability floor in likelihood.",
+      "failure_contracts": [
+        "Reject constant/aliased predictor columns including implicit common intercept.",
+        "Diagnose complete/quasi separation,diverging slopes,coalescing cutpoints and missing effective categories.",
+        "Nonconvergence must return diagnostics without covariance/CI; threshold clipping is not convergence.",
+        "Strictly increasing cutpoints,probabilities finite nonnegative and summing1,and serialization finite."
+      ],
+      "portable_layout": "[1,p,K,confidence,covariance_kind,has_covariance,normalized_slopes(p),normalized_cutpoints(K-1),ordered_labels(K),feature_origins(p),feature_mean_offsets(p),feature_scales(p),joint_cov_flat(d*d)] with d=p+K-1; length5+4p+2K+d*d<=1062 atp16,K16. Covariance coordinates are normalized cutpoints first,then normalized slopes. has_covariance0 requires zero covariance entries. Preserve labels and transformations; no training rows required.",
+      "prediction_rows": "[features...]",
+      "outputs": [
+        "ordered_labels",
+        "category_probabilities",
+        "cumulative_probabilities",
+        "most_likely",
+        "linear_predictor",
+        "optional_explicit_probability_delta_uncertainty"
+      ],
+      "remaining_for_full_parity": [
+        "Default Lasso/selection/validation paths for ordinal distribution.",
+        "Exact GenReg sandwich and finite-sample conventions.",
+        "String labels,value-order column properties,missing categories,and categorical predictor contrasts.",
+        "Tie behavior and exact saved categorical uncertainty formulas.",
+        "Installed-JMP cross-check and complete finite-MLE identification."
+      ]
+    }
+  },
+  "independent_numeric_fixtures": {
+    "status": "Reference-only mathematics; no production operation was run and no new implementation is claimed.",
+    "generation": {
+      "python": "3.14.3 (main, Feb  3 2026, 15:32:20) [Clang 17.0.0 (clang-1700.6.3.2)]",
+      "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+      "libraries": "New literals use Python standard-library math and Fraction only. No third-party optimizer or production operation was executed for these research fixtures.",
+      "exact_probability_inputs": "For rational fixtures decimal fractions are intended mathematical rationals; final binary64 oracle must additionally record float.hex inputs and high-precision values for those exact inputs."
+    },
+    "fixed_parameter_prediction_cases": [
+      {
+        "family": "ZI Binomial",
+        "parameters": {
+          "n": 4,
+          "p": 0.4,
+          "pi": 0.3
+        },
+        "expected": {
+          "pmf": [
+            0.39072,
+            0.24192,
+            0.24192,
+            0.10752,
+            0.01792
+          ],
+          "mean": 1.12,
+          "variance": 1.2096,
+          "cdf_at_1": 0.63264,
+          "median": 1
+        },
+        "method": "Exact rational binomial mixture enumeration."
+      },
+      {
+        "family": "ZI Beta Binomial",
+        "parameters": {
+          "n": 4,
+          "p": 0.4,
+          "delta": 0.2,
+          "pi": 0.3,
+          "a": 1.6,
+          "b": 2.4
+        },
+        "expected": {
+          "pmf": [
+            0.461568,
+            0.191488,
+            0.169728,
+            0.119808,
+            0.057408
+          ],
+          "pmf_exact": [
+            "7212/15625",
+            "2992/15625",
+            "2652/15625",
+            "1872/15625",
+            "897/15625"
+          ],
+          "mean": 1.12,
+          "variance": 1.6128,
+          "cdf_at_1": 0.653056,
+          "median": 1
+        },
+        "method": "Independent exact Fraction rising-factorial beta-binomial enumeration."
+      },
+      {
+        "family": "ZI Poisson",
+        "parameters": {
+          "lambda": 2.0,
+          "pi": 0.3
+        },
+        "expected": {
+          "probability_at_zero": 0.3947346982656289,
+          "pmf_at_1": 0.18946939653125777,
+          "mean": 1.4,
+          "variance": 2.24
+        },
+        "method": "Elementary exponential and mixture identities."
+      },
+      {
+        "family": "ZI Negative Binomial",
+        "parameters": {
+          "mu": 2.0,
+          "sigma": 0.5,
+          "pi": 0.3
+        },
+        "equivalent_base": {
+          "scipy_nbinom_n": 2.0,
+          "scipy_nbinom_p": 0.5
+        },
+        "expected": {
+          "pmf_at_zero": 0.475,
+          "pmf_at_1": 0.175,
+          "pmf_at_2": 0.13125,
+          "mean": 1.4,
+          "variance": 3.64,
+          "cdf_at_1": 0.65,
+          "median": 1
+        },
+        "method": "Exact rational Negative Binomial r2,p.5 mixture."
+      },
+      {
+        "family": "ZI Gamma",
+        "parameters": {
+          "mu": 2.0,
+          "sigma": 1.0,
+          "pi": 0.3
+        },
+        "equivalent_base": {
+          "shape": 2.0,
+          "scale": 1.0
+        },
+        "expected": {
+          "probability_at_zero": 0.3,
+          "positive_density_at_1": 0.2575156088200096,
+          "cdf_at_1": 0.48496878235998075,
+          "mean": 1.4,
+          "variance": 2.24,
+          "quantile_at_probability_point_2": 0.0
+        },
+        "method": "Gamma(shape2,scale1) elementary density/CDF; zero atom separate."
+      }
+    ],
+    "intercept_only_zip_mle": {
+      "rows_response_frequency": [
+        [
+          0,
+          10
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "expected": {
+        "lambda": 1.7263362232319364,
+        "pi": 0.39177549201032386,
+        "beta_intercept": 0.5460013727818611,
+        "logit_pi_internal_if_used": -0.4398551191120081,
+        "mixture_mean": 1.05
+      },
+      "derivation": "20observations,10positives,sum positive counts21. Solve lambda/(1-exp(-lambda))=2.1; pi=(.5-exp(-lambda))/(1-exp(-lambda)). Independent100-step scalar bisection; no Rust likelihood or optimization is copied.",
+      "score_equation_residual": 4.440892098500626e-16
+    },
+    "intercept_only_ordinal_mle": {
+      "ordered_labels": [
+        10,
+        20,
+        30
+      ],
+      "rows_label_frequency": [
+        [
+          10,
+          1
+        ],
+        [
+          20,
+          2
+        ],
+        [
+          30,
+          1
+        ]
+      ],
+      "expected": {
+        "category_probabilities": [
+          0.25,
+          0.5,
+          0.25
+        ],
+        "cutpoints": [
+          -1.0986122886681098,
+          1.0986122886681098
+        ],
+        "jmp_genreg_intercepts": [
+          -1.0986122886681098,
+          2.1972245773362196
+        ],
+        "log_likelihood": -4.1588830833596715,
+        "model_based_cutpoint_covariance": [
+          [
+            1.3333333333333333,
+            0.4444444444444444
+          ],
+          [
+            0.4444444444444444,
+            1.3333333333333333
+          ]
+        ],
+        "model_based_genreg_intercept_covariance": [
+          [
+            1.3333333333333333,
+            -0.8888888888888888
+          ],
+          [
+            -0.8888888888888888,
+            1.7777777777777777
+          ]
+        ]
+      },
+      "derivation": "Saturated intercept-only multinomial occurrence fractions; cutpoints=logit(cumulative fractions). Covariance derived by delta transform of multinomial covariance at N4; no JMP finite-sample correction is presumed.",
+      "metamorphic_checks": [
+        "Replace labels by[3,100,999] in the same explicit order:probabilities/intercepts unchanged.",
+        "Use arbitrary reverse numeric labels in explicit order:only specified order matters.",
+        "Replicate frequencies and actual rows:point estimates and unadjusted sandwich agree; covariance scales inversely with replicated total."
+      ]
+    },
+    "ordinal_slope_sign_fixture": {
+      "cutpoints": [
+        -1.0986122886681098,
+        1.0986122886681098
+      ],
+      "jmp_beta": [
+        0.7
+      ],
+      "queries": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "expected_at_zero": [
+        0.25,
+        0.5,
+        0.25
+      ],
+      "predicate": "CDF(Y<=j) increases with x when JMP beta>0; statsmodels reference beta is-.7 for these same predictions."
+    },
+    "required_future_oracle_layers": [
+      "Closed-form/exact-rational prediction and intercept-only fits above before general optimizer tests.",
+      "Separate test-only SciPy optimizer with direct SciPy distributions and multiple independent starts; full likelihood,score,Hessian,individual-score meat,and transformed uncertainty.",
+      "Use statsmodels ZIP/ZINB with constant-only exog_infl and explicitly configured count intercept; ZINB p=2 and alpha=sigma. Do not compare default covariance without specifying its type.",
+      "Use statsmodels OrderedModel(distr=logit),no explicit/implicit predictor intercept; transform its threshold encoding to raw cuts and negate slopes before matching JMP convention. Default OrderedModel distribution is probit,which is not the target.",
+      "For ZIB/ZIBB use SciPy binom/betabinom with exact JMP-to(a,b) transform. For ZIG use gamma(shape=mu/sigma,scale=sigma); constant pi separates zero/nonzero likelihood.",
+      "mpmath80 direct likelihood derivatives and tail/quantile integrals as an independently implemented high-precision cross-check; preserve exact f64 inputs and save literal fixtures.",
+      "Actual exported C ABI and matching loaded native SQL must rerun every family,portable carrier,malformed inputs,zero/dispersion boundaries,and uncertainty tests. No source-text assertions or catalog-only parity claim."
+    ],
+    "oracle_primary_docs": [
+      "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.betabinom.html",
+      "https://www.statsmodels.org/stable/generated/statsmodels.discrete.count_model.ZeroInflatedPoisson.html",
+      "https://www.statsmodels.org/stable/generated/statsmodels.discrete.count_model.ZeroInflatedNegativeBinomialP.html",
+      "https://www.statsmodels.org/stable/generated/statsmodels.miscmodels.ordinal_model.OrderedModel.html"
+    ]
+  },
+  "recommended_execution_order": [
+    "Finish current SVG batch and its full boundaries first; this research changes no production source.",
+    "Implement ordinal unpenalized proportional-odds core plus save/reuse and explicit covariance conventions; threshold parameterization,sign,and categorical outputs are already well specified.",
+    "Implement shared-inflation zero-inflated core with all five families,not just ZIP; closed-form/rational family tests first,then interior and boundary MLE fixtures and joint saved uncertainty.",
+    "Keep both ledger rows partial until selection/defaults,fractional-count semantics,and exact JMP uncertainty conventions are independently addressed. Complete remaining JMP scope before DQ implementation."
+  ],
+  "ci_snapshot_note": {
+    "run": 39771639283,
+    "head": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+    "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39771639283",
+    "observed": "Single read-only snapshot:in progress; Tidy Check succeeded; visible Linux jobs building Docker images; no concrete failure observed in that snapshot.",
+    "action": "No repeated polling,log guessing,restart,or workflow mutation. Rust run39771638705 was queried once but no concise persisted result is claimed here."
+  },
+  "research_validation": {
+    "status": "passed",
+    "checks": [
+      "JSON finite with allow_nan=false.",
+      "All5family likelihood and variance images visually inspected.",
+      "Both finite-support fixed-parameter PMF arrays sum1 and reproduce their mean,variance,and CDF1.",
+      "ZIP scalar score equation residual4.44e-16.",
+      "Portable carrier sizes include independent covariance-type/validity flags and remain below16384."
+    ],
+    "production_verification": "None in this research task; no Cargo/source mutation."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "headRefName": "community/ducksmiles-analytics-20261022",
+  "headRefOid": "383988b71ffbf32076777a2c5c5e871232c5fca1",
+  "mergeCommit": {
+    "oid": "d1b37dae62446b862e1a9dbf29a3d357c14a3349"
+  },
+  "mergedAt": "2026-10-22T21:13:44Z",
+  "state": "MERGED",
+  "title": "Update ducksmiles to 0.6.0: CPU numerical analytics",
+  "url": "https://github.com/duckdb/community-extensions/pull/3183",
+  "pinned_source_at_merge": "442f54588d5882a3fc14f3f830c2d29d20701ace",
+  "newer_verified_source": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "next_update": "new PR after active report/ordinal batch verification; do not mutate merged PR branch"
+}

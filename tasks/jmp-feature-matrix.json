@@ -13,9 +13,9 @@
     "catalog_occurrences": 502,
     "feature_rows": 552,
     "status_counts": {
-      "partial": 275,
+      "partial": 278,
       "database_existing": 37,
-      "absent": 209,
+      "absent": 206,
       "external_plugin": 4,
       "implemented_verified": 6,
       "excluded_gui": 17,
@@ -2289,7 +2289,8 @@
         "tasks/evidence/jmp-censored-reference.json"
       ],
       "remaining_contract": [
-        "Elastic Netおよび6分布の非正則化censoring joint-MLEが限定対応。penalized分布別尤度・選択経路・validation・カテゴリ効果・profile/LR推論・JMP実機一致は未達。"
+        "Elastic Netおよび6分布の非正則化censoring joint-MLEが限定対応。penalized分布別尤度・選択経路・validation・カテゴリ効果・profile/LR推論・JMP実機一致は未達。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "domain": "advanced-statistical-modeling:Advanced regression",
       "acceptance_contract": "regression",
@@ -2403,6 +2404,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -20142,24 +20151,28 @@
       "provider": "ducksmiles_extension",
       "scope": "included_non_gui_cpu_backend_and_artifact_output",
       "implementation": [
-        "Existing numerical backend only: chem_kde_gaussian; feature-specific artifact/export remains unimplemented.",
-        "Existing numerical backend only: chem_one_sample_t; feature-specific artifact/export remains unimplemented.",
-        "Existing numerical backend only: chem_summarize; feature-specific artifact/export remains unimplemented."
+        "chem_report_histogram_svg: Bounded explicit-edge count, percent and density histograms with integer-frequency summaries and deterministic self-contained SVG."
       ],
       "tests": [
         "crates/analytics/tests/distributions.rs",
-        "crates/analytics/tests/inference.rs"
+        "crates/analytics/tests/inference.rs",
+        "crates/analytics/tests/report_artifact_contracts.rs",
+        "test/sql/report_artifacts.test"
       ],
       "evidence": [
-        "tasks/jmp-report-acceptance.json"
+        "tasks/jmp-report-acceptance.json",
+        "tasks/jmp-report-api.json",
+        "tasks/evidence/jmp-report-ordinal-validation.json",
+        "tasks/evidence/jmp-reports-native-reference.json"
       ],
       "remaining_contract": [
-        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
-        "Inputs: Numeric values, groups/frequencies/weights; declared origin/width/edges and scale/style.",
-        "Numerical/structured outputs: Bin edges/counts/percents/density and bars/polygon/KDE/shadowgram geometry; optional mean intervals.",
-        "Required non-GUI options: Count/percent/fill, styles, group overlay and orientation; edge-tie and hidden/excluded policies.",
-        "Independent acceptance: Independent exact-edge bin counts with conserved weight; KDE numerical reference and percent normalization.",
-        "Automatic tick/bin choice and shadowgram sequence require explicit detailed conventions."
+        "JMP automatic bin count, origin and tick rounding with observed reference evidence",
+        "JMP exact edge closure, fractional Freq and analytic Weight behavior",
+        "Polygon, KDE bandwidth/smoother, shadowgram width sequence and opacity",
+        "Fill response scale, overlays/overlap, categorical histogram and mixed-variable roles",
+        "Mean/SD, t-test/mean CI annotation, standard-error bars and fitted distribution curves",
+        "Full style/label/panel export configuration and exact element-specific hidden behavior",
+        "No installed JMP numerical/visual comparison; whole-family artifact/export acceptance remains incomplete."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
       "acceptance_contract": "rendering",
@@ -20169,7 +20182,9 @@
         "artifact_completed": false,
         "primary_urls": [
           "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml"
-        ]
+        ],
+        "bounded_artifact_validated": true,
+        "evidence": "tasks/evidence/jmp-reports-native-reference.json"
       }
     },
     {
@@ -20193,21 +20208,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "included_non_gui_cpu_backend_and_artifact_output",
-      "implementation": [],
-      "tests": [],
+      "implementation": [
+        "chem_report_box_plot_svg: Bounded type6 Tukey or quantile box plots with numerical provenance and deterministic self-contained SVG."
+      ],
+      "tests": [
+        "crates/analytics/tests/report_artifact_contracts.rs",
+        "test/sql/report_artifacts.test"
+      ],
       "evidence": [
-        "tasks/jmp-report-acceptance.json"
+        "tasks/jmp-report-acceptance.json",
+        "tasks/jmp-report-api.json",
+        "tasks/evidence/jmp-report-ordinal-validation.json",
+        "tasks/evidence/jmp-reports-native-reference.json"
       ],
       "remaining_contract": [
-        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
-        "Inputs: Numeric/grouped observations, frequencies, quantile convention and box/style settings.",
-        "Numerical/structured outputs: Q1/median/Q3/IQR, actual in-fence whisker observations, outlier row IDs or quantile whiskers, geometry/labels.",
-        "Required non-GUI options: Outlier/quantile type, five-number labels, widths, grouping and optional seeded jitter.",
-        "Independent acceptance: Hand-sorted/independent quantiles; odd/even n, ties, constants/singletons and distant outliers.",
-        "Extract JMP quantile interpolation convention; generic host quantiles are not evidence of box-plot parity."
+        "Analytic Weight and fractional Freq conventions; direct JMP cross-platform fixtures",
+        "Mean CI confidence diamond and its weighted/pooled/platform-specific inference",
+        "Notches (documented formula already transcribed) and rendering when outside quartiles",
+        "Shortest-half exact size, interpolation and tie conventions",
+        "Solid/Thin styles, arbitrary width/proportional count width and align/offset placement",
+        "Uniform/normal/density jitter, packed/grid/hex/beeswarm placement, seed policy",
+        "Multiple response roles, wrapping/panels, labels/customization and exact hidden-state behavior",
+        "No installed JMP numerical/visual comparison; whole-family artifact/export acceptance remains incomplete."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
       "acceptance_contract": "rendering",
@@ -20217,7 +20242,9 @@
         "artifact_completed": false,
         "primary_urls": [
           "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml"
-        ]
+        ],
+        "bounded_artifact_validated": true,
+        "evidence": "tasks/evidence/jmp-reports-native-reference.json"
       }
     },
     {
@@ -20875,21 +20902,31 @@
           "basis": "official_catalog_no_pro_badge"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "included_non_gui_cpu_backend_and_artifact_output",
-      "implementation": [],
-      "tests": [],
+      "implementation": [
+        "chem_report_box_plot_svg: Bounded type6 Tukey or quantile box plots with numerical provenance and deterministic self-contained SVG."
+      ],
+      "tests": [
+        "crates/analytics/tests/report_artifact_contracts.rs",
+        "test/sql/report_artifacts.test"
+      ],
       "evidence": [
-        "tasks/jmp-report-acceptance.json"
+        "tasks/jmp-report-acceptance.json",
+        "tasks/jmp-report-api.json",
+        "tasks/evidence/jmp-report-ordinal-validation.json",
+        "tasks/evidence/jmp-reports-native-reference.json"
       ],
       "remaining_contract": [
-        "Required CPU artifact: CPU-generated inspectable data plus a human-usable chart/report/document file. Exercise the feature via documented public C ABI and actual loaded-extension DuckDB SQL; numerical JSON alone is insufficient.",
-        "Inputs: Responses grouped by categorical variables, group order and common quantile/box styles.",
-        "Numerical/structured outputs: Per-group box statistics/outlier IDs and comparable shared-axis panels/labels.",
-        "Required non-GUI options: Outlier/quantile boxes, group widths, category ordering and optional seeded jitter.",
-        "Independent acceptance: Independent grouped quantiles/whiskers, within-group permutation invariance and common scale.",
-        "Same exact JMP quantile-convention research as box_plot remains required."
+        "Analytic Weight and fractional Freq conventions; direct JMP cross-platform fixtures",
+        "Mean CI confidence diamond and its weighted/pooled/platform-specific inference",
+        "Notches (documented formula already transcribed) and rendering when outside quartiles",
+        "Shortest-half exact size, interpolation and tie conventions",
+        "Solid/Thin styles, arbitrary width/proportional count width and align/offset placement",
+        "Uniform/normal/density jitter, packed/grid/hex/beeswarm placement, seed policy",
+        "Multiple response roles, wrapping/panels, labels/customization and exact hidden-state behavior",
+        "No installed JMP numerical/visual comparison; whole-family artifact/export acceptance remains incomplete."
       ],
       "domain": "data-exploration-and-visualization:Graphing",
       "acceptance_contract": "rendering",
@@ -20899,7 +20936,9 @@
         "artifact_completed": false,
         "primary_urls": [
           "https://www.jmp.com/support/help/en/19.2/jmp/box-plot.shtml"
-        ]
+        ],
+        "bounded_artifact_validated": true,
+        "evidence": "tasks/evidence/jmp-reports-native-reference.json"
       }
     },
     {
@@ -25139,14 +25178,29 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "implementation": [
+        "chem_genreg_ordinal_fit: Unpenalized ordered cumulative-logit ML with sorted numeric outcome levels,integer replication frequencies,and joint observed-information inference.",
+        "chem_genreg_ordinal_predict: Saved ordinal probability,CDF,mode,quantile-label and observed-information delta prediction with original training transforms."
+      ],
+      "tests": [
+        "crates/analytics/tests/genreg_ordinal_contracts.rs",
+        "test/sql/genreg_ordinal.test"
+      ],
+      "evidence": [
+        "tasks/jmp-ordinal-api.json",
+        "tasks/evidence/jmp-report-ordinal-validation.json",
+        "tasks/evidence/jmp-ordinal-reference.json",
+        "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+      ],
       "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+        "JMP default Lasso/selection/validation paths",
+        "Exact JMP sandwich/finite-sample uncertainty convention",
+        "String labels,column Value Ordering,categorical predictor contrasts and informative missing",
+        "General finite-MLE existence proof,other ordinal links and censoring",
+        "Installed-JMP comparison and exact saved categorical tie/uncertainty behavior"
       ],
       "acceptance_contract": "regression"
     },
@@ -25255,7 +25309,8 @@
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
         "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
-        "Normalのall-exactでもjoint-MLE scaleを使用。JMP uncensored least-squares RMSEとの規約差は残る。"
+        "Normalのall-exactでもjoint-MLE scaleを使用。JMP uncensored least-squares RMSEとの規約差は残る。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -25291,6 +25346,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -25331,7 +25394,8 @@
       "remaining_contract": [
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
-        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -25367,6 +25431,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -25407,7 +25479,8 @@
       "remaining_contract": [
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
-        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -25443,6 +25516,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -25483,7 +25564,8 @@
       "remaining_contract": [
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
-        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -25519,6 +25601,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -25559,7 +25649,8 @@
       "remaining_contract": [
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
-        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -25595,6 +25686,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -25635,7 +25734,8 @@
       "remaining_contract": [
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
-        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。"
+        "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -25671,6 +25771,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -25776,7 +25884,8 @@
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
         "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
-        "この拡張は6parametric familiesに限定。Cox/他personality全般の左/区間打切りに自動適用するものではない。"
+        "この拡張は6parametric familiesに限定。Cox/他personality全般の左/区間打切りに自動適用するものではない。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -25877,6 +25986,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -25923,7 +26040,8 @@
         "限定対応は6分布の非正則化joint censored MLEと保存予測。各分布・入力・shape・iteration/work・有限出力制約はtasks/jmp-censored-api.json。",
         "未対応: penalties/selection/validation paths、カテゴリ効果構築、analytic/survey weights、scale regression、profile/LR intervals、small-sample推論、delayed entry/frailty。",
         "局所BFGSとobserved informationでありglobal optimum/全有限MLE存在条件を証明しない。未収束は推論null。JMP本体との直接数値比較は未実施。",
-        "この拡張は6parametric familiesに限定。Cox/他personality全般の左/区間打切りに自動適用するものではない。"
+        "この拡張は6parametric familiesに限定。Cox/他personality全般の左/区間打切りに自動適用するものではない。",
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
       ],
       "acceptance_contract": "reliability",
       "current_implementation": [
@@ -26024,6 +26142,14 @@
         "native_sql": "passed matching Release loaded extension; actual source/artifact hashes recorded",
         "public_C_ABI": "actual production Release exported ds_analytics_run/free",
         "jmp_head_to_head": "not performed"
+      },
+      "uncertainty_reference_audit": {
+        "primary_sources": [
+          "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+          "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+        ],
+        "observed_information_implemented": true,
+        "jmp_sandwich_equivalence_verified": false
       }
     },
     {
@@ -33214,15 +33340,90 @@
       "native_sql": "passed matching loaded macOS arm64 Release extension",
       "native_sql_evidence": "tasks/evidence/jmp-spatial-estimation-sql.json",
       "bounded_api_contract": "tasks/jmp-spatial-estimation-api.json"
+    },
+    {
+      "sql_function": "chem_report_histogram_svg",
+      "operation": "report_histogram_svg",
+      "module": "static_reports",
+      "input_parameter_contract": "Bounded explicit-edge count, percent and density histograms with integer-frequency summaries and deterministic self-contained SVG.",
+      "example": "SELECT chem_report_histogram_svg([[0,0,1,0,0,1,0],[1,0,1,0,0,1,1],[2,0,1,0,0,1,2]], [1,900,600,0,0,3,0,1,2]);",
+      "source": "crates/analytics/src/static_reports.rs",
+      "tests": "crates/analytics/tests/report_artifact_contracts.rs",
+      "feature_ids": [
+        "histogram"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-reports-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+      "bounded_api_contract": "tasks/jmp-report-api.json"
+    },
+    {
+      "sql_function": "chem_report_box_plot_svg",
+      "operation": "report_box_plot_svg",
+      "module": "static_reports",
+      "input_parameter_contract": "Bounded type6 Tukey or quantile box plots with numerical provenance and deterministic self-contained SVG.",
+      "example": "SELECT chem_report_box_plot_svg([[1,0,1,0,0,1,0],[2,0,1,0,0,1,1],[3,0,1,0,0,1,2],[4,0,1,0,0,1,3]], [1,900,650,0,0,1,1]);",
+      "source": "crates/analytics/src/static_reports.rs",
+      "tests": "crates/analytics/tests/report_artifact_contracts.rs",
+      "feature_ids": [
+        "box_plot",
+        "comparative_box_plots"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-reports-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+      "bounded_api_contract": "tasks/jmp-report-api.json"
+    },
+    {
+      "sql_function": "chem_genreg_ordinal_fit",
+      "operation": "genreg_ordinal_fit",
+      "module": "genreg_ordinal",
+      "input_parameter_contract": "Unpenalized ordered cumulative-logit ML with sorted numeric outcome levels,integer replication frequencies,and joint observed-information inference.",
+      "example": "SELECT chem_genreg_ordinal_fit([[30,1],[10,1],[20,2]], []);",
+      "source": "crates/analytics/src/genreg_ordinal.rs",
+      "tests": "crates/analytics/tests/genreg_ordinal_contracts.rs",
+      "feature_ids": [
+        "generalized_regression_ordinal_outcome"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-ordinal-reference.json",
+        "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+      "bounded_api_contract": "tasks/jmp-ordinal-api.json"
+    },
+    {
+      "sql_function": "chem_genreg_ordinal_predict",
+      "operation": "genreg_ordinal_predict",
+      "module": "genreg_ordinal",
+      "input_parameter_contract": "Saved ordinal probability,CDF,mode,quantile-label and observed-information delta prediction with original training transforms.",
+      "example": "SELECT chem_genreg_ordinal_predict([[0.2],[0.43],[0.81]], [1.0,0.0,3.0,0.95,1.0,10.0,20.0,30.0,-1.0986122886681098,1.0986122886681098,1.3333333333333333,0.4444444444444444,0.4444444444444444,1.3333333333333333]);",
+      "source": "crates/analytics/src/genreg_ordinal.rs",
+      "tests": "crates/analytics/tests/genreg_ordinal_contracts.rs",
+      "feature_ids": [
+        "generalized_regression_ordinal_outcome"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-ordinal-reference.json",
+        "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 Release extension",
+      "native_sql_evidence": "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+      "bounded_api_contract": "tasks/jmp-ordinal-api.json"
     }
   ],
   "current_implementation_snapshot": {
-    "date": "2026-10-22",
-    "new_public_registry_entries": 239,
+    "date": "2026-10-23",
+    "new_public_registry_entries": 243,
     "prior_public_analytics_functions": 24,
-    "total_public_analytics_functions": 263,
+    "total_public_analytics_functions": 267,
     "sources_inspected": "Actual registered source/test/API and independent-reference evidence, plus matching loaded native extension. No whole-family JMP parity is inferred.",
-    "native_sql": "passed matching loaded263-function macOS arm64 Release CPU extension",
+    "native_sql": "passed matching loaded267-function macOS arm64 Release CPU extension",
     "references": [
       "tasks/evidence/jmp-distribution-arima-reference.json",
       "tasks/evidence/jmp-model-reference.json",
@@ -33260,24 +33461,26 @@
       "tasks/evidence/jmp-censored-reference.json",
       "tasks/evidence/jmp-spatial-estimation-reference.json",
       "tasks/evidence/jmp-spatial-estimation-sql.json",
-      "tasks/evidence/jmp-parity-estimation-validation.json"
+      "tasks/evidence/jmp-parity-estimation-validation.json",
+      "tasks/evidence/jmp-report-ordinal-validation.json"
     ],
     "counts_are_not_parity_percentages": true,
     "prior_verified_analytics_functions": 119,
     "continuation_target_operations": 62,
     "continuation_api_operations_documented": 62,
     "continuation_native_sql": "passed matching loaded-extension macOS arm64 CPU gate",
-    "latest_additional_operations": 9,
-    "latest_evidence": "tasks/evidence/jmp-parity-estimation-validation.json",
-    "work_status": "active full JMP/JMP Pro19.2 non-GUI/non-GPU objective;9additional bounded operations verified; static report and other residual contracts remain",
-    "active_continuation_record": "tasks/jmp-parity-resume-20261022.json",
+    "latest_additional_operations": 4,
+    "latest_evidence": "tasks/evidence/jmp-report-ordinal-validation.json",
+    "work_status": "Full JMP incomplete;4additional bounded report/ordinal operations verified; user requested stop at2026-10-23 08:30JST",
+    "active_continuation_record": "tasks/jmp-report-progress-20261022.json",
     "report_scope_audit": {
       "record": "tasks/jmp-report-acceptance.json",
       "rows": 44,
-      "partial_existing_numeric_backend": 13,
-      "absent": 31,
+      "partial_existing_numeric_backend": 15,
+      "absent": 29,
       "new_verified_implementations": 0,
-      "pure_gui_exclusions": 0
+      "pure_gui_exclusions": 0,
+      "bounded_artifact_rows": 3
     }
   },
   "version_audit": {
@@ -33307,64 +33510,117 @@
     }
   },
   "final_validation": {
-    "status": "PASS current263 bounded CPU contracts; overall JMP objective remains active and incomplete",
-    "platform": "macOS arm64 CPU; dev Rust tests and matching Release C ABI/DuckDB SQL",
-    "workspace": {
-      "suites": 65,
-      "passed": 1340,
+    "schema_version": 1,
+    "date": "2026-10-23",
+    "status": "PASS4additional bounded CPU operations; full JMP remains incomplete",
+    "full_goal_complete": false,
+    "source_git_base": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+    "source_identification": "Actual frozen production source hashes and artifacts; validation precedes the next source commit.",
+    "new_operations": [
+      "report_histogram_svg",
+      "report_box_plot_svg",
+      "genreg_ordinal_fit",
+      "genreg_ordinal_predict"
+    ],
+    "analytics_functions": 267,
+    "total_sql_overloads": 418,
+    "registry_operations": 243,
+    "rust_workspace": {
+      "passed": 1366,
       "failed": 0,
       "ignored_existing": 2,
+      "suites": 67,
       "ignored_details": [
-        "diagnostic logP print helper",
-        "external unselected100k population acceptance requires explicit source"
+        "logP diagnostic print helper",
+        "supplied population preparation acceptance needs explicit unselected100k external data source"
       ]
     },
-    "catalog": {
-      "status": "PASS",
-      "overloads": 414,
-      "examples_executed": 414,
-      "analytics_sql_functions": 263,
-      "registry_operations": 239
-    },
-    "native_sql_cases": {
-      "cases": 16,
-      "assertions": 513,
+    "strict_analytics_all_target_clippy": "PASS",
+    "scoped_fmt_check": "PASS",
+    "native_sql": {
+      "cases": 18,
+      "assertions": 603,
       "skipped": 0
     },
-    "production_C_ABI": {
-      "documented_operations": 38,
-      "documented_fields": 128,
-      "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f"
-    },
-    "censored_reference": {
-      "families": 6,
+    "catalog_examples_executed": 418,
+    "reports": {
+      "positive_fixtures_per_boundary": 36,
+      "checks": 105438,
+      "public_c_abi_calls": 69,
+      "invalid_NULL_cases": 69,
+      "rendered_PNGs": 58,
       "boundaries": [
-        "public C ABI",
-        "matching native DuckDB SQL"
+        "actual Release C ABI",
+        "matching loaded DuckDB SQL"
       ],
-      "assertions": 768,
-      "confirmed_edge_contracts": 4,
-      "edge_assertions": 46,
-      "native_sql_queries": 16,
-      "evidence": "tasks/evidence/jmp-censored-reference.json"
+      "source_SVG_equals_SQL_SVG": true,
+      "rasterizer": "macOS sips; unchanged SVG; independent ImageMagick RGBA decoding",
+      "evidence": "tasks/evidence/jmp-reports-native-reference.json"
     },
-    "spatial_reference": {
-      "calls": 48,
-      "numeric_fields": 810,
-      "native_independent_fits": 16,
-      "native_reference_fields": 130,
-      "saved_roundtrips": 3,
+    "ordinal": {
+      "both_boundary_fit_fixtures": 5,
+      "both_boundary_checks": 1082,
+      "independent_mp80_fit_fixtures": 4,
+      "independent_mp80_checks": 1321,
+      "independent_C_ABI_calls": 35,
+      "independent_invalid_NULL_cases": 23,
+      "maximum_scaled_error": 1.155176771977443e-09,
       "evidence": [
-        "tasks/evidence/jmp-spatial-estimation-reference.json",
-        "tasks/evidence/jmp-spatial-estimation-sql.json"
+        "tasks/evidence/jmp-ordinal-reference.json",
+        "tasks/evidence/jmp-ordinal-independent-release-reference.json"
       ]
     },
-    "strict_clippy": "passed",
-    "scoped_fmt_check": "passed after one whitespace-only dispatch brace correction",
-    "git_diff_check": "passed",
-    "evidence": "tasks/evidence/jmp-parity-estimation-validation.json",
-    "full_goal_complete": false,
-    "active_continuation_record": "tasks/jmp-parity-resume-20261022.json"
+    "artifacts": {
+      "cli": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+        "sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2"
+      },
+      "extension": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+        "sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+      },
+      "C_ABI": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+        "sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe"
+      },
+      "archive": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
+        "sha256": "3eef21aa686946a0134a60e9d84c6270455f898bf9ee1c3a970c088baf520337"
+      }
+    },
+    "source_hashes": {
+      "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
+      "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+      "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+      "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+    },
+    "evidence": [
+      "tasks/evidence/jmp-report-ordinal-dev-validation.json",
+      "tasks/evidence/jmp-report-ordinal-native-build.json",
+      "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+      "tasks/evidence/jmp-reports-native-reference.json",
+      "tasks/evidence/jmp-ordinal-reference.json",
+      "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+    ],
+    "limitations": [
+      "No installed JMP comparison or whole-family completion",
+      "Observed-information ordinal inference is an explicit alternative; exact JMP M-estimation sandwich convention unverified",
+      "Histogram automatic bins and exact JMP histogram closure,weights,advanced overlays/styles remain outstanding",
+      "Box notches,diamonds,jitter,proportional widths and complete export/style options remain outstanding",
+      "New source cross-platform/community CI must be checked separately; no new Wasm runtime SQL claim"
+    ],
+    "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion",
+    "scheduled_stop_utc": "2026-10-22T23:30:00Z",
+    "status_counts": {
+      "partial": 278,
+      "database_existing": 37,
+      "absent": 206,
+      "external_plugin": 4,
+      "implemented_verified": 6,
+      "excluded_gui": 17,
+      "separate_product": 4,
+      "clarification_pending": 0
+    }
   },
   "previous_final_validation": {
     "platform": "macOS arm64",
@@ -33626,5 +33882,65 @@
     "evidence": "tasks/evidence/jmp-streams-validation.json",
     "previous_snapshot": "previous_specialized_final_validation",
     "user_stop_condition": "Push this completed checkpoint,then stop;do not begin further features"
+  },
+  "previous_estimation_final_validation": {
+    "status": "PASS current263 bounded CPU contracts; overall JMP objective remains active and incomplete",
+    "platform": "macOS arm64 CPU; dev Rust tests and matching Release C ABI/DuckDB SQL",
+    "workspace": {
+      "suites": 65,
+      "passed": 1340,
+      "failed": 0,
+      "ignored_existing": 2,
+      "ignored_details": [
+        "diagnostic logP print helper",
+        "external unselected100k population acceptance requires explicit source"
+      ]
+    },
+    "catalog": {
+      "status": "PASS",
+      "overloads": 414,
+      "examples_executed": 414,
+      "analytics_sql_functions": 263,
+      "registry_operations": 239
+    },
+    "native_sql_cases": {
+      "cases": 16,
+      "assertions": 513,
+      "skipped": 0
+    },
+    "production_C_ABI": {
+      "documented_operations": 38,
+      "documented_fields": 128,
+      "library_sha256": "8be38d976a0c3189535e40e433121d4b52feee52cecedc64c24d9763f61de58f"
+    },
+    "censored_reference": {
+      "families": 6,
+      "boundaries": [
+        "public C ABI",
+        "matching native DuckDB SQL"
+      ],
+      "assertions": 768,
+      "confirmed_edge_contracts": 4,
+      "edge_assertions": 46,
+      "native_sql_queries": 16,
+      "evidence": "tasks/evidence/jmp-censored-reference.json"
+    },
+    "spatial_reference": {
+      "calls": 48,
+      "numeric_fields": 810,
+      "native_independent_fits": 16,
+      "native_reference_fields": 130,
+      "saved_roundtrips": 3,
+      "evidence": [
+        "tasks/evidence/jmp-spatial-estimation-reference.json",
+        "tasks/evidence/jmp-spatial-estimation-sql.json"
+      ]
+    },
+    "strict_clippy": "passed",
+    "scoped_fmt_check": "passed after one whitespace-only dispatch brace correction",
+    "git_diff_check": "passed",
+    "evidence": "tasks/evidence/jmp-parity-estimation-validation.json",
+    "full_goal_complete": false,
+    "active_continuation_record": "tasks/jmp-parity-resume-20261022.json"
   }
 }

@@ -1,0 +1,36 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.11s
+     Running tests/report_artifact_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/report_artifact_contracts-1725ce7301979cbb)
+
+running 9 tests
+test reports_reject_invalid_states_unrepresentable_ranges_and_dense_layouts ... ok
+test quantile_box_has_full_range_and_four_additional_type6_ticks ... ok
+test frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n ... ok
+test narrow_value_domains_keep_distinguishable_axis_labels ... FAILED
+test box_quartiles_use_type6_and_observed_tukey_whiskers ... ok
+test hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks ... ok
+test long_group_identifiers_reject_overlapping_labels ... FAILED
+test explicit_histogram_edges_include_final_edge_and_preserve_density_units ... ok
+test singleton_and_permuted_rows_have_deterministic_finite_artifacts ... ok
+
+failures:
+
+---- narrow_value_domains_keep_distinguishable_axis_labels stdout ----
+
+thread 'narrow_value_domains_keep_distinguishable_axis_labels' (587488) panicked at crates/analytics/tests/report_artifact_contracts.rs:164:5:
+distinct endpoint must have readable precise numeric label
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- long_group_identifiers_reject_overlapping_labels stdout ----
+
+thread 'long_group_identifiers_reject_overlapping_labels' (587487) panicked at crates/analytics/tests/report_artifact_contracts.rs:179:5:
+assertion failed: execute("report_box_plot_svg", &d, &[1., 400., 600., 0., 0., 1., 0.]).is_err()
+
+
+failures:
+    long_group_identifiers_reject_overlapping_labels
+    narrow_value_domains_keep_distinguishable_axis_labels
+
+test result: FAILED. 7 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p ducksmiles_analytics --test report_artifact_contracts`

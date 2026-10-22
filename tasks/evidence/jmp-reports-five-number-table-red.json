@@ -1,0 +1,159 @@
+{
+  "schema": "jmp-report-visible-table-regression-v1",
+  "status": "EXPECTED_RED",
+  "checked_at_utc": "2026-10-22T23:11:11.270240+00:00",
+  "boundary": "actual_public_C_ABI",
+  "library": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/analytics_abi.dylib",
+    "sha256": "cfa277a3718c33feb6eeb2dacfbb5311991beb8c09f8bc3d894f98f3ba43d4a7"
+  },
+  "linked_build_manifest": {
+    "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-reports-dev-abi-build.json",
+    "sha256": "b6d7bbbb4994ca72f4340307bd1cc76151b6b75c79529c0ef4145629263e4d93",
+    "bytes": 1313
+  },
+  "command": [
+    "python3",
+    "scripts/check_jmp_reports.py",
+    "--library",
+    "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/analytics_abi.dylib",
+    "--rasterizer",
+    "sips",
+    "--case",
+    "large_offset_small_range_labels",
+    "--output",
+    "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/five-number-table-red.json"
+  ],
+  "exit_code": 1,
+  "expected_failure": "Visible five-number table collapses distinct large-offset values",
+  "actual_visible_cells": [
+    "1.00000e12",
+    "1.00000e12",
+    "1.00000e12",
+    "1.00000e12",
+    "1.00000e12"
+  ],
+  "expected_visible_numeric_values": [
+    1000000000000.0,
+    1000000000000.0024,
+    1000000000000.01,
+    1000000000000.0176,
+    1000000000000.02
+  ],
+  "input": [
+    [
+      1000000000000.0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1000000000000.005,
+      0,
+      1,
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      1000000000000.01,
+      0,
+      1,
+      0,
+      0,
+      1,
+      2
+    ],
+    [
+      1000000000000.015,
+      0,
+      1,
+      0,
+      0,
+      1,
+      3
+    ],
+    [
+      1000000000000.02,
+      0,
+      1,
+      0,
+      0,
+      1,
+      4
+    ]
+  ],
+  "parameters": [
+    1,
+    1000,
+    600,
+    0,
+    0,
+    1,
+    1
+  ],
+  "independent_reference": {
+    "method": "Decimal90, exact Decimal.from_float inputs, official type6 ranks; round each output quantile once to f64",
+    "input_hex": [
+      "0x1.d1a94a2000000p+39",
+      "0x1.d1a94a2000029p+39",
+      "0x1.d1a94a2000052p+39",
+      "0x1.d1a94a200007bp+39",
+      "0x1.d1a94a20000a4p+39"
+    ],
+    "quantiles": [
+      {
+        "probability": "0.25",
+        "exact_real_quantile": "1000000000000.002502441406250",
+        "rounded_f64": 1000000000000.0024,
+        "rounded_f64_hex": "0x1.d1a94a2000014p+39"
+      },
+      {
+        "probability": "0.5",
+        "exact_real_quantile": "1000000000000.01000976562500",
+        "rounded_f64": 1000000000000.01,
+        "rounded_f64_hex": "0x1.d1a94a2000052p+39"
+      },
+      {
+        "probability": "0.75",
+        "exact_real_quantile": "1000000000000.017517089843750",
+        "rounded_f64": 1000000000000.0176,
+        "rounded_f64_hex": "0x1.d1a94a2000090p+39"
+      }
+    ],
+    "rounded_quantile_IQR": 0.01513671875,
+    "uncentered_statistics_quartiles": [
+      1000000000000.0024,
+      1000000000000.01,
+      1000000000000.0176
+    ],
+    "lesson": "The uncentered Python reference Q1 is one ULP wrong here; production matched the Decimal90-rounded quartiles. No tolerance was loosened to accept the difference."
+  },
+  "test_method": "Read actual generated SVG text under Minimum/Q1/Median/Q3/Maximum header columns; assert distinct values remain distinct and roundtrip to the independently derived f64 values. Existing frozen SVG has no cell data attrs, so failure is the actual visible precision defect, not absent new metadata.",
+  "actual_SVG": {
+    "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-large-offset-before-fix.svg",
+    "sha256": "3e5c78de541d59cabf63f3394c5863429957ef85247d80f276087a114b536e25",
+    "bytes": 3521
+  },
+  "actual_render": {
+    "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-large-offset-before-fix.png",
+    "sha256": "af5264d8e98b46847f3139184975dc9df482c757c25055dd3f7c8133d8bad72c",
+    "bytes": 27679
+  },
+  "full_run": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/five-number-table-red.json",
+    "sha256": "be18365f7148ce675f9d0e3813b75af2ed685fdb3adb03a5b6ee5543f9b478fb",
+    "bytes": 49176
+  },
+  "pre_regression_numeric_artifact_suite": {
+    "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-reports-dev-reference.json",
+    "sha256": "31c9ee3323e7b3fe0806795d401b8e81722e973d8651971da91e9f94ce193179",
+    "bytes": 145757
+  },
+  "green_status": "PENDING_new_production_artifact",
+  "production_source_modified_by_this_agent": false
+}

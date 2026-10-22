@@ -1,0 +1,180 @@
+{
+  "profile": "Release/default features",
+  "status": "PASS_BUILD",
+  "artifacts": {
+    "cli": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+      "sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2"
+    },
+    "extension": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+    },
+    "C_ABI": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+      "sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe"
+    },
+    "archive": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
+      "sha256": "3eef21aa686946a0134a60e9d84c6270455f898bf9ee1c3a970c088baf520337"
+    }
+  },
+  "loaded_metadata": [
+    {
+      "version": "v2.0.0-alpha49307",
+      "overloads": 418
+    }
+  ],
+  "sdk_revision": "d54cbbe3df17e8e5ce68312f483b4155836112aa",
+  "source_hashes": {
+    "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
+    "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+    "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+    "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+  },
+  "checks": [
+    {
+      "name": "sdk-init",
+      "command": [
+        "git",
+        "init",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk"
+      ],
+      "exit_code": 0,
+      "seconds": 0.043604125000456406,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-sdk-init.log",
+      "log_sha256": "db6ef140557b6d783670c9881b741f807b04f63001b71af33284e0e3fea8d420"
+    },
+    {
+      "name": "sdk-fetch",
+      "command": [
+        "git",
+        "-C",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk",
+        "fetch",
+        "--depth",
+        "1",
+        "https://github.com/duckdb/duckdb.git",
+        "d54cbbe3df17e8e5ce68312f483b4155836112aa"
+      ],
+      "exit_code": 0,
+      "seconds": 6.80543066700011,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-sdk-fetch.log",
+      "log_sha256": "7d4212ab935597e5497bfaab5e0664f94aec76a483d1839b0d6b2efe41131d92"
+    },
+    {
+      "name": "sdk-checkout",
+      "command": [
+        "git",
+        "-C",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk",
+        "checkout",
+        "--detach",
+        "FETCH_HEAD"
+      ],
+      "exit_code": 0,
+      "seconds": 2.271981124999911,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-sdk-checkout.log",
+      "log_sha256": "5246ce4caf36946b09d1a4d62b32fb698e3f04e63791db7af1cd2c768195d911"
+    },
+    {
+      "name": "configure",
+      "command": [
+        "cmake",
+        "-S",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk",
+        "-B",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_OSX_ARCHITECTURES=arm64",
+        "-DPREBUILT_BINARY=/private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libduckdb_static.a",
+        "-DPREBUILT_EXTENSIONS=core_functions;parquet;json;icu",
+        "-DSTATICALLY_LINK_EXTENSIONS=core_functions;json",
+        "-DDUCKDB_EXTENSION_CONFIGS=/Users/nk/Desktop/ducksmiles-analytics-20261021/extension_config.cmake",
+        "-DDUCKDB_EXPLICIT_VERSION=v2.0.0-alpha49307",
+        "-DEXTENSION_STATIC_BUILD=ON",
+        "-DBUILD_SHELL=ON",
+        "-DBUILD_UNITTESTS=ON",
+        "-DENABLE_UNITTEST_CPP_TESTS=OFF",
+        "-DENABLE_JEMALLOC=OFF",
+        "-DBUILD_BENCHMARKS=OFF"
+      ],
+      "exit_code": 0,
+      "seconds": 2.3052011670006323,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-configure.log",
+      "log_sha256": "3de3229065f890bb6f06bfdeb392555d84466dad3885fc2ab66c3270fe2d6c84"
+    },
+    {
+      "name": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/build",
+        "--target",
+        "shell",
+        "ducksmiles_loadable_extension",
+        "unittest",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 43.54246929199962,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-build.log",
+      "log_sha256": "26a5e725814f303731f1403a241244dbec8554697b7f24789838a0238c56a321"
+    },
+    {
+      "name": "abi-link",
+      "command": [
+        "clang",
+        "-dynamiclib",
+        "-Wl,-force_load,/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
+        "-Wl,-exported_symbol,_ds_analytics_run",
+        "-Wl,-exported_symbol,_ds_analytics_free",
+        "-framework",
+        "Security",
+        "-framework",
+        "CoreFoundation",
+        "-liconv",
+        "-o",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08073583399982454,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-abi-link.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "reference-venv",
+      "command": [
+        "uv",
+        "venv",
+        "--python",
+        "3.12",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/reference-env"
+      ],
+      "exit_code": 0,
+      "seconds": 0.13416837500062684,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-reference-venv.log",
+      "log_sha256": "6db3caf9e51f10e9bbb3fabca1f31073cba1eaf6a41b99c4021d9a4364d3ceb9"
+    },
+    {
+      "name": "reference-packages",
+      "command": [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/reference-env/bin/python",
+        "numpy==2.5.4",
+        "scipy==1.18.1",
+        "mpmath==1.4.1"
+      ],
+      "exit_code": 0,
+      "seconds": 0.19849858399993536,
+      "stored_log": "tasks/evidence/jmp-report-ordinal-native-reference-packages.log",
+      "log_sha256": "416df2a43dd3bcb05d988ac134b0b69075ea365aa480a943db6d439fe7405aa5"
+    }
+  ]
+}

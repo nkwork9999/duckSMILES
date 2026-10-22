@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "schema": "ducksmiles-cpu-plot-v1",
+  "operation": "report_histogram_svg",
+  "media_type": "image/svg+xml",
+  "width": 1000,
+  "height": 600,
+  "source_rows": 3,
+  "selected_rows": 3,
+  "N": 3,
+  "selection_policy": "observed=1 and excluded=0 and frequency>0; hidden retains summaries and suppresses individual marks; row-state counts overlap",
+  "policy": "explicit_edges_native_left_closed_right_open_final_closed",
+  "limits": {
+    "source_rows": 100000,
+    "groups": 16,
+    "sum_frequency_per_call": 1000000,
+    "histogram_bins": 512,
+    "rendered_individual_markers": 20000,
+    "svg_utf8_bytes": 2097152
+  },
+  "implemented_options": [
+    "explicit edges",
+    "count percent density",
+    "integer frequency",
+    "group facets",
+    "both orientations"
+  ],
+  "remaining_options": [
+    "JMP automatic bins and exact tie membership",
+    "analytic Weight and fractional Freq",
+    "KDE polygon shadowgram fill and overlays",
+    "full styling and annotations"
+  ],
+  "orientation": 0,
+  "response_scale": 0,
+  "edges": [
+    1,
+    1.00000001,
+    1.00000002
+  ],
+  "groups": [
+    {
+      "group_id": 0,
+      "status": "ok",
+      "source_rows": 3,
+      "selected_rows": 3,
+      "N": 3,
+      "excluded_rows": 0,
+      "missing_rows": 0,
+      "zero_frequency_rows": 0,
+      "hidden_rows": 0,
+      "counts": [
+        1,
+        2
+      ],
+      "probabilities": [
+        0.3333333333333333,
+        0.6666666666666666
+      ],
+      "percents": [
+        33.33333333333333,
+        66.66666666666666
+      ],
+      "densities": [
+        33333333.5359157,
+        66666665.59153405
+      ],
+      "responses": [
+        1,
+        2
+      ],
+      "bins": [
+        {
+          "left": 1,
+          "right": 1.00000001,
+          "count": 1,
+          "probability": 0.3333333333333333,
+          "percent": 33.33333333333333,
+          "density": 33333333.5359157,
+          "response": 1
+        },
+        {
+          "left": 1.00000001,
+          "right": 1.00000002,
+          "count": 2,
+          "probability": 0.6666666666666666,
+          "percent": 66.66666666666666,
+          "density": 66666665.59153405,
+          "response": 2
+        }
+      ],
+      "panel": {
+        "left": 86,
+        "top": 78,
+        "width": 827,
+        "height": 436
+      },
+      "value_domain": [
+        1,
+        1.00000002
+      ],
+      "response_domain": [
+        0,
+        2
+      ],
+      "affine": {
+        "value_scale": 41349999792.226204,
+        "value_offset": -41349999706.226204,
+        "value_origin": 1,
+        "svg_origin": 86,
+        "response_scale": -218,
+        "response_offset": 514
+      }
+    }
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1000\" height=\"600\" viewBox=\"0 0 1000 600\" role=\"img\" aria-labelledby=\"report-title report-description\"><title id=\"report-title\">Histogram</title><desc id=\"report-description\">Explicit bin edges; left-closed right-open bins, final right edge included. Counts and probabilities include hidden observations.</desc><style>text{font-family:sans-serif;font-size:12px;fill:#17212b}line{stroke:#17212b;stroke-width:1.5}.axis{stroke:#17212b;stroke-width:1}.box{fill:white;stroke:#17212b;stroke-width:2}.bar{fill:#2877a8;stroke:#17212b;stroke-width:0.6}.median{stroke:#111;stroke-width:3}</style><rect width=\"1000\" height=\"600\" fill=\"white\"/><text x=\"500\" y=\"22\" text-anchor=\"middle\">Histogram</text><defs><clipPath id=\"panel-clip-0\"><rect x=\"86\" y=\"78\" width=\"827\" height=\"436\"/></clipPath></defs><text x=\"499.5\" y=\"51\" text-anchor=\"middle\">Group 0 \u00b7 N=3</text><line x1=\"86\" y1=\"514\" x2=\"913\" y2=\"514\" class=\"axis\"/><line x1=\"86\" y1=\"514\" x2=\"86\" y2=\"518\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"1\" x=\"86\" y=\"532\" text-anchor=\"middle\">1</text><line x1=\"292.7499977046139\" y1=\"514\" x2=\"292.7499977046139\" y2=\"518\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"1.000000005\" x=\"292.7499977046139\" y=\"532\" text-anchor=\"middle\">1.000000005</text><line x1=\"499.49999540922784\" y1=\"514\" x2=\"499.49999540922784\" y2=\"518\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"1.00000001\" x=\"499.49999540922784\" y=\"532\" text-anchor=\"middle\">1.00000001</text><line x1=\"706.2500022953861\" y1=\"514\" x2=\"706.2500022953861\" y2=\"518\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"1.0000000150000001\" x=\"706.2500022953861\" y=\"532\" text-anchor=\"middle\">1.0000000150000001</text><line x1=\"913\" y1=\"514\" x2=\"913\" y2=\"518\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"1.00000002\" x=\"913\" y=\"532\" text-anchor=\"middle\">1.00000002</text><text x=\"499.5\" y=\"550\" text-anchor=\"middle\">Value</text><line x1=\"86\" y1=\"78\" x2=\"86\" y2=\"514\" class=\"axis\"/><line x1=\"82\" y1=\"514\" x2=\"86\" y2=\"514\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"0\" x=\"79\" y=\"518\" text-anchor=\"end\">0</text><line x1=\"82\" y1=\"405\" x2=\"86\" y2=\"405\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"0.5\" x=\"79\" y=\"409\" text-anchor=\"end\">0.5</text><line x1=\"82\" y1=\"296\" x2=\"86\" y2=\"296\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"1\" x=\"79\" y=\"300\" text-anchor=\"end\">1</text><line x1=\"82\" y1=\"187\" x2=\"86\" y2=\"187\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"1.5\" x=\"79\" y=\"191\" text-anchor=\"end\">1.5</text><line x1=\"82\" y1=\"78\" x2=\"86\" y2=\"78\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"2\" x=\"79\" y=\"82\" text-anchor=\"end\">2</text><text x=\"86\" y=\"66\" text-anchor=\"start\">Count</text><g clip-path=\"url(#panel-clip-0)\"><rect id=\"hist-0-0\" class=\"bar\" data-role=\"histogram-bin\" data-group-id=\"0\" data-bin-index=\"0\" data-count=\"1\" x=\"86\" y=\"296\" width=\"413.49999540922784\" height=\"218\"><title>Group 0, bin [1,1.00000001): count 1, probability 0.3333333333333333, density 33333333.5359157</title></rect><rect id=\"hist-0-1\" class=\"bar\" data-role=\"histogram-bin\" data-group-id=\"0\" data-bin-index=\"1\" data-count=\"2\" x=\"499.49999540922784\" y=\"78\" width=\"413.50000459077216\" height=\"436\"><title>Group 0, bin [1.00000001,1.00000002]: count 2, probability 0.6666666666666666, density 66666665.59153405</title></rect></g></svg>"
+}

@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-23",
+  "status": "PASS4additional bounded CPU operations; full JMP remains incomplete",
+  "full_goal_complete": false,
+  "source_git_base": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "source_identification": "Actual frozen production source hashes and artifacts; validation precedes the next source commit.",
+  "new_operations": [
+    "report_histogram_svg",
+    "report_box_plot_svg",
+    "genreg_ordinal_fit",
+    "genreg_ordinal_predict"
+  ],
+  "analytics_functions": 267,
+  "total_sql_overloads": 418,
+  "registry_operations": 243,
+  "rust_workspace": {
+    "passed": 1366,
+    "failed": 0,
+    "ignored_existing": 2,
+    "suites": 67,
+    "ignored_details": [
+      "logP diagnostic print helper",
+      "supplied population preparation acceptance needs explicit unselected100k external data source"
+    ]
+  },
+  "strict_analytics_all_target_clippy": "PASS",
+  "scoped_fmt_check": "PASS",
+  "native_sql": {
+    "cases": 18,
+    "assertions": 603,
+    "skipped": 0
+  },
+  "catalog_examples_executed": 418,
+  "reports": {
+    "positive_fixtures_per_boundary": 36,
+    "checks": 105438,
+    "public_c_abi_calls": 69,
+    "invalid_NULL_cases": 69,
+    "rendered_PNGs": 58,
+    "boundaries": [
+      "actual Release C ABI",
+      "matching loaded DuckDB SQL"
+    ],
+    "source_SVG_equals_SQL_SVG": true,
+    "rasterizer": "macOS sips; unchanged SVG; independent ImageMagick RGBA decoding",
+    "evidence": "tasks/evidence/jmp-reports-native-reference.json"
+  },
+  "ordinal": {
+    "both_boundary_fit_fixtures": 5,
+    "both_boundary_checks": 1082,
+    "independent_mp80_fit_fixtures": 4,
+    "independent_mp80_checks": 1321,
+    "independent_C_ABI_calls": 35,
+    "independent_invalid_NULL_cases": 23,
+    "maximum_scaled_error": 1.155176771977443e-09,
+    "evidence": [
+      "tasks/evidence/jmp-ordinal-reference.json",
+      "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+    ]
+  },
+  "artifacts": {
+    "cli": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+      "sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2"
+    },
+    "extension": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+    },
+    "C_ABI": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+      "sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe"
+    },
+    "archive": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
+      "sha256": "3eef21aa686946a0134a60e9d84c6270455f898bf9ee1c3a970c088baf520337"
+    }
+  },
+  "source_hashes": {
+    "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
+    "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+    "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+    "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+  },
+  "evidence": [
+    "tasks/evidence/jmp-report-ordinal-dev-validation.json",
+    "tasks/evidence/jmp-report-ordinal-native-build.json",
+    "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+    "tasks/evidence/jmp-reports-native-reference.json",
+    "tasks/evidence/jmp-ordinal-reference.json",
+    "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+  ],
+  "limitations": [
+    "No installed JMP comparison or whole-family completion",
+    "Observed-information ordinal inference is an explicit alternative; exact JMP M-estimation sandwich convention unverified",
+    "Histogram automatic bins and exact JMP histogram closure,weights,advanced overlays/styles remain outstanding",
+    "Box notches,diamonds,jitter,proportional widths and complete export/style options remain outstanding",
+    "New source cross-platform/community CI must be checked separately; no new Wasm runtime SQL claim"
+  ],
+  "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion",
+  "scheduled_stop_utc": "2026-10-22T23:30:00Z",
+  "status_counts": {
+    "partial": 278,
+    "database_existing": 37,
+    "absent": 206,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  }
+}

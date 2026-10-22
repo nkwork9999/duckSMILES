@@ -1,0 +1,145 @@
+{
+  "schema": "jmp-ordinal-development-v1",
+  "status": "12focused_green_final_release_c_abi_and_native_sql_1082checks_passed",
+  "baseline_revision": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+  "build_root": "/private/tmp/ducksmiles-jmp-parity-20261022",
+  "profile": "dev/default features only",
+  "initial_red": {
+    "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test genreg_ordinal_contracts",
+    "exit_code": 101,
+    "passed": 0,
+    "failed": 5,
+    "reasons": [
+      "4public execute calls:unknown optimization operation",
+      "1exported C ABI valid fit:NULL"
+    ],
+    "note": "An earlier invalid float-literal compiler error was corrected before the behavior RED; it is not counted as feature evidence."
+  },
+  "separation_red": {
+    "passed": 0,
+    "failed": 1,
+    "reason": "Wrong rejection reason unknown optimization operation instead of separation diagnostic."
+  },
+  "initial_green": {
+    "passed": 6,
+    "failed": 0
+  },
+  "edge_red": {
+    "passed": 7,
+    "failed": 3,
+    "reasons": [
+      "Original-unit Xbeta incorrectly reported normalized eta.",
+      "Scaled valid tiny covariance rejected because validation inverted and overflowed it.",
+      "Absolute symmetry tolerance accepted material relative asymmetry in tiny covariance."
+    ]
+  },
+  "edge_green": {
+    "passed": 10,
+    "failed": 0
+  },
+  "work_red": {
+    "passed": 0,
+    "failed": 1,
+    "shape": [
+      52000,
+      18
+    ],
+    "maxiter": 0,
+    "reason": "Valid high-dimensional preprocessing/separation scans were not charged; call wrongly succeeded with work_units105300008."
+  },
+  "focused_final_green": {
+    "passed": 12,
+    "failed": 0,
+    "seconds": 0.56,
+    "command": "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test genreg_ordinal_contracts"
+  },
+  "independent_reference_only": {
+    "path": "tasks/evidence/jmp-ordinal-independent-fixtures.json",
+    "families": 1,
+    "fit_fixtures": 5,
+    "assertions": 0,
+    "scope": "Reference generation only,no production oracle claim."
+  },
+  "pending": [
+    "Parent-owned actual all-SLT/catalog summary and merge/push/community CI before deadline.",
+    "Remaining full parity scope stays active:default selection/validation,exact JMP sandwich,full finite-MLE existence and installed-JMP comparison."
+  ],
+  "source_hashes": {
+    "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+    "crates/analytics/tests/genreg_ordinal_contracts.rs": "9437221e599f32597fb585ec55521073a8a6a9b5b18050f708a3bb675668e7f3",
+    "scripts/check_jmp_ordinal.py": "632a8554e0943f0ec1307c3f6fc8897cf59a83d9b52287742168a1b7afe76535"
+  },
+  "transcript_excerpts": {
+    "jmp-ordinal-initial-red.log": {
+      "path": "tasks/evidence/jmp-ordinal-initial-red.log",
+      "sha256": "25f2df53df5af38eff9226b5dc75928a40d41fe44148faf57abffa8cf081c41a",
+      "type": "bounded excerpt from actual tool transcript,not a fresh rerun"
+    },
+    "jmp-ordinal-edge-red.log": {
+      "path": "tasks/evidence/jmp-ordinal-edge-red.log",
+      "sha256": "201d5bfb9978a1bf64147d8e88ff9a0007f87ed760263741a3fd1c75c62444ba",
+      "type": "bounded excerpt from actual tool transcript,not a fresh rerun"
+    },
+    "jmp-ordinal-work-red.log": {
+      "path": "tasks/evidence/jmp-ordinal-work-red.log",
+      "sha256": "7f9c2cb3d31697cd411d9d4f3ab9154ac7588f587abcce8f1438577273e403f7",
+      "type": "bounded excerpt from actual tool transcript,not a fresh rerun"
+    },
+    "jmp-ordinal-focused-green.log": {
+      "path": "tasks/evidence/jmp-ordinal-focused-green.log",
+      "sha256": "a3a7b2673a2ec1a10e08214cdc476856a154d541b57ee4081bb52aca07dca304",
+      "type": "bounded excerpt from actual tool transcript,not a fresh rerun"
+    }
+  },
+  "sql_tests": "test/sql/genreg_ordinal.test",
+  "dev_public_abi": {
+    "path": "tasks/evidence/jmp-ordinal-dev-abi-reference.json",
+    "sha256": "0094b48d5d363b33fa3e2d809f2c20ba35464aa9051b52c5201170b13c4471d1",
+    "assertions": 541,
+    "boundaries": [
+      "public_c_abi"
+    ],
+    "cases": 5,
+    "library_sha256": "953819e84c0d75a1ad5c1fce6a4ebf14af1803aaad4bcfb20b5963cf7891b0f6"
+  },
+  "independent_reviewer": {
+    "path": "tasks/evidence/jmp-ordinal-independent-release-reference.json",
+    "sha256": "cc4c8175feed8491bcaa798c2eb20f5811f584ca8e9e91700752b1ef75e5cbbb",
+    "checker": "scripts/check_jmp_ordinal_reference.py",
+    "calls": 35,
+    "checks": 1321,
+    "profile": "Release",
+    "scope": "Independent reviewer:4MLfits/directmpmath80 fullobservedHessians,savedpredictions12queries+singles,23NULLcases at actual final exported Release C ABI; no JMP executable comparison."
+  },
+  "parent_final_dev_gates": {
+    "workspace_passed": 1366,
+    "failed": 0,
+    "existing_ignored": 2,
+    "suites": 67,
+    "strict_all_target_clippy": "passed",
+    "format": "passed",
+    "scope": "Parent-owned full final development gate after both production modules froze."
+  },
+  "final_release_reference": {
+    "path": "tasks/evidence/jmp-ordinal-reference.json",
+    "sha256": "7a04234faf2289bff7ccd6e7854909abeee38eaaeb463d604bb4736a7f9f0aad",
+    "cases": 5,
+    "assertions": 1082,
+    "boundaries": [
+      "public_c_abi",
+      "native_duckdb_sql"
+    ],
+    "library_sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe",
+    "extension_sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f",
+    "profile": "Release",
+    "source_sha256": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90"
+  },
+  "independent_reviewer_dev": {
+    "path": "tasks/evidence/jmp-ordinal-independent-reference.json",
+    "sha256": "237092b56c2b5df7417095b483eea13ae1c303b77a107ae691e881d9c517c1e3",
+    "checker": "scripts/check_jmp_ordinal_reference.py",
+    "calls": 35,
+    "checks": 1321,
+    "scope": "Independent reviewer:4MLfits/directmpmath80 fullobservedHessians,savedpredictions12queries+singles,23NULLcases; development actual public C ABI only,not JMP executable comparison."
+  }
+}

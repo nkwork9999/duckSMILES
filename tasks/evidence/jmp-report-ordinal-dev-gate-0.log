@@ -1,0 +1,1776 @@
+   Compiling ducksmiles_smiles v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/smiles)
+   Compiling ducksmiles_pdb v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/pdb)
+   Compiling ducksmiles_mol v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/mol)
+   Compiling ducksmiles_inchi v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/inchi)
+   Compiling ducksmiles_selfies v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/selfies)
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 23.24s
+     Running unittests src/lib.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/ducksmiles_analytics-335a2159ca4df990)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/advanced_design.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/advanced_design-3eaf35fa87d9ea70)
+
+running 11 tests
+test advanced_design_rejects_malformed_generators_infeasible_mixtures_and_work_explosions ... ok
+test fractional_factorial_generators_are_products_of_selected_base_columns ... ok
+test mixture_lattice_enumerates_simplex_compositions_and_filters_upper_constraints ... ok
+test design_evaluation_matches_independent_numpy_information_inverse_singular_values_and_leverage ... ok
+test mixture_lattice_offsets_lower_bounds_before_distributing_remaining_total ... ok
+test design_evaluation_retains_identifiability_and_leverage_under_feature_unit_changes ... ok
+test box_behnken_enumerates_every_two_factor_edge_and_requested_centers ... ok
+test orthogonal_screening_uses_nonconstant_sylvester_hadamard_columns ... ok
+test mixture_sum_tolerance_respects_small_measurement_units ... ok
+test randomized_replicates_are_lossless_and_each_replicate_has_balanced_blocks ... ok
+test latin_hypercube_stratifies_each_factor_and_uses_reproducible_independent_permutations ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/arima.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/arima-d0d07afd6f78b3cb)
+
+running 8 tests
+test integrated_random_walk_forecasts_retain_last_level_and_drift_is_explicit ... ok
+test seasonal_and_ordinary_differencing_are_inverted_through_each_history_layer ... ok
+test conditional_ar1_without_mean_recovers_direct_ols_and_forecasts ... ok
+test ma1_css_matches_scipy_filter_and_independent_bounded_optimizer ... ok
+test conditional_mean_model_preserves_representable_variation_at_large_origin ... ok
+test seasonal_ar_and_ma_polynomials_compose_and_remain_stationary_invertible ... ok
+test arima_rejects_invalid_orders_shapes_and_unsupported_work ... ok
+test exact_ar_decay_does_not_report_a_finite_gaussian_variance_fit ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/causal.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/causal-21078a11c7558877)
+
+running 9 tests
+test causal_contracts_reject_invalid_assignment_and_unidentified_groups ... ok
+test clipping_weights_must_not_fabricate_empirical_common_support ... ok
+test hajek_ipw_ate_and_att_use_distinct_ratios_and_fixed_nuisance_influence_se ... ok
+test weighted_balance_uses_fixed_pretreatment_pooled_sd_and_ess ... ok
+test propensity_logistic_fits_training_only_and_reuses_portable_preprocessing ... ok
+test uplift_curve_uses_assignment_weighted_actual_outcomes_and_groups_score_ties ... ok
+test aipw_orthogonal_ate_att_scores_do_not_treat_observed_outcomes_as_both_potential_outcomes ... ok
+test propensity_matching_has_exact_tie_replacement_caliper_and_subset_estimand_contract ... ok
+test propensity_gradient_diagnostic_belongs_to_returned_iterate ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/censored_regression_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/censored_regression_contracts-634035530fc990a7)
+
+running 33 tests
+test adjacent_interval_exponential_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_weibull_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_normal_fixed_likelihood_matches_independent_log_density_integral ... ok
+test beta_logit32_small_cdf_and_quantile_keep_complement_tail_precision ... ok
+test adjacent_interval_gamma_fixed_likelihood_matches_independent_log_density_integral ... ok
+test adjacent_interval_beta_fixed_likelihood_matches_independent_log_density_integral ... ok
+test common_censor_interval_without_failures_rejects_zero_dispersion_supremum ... ok
+test exponential_right_censoring_uses_total_weighted_exposure ... ok
+test adjacent_interval_lognormal_fixed_likelihood_matches_independent_log_density_integral ... ok
+test finite_mean_and_se_with_unrepresentable_wald_endpoints_withhold_only_interval ... ok
+test huge_finite_asymmetric_saved_covariance_is_rejected_without_tolerance_overflow ... ok
+test gamma_and_beta_quantiles_preserve_representable_extreme_left_tail ... ok
+test malformed_censor_support_rank_and_saved_models_are_rejected ... ok
+test censored_normal_uncensored_intercept_has_mle_scale_and_information ... ok
+test nonconverged_coefficient_fit_withholds_observed_information_inference ... ok
+test gamma_tiny_shape_upper_tail_is_computed_without_large_cdf_subtraction ... ok
+test normal_centering_preserves_original_adjacent_interval_width ... ok
+test frequency_replication_and_zero_weight_rows_preserve_estimates ... ok
+test positive_distribution_quantiles_reject_unrepresentable_zero ... ok
+test replicated_single_exponential_value_is_an_identifiable_frequency_fit ... ok
+test representable_tiny_normal_scale_and_prediction_se_do_not_underflow_when_squaring ... ok
+test representable_tiny_feature_units_keep_full_rank_saved_predictions ... ok
+test public_c_abi_owns_censored_json_and_rejects_bad_support ... ok
+test original_unit_information_overflow_never_serializes_nonfinite_json ... ok
+test saturated_positive_beta_logit_preserves_small_shape_and_mean_derivative ... ok
+test subnormal_left_censor_limit_has_finite_exponential_log_likelihood ... ok
+test subnormal_exponential_interval_uses_actual_lower_hazard ... ok
+test unbounded_one_direction_censor_fits_are_rejected_before_claiming_inference ... ok
+test all_six_families_have_exact_left_right_interval_likelihoods ... ok
+test saved_normal_prediction_has_mean_probability_quantile_and_uncertainty ... ok
+test adjacent_distinct_raw_endpoints_keep_positive_interval_mass_all_families ... ok
+test mixed_censoring_predictor_fits_match_independent_scipy_likelihood_and_joint_information ... ok
+test prediction_budget_counts_gamma_special_function_iterations_globally ... ok
+
+test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s
+
+     Running tests/degradation.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/degradation-46e4691206d2ea74)
+
+running 24 tests
+test cumulative_quantiles_remain_relative_accurate_far_below_first_segment_duration ... ok
+test cumulative_log_and_reciprocal_stress_relations_integrate_transformed_location ... ok
+test changing_time_units_preserves_cumulative_survival_and_rescales_density ... ok
+test cumulative_zero_time_weibull_density_has_correct_shape_boundary ... ok
+test cumulative_saved_weibull_and_lognormal_use_the_exposure_distribution ... ok
+test common_intercept_is_shared_at_time_zero_when_unit_slopes_differ ... ok
+test linear_unit_paths_recover_separate_intercepts_and_common_slope ... ok
+test independent_destructive_gaussian_fit_keeps_density_constant_and_mle_scale ... ok
+test destructive_scale_guard_never_allows_mle_inference_from_a_projected_stationary_point ... ok
+test constant_stress_cumulative_exposure_reduces_to_exponential_total_exposure ... ok
+test nonconverged_damage_iterate_with_positive_information_has_no_mle_inference ... ok
+test near_unit_confidence_uses_the_small_student_tail_without_rounding_to_one ... ok
+test saved_destructive_lognormal_prediction_differentiates_mean_median_and_soft_failure ... ok
+test saved_path_rejects_impossible_residual_df_instead_of_collapsing_uncertainty ... ok
+test nonconverged_destructive_iterate_with_positive_information_has_no_mle_inference ... ok
+test saved_step_stress_cumulative_prediction_integrates_scale_and_jacobian ... ok
+test saved_path_prediction_has_exact_threshold_and_mean_uncertainty ... ok
+test stopped_stress_quantiles_do_not_round_pattern_duration_outside_its_domain ... ok
+test destructive_likelihood_uses_left_right_and_interval_response_probabilities ... ok
+test tiny_repeating_patterns_bracket_quantiles_without_overflowing_cycle_count ... ok
+test inverse_path_confidence_sets_preserve_empty_two_piece_and_unbounded_cases ... ok
+test unused_stress_patterns_cannot_create_identified_damage_fit ... ok
+test malformed_carriers_censor_intervals_and_excessive_resources_reject_without_panics ... ok
+test stability_pooling_tests_slopes_before_intercepts_and_defaults_to_separate_mse ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/design.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/design-f29b36ad23bcc859)
+
+running 9 tests
+test malformed_inputs_and_excessive_work_are_rejected_without_panics ... ok
+test factorial_covers_all_corners_and_requested_centers ... ok
+test d_optimal_exchange_is_locally_optimal_on_an_irregular_candidate_set ... ok
+test response_surface_scales_offset_features_without_losing_predictions ... ok
+test invalid_bounds_rank_deficiency_and_malformed_models_are_rejected ... ok
+test d_optimal_selects_distinct_constrained_corner_rows ... ok
+test central_composite_places_axial_runs_in_original_units ... ok
+test response_surface_recovers_a_known_quadratic_and_predicts_new_points ... ok
+test ridge_identifies_an_underdetermined_quadratic ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/design_classical.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/design_classical-b297b6a062390a6d)
+
+running 11 tests
+test repeated_block_bibd_is_valid_when_one_candidate_must_cover_pair_more_than_once ... ok
+test randomized_complete_blocks_contain_each_treatment_once_with_contiguous_blocks ... ok
+test fano_incomplete_blocks_have_exact_pair_concurrence_and_replication ... ok
+test higher_lambda_bibd_preserves_each_pair_and_all_treatments ... ok
+test split_plot_whole_factors_stay_constant_and_subplots_randomize_within_whole_plot ... ok
+test resolvable_affine_blocks_partition_treatments_in_each_parallel_class ... ok
+test unreplicated_split_and_strip_plans_report_zero_error_df ... ok
+test strip_plot_has_crossed_unit_ids_and_two_valid_stage_orders ... ok
+test affine_eight_and_cyclic_nine_treatment_bibds_do_not_need_exponential_search ... ok
+test seeds_are_reproducible_and_invalid_or_unsupported_designs_are_rejected ... ok
+test mixed_level_l18_is_pairwise_orthogonal_and_l4_reports_interaction_aliasing ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/distributions.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/distributions-65cfcb8016d55ecb)
+
+running 13 tests
+test distribution_contract_rejects_bad_domains_and_unidentified_lifetime_models ... ok
+test box_cox_handles_log_limit_and_estimates_profile_likelihood_lambda ... ok
+test kde_small_bandwidth_normalizes_before_large_density_multiplication ... ok
+test gaussian_kde_is_average_of_normalized_kernel_densities ... ok
+test kde_large_bandwidth_preserves_representable_subnormal_density ... ok
+test jarque_bera_labels_asymptotic_probability_and_uses_population_moments ... ok
+test logrank_tied_events_use_hypergeometric_variance_with_same_time_censors_at_risk ... ok
+test box_cox_estimated_lambda_is_invariant_to_measurement_units ... ok
+test continuous_mle_fits_match_independent_scipy_location_zero_fixtures ... ok
+test poisson_large_equal_counts_preserve_small_log_likelihood ... ok
+test parametric_likelihoods_rescale_with_lifetime_units ... ok
+test poisson_mle_includes_log_factorial_and_identifies_zero_boundary ... ok
+test right_censored_lifetime_fits_include_surviving_units_exposure ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/dynamic_series.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/dynamic_series-c0347763b709f2c0)
+
+running 8 tests
+test forecast_and_transform_validation_rejects_bad_shapes_or_coefficients ... ok
+test ccf_has_explicit_input_leads_sign_and_swap_lag_symmetry ... ok
+test arima_forecast_variance_matches_ar_random_walk_ma_double_integrated_and_seasonal_closed_forms ... ok
+test trend_cycle_use_only_training_prefix_and_no_cycle_has_unidentified_phase ... ok
+test trend_and_fixed_cycle_removal_recover_known_components ... ok
+test failed_transfer_optimizer_does_not_publish_information_criteria_and_future_inputs_do_not_train ... ok
+test input_only_exact_arma_prewhitening_matches_dense_covariance_and_ignores_suffix_labels ... ok
+test rational_transfer_with_exact_arma_noise_matches_dense_gls_forecasts_and_suffix_y_is_ignored ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.82s
+
+     Running tests/evaluation.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/evaluation-6848978749dabbac)
+
+running 15 tests
+test binary_metrics_use_probability_loss_and_inclusive_threshold ... ok
+test ensemble_normalizes_member_weights_without_losing_large_origin_spreads ... ok
+test calibration_includes_probability_one_and_keeps_empty_bins_explicit ... ok
+test model_comparison_ranks_supplied_predictions_without_refitting ... ok
+test lift_uses_cumulative_positive_rate_over_population_positive_rate ... ok
+test f1_remains_finite_when_doubling_valid_count_weights_would_overflow ... ok
+test confusion_matrix_counts_multiclass_actual_rows_and_predicted_columns ... ok
+test precision_recall_reports_step_average_precision_separately_from_trapezoids ... ok
+test rolling_origin_never_trains_on_current_or_future_validation_rows ... ok
+test profit_decision_maximizes_expected_profit_with_actual_by_decision_matrix ... ok
+test weighted_curves_do_not_drop_the_minority_class_through_total_subtraction ... ok
+test stratified_holdout_is_seeded_lossless_and_retains_both_levels ... ok
+test roc_groups_equal_scores_before_integrating_and_handles_weights ... ok
+test weighted_regression_metrics_preserve_residual_and_target_units ... ok
+test evaluation_rejects_undefined_auc_invalid_probabilities_and_excessive_fold_output ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/explore.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/explore-4e9055e6a7c1af3f)
+
+running 11 tests
+test pca_does_not_invent_variance_for_decimal_constants ... ok
+test kmeans_separates_groups_with_correct_centers_and_inertia ... ok
+test kmeans_converges_on_inexact_constant_values ... ok
+test pca_loadings_are_orthonormal_and_reconstruct_centered_rows ... ok
+test pca_preserves_small_scale_covariance ... ok
+test exploration_rejects_invalid_shapes_values_and_parameters ... ok
+test kmeans_is_deterministic_and_retains_nonempty_duplicate_clusters ... ok
+test pca_rejects_features_that_cannot_be_reliably_centered_in_original_units ... ok
+test pca_recovers_hand_computed_covariance_spectrum ... ok
+test standardized_pca_handles_constant_descriptors ... ok
+test exploration_rejects_excessive_dimensions_and_work ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ffi.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/ffi-1455776be73cfcc4)
+
+running 1 test
+test ffi_returns_owned_json_and_rejects_shape_overflow_without_dereference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/functional_preprocess.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/functional_preprocess-bd5d7b5d5d212324)
+
+running 17 tests
+test bin_edges_must_have_representable_increasing_spacing ... ok
+test functional_dtw_distance_matrix_handles_unequal_lengths_and_is_symmetric ... ok
+test explicit_bins_average_observations_and_keep_empty_bins_null ... ok
+test explicit_saved_grid_replays_on_only_new_validation_functions_without_refitting ... ok
+test golden_rms_stays_finite_when_the_unnormalized_euclidean_norm_overflows ... ok
+test golden_curve_matching_excludes_the_reference_and_ranks_only_candidates ... ok
+test dtw_preserves_identical_finite_curves_even_if_their_full_intensity_span_overflows ... ok
+test arwls_preserves_affine_curves_and_passes_validation_without_fitting ... ok
+test arwls_solves_second_difference_system_and_uses_logistic_reweighting ... ok
+test irregular_curves_interpolate_on_training_only_common_grid ... ok
+test supplied_baseline_is_interpolated_and_excluded_from_corrected_curves ... ok
+test population_normalization_does_not_collapse_wide_finite_curves_to_zero ... ok
+test snip_clips_peaks_in_transformed_space_and_leaves_validation_untouched ... ok
+test thinning_uses_sorted_per_curve_stride_and_returns_original_rows ... ok
+test three_point_arwls_uses_the_correct_second_difference_endpoint_penalty ... ok
+test validation_grid_extent_and_length_cannot_change_the_training_grid ... ok
+test malformed_function_roles_arguments_and_workloads_reject_without_panics ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/genomics.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/genomics-5c2f5f31105740c6)
+
+running 11 tests
+test ld_knn_uses_correlated_markers_and_nearest_observed_sample ... ok
+test mean_and_mode_imputation_save_training_values_for_new_rows ... ok
+test marker_statistics_recovers_diploid_counts_diversity_and_pearson_hwe ... ok
+test distance_matrix_implements_numeric_euclidean_jaccard_bray_gower_and_hamming ... ok
+test additive_and_dominance_relationships_have_known_vanraden_kernels ... ok
+test genomic_blup_known_variance_ratio_matches_ridge_and_reuses_training_preprocessing ... ok
+test simulation_keeps_certain_alleles_even_when_the_random_midpoint_rounds_to_one ... ok
+test genetics_rejects_invalid_calls_all_missing_loci_and_unbounded_pair_work ... ok
+test unlinked_parental_cross_preserves_mendelian_fixed_parent_genotypes ... ok
+test seeded_genotype_simulation_obeys_allele_frequency_and_inbreeding ... ok
+test stochastic_imputation_respects_hwe_observed_uniform_and_specified_policies ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running tests/genreg_ordinal_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/genreg_ordinal_contracts-e1ad26a6abe404a6)
+
+running 12 tests
+test certified_complete_and_quasi_separation_are_not_reported_as_finite_mles ... ok
+test exported_ordinal_c_abi_owns_finite_json_and_rejects_malformed_carrier ... ok
+test covariance_validation_does_not_invert_and_overflow_a_valid_tiny_covariance ... ok
+test nonconverged_fit_withholds_uncertainty_and_invalid_design_is_rejected ... ok
+test intercept_only_ordered_mle_reports_cutpoints_jmp_differences_and_information ... ok
+test tiny_and_huge_materially_asymmetric_covariances_are_rejected ... ok
+test ordinal_order_ignores_numeric_label_distances_and_multifeature_separation_is_diagnosed ... ok
+test common_slope_has_jmp_positive_cumulative_sign_and_portable_prediction ... ok
+test tiny_predictor_units_keep_normalized_saved_inference_when_raw_covariance_overflows ... ok
+test predictor_units_shift_cutpoints_without_changing_probabilities_or_raw_linear_predictor ... ok
+test replication_frequencies_and_zero_weight_categories_preserve_likelihood_and_fit ... ok
+test all_preprocessing_and_separation_searches_share_the_cumulative_work_budget ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+
+     Running tests/glm.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/glm-930e80c2026c5c84)
+
+running 16 tests
+test invalid_matrices_parameters_and_bounded_work_return_errors ... ok
+test elastic_net_soft_thresholds_standardized_features_and_unpenalized_intercept ... ok
+test linear_inference_rejects_rank_deficiency_and_insufficient_residual_df ... ok
+test elastic_net_regularizes_duplicate_and_constant_features_without_false_convergence ... ok
+test logistic_likelihood_returns_exact_two_group_probabilities_and_deviance ... ok
+test logistic_multivariable_solution_matches_independent_scipy_optimizer ... ok
+test multivariable_linear_inference_matches_independent_matrix_fixture ... ok
+test polynomial_features_include_all_total_degree_terms_in_stable_order ... ok
+test extremely_high_representable_confidence_retains_nonzero_tail_probability ... ok
+test ordinary_least_squares_inference_matches_independent_scipy_fixture ... ok
+test prediction_link_functions_are_stable_and_reject_poisson_overflow ... ok
+test poisson_log_link_matches_group_means_and_exact_deviance ... ok
+test generalized_models_retain_predictions_after_large_feature_translation ... ok
+test stable_model_predictions_preserve_large_offsets_and_feature_units ... ok
+test standardized_penalties_are_invariant_to_feature_units ... ok
+test logistic_separation_and_exhausted_iterations_are_not_false_successes ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/glmm.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/glmm-b179b8d77ec694a5)
+
+running 14 tests
+test glmm_rejects_unrepresentable_saved_posterior_second_moment ... ok
+test glmm_rejects_bad_inputs_and_never_claims_a_finite_separated_estimate ... ok
+test poisson_random_intercept_zero_variance_includes_factorial_constants_and_glm_se ... ok
+test poisson_zero_only_direction_has_no_finite_extended_mle ... ok
+test bernoulli_random_intercept_zero_variance_matches_glm_likelihood_and_information ... ok
+test rare_control_separation_is_not_hidden_by_loose_optimizer_tolerance ... ok
+test tiny_variance_search_bound_does_not_turn_a_zero_optimum_into_an_upper_bound_hit ... ok
+test bernoulli_positive_variance_matches_independent_real_line_integration ... ok
+test poisson_saved_posterior_mean_uses_weighted_log_sum_before_exponentiation ... ok
+test glmm_reports_iteration_and_quadrature_limits_without_false_success ... ok
+test accepted_rounded_posterior_weights_preserve_bernoulli_probability_bounds ... ok
+test saved_glmm_prediction_separates_conditional_posterior_and_population_means ... ok
+test poisson_positive_variance_fixed_slope_and_eb_moments_match_quad_oracle ... ok
+test glmm_saved_model_preserves_predictions_after_large_feature_origin_and_units ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/inference.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/inference-81590fd952c90b3a)
+
+running 17 tests
+test kruskal_wallis_applies_global_tie_correction ... ok
+test contingency_uses_uncorrected_pearson_and_cramers_v ... ok
+test fisher_sums_tables_at_most_as_probable_as_observed ... ok
+test equivalence_uses_two_one_sided_tests_and_one_minus_two_alpha_ci ... ok
+test levene_defaults_to_brown_forsythe_median_deviations ... ok
+test mann_whitney_uses_average_ties_and_continuity_corrected_normal_tail ... ok
+test binomial_test_is_probability_ordered_exact_with_wilson_interval ... ok
+test pooled_t_uses_pooled_variance_and_combined_df ... ok
+test one_sample_t_inverts_student_t_for_mean_ci ... ok
+test paired_t_uses_within_pair_differences ... ok
+test variance_ratio_divides_by_null_ratio_and_inverts_f_quantiles ... ok
+test wilcoxon_drops_zero_pairs_and_corrects_tied_absolute_ranks ... ok
+test variance_test_uses_chi_square_equal_tail_inference ... ok
+test student_and_chi_square_confidence_limits_retain_small_tail_probabilities ... ok
+test deterministic_permutations_and_translations_preserve_inferential_results ... ok
+test exact_test_probabilities_sum_to_one_at_large_count_modes ... ok
+test inference_rejects_malformed_nonfinite_undefined_and_over_limit_inputs ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/irt.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/irt-b20567ed024dcbb0)
+
+running 14 tests
+test irt_rejects_unidentified_items_bad_frequency_and_invalid_saved_models ... ok
+test deterministic_perfect_item_agreement_hits_a_guard_instead_of_finite_discrimination_success ... ok
+test three_parameter_curve_uses_guessing_and_fisher_information_not_rasch_formula ... ok
+test separate_missing_blocks_cannot_claim_identified_two_parameter_items ... ok
+test posterior_eap_rasch_extremes_are_finite_and_not_person_mle ... ok
+test two_parameter_marginal_ml_matches_independent_real_line_integrated_fixture ... ok
+test finite_iteration_and_coarse_integration_limits_cannot_claim_irt_success ... ok
+test rasch_marginal_ml_frequency_matches_expanded_people_and_symmetric_known_likelihood ... ok
+test unfinished_rasch_iterate_does_not_publish_mle_standard_errors_or_information_criteria ... ok
+test extremely_sharp_tail_ability_scores_report_insufficient_quadrature ... ok
+test omitted_missing_item_uses_prior_when_no_responses_and_is_not_an_incorrect_answer ... ok
+test three_parameter_guessing_penalty_has_explicit_total_likelihood_units ... ok
+test three_parameter_marginal_ml_estimates_identified_positive_guessing ... ok
+test active_zero_guessing_and_small_positive_free_guessing_have_conditional_information ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.43s
+
+     Running tests/kinship.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/kinship-d8e59b5e0f032f4b)
+
+running 16 tests
+test kinship_contract_rejects_indefinite_asymmetric_and_invalid_dimensions ... ok
+test exactly_explained_response_rejects_a_spurious_finite_variance_mle ... ok
+test physical_prediction_keeps_underflowed_products_and_cancelling_large_terms ... ok
+test genomic_reml_recovers_balanced_random_intercept_variances_and_blups ... ok
+test profile_refines_a_true_interior_optimum_inside_the_last_grid_interval ... ok
+test saved_kinship_prediction_uses_fixed_cross_covariances_without_reestimating_variance ... ok
+test kernel_and_response_units_do_not_change_fitted_values ... ok
+test genetic_zero_boundary_is_distinct_from_unidentifiable_identity_kernel ... ok
+test genomic_ml_and_reml_have_different_variance_likelihood_contracts ... ok
+test valid_training_dimensions_exercise_psd_and_exact_symmetry_validation ... ok
+test clipped_kernel_null_space_is_absent_from_blup_and_saved_training_predictions ... ok
+test unrepresentable_positive_variance_does_not_appear_as_a_zero_variance_model ... ok
+test subnormal_kernel_prediction_scales_physical_effect_before_ratio_overflow ... ok
+test fixed_covariates_and_original_design_reml_determinant_are_preserved ... ok
+test subnormal_kernel_units_do_not_overflow_portable_weights_or_finite_predictions ... ok
+test subnormal_fixed_feature_scale_preserves_finite_zero_and_nonzero_slope_predictions ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/latent.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/latent-9cac617b8494aa8a)
+
+running 15 tests
+test fit_rejects_models_exceeding_the_native_portable_parameter_limit ... ok
+test gaussian_density_rejects_nonfinite_quadratic_forms_instead_of_center_density ... ok
+test correspondence_analysis_obeys_chi_square_inertia_and_profile_geometry ... ok
+test gaussian_mixture_one_component_matches_population_mle_and_predicts_density ... ok
+test batch_som_one_node_is_mean_and_two_nodes_recover_separated_codebook ... ok
+test default_embedding_dimensions_respect_the_available_axes ... ok
+test classical_mds_recovers_euclidean_distances_and_gower_eigenvalues ... ok
+test canonical_correlation_whitens_both_blocks_and_reuses_original_unit_scoring ... ok
+test latent_validation_rejects_bad_domains_singular_inputs_and_invalid_models ... ok
+test full_covariance_mixture_finds_separated_clusters_with_monotone_likelihood ... ok
+test rank_deficient_cross_covariance_keeps_orthonormal_null_canonical_scores ... ok
+test latent_models_keep_small_feature_spread_at_large_origins ... ok
+test saved_mixture_rejects_asymmetry_relative_to_small_covariance_scale ... ok
+test principal_axis_factor_analysis_recovers_known_common_factor_and_score_weights ... ok
+test varimax_rotation_preserves_common_covariance_and_is_orthogonal ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/latent_inference.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/latent_inference-6eb9ea1296aaa073)
+
+running 10 tests
+test canonical_inference_handles_zero_and_perfect_correlations_without_nonfinite_json ... ok
+test canonical_correlation_inference_reports_sequential_wilks_bartlett_approximations ... ok
+test latent_inference_rejects_invalid_data_and_domains ... ok
+test multi_effect_manova_criteria_and_approximate_f_survive_units_and_offsets ... ok
+test maximum_likelihood_factor_recovers_exact_population_model_and_fit_test ... ok
+test multiple_correspondence_builds_indicator_burt_inertia_and_adjustments ... ok
+test mca_geometry_is_invariant_to_category_codes_and_variable_permutation ... ok
+test one_effect_manova_recovers_scatter_matrices_and_exact_rank_one_f ... ok
+test ml_factor_flags_iteration_limit_and_variance_boundary_and_rejects_unidentified_models ... ok
+test ml_factor_optimizes_free_uniquenesses_when_other_variables_hit_bounds ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/learning.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/learning-41397ceb9979dda6)
+
+running 9 tests
+test learners_reject_unbounded_work_invalid_labels_and_empty_training ... ok
+test decision_tree_uses_training_only_splits_for_regression_and_classification ... ok
+test returned_neural_training_loss_matches_returned_model_predictions ... ok
+test regression_trees_and_boosting_preserve_tiny_target_units ... ok
+test random_forest_is_seeded_and_never_uses_query_labels ... ok
+test gradient_boosting_reduces_squared_and_binomial_loss ... ok
+test neural_prediction_restores_large_target_origin_after_centered_adjustment ... ok
+test neural_training_is_invariant_to_representable_tiny_feature_units ... ok
+test cpu_mlp_learns_nonlinear_xor_with_training_only_standardization ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/market.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/market-fd05a448a9bc66ab)
+
+running 7 tests
+test market_contracts_reject_nonbinary_baskets_and_report_undefined_reliability ... ok
+test deleting_a_dominant_item_preserves_the_variance_of_remaining_small_items ... ok
+test basket_affinity_distinguishes_directional_confidence_and_symmetric_similarity ... ok
+test standardized_alpha_and_corrected_correlations_survive_different_item_units ... ok
+test raw_and_standardized_item_reliability_use_their_own_covariance_scale ... ok
+test rules_count_empty_transactions_and_allow_multivariate_consequents ... ok
+test rule_thresholds_filter_on_the_joint_support_confidence_and_lift ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mixed.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/mixed-e954d4fe52170af6)
+
+running 10 tests
+test exactly_determined_fixed_response_does_not_claim_a_finite_variance_optimum ... ok
+test rejects_invalid_groups_rank_degeneracy_nonfinite_and_bad_arguments ... ok
+test mixed_prediction_distinguishes_known_and_new_groups ... ok
+test balanced_ml_uses_full_likelihood_and_aic_parameter_count ... ok
+test finite_iteration_budget_does_not_report_false_convergence ... ok
+test zero_random_variance_boundary_is_considered_explicitly ... ok
+test balanced_reml_recovers_anova_variance_components_and_blups ... ok
+test unbalanced_fixed_covariate_fit_matches_independent_dense_scipy_likelihood ... ok
+test mixed_prediction_keeps_large_absolute_feature_origins_separate ... ok
+test reml_likelihood_accounts_for_original_fixed_feature_units ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mixed_advanced.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/mixed_advanced-a6b277aecb440344)
+
+running 16 tests
+test invalid_covariance_duplicate_visits_rank_deficiency_and_work_limits_are_rejected ... ok
+test ar1_uses_actual_nonuniform_elapsed_times_and_negative_rho_requires_integer_lags ... ok
+test duplicated_fixed_feature_is_rejected_by_gls_rank_check ... ok
+test negative_ar1_at_large_integral_lag_does_not_truncate_to_i32 ... ok
+test known_covariance_gls_does_not_refit_scale_and_matches_dense_numpy_likelihood ... ok
+test missing_visits_use_global_antedependent_path_instead_of_compressing_adjacency ... ok
+test known_gls_permutation_and_feature_translation_preserve_fitted_values ... ok
+test nine_repeated_covariance_structures_preserve_variances_and_distinct_correlations ... ok
+test reported_negative_ar1_parameter_is_preserved_when_first_time_gap_is_even ... ok
+test iteration_limit_is_reported_as_unconverged_instead_of_success ... ok
+test unobserved_unstructured_time_pair_cannot_be_reported_as_identified ... ok
+test random_slope_blups_predict_known_groups_and_marginal_mean_for_new_groups ... ok
+test zero_random_variance_boundary_is_explicit_instead_of_interior_convergence ... ok
+test correlated_random_slopes_profile_ml_and_reml_with_unbalanced_subjects ... ok
+test random_slope_fit_and_blups_are_invariant_to_row_permutation ... ok
+test all_nine_structures_ml_and_reml_match_independent_full_covariance_likelihood ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+
+     Running tests/multivariate.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/multivariate-770f5da2584ff716)
+
+running 14 tests
+test covariance_preserves_small_spread_at_large_offsets ... ok
+test dbscan_returns_density_clusters_noise_and_core_membership ... ok
+test covariance_sample_population_and_correlation_match_hand_computed_fixture ... ok
+test correlated_mahalanobis_matches_independent_numpy_inverse_fixture ... ok
+test density_cluster_membership_is_permutation_equivariant_without_shared_borders ... ok
+test discriminant_analysis_rejects_unidentifiable_covariance_unless_regularized ... ok
+test hierarchical_linkage_matches_scipy_ward_fixture_and_returns_cut_labels ... ok
+test lda_and_qda_return_empirical_priors_posterior_and_heldout_predictions ... ok
+test classifiers_and_neighbors_preserve_small_feature_spreads_at_large_offsets ... ok
+test multivariate_validation_rejects_nonfinite_ragged_impossible_parameters_and_work ... ok
+test mahalanobis_uses_only_reference_rows_and_correct_covariance_inverse ... ok
+test nearest_neighbors_scale_only_training_rows_and_use_deterministic_ties ... ok
+test unequal_size_linkage_updates_match_independent_scipy_fixture ... ok
+test naive_bayes_uses_population_class_variance_and_ignores_query_labels ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/nonlinear.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/nonlinear-ba881c89df0f1093)
+
+running 9 tests
+test nonlinear_limits_and_rank_failures_are_explicit ... ok
+test cubic_bspline_partition_endpoint_and_linear_reproduction ... ok
+test loess_local_quadratic_is_exact_and_reuses_saved_training_state ... ok
+test exponential_fit_recovers_scale_rate_and_portable_predictions ... ok
+test spline_rejects_a_knot_domain_whose_width_overflows ... ok
+test nonlinear_coefficient_uncertainty_survives_very_small_response_units ... ok
+test cubic_regression_spline_recovers_polynomial_and_predicts_from_saved_coefficients ... ok
+test logistic_gompertz_power_and_michaelis_families_recover_exact_curves ... ok
+test robust_loess_downweights_an_isolated_response_outlier ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/omics.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/omics-786786d13d4e8764)
+
+running 11 tests
+test omics_rejects_undefined_normalization_and_unidentified_or_unbounded_models ... ok
+test row_standardization_is_invariant_when_measurement_units_are_subnormal ... ok
+test row_standardization_and_clr_preserve_mean_centering_and_explicit_pseudocount ... ok
+test fixed_ancestral_frequencies_infer_new_rows_without_refitting_allele_frequencies ... ok
+test quantile_normalization_uses_equal_rank_means_and_tie_averaging ... ok
+test count_and_log_ratio_normalization_remain_finite_for_extreme_units ... ok
+test count_normalization_distinguishes_cpm_rpkm_tpm_and_relative_abundance ... ok
+test saved_ancestry_initialization_cannot_lock_a_population_out_of_inference ... ok
+test admixture_iteration_limit_reports_nonconvergence_and_scoring_is_batch_independent ... ok
+test single_ancestral_population_has_closed_form_allele_mle_and_full_binomial_likelihood ... ok
+test admixture_estimation_is_seeded_and_reports_monotone_finite_likelihood ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/optimize.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/optimize-5df2fa15f6449b4f)
+
+running 7 tests
+test optimization_rejects_bad_domains_and_singular_noise_free_gp ... ok
+test expected_improvement_resolves_small_gaussian_tail_values ... ok
+test expected_improvement_matches_normal_at_incumbent_and_zero_uncertainty ... ok
+test active_learning_excludes_existing_rows_and_redundant_candidates ... ok
+test gp_posterior_uses_noise_variance_and_returns_candidate_indices ... ok
+test gp_constant_decimal_training_feature_has_unit_scale ... ok
+test optimization_rejects_overflow_and_excessive_selection_work ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/quality.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/quality-edcdb1ad42885034)
+
+running 11 tests
+test malformed_or_unidentified_quality_requests_fail ... ok
+test individuals_chart_estimates_within_sigma_from_moving_ranges ... ok
+test crossed_gage_rr_separates_repeatability_operator_and_part_variance ... ok
+test attribute_charts_use_binomial_and_poisson_limits_with_exposures ... ok
+test levey_jennings_preserves_fixed_reference_limits_and_laney_adjusts_overdispersion ... ok
+test sequential_charts_track_time_varying_uncertainty_and_accumulated_shift ... ok
+test type1_gage_and_kappa_account_for_tolerance_and_chance_agreement ... ok
+test western_electric_rules_detect_each_rule_without_future_data ... ok
+test ewma_transient_limits_preserve_tiny_valid_smoothing_parameters ... ok
+test subgroup_charts_use_ranges_or_unbiased_standard_deviations ... ok
+test quality_rejects_derived_overflow_and_estimated_limits_are_translation_equivariant ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/regression.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/regression-7c06fe6fff70cf47)
+
+running 13 tests
+test numerical_overflow_returns_errors_instead_of_invalid_json ... ok
+test group_folds_keep_groups_indivisible_and_membership_permutation_invariant ... ok
+test pls_stops_at_predictive_rank_and_supports_constant_targets ... ok
+test cross_validation_runs_pls_and_rejects_bad_fold_assignments ... ok
+test decimal_constant_features_do_not_create_spurious_predictive_rank ... ok
+test cross_validation_fits_scaling_on_each_training_fold_only ... ok
+test predict_consumes_intercept_then_original_unit_coefficients ... ok
+test pls_deflates_multiple_components_to_recover_a_linear_relation ... ok
+test rejects_nonfinite_ragged_missing_and_invalid_parameters ... ok
+test ridge_centering_handles_feature_and_response_shifts ... ok
+test ridge_regularization_handles_constant_and_duplicate_columns ... ok
+test ridge_penalty_uses_standardized_features_and_returns_original_units ... ok
+test regression_preserves_small_spreads_at_large_feature_and_target_origins ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/reliability.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/reliability-b0b6e19a4078f177)
+
+running 11 tests
+test independent_component_series_parallel_and_nonidentical_k_of_n_are_exact ... ok
+test invalid_censoring_nonpositive_times_unidentified_aft_and_bad_blocks_are_errors ... ok
+test intercept_only_exponential_aft_matches_exact_total_exposure_per_failure ... ok
+test censored_weibull_aft_estimates_location_effect_and_common_shape_jointly ... ok
+test censored_exponential_aft_uses_full_exposure_likelihood_and_observed_information ... ok
+test nhpp_prediction_and_mle_preserve_time_rescaling ... ok
+test aft_prediction_uses_saved_centering_and_returns_distribution_specific_quantiles ... ok
+test powerlaw_nhpp_matches_time_truncated_point_process_mle_and_growth_intensity ... ok
+test aft_rejects_false_convergence_and_regularized_curvature_does_not_claim_wald_calibration ... ok
+test censored_lognormal_aft_includes_normal_survival_tail_in_the_likelihood ... ok
+test aft_estimates_and_saved_predictions_are_invariant_to_feature_units_and_time_units ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/report_artifact_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/report_artifact_contracts-1725ce7301979cbb)
+
+running 14 tests
+test empty_group_statistics_are_explicit_null ... ok
+test long_group_identifiers_reject_overlapping_labels ... ok
+test hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks ... ok
+test accessible_group_statistics_are_explicit_without_visible_table ... ok
+test explicit_histogram_edges_include_final_edge_and_preserve_density_units ... ok
+test frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n ... ok
+test exact_and_adjacent_bin_edges_and_million_frequency_remain_bounded ... ok
+test box_quartiles_use_type6_and_observed_tukey_whiskers ... ok
+test reports_reject_invalid_states_unrepresentable_ranges_and_dense_layouts ... ok
+test quantile_box_has_full_range_and_four_additional_type6_ticks ... ok
+test narrow_value_domains_keep_distinguishable_axis_labels ... ok
+test stable_geometry_origin_is_explicit ... ok
+test visible_five_number_table_preserves_distinct_large_offset_values ... ok
+test singleton_and_permuted_rows_have_deterministic_finite_artifacts ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/resampling.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/resampling-5738ab33d4ee739a)
+
+running 10 tests
+test normal_simulation_is_reproducible_and_affine ... ok
+test permutation_tie_policy_is_invariant_to_small_measurement_units ... ok
+test exact_permutation_enumerates_group_assignments_and_monte_carlo_is_seeded ... ok
+test known_sigma_power_and_margin_sample_sizes_match_reference ... ok
+test row_sampling_returns_only_input_indices_and_no_replacement_duplicates ... ok
+test sampling_rejects_invalid_plans_probabilities_and_resources ... ok
+test sample_size_mean_is_invariant_to_tiny_units ... ok
+test contingency_effects_match_hand_computed_odds_and_risk ... ok
+test bootstrap_mean_is_seeded_and_preserves_a_constant_and_location_shifts ... ok
+test bootstrap_standard_error_preserves_sub_ulp_resample_mean_offsets ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/robust_learning.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/robust_learning-59104d84ed0e51ed)
+
+running 9 tests
+test robust_contracts_reject_invalid_domains_and_unidentified_regressions ... ok
+test svm_convergence_is_checked_after_the_final_allowed_pair_update ... ok
+test linear_svm_solves_soft_margin_dual_and_scores_saved_model ... ok
+test huber_irls_limits_outlier_score_and_reports_fixed_scale ... ok
+test rbf_svm_separates_xor_and_reports_exhausted_optimization ... ok
+test svm_standardization_uses_training_prefix_and_ignores_query_labels ... ok
+test huber_sandwich_uncertainty_survives_large_fixed_scale_units ... ok
+test intercept_only_quantile_saved_model_scores_dummy_rows ... ok
+test quantile_admm_minimizes_check_loss_and_saves_offset_safe_predictions ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/sem.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/sem-b7fcb15979f01465)
+
+running 15 tests
+test invalid_summary_covariance_or_unidentified_assignments_are_rejected ... ok
+test ram_implied_covariance_and_mean_follow_simultaneous_linear_equations ... ok
+test exactly_identified_three_indicator_cfa_reaches_analytic_ml_without_gradient_cancellation ... ok
+test cfa_true_ml_recovers_prespecified_simple_structure_and_counts_free_means ... ok
+test nonconverged_or_boundary_cfa_does_not_report_calibrated_fit_p_or_rmsea_ci ... ok
+test ram_invertibility_is_separate_from_dynamic_stability ... ok
+test ram_unit_circle_stability_is_unresolved_while_static_solution_exists ... ok
+test rmsea_follows_displayed_formula_without_arbitrary_clipping_and_zero_root_is_explicit ... ok
+test rmsea_confidence_interval_inverts_noncentral_chi_square_and_zero_df_is_undefined ... ok
+test sem_fit_indices_include_nonzero_mean_residuals_and_jmp_n_scaling ... ok
+test cfa_negative_loadings_have_fixed_positive_anchor_and_rescaling_preserves_fit ... ok
+test correlated_cfa_loadings_and_observed_information_match_independent_scipy ... ok
+test saved_cfa_bartlett_scores_invert_loading_space_and_regression_reports_posterior_covariance ... ok
+test heywood_boundary_and_iteration_limit_are_not_reported_as_identified_interior_success ... ok
+test one_manifest_variable_has_zero_independence_df_and_undefined_incremental_indices ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/spatial.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/spatial-98e6d64d02b78973)
+
+running 15 tests
+test empirical_variogram_keeps_empty_bins_null_and_collocated_pairs ... ok
+test empirical_variogram_counts_pairs_and_uses_half_squared_differences ... ok
+test malformed_saved_model_rejects_material_negative_variance_even_when_error_bound_sum_overflows ... ok
+test near_zero_distance_semivariances_do_not_subtract_rounded_correlations ... ok
+test covariance_uses_four_published_correlations_and_independent_record_nugget ... ok
+test semivariance_preserves_independent_nugget_despite_large_process_sill ... ok
+test spatial_rejects_nonidentifiable_design_singular_kernel_and_bad_parameter_domains ... ok
+test spherical_cutoff_and_three_dimensional_euclidean_distance ... ok
+test gls_trend_and_saved_prediction_account_for_fixed_effect_uncertainty ... ok
+test physical_coefficient_covariance_scales_before_products_that_would_overflow ... ok
+test semivariance_keeps_finite_physical_products_when_dimensionless_distance_underflows ... ok
+test known_covariance_accepts_exact_fixed_fit_without_inventing_residual_scale ... ok
+test noiseless_training_record_has_exact_zero_prediction_variance_even_at_huge_sill ... ok
+test universal_kriging_keeps_nugget_out_of_cross_covariance_and_in_observation_variance ... ok
+test supplied_covariance_gls_keeps_physical_variance_and_gaussian_likelihood ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/spatial_estimation_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/spatial_estimation_contracts-46bbb6ff3df0ca72)
+
+running 5 tests
+test estimated_covariance_rejects_zero_variance_aliases_and_invalid_shapes ... ok
+test independent_subject_blocks_keep_collocated_observations_independent ... ok
+test spatial_ml_and_reml_estimate_variance_with_the_correct_residual_df ... ok
+test nonconverged_spatial_search_withholds_covariance_parameter_intervals ... ok
+test spatial_profiles_range_nugget_and_trend_against_independent_dense_likelihood ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running tests/spectral.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/spectral-2771e7315b51c54b)
+
+running 13 tests
+test peak_finding_reports_global_prominence_bases_plateaus_and_distance_priority ... ok
+test haar_uses_orthonormal_mallat_order_and_reverses_both_full_and_partial_levels ... ok
+test dft_fourier_coefficients_and_complex_inverse_match_numpy_fft_conventions ... ok
+test finite_derivative_uses_second_order_boundary_stencils_and_correct_spacing ... ok
+test dtw_accepts_unequal_series_and_returns_a_monotone_endpoint_to_endpoint_path ... ok
+test polynomial_detrending_matches_numpy_least_squares_in_the_documented_grid_basis ... ok
+test savitzky_golay_matches_independent_scipy_interp_boundary_fits ... ok
+test msc_reuses_the_supplied_reference_without_fitting_query_batch_statistics ... ok
+test savitzky_golay_preserves_polynomials_and_analytical_derivatives_at_edges ... ok
+test preprocessing_preserves_small_variations_at_large_origins_and_location_invariance ... ok
+test snv_normalizes_each_spectrum_with_the_requested_variance_denominator ... ok
+test functional_pca_uses_trapezoid_l2_geometry_and_reconstructs_a_known_rank_one_curve_family ... ok
+test spectral_contract_rejects_undefined_models_invalid_shapes_and_excessive_work ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/state_space.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/state_space-23453250b781a0e0)
+
+running 10 tests
+test external_covariance_rejects_roundoff_asymmetry_instead_of_using_one_triangle ... ok
+test external_process_covariance_rejects_small_negative_pivot ... ok
+test invalid_covariance_or_incoherent_saved_model_is_rejected ... ok
+test saved_process_covariance_cannot_hide_negative_latent_variance_behind_large_measurement_noise ... ok
+test portable_forecast_accepts_one_ignored_scalar_row_for_the_native_nonempty_matrix_contract ... ok
+test portable_ets_scales_variance_without_an_overflowing_intermediate_and_rejects_underflow ... ok
+test gaussian_rts_matches_joint_normal_conditioning_and_observation_forecast_variance ... ok
+test missing_observation_skips_update_but_retains_elapsed_process_variance ... ok
+test ets_ann_forecast_variance_uses_shared_innovations_and_failed_optimizer_has_no_ic ... ok
+test additive_ets_six_families_match_independent_dense_innovations_profile ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.48s
+
+     Running tests/statistics.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/statistics-41bc9ce51ae856ab)
+
+running 13 tests
+test balanced_random_intercept_separates_within_and_between_variance ... ok
+test cp_and_cpk_require_a_supplied_within_process_sigma ... ok
+test all_censored_survival_stays_one_with_no_identified_median ... ok
+test kaplan_meier_keeps_tied_censors_in_the_event_risk_set ... ok
+test capability_uses_sample_sd_and_explicit_individual_reference_limits ... ok
+test holm_and_bh_adjustments_retain_original_row_order ... ok
+test one_way_anova_reports_mean_square_ratio_and_f_tail_probability ... ok
+test statistical_variance_and_group_differences_preserve_small_spreads_at_large_origins ... ok
+test statistics_reject_undefined_models_invalid_labels_and_nonfinite_inputs ... ok
+test summaries_use_sample_variance_and_preserve_constant_columns ... ok
+test unequal_group_tail_probabilities_match_independent_reference_fixtures ... ok
+test welch_probability_retains_precision_for_nearly_equal_means ... ok
+test welch_uses_unpooled_variance_and_a_two_sided_student_probability ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/survival.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/survival-b2bd81de96e506f2)
+
+running 8 tests
+test breslow_cox_matches_independent_scipy_score_root_and_observed_information ... ok
+test baseline_breslow_hazard_uses_centered_linear_predictors_at_every_death_time ... ok
+test co_infinite_coefficients_singular_information_and_separation_are_errors ... ok
+test ridge_cox_penalizes_standardized_slopes_and_does_not_report_calibrated_wald_p_values ... ok
+test efron_cox_corrects_each_tied_death_denominator_and_defaults_to_efron ... ok
+test cox_prediction_reconstructs_training_reference_and_known_hazard_ratios ... ok
+test tied_row_permutations_time_units_and_feature_units_preserve_the_fitted_model ... ok
+test invalid_cox_data_parameters_and_prediction_overflow_fail_without_partial_results ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/text_analysis.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/text_analysis-801bf47a9e30b962)
+
+running 16 tests
+test numeric_token_and_dense_matrix_contracts_reject_malformed_inputs ... ok
+test jmp_tfidf_is_unsmoothed_base_ten_with_frequency_not_document_normalization ... ok
+test saved_latent_class_posterior_includes_both_present_and_absent_terms ... ok
+test rotated_svd_topics_preserve_rank_reconstruction_and_return_true_rotation ... ok
+test lsa_returns_normalized_svd_document_scores_and_reconstruction ... ok
+test collapsed_and_unfinished_mixtures_do_not_claim_convergence_or_model_selection ... ok
+test one_class_bernoulli_model_is_empirical_term_presence_and_true_likelihood ... ok
+test saved_projection_reuses_training_center_scale_and_corpus_divisor ... ok
+test centered_scaled_lsa_handles_constant_columns_rank_loss_and_tiny_units ... ok
+test ubiquitous_tfidf_terms_have_zero_weight_and_do_not_create_false_singular_vectors ... ok
+test stacked_pretokenized_counts_preserve_empty_documents_and_repeated_terms ... ok
+test full_rank_lsa_reconstruction_error_measures_residual_instead_of_cancelled_energies ... ok
+test saved_weighting_uses_training_idf_without_fitting_query_documents ... ok
+test varimax_rotation_is_invariant_to_representable_uniform_dtm_units ... ok
+test weighting_saved_document_count_supports_every_accepted_training_corpus_size ... ok
+test saved_models_bound_expanded_output_cells_independently_of_input_width ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/timeseries.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/timeseries-4db2c00c3c32ef65)
+
+running 14 tests
+test difference_repeats_the_requested_lag_and_preserves_original_indices ... ok
+test acf_uses_biased_covariance_with_a_common_denominator ... ok
+test ar_conditional_qr_fit_has_correct_lag_order_forecasts_and_gaussian_aic ... ok
+test exponential_smoothing_initializes_at_first_value_and_forecasts_final_level ... ok
+test holt_damps_both_updates_and_each_future_trend_increment ... ok
+test pacf_matches_independent_toeplitz_solutions_for_each_lag ... ok
+test constant_smoothing_and_transforms_work_while_unidentified_correlations_reject ... ok
+test ljung_box_uses_sample_size_correction_and_subtracts_model_df ... ok
+test ar_forecasts_keep_sub_ulp_state_at_large_observation_origins ... ok
+test periodogram_matches_scipy_one_sided_density_and_parseval ... ok
+test moving_average_is_trailing_and_never_uses_future_values ... ok
+test seasonal_decomposition_centers_even_period_filters_and_marks_unidentified_edges ... ok
+test translation_scaling_and_time_order_properties_hold_for_nonconstant_series ... ok
+test malformed_requests_and_work_explosions_reject_before_computation ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/lib.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/ducksmiles_inchi-da7a44d3b1fffd88)
+
+running 12 tests
+test parser::tests::test_formula ... ok
+test parser::tests::test_layers ... ok
+test parser::tests::test_skeleton_match ... ok
+test parser::tests::test_inchikey ... ok
+test parser::tests::test_stereo ... ok
+test parser::tests::test_standard ... ok
+test parser::tests::test_stereo_centers ... ok
+test parser::tests::test_valid ... ok
+test parser::tests::test_version ... ok
+test tests::test_ffi_formula ... ok
+test tests::test_ffi_inchikey ... ok
+test tests::test_ffi_valid ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/ducksmiles_mol-594d3652b3b9c6c5)
+
+running 15 tests
+test parser::tests::test_parse_mol ... ok
+test parser::tests::test_parse_mol_v3000 ... ok
+test parser::tests::test_formula ... ok
+test parser::tests::test_sdf_properties_preserve_multiline_duplicates_and_empty_values ... ok
+test parser::tests::test_atoms_bonds_and_mol_json ... ok
+test parser::tests::test_sdf_v3000_properties ... ok
+test parser::tests::test_sdf_properties_json_includes_record_names ... ok
+test parser::tests::test_parse_mol_v3000_line_continuation ... ok
+test tests::test_ffi_formula ... ok
+test parser::tests::test_sdf ... ok
+test parser::tests::test_weight ... ok
+test tests::test_ffi_weight ... ok
+test tests::test_ffi_3d_coordinates ... ok
+test tests::test_ffi_sdf_property_and_json ... ok
+test tests::test_ffi_mol_block_property_and_json ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/ducksmiles_pdb-2d5765ed465e8e89)
+
+running 16 tests
+test pdb_parser::tests::short_model_records_do_not_panic ... ok
+test pdb_parser::tests::test_hetatm_filter ... ok
+test pdb_parser::tests::test_parse_atom_line ... ok
+test tests::test_pdb_atom_count ... ok
+test cif_parser::tests::corrupt_cif_coordinates_are_not_zeroed ... ok
+test cif_parser::tests::quoted_cif_fields_and_comments ... ok
+test pdb_parser::tests::invalid_coordinates_are_skipped ... ok
+test cif_parser::tests::test_parse_cif ... ok
+test tests::test_xyz_atom_count ... ok
+test tests::test_xyz_bounds ... ok
+test xyz_parser::tests::invalid_atom_keeps_frame_numbering ... ok
+test tests::test_xyz_centroid_and_radius ... ok
+test tests::test_xyz_model_count ... ok
+test xyz_parser::tests::invalid_coordinates_are_not_silently_zeroed ... ok
+test xyz_parser::tests::test_multi_frame ... ok
+test xyz_parser::tests::test_parse_xyz ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/ducksmiles_selfies-70a250b7cb78ee47)
+
+running 21 tests
+test decoder::tests::test_decode_bracket_atom ... ok
+test decoder::tests::test_decode_branch ... ok
+test decoder::tests::test_empty ... ok
+test decoder::tests::test_decode_double_bond ... ok
+test decoder::tests::test_decode_simple ... ok
+test decoder::tests::test_nop ... ok
+test decoder::tests::test_decode_triple ... ok
+test decoder::tests::test_tokenize ... ok
+test encoder::tests::test_bracket_atom ... ok
+test encoder::tests::test_branch ... ok
+test encoder::tests::test_double_bond ... ok
+test encoder::tests::test_empty ... ok
+test encoder::tests::test_ethanol ... ok
+test encoder::tests::test_methane ... ok
+test encoder::tests::test_triple_bond ... ok
+test tests::test_ffi_decode ... ok
+test tests::test_ffi_encode ... ok
+test tests::test_ffi_valid ... ok
+test tests::test_roundtrip_double_bond ... ok
+test tests::test_roundtrip_simple ... ok
+test tests::test_roundtrip_triple ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/ducksmiles_smiles-6e1b88ffa453622d)
+
+running 640 tests
+test admet::tests::all_alerts_compile ... ok
+test admet::tests::epoxide_alert_fires ... ok
+test admet::tests::aldehyde_alert_fires ... ok
+test admet::tests::ghose_window_rejects_tiny_molecule ... ok
+test admet::tests::clean_drug_has_no_reactive_alerts ... ok
+test admet::tests::aspirin_passes_lipinski ... ok
+test admet::tests::caffeine_passes_lipinski_and_veber ... ok
+test admet::tests::nitro_alert_fires ... ok
+test admet::tests::huge_lipophilic_fails_lipinski ... ok
+test admet::tests::admet_json_is_wellformed ... ok
+test charge::tests::peoe_bins_keep_right_inclusion_and_nan_last ... ok
+test conformer::bounds::tests::acetylene_cc_triple ... ok
+test conformer::bounds::tests::bounds_lo_le_up_for_all_pairs ... ok
+test conformer::bounds::tests::bounds_symmetric ... ok
+test conformer::bounds::tests::ethane_cc_bond ... ok
+test conformer::bounds::tests::ethylene_cc_double ... ok
+test conformer::bounds::tests::methane_ch_bond ... ok
+test conformer::bounds::tests::vdw_lower_applied_to_14_pairs ... ok
+test conformer::bounds::tests::water_hh_angle_constraint ... ok
+test conformer::embed::tests::embed_bond_lengths_reasonable ... ok
+test conformer::embed::tests::embed_different_seeds_differ ... ok
+test conformer::embed::tests::embed_returns_3n_coords ... ok
+test conformer::embed::tests::embed_water_triangle ... ok
+test conformer::minimize::tests::bond_lengths_after_minimize_ethanol ... ok
+test conformer::embed::tests::embed_no_nan_or_inf ... ok
+test conformer::minimize::tests::minimize_no_nan ... ok
+test conformer::minimize::tests::no_vdw_clash_after_minimize ... ok
+test conformer::minimize::tests::minimize_aspirin_finishes ... ok
+test conformer::params::tests::bond_length_cc_aromatic ... ok
+test conformer::params::tests::bond_length_cc_double ... ok
+test conformer::params::tests::bond_length_cc_single ... ok
+test conformer::params::tests::bond_length_cc_triple ... ok
+test conformer::params::tests::bond_length_ch ... ok
+test conformer::params::tests::bond_length_cn_single ... ok
+test conformer::params::tests::bond_length_co_double ... ok
+test conformer::params::tests::bond_length_fallback_uses_covalent_radii ... ok
+test conformer::params::tests::bond_length_oh ... ok
+test conformer::params::tests::bond_length_symmetric ... ok
+test conformer::params::tests::ideal_angle_nitrogen_sp3 ... ok
+test conformer::params::tests::ideal_angle_sp2_carbon ... ok
+test conformer::params::tests::ideal_angle_sp3_carbon ... ok
+test conformer::params::tests::ideal_angle_sp_carbon ... ok
+test conformer::params::tests::ideal_angle_water_oxygen ... ok
+test conformer::params::tests::vdw_radius_known ... ok
+test conformer::smoothing::tests::smooth_aspirin_triangle_ok ... ok
+test conformer::smoothing::tests::smooth_benzene_triangle_ok ... ok
+test conformer::smoothing::tests::smooth_ethane_triangle_ok ... ok
+test conformer::smoothing::tests::smooth_propane_triangle_ok ... ok
+test conformer::smoothing::tests::smooth_tightens_upper ... ok
+test depiction_graph::tests::drawing_abi_queries_capacity_preserves_short_buffers_and_rejects_bad_inputs ... ok
+test depiction_graph::tests::drawing_keeps_directed_coordination_and_unrepresented_stereo_notice ... ok
+test depiction_graph::tests::drawing_uses_prepared_nitro_charges_and_bond_orders ... ok
+test conformer::minimize::tests::benzene_ring_is_planar_after_minimize ... ok
+test conformer::minimize::tests::pyridine_ring_is_planar_after_minimize ... ok
+test docking::affinity::tests::map_vs_direct_at_grid_point ... ok
+test docking::affinity::tests::grid_has_correct_dimensions ... ok
+test docking::affinity::tests::probe_index_roundtrip ... ok
+test docking::affinity::tests::interpolate_at_grid_centre ... ok
+test bcut::tests::remove_all_hydrogens_matches_independent_graph_and_attached_counts ... ok
+test docking::atomtype::tests::amine_ns_nitrogen ... ok
+test docking::atomtype::tests::as_str_roundtrip ... ok
+test docking::atomtype::tests::benzene_aromatic_carbons ... ok
+test docking::atomtype::tests::ethane_aliphatic_carbon ... ok
+test docking::atomtype::tests::ethanol_oxygen_and_polar_h ... ok
+test docking::atomtype::tests::pdb_type_backbone_carbon ... ok
+test docking::atomtype::tests::pdb_type_backbone_n ... ok
+test docking::atomtype::tests::pdb_type_lys_nz ... ok
+test docking::atomtype::tests::pdb_type_oxygen_always_oa ... ok
+test docking::atomtype::tests::pdb_type_phe_aromatic ... ok
+test docking::atomtype::tests::pyridine_na_nitrogen ... ok
+test docking::benchmark::tests::auc_better_than_half_when_actives_lead ... ok
+test docking::benchmark::tests::auc_half_when_actives_split_best_and_worst ... ok
+test docking::benchmark::tests::auc_handles_ties ... ok
+test docking::benchmark::tests::auc_perfect_ranking ... ok
+test docking::benchmark::tests::auc_requires_both_classes ... ok
+test docking::benchmark::tests::auc_worst_ranking ... ok
+test docking::benchmark::tests::bedroc_monotonic_in_quality ... ok
+test docking::benchmark::tests::bedroc_perfect_near_one ... ok
+test docking::benchmark::tests::bedroc_worst_near_zero ... ok
+test docking::benchmark::tests::ef_perfect_top_fraction ... ok
+test docking::benchmark::tests::ef_random_is_one ... ok
+test docking::pdb::tests::element_from_name_simple ... ok
+test docking::pdb::tests::hetatm_flagged ... ok
+test docking::pdb::tests::parse_atom_count ... ok
+test docking::pdb::tests::parse_coordinates ... ok
+test docking::pdb::tests::parse_element_from_column ... ok
+test docking::pdb::tests::parse_residue_and_chain ... ok
+test docking::pdb::tests::serial_parsed ... ok
+test docking::pdb::tests::skip_alt_loc_b ... ok
+test docking::pdbqt::tests::pdb_to_pdbqt_basic ... ok
+test charge::tests::atomic_gasteiger_and_attached_h_charges_match_independent_oracle ... ok
+test docking::pdbqt::tests::pdbqt_charge_format ... ok
+test docking::affinity::tests::outside_grid_returns_none ... ok
+test docking::pdbqt::tests::smiles_to_pdbqt_invalid_smiles ... ok
+test docking::pdbqt::tests::pdbqt_line_coord_format ... ok
+test docking::pose::tests::apply_pose_preserves_distances ... ok
+test docking::pose::tests::apply_pose_translation_only ... ok
+test docking::pose::tests::centre_coords_returns_centroid ... ok
+test docking::pose::tests::quat_identity_no_rotation ... ok
+test docking::pose::tests::quat_mul_identity ... ok
+test docking::pose::tests::quat_normalise_unit ... ok
+test docking::pose::tests::quat_rotate_90_around_z ... ok
+test docking::protein_prep::tests::adds_polar_hydrogens_as_hd ... ok
+test docking::affinity::tests::score_ligand_inside_grid ... ok
+test docking::pdbqt::tests::smiles_to_pdbqt_methane ... ok
+test docking::protein_prep::tests::aspartate_deprotonated_at_physiological_ph ... ok
+test docking::protein_prep::tests::aspartate_protonated_at_low_ph ... ok
+test docking::protein_prep::tests::lysine_gets_three_hydrogens ... ok
+test docking::protein_prep::tests::placed_hydrogen_points_away_from_neighbour ... ok
+test docking::protein_prep::tests::hydrogen_at_correct_bond_length ... ok
+test docking::protein_prep::tests::solvent_is_removed ... ok
+test docking::protein_prep::tests::two_hydrogens_are_distinct_and_correct_length ... ok
+test docking::score::tests::c_c_hydrophobic_pair ... ok
+test docking::score::tests::gauss1_at_half_sigma ... ok
+test docking::score::tests::gauss1_at_zero ... ok
+test docking::score::tests::gauss2_at_one ... ok
+test docking::score::tests::gauss2_at_three ... ok
+test docking::score::tests::hbond_boundaries ... ok
+test docking::score::tests::hbond_pair_detection ... ok
+test docking::score::tests::hydrophobic_boundaries ... ok
+test docking::score::tests::is_hydrophobic_classification ... ok
+test docking::score::tests::pairwise_beyond_cutoff ... ok
+test docking::score::tests::repulsion_negative ... ok
+test docking::score::tests::repulsion_positive ... ok
+test docking::score::tests::total_score_decreases_with_rotation ... ok
+test docking::affinity::tests::score_ligand_returns_none_outside_grid ... ok
+test docking::search::tests::build_ligand_butane_has_torsion ... ok
+test docking::pdbqt::tests::smiles_to_pdbqt_benzene_has_aromatic_type ... ok
+test docking::search::tests::build_ligand_intra_pairs_nonempty_for_pentane ... ok
+test docking::search::tests::dock_coords_length_matches_ligand ... ok
+test charge::tests::all_charge_scalars_match_independent_sanitized_contexts ... ok
+test docking::search::tests::dock_best_hd_near_oa ... ok
+test docking::search::tests::dock_results_sorted_by_score ... ok
+test docking::search::tests::intra_energy_penalises_overlap ... ok
+test docking::torsion::tests::apply_torsions_preserves_bond_lengths ... ok
+test docking::torsion::tests::benzene_ring_bonds_not_rotatable ... ok
+test docking::torsion::tests::biphenyl_central_bond_rotatable ... ok
+test docking::torsion::tests::butane_has_one_rotatable_bond ... ok
+test docking::torsion::tests::ethane_has_no_rotatable_bond ... ok
+test docking::torsion::tests::moving_set_excludes_root ... ok
+test docking::torsion::tests::rotate_about_z_axis_90deg ... ok
+test docking::torsion::tests::zero_torsion_is_identity ... ok
+test docking::search::tests::dock_returns_results ... ok
+test docking::search::tests::dock_from_smiles_water ... ok
+test docking::search::tests::dock_simple_two_atom_ligand ... ok
+test graph_descriptors::tests::short_path_counts_match_bond_sets_with_closed_rings_and_h_policy ... ok
+test hr_features::tests::elemental_conservation_and_unsupported_boundaries ... ok
+test hr_features::tests::nitrogen_positive_and_sulfur_negative_ion_mass ... ok
+test hr_features::tests::published_initial_rules_and_invalid_domain ... ok
+test graph_descriptors::tests::atomic_hall_kier_context_matches_independent_reference ... ok
+test hr_features::tests::two_cut_order_is_a_union_not_double_counted ... ok
+test information::factor::tests::explicit_work_limit_stops_recursive_expansion ... ok
+test hr_features::tests::representation_invariance_and_nonempty_paths ... ok
+test information::tests::carries_borrows_and_zero_remain_correct_beyond_machine_integer_width ... ok
+test graph_descriptors::tests::all_graph_algorithms_match_independent_sanitized_contexts ... ok
+test information::tests::factor_integer_products_match_signed_i128_and_large_closed_form ... ok
+test docking::search::tests::flexible_dock_runs_and_scores_finite ... ok
+test information::factor::tests::unbalanced_ring_with_leaves_declines_an_unproductive_cut ... ok
+test docking::search::tests::flexible_dock_with_torsion_optimises_dofs ... ok
+test information::tests::invalid_adjacencies_have_no_exact_result ... ok
+test information::tests::signed_addition_and_division_agree_with_independent_i128_arithmetic ... ok
+test ion_context::tests::invariant_channels_and_path_degrees ... ok
+test ion_context::tests::matched_coverage_and_duplicate_invariance ... ok
+test ion_context::tests::matches_handle_empty_invalid_and_precursor ... ok
+test ion_context::tests::motifs_are_exact_conserved_loss_not_containment ... ok
+test ion_context::tests::preserves_hr_domain_and_zero_ring_paths ... ok
+test logp_crippen::print_values::print_logp_table ... ignored
+test logp_crippen::tests::all_atoms_assigned_caffeine ... ok
+test logp_crippen::tests::all_atoms_assigned_ethanol ... ok
+test logp_crippen::tests::all_patterns_parse ... ok
+test logp_crippen::tests::logp_aspirin_moderate ... ok
+test logp_crippen::tests::logp_benzene ... ok
+test logp_crippen::tests::logp_chloromethane ... ok
+test logp_crippen::tests::logp_cholesterol_is_lipophilic ... ok
+test logp_crippen::tests::logp_ethanol ... ok
+test logp_crippen::tests::logp_glucose_is_hydrophilic ... ok
+test logp_crippen::tests::logp_methane ... ok
+test logp_crippen::tests::logp_methanol ... ok
+test logp_crippen::tests::logp_no_panic_invalid_but_parsed ... ok
+test logp_crippen::tests::logp_water ... ok
+test logp_crippen::tests::mr_benzene ... ok
+test logp_crippen::tests::mr_grows_with_size ... ok
+test logp_crippen::tests::mr_methane ... ok
+test logp_crippen::tests::mr_shares_logp_atom_typing ... ok
+test maccs::tests::all_smarts_parse ... ok
+test maccs::tests::benzene_is_aromatic_ring ... ok
+test maccs::tests::byte_length_is_21 ... ok
+test maccs::tests::empty_molecule_all_zero ... ok
+test maccs::tests::ethanol_reasonable_bits ... ok
+test maccs::tests::naphthalene_two_aromatic_rings ... ok
+test information::tests::factor_random_block_graphs_match_the_independent_dense_recurrence ... ok
+test maccs::tests::salt_sets_fragment_bit ... ok
+test maccs::tests::single_fragment_no_166 ... ok
+test mass_context::tests::charge_and_multimer_mass_balance ... ok
+test mass_context::tests::every_supported_adduct_roundtrips ... ok
+test mass_context::tests::ffi_valid_null_utf8_and_length ... ok
+test mass_context::tests::formula_examples_and_nitrogen ... ok
+test mass_context::tests::invalid_and_impossible_mass ... ok
+test mass_context::tests::reject_partial_formula_or_overflow ... ok
+test mcs::tests::mcs_finds_connected_common_subgraph ... ok
+test mcs::tests::scaffold_network_reports_scaffold_and_rings ... ok
+test minhash::tests::approximates_jaccard_not_numeric_distance ... ok
+test minhash::tests::equation_boundaries_and_set_invariance ... ok
+test molhash::tests::molhash_core_methods_are_stable ... ok
+test molhash::tests::molhash_scaffold_methods_reuse_existing_scaffolds ... ok
+test morgan::tests::aspirin_radius2_sets_many_bits ... ok
+test morgan::tests::benzene_has_ring_invariants ... ok
+test morgan::tests::bit_count_grows_with_radius ... ok
+test morgan::tests::bits_are_2048 ... ok
+test morgan::tests::caffeine_radius2_distinct_from_benzene ... ok
+test morgan::tests::cyclohexane_in_ring ... ok
+test morgan::tests::different_smiles_different_bits ... ok
+test morgan::tests::empty_radius_still_returns_correct_size ... ok
+test morgan::tests::ethanol_chain_no_ring ... ok
+test morgan::tests::methane_round0_only ... ok
+test maccs::tests::rdkit_exact_match_regression ... ok
+test morgan::tests::same_smiles_same_bits ... ok
+test morgan::tests::tanimoto_ranks_similar_smiles_against_aspirin ... ok
+test morgan::tests::popcount_report ... ok
+test morgan_experimental::tests::counts_and_isotopes_are_retained ... ok
+test morgan_experimental::tests::explicit_limits ... ok
+test morgan_experimental::tests::nonlocal_ring_context_resolves_local_ambiguity ... ok
+test morgan_experimental::tests::representation_invariant ... ok
+test morgan_experimental::tests::v2_preserves_local_channel_and_atom_order ... ok
+test ms_features::tests::actual_boundary_prevents_duplicate_cuts ... ok
+test ms_features::tests::atom_order_invariant ... ok
+test ms_features::tests::cut_mass_is_conserved ... ok
+test morgan_density::tests::atom_invariants_and_all_sparse_keys_match_independent_reference_graphs ... ok
+test ms_features::tests::invalid_scope_fails_explicitly ... ok
+test ms_features::tests::rings_need_two_cuts ... ok
+test native_graph::tests::charges_aromaticity_bond_direction_and_components ... ok
+test native_graph::tests::ffi_validates_input_and_obeys_exact_buffer_contract ... ok
+test native_graph::tests::input_order_and_hydrogen_semantics ... ok
+test native_graph::tests::reject_malformed_unsupported_and_lossy_inputs ... ok
+test native_graph::tests::version_determinism_and_no_pretrained_compatibility_claim ... ok
+test ms_features::tests::descriptor_bin_boundary_is_order_invariant ... ok
+test paper_features::tests::co2_loss_requires_own_carbonyl_oxygen ... ok
+test paper_features::tests::atom_order ... ok
+test paper_features::tests::known_kendrick_homologues ... ok
+test paper_features::tests::fifty_defined_channels ... ok
+test parser::tests::fragments_single_and_salt ... ok
+test paper_features::tests::loss_requires_functionality ... ok
+test parser::tests::hybridization_mixed_aspirin ... ok
+test parser::tests::hybridization_sp2_benzene ... ok
+test parser::tests::hybridization_sp2_ethylene ... ok
+test parser::tests::hybridization_sp3_ethane ... ok
+test parser::tests::hybridization_sp_acetylene ... ok
+test parser::tests::ring_acyclic_has_no_rings ... ok
+test parser::tests::ring_benzene ... ok
+test parser::tests::ring_naphthalene_two_rings ... ok
+test parser::tests::ring_substituent_not_in_ring ... ok
+test parser::tests::test_12_crown_4 ... ok
+test parser::tests::test_18_crown_6 ... ok
+test parser::tests::test_1_3_butadiene ... ok
+test parser::tests::test_5_fluorouracil ... ok
+test parser::tests::test_acetamide ... ok
+test parser::tests::test_acetate ... ok
+test parser::tests::test_acetic_acid ... ok
+test parser::tests::test_acetone ... ok
+test parser::tests::test_acetonitrile ... ok
+test parser::tests::test_acetylcholine ... ok
+test parser::tests::test_acetylene ... ok
+test parser::tests::test_acrylonitrile ... ok
+test parser::tests::test_adamantane ... ok
+test parser::tests::test_adenine ... ok
+test parser::tests::test_adrenaline ... ok
+test parser::tests::test_alanine ... ok
+test parser::tests::test_ammonium ... ok
+test parser::tests::test_aniline ... ok
+test parser::tests::test_anthracene ... ok
+test parser::tests::test_arachidonic_acid ... ok
+test parser::tests::test_arginine ... ok
+test parser::tests::test_ascorbic_acid ... ok
+test parser::tests::test_asparagine ... ok
+test parser::tests::test_aspartate ... ok
+test parser::tests::test_aspirin ... ok
+test parser::tests::test_benzoic_acid ... ok
+test parser::tests::test_biphenyl ... ok
+test parser::tests::test_bonds_benzene_aromatic ... ok
+test parser::tests::test_bonds_branch ... ok
+test parser::tests::test_bonds_disconnected ... ok
+test parser::tests::test_bonds_double ... ok
+test parser::tests::test_bonds_ethanol ... ok
+test parser::tests::test_bonds_ring_closure ... ok
+test parser::tests::test_bonds_triple ... ok
+test parser::tests::test_borane ... ok
+test parser::tests::test_bridged_bicyclic ... ok
+test parser::tests::test_bromomethane ... ok
+test parser::tests::test_butane ... ok
+test parser::tests::test_c30_chain ... ok
+test parser::tests::test_c50_chain ... ok
+test parser::tests::test_c60_fragment ... ok
+test parser::tests::test_caffeine ... ok
+test parser::tests::test_calcium_chloride ... ok
+test parser::tests::test_caprolactam ... ok
+test parser::tests::test_carbon_tetrachloride ... ok
+test parser::tests::test_chloramphenicol ... ok
+test parser::tests::test_chloroform ... ok
+test parser::tests::test_chloromethane ... ok
+test parser::tests::test_cholesterol ... ok
+test parser::tests::test_cis_2_butene ... ok
+test parser::tests::test_cisplatin ... ok
+test parser::tests::test_codeine ... ok
+test parser::tests::test_copper_sulfate ... ok
+test parser::tests::test_cortisol ... ok
+test parser::tests::test_cubane ... ok
+test parser::tests::test_cyclobutane ... ok
+test parser::tests::test_cyclodextrin_fragment ... ok
+test parser::tests::test_cycloheptane ... ok
+test parser::tests::test_cyclohexane ... ok
+test parser::tests::test_cyclooctadecane ... ok
+test parser::tests::test_cyclooctane ... ok
+test parser::tests::test_cyclopentane ... ok
+test parser::tests::test_cyclopropane ... ok
+test parser::tests::test_cysteine ... ok
+test parser::tests::test_cytosine ... ok
+test parser::tests::test_d_alanine ... ok
+test parser::tests::test_ddt ... ok
+test parser::tests::test_decalin ... ok
+test parser::tests::test_deep_branch ... ok
+test parser::tests::test_deoxyribose ... ok
+test parser::tests::test_dha ... ok
+test parser::tests::test_diazepam ... ok
+test parser::tests::test_dichloromethane ... ok
+test parser::tests::test_diclofenac ... ok
+test parser::tests::test_dimethyl_sulfoxide ... ok
+test parser::tests::test_dimethylamine ... ok
+test parser::tests::test_dioxane ... ok
+test parser::tests::test_dmac ... ok
+test parser::tests::test_dmf ... ok
+test parser::tests::test_dmso ... ok
+test parser::tests::test_dopamine ... ok
+test parser::tests::test_doxorubicin_core ... ok
+test parser::tests::test_estradiol ... ok
+test parser::tests::test_ethane ... ok
+test parser::tests::test_ethylene ... ok
+test parser::tests::test_ethylene_glycol ... ok
+test parser::tests::test_explicit_h_ethanol ... ok
+test parser::tests::test_explicit_h_methane ... ok
+test parser::tests::test_explicit_h_neighbors ... ok
+test parser::tests::test_explicit_h_water ... ok
+test parser::tests::test_ferrocene_simplified ... ok
+test parser::tests::test_fluorene ... ok
+test parser::tests::test_fluorescein_core ... ok
+test parser::tests::test_fluoromethane ... ok
+test parser::tests::test_fluoxetine ... ok
+test parser::tests::test_formaldehyde ... ok
+test parser::tests::test_formic_acid ... ok
+test parser::tests::test_fructose ... ok
+test parser::tests::test_furan ... ok
+test parser::tests::test_gaba ... ok
+test parser::tests::test_galactose ... ok
+test parser::tests::test_glucose ... ok
+test parser::tests::test_glutamate ... ok
+test parser::tests::test_glutamine ... ok
+test parser::tests::test_glycerol ... ok
+test parser::tests::test_glycine ... ok
+test parser::tests::test_glyphosate ... ok
+test parser::tests::test_guanine ... ok
+test parser::tests::test_hemoglobin_fe ... ok
+test parser::tests::test_histamine ... ok
+test parser::tests::test_histidine ... ok
+test parser::tests::test_hydroxide ... ok
+test parser::tests::test_ibuprofen ... ok
+test parser::tests::test_imidazole ... ok
+test parser::tests::test_indigo ... ok
+test parser::tests::test_indole ... ok
+test parser::tests::test_invalid_empty ... ok
+test parser::tests::test_invalid_unclosed_branch ... ok
+test parser::tests::test_invalid_unclosed_ring ... ok
+test parser::tests::test_iodomethane ... ok
+test parser::tests::test_isobutane ... ok
+test parser::tests::test_isoleucine ... ok
+test parser::tests::test_isotope_bracket ... ok
+test parser::tests::test_kekule_benzene_perceives_aromaticity ... ok
+test parser::tests::test_kekule_pyridine_perceives_aromaticity ... ok
+test parser::tests::test_l_alanine ... ok
+test parser::tests::test_lactic_acid ... ok
+test parser::tests::test_leucine ... ok
+test parser::tests::test_linoleic_acid ... ok
+test parser::tests::test_long_chain ... ok
+test parser::tests::test_lsd_core ... ok
+test parser::tests::test_lysine ... ok
+test parser::tests::test_mannose ... ok
+test parser::tests::test_many_branches ... ok
+test parser::tests::test_melatonin ... ok
+test parser::tests::test_mercury_chloride ... ok
+test parser::tests::test_methane ... ok
+test parser::tests::test_methanethiol ... ok
+test parser::tests::test_methanol ... ok
+test parser::tests::test_methionine ... ok
+test parser::tests::test_methotrexate ... ok
+test parser::tests::test_methyl_orange_core ... ok
+test parser::tests::test_methylamine ... ok
+test parser::tests::test_morphine ... ok
+test parser::tests::test_multiple_stereocenters ... ok
+test parser::tests::test_naphthalene ... ok
+test parser::tests::test_naproxen ... ok
+test parser::tests::test_neighbors ... ok
+test parser::tests::test_neopentane ... ok
+test parser::tests::test_niacin ... ok
+test parser::tests::test_nicotine ... ok
+test parser::tests::test_nitrobenzene ... ok
+test parser::tests::test_nitroglycerin ... ok
+test parser::tests::test_nmp ... ok
+test parser::tests::test_nonaromatic_cyclohexane_stays_aliphatic ... ok
+test parser::tests::test_oleic_acid ... ok
+test parser::tests::test_palmitic_acid ... ok
+test parser::tests::test_paracetamol ... ok
+test parser::tests::test_parse_benzene ... ok
+test parser::tests::test_parse_charged ... ok
+test parser::tests::test_parse_double_bond ... ok
+test parser::tests::test_parse_ethanol ... ok
+test parser::tests::test_parse_fragments ... ok
+test parser::tests::test_parse_triple_bond ... ok
+test parser::tests::test_parse_water ... ok
+test parser::tests::test_peg_trimer ... ok
+test parser::tests::test_penicillin_g_core ... ok
+test parser::tests::test_phenol ... ok
+test parser::tests::test_phenylalanine ... ok
+test parser::tests::test_phenylboronic_acid ... ok
+test parser::tests::test_porphyrin_core ... ok
+test parser::tests::test_progesterone ... ok
+test parser::tests::test_proline ... ok
+test parser::tests::test_propane ... ok
+test parser::tests::test_propylene ... ok
+test parser::tests::test_pyridine ... ok
+test parser::tests::test_pyridoxine ... ok
+test parser::tests::test_pyrrole ... ok
+test parser::tests::test_quinoline ... ok
+test parser::tests::test_retinol ... ok
+test parser::tests::test_riboflavin_core ... ok
+test parser::tests::test_ribose ... ok
+test parser::tests::test_serine ... ok
+test parser::tests::test_serotonin ... ok
+test parser::tests::test_silver_ion ... ok
+test parser::tests::test_single_bracket_atom ... ok
+test parser::tests::test_sodium_chloride ... ok
+test parser::tests::test_spiro_compound ... ok
+test parser::tests::test_stearic_acid ... ok
+test parser::tests::test_styrene ... ok
+test parser::tests::test_styrene_monomer ... ok
+test parser::tests::test_sucrose ... ok
+test parser::tests::test_sulfanilamide ... ok
+test parser::tests::test_sulfate ... ok
+test parser::tests::test_tamoxifen ... ok
+test parser::tests::test_testosterone ... ok
+test parser::tests::test_thf ... ok
+test parser::tests::test_thioacetone ... ok
+test parser::tests::test_thiophene ... ok
+test parser::tests::test_threonine ... ok
+test parser::tests::test_thymine ... ok
+test parser::tests::test_tnt ... ok
+test parser::tests::test_to_smiles_verbose_benzene ... ok
+test parser::tests::test_to_smiles_verbose_disconnected ... ok
+test parser::tests::test_to_smiles_verbose_ethanol ... ok
+test parser::tests::test_to_smiles_verbose_idempotent ... ok
+test parser::tests::test_to_smiles_verbose_methane ... ok
+test parser::tests::test_to_smiles_verbose_water ... ok
+test parser::tests::test_toluene ... ok
+test parser::tests::test_trans_2_butene ... ok
+test parser::tests::test_trimethoprim ... ok
+test parser::tests::test_trimethylamine ... ok
+test parser::tests::test_trimethylphosphine ... ok
+test parser::tests::test_tryptophan ... ok
+test parser::tests::fused_aromaticity_uses_global_cyclic_bonds_and_preserves_fusion_edges ... ok
+test parser::tests::test_tyrosine ... ok
+test parser::tests::test_two_digit_ring ... ok
+test parser::tests::test_urea ... ok
+test parser::tests::test_valine ... ok
+test parser::tests::test_vinyl_chloride ... ok
+test parser::tests::test_uracil ... ok
+test parser::tests::test_wildcard_bracket ... ok
+test parser::tests::test_zinc_acetate ... ok
+test qed::tests::ads_matches_reference_point ... ok
+test qed::tests::all_constant_smarts_compile ... ok
+test qed::tests::arom_cyclohexane_is_zero ... ok
+test qed::tests::arom_benzene_is_one_naphthalene_two ... ok
+test qed::tests::default_hydrogen_removal_matches_independent_retained_graphs ... ok
+test qed::tests::qed_in_unit_interval ... ok
+test qed::tests::qed_reference_molecules_are_close ... ok
+test qed::tests::element_queries_match_independent_token_truth_table ... ok
+test qed::tests::rotb_butane_is_one ... ok
+test qed::tests::rotb_excludes_tert_butyl_and_cf3 ... ok
+test scaffold::tests::acyclic_molecules_have_empty_scaffold ... ok
+test scaffold::tests::generic_scaffold_converts_atoms_and_bonds ... ok
+test scaffold::tests::murcko_keeps_linkers_between_ring_systems ... ok
+test scaffold::tests::murcko_removes_side_chains ... ok
+test scaffold::tests::ring_systems_json_reports_rings ... ok
+test similarity::tests::asymmetric_and_braun_blanquet ... ok
+test similarity::tests::cosine_half_overlap ... ok
+test similarity::tests::dice_half_overlap ... ok
+test similarity::tests::empty_vectors_degenerate_to_zero ... ok
+test similarity::tests::identical_vectors ... ok
+test similarity::tests::kulczynski_half_overlap ... ok
+test similarity::tests::mcconnaughey_half_overlap ... ok
+test similarity::tests::russel_uses_total_width ... ok
+test similarity::tests::sokal_half_overlap ... ok
+test similarity::tests::tail_bytes_handled ... ok
+test similarity::tests::tversky_out_of_range_is_nan ... ok
+test similarity::tests::tversky_reduces_to_dice_at_half_half ... ok
+test similarity::tests::tversky_reduces_to_tanimoto_at_one_one ... ok
+test similarity::tests::tversky_substructure_weighting ... ok
+test smarts::tests::bond_disjunction_preserves_order_and_boolean_precedence ... ok
+test smarts::tests::count_unique_dedups_symmetric ... ok
+test smarts::tests::count_unique_uniquify ... ok
+test smarts::tests::crippen_c18_benzene ... ok
+test smarts::tests::crippen_c19_fused_aromatic ... ok
+test smarts::tests::crippen_c1_ethane ... ok
+test smarts::tests::crippen_c1_methane ... ok
+test smarts::tests::crippen_c3_methanol ... ok
+test smarts::tests::crippen_fallback_cs ... ok
+test smarts::tests::crippen_halogen_list ... ok
+test smarts::tests::crippen_o2_hydroxyl ... ok
+test smarts::tests::crippen_o5_nitro_oxygen ... ok
+test smarts::tests::extended_smarts_atom_predicates_match ... ok
+test smarts::tests::isotope_atom_map_and_chirality_predicates_match ... ok
+test smarts::tests::match_aliphatic_element ... ok
+test smarts::tests::match_and_lo ... ok
+test smarts::tests::match_any_wildcards ... ok
+test smarts::tests::match_aromatic_bond ... ok
+test smarts::tests::match_aromatic_vs_aliphatic ... ok
+test smarts::tests::match_atomic_num ... ok
+test smarts::tests::match_branch ... ok
+test smarts::tests::match_ch3_after_expansion ... ok
+test smarts::tests::match_charges ... ok
+test smarts::tests::match_connections ... ok
+test smarts::tests::match_connections_after_expansion ... ok
+test smarts::tests::match_crippen_h1_pattern ... ok
+test smarts::tests::match_crippen_h2_pattern ... ok
+test smarts::tests::match_double_bond ... ok
+test smarts::tests::match_hydrogen_with_explicit_h ... ok
+test smarts::tests::match_nh_charge_combo ... ok
+test smarts::tests::match_not ... ok
+test smarts::tests::match_or_list ... ok
+test smarts::tests::match_three_atom_chain ... ok
+test smarts::tests::match_total_h ... ok
+test smarts::tests::match_triple_bond ... ok
+test smarts::tests::not_aromatic_bond ... ok
+test smarts::tests::not_in_ring_bond ... ok
+test smarts::tests::parse_bad_inputs ... ok
+test smarts::tests::parse_bracket_combos ... ok
+test smarts::tests::parse_bracket_elements ... ok
+test smarts::tests::parse_branch ... ok
+test smarts::tests::parse_crippen_patterns ... ok
+test smarts::tests::parse_explicit_bonds ... ok
+test smarts::tests::parse_simple ... ok
+test smarts::tests::parse_two_atoms_default_bond ... ok
+test smarts::tests::prepared_matcher_retains_anchor_ring_and_recursive_semantics ... ok
+test smarts::tests::recursive_smarts ... ok
+test smarts::tests::ring_atom_query ... ok
+test smarts::tests::ring_bond_specs ... ok
+test smarts::tests::ring_closure_benzene_pattern ... ok
+test smarts::tests::ring_closure_small_ring ... ok
+test smarts::tests::unique_matches_json_reports_atom_mapping ... ok
+test smarts::tests::unique_matches_preserve_pattern_order_after_dedup ... ok
+test bcut::tests::registered_bcut_values_match_independent_sanitized_contexts ... ok
+test spectral::tests::invalid_shapes_nonfinite_and_asymmetric_inputs_have_no_result ... ok
+test spectral::tests::scalar_shift_scale_permutation_and_zero_invariants ... ok
+test standardize::tests::largest_fragment_prefers_organic_heavy_component ... ok
+test standardize::tests::neutralize_and_parent_are_canonical ... ok
+test standardize::tests::strip_salts_keeps_multiple_organic_fragments ... ok
+test information::tests::factor_largest_original_input_matches_every_independent_signed_coefficient ... ok
+test spectral::tests::extrema_match_numpy_for_dense_sparse_degenerate_and_clustered_matrices ... ok
+test structural_descriptors::tests::stereochemical_bridgehead_query_matches_independent_atom_flags ... ok
+test stereo::tests::per_atom_legacy_possible_flags_and_cip_refinement_match_reference ... ok
+test surface::tests::every_surface_bin_keeps_its_lower_boundary ... ok
+test tanimoto::tests::disjoint_bits_give_zero ... ok
+test tanimoto::tests::empty_blobs_give_zero ... ok
+test tanimoto::tests::half_overlap_gives_one_third ... ok
+test tanimoto::tests::identical_blobs_give_one ... ok
+test tanimoto::tests::in_range_zero_to_one ... ok
+test tanimoto::tests::symmetric ... ok
+test tanimoto::tests::tail_bytes_handled ... ok
+test tests::canonical_smiles_aromatizes_kekule_forms ... ok
+test tests::lipinski_descriptor_ffi_basics ... ok
+test tests::mcs_and_scaffold_network_ffi_basics ... ok
+test tests::mol_mr_ffi_matches_rdkit_refs ... ok
+test tests::molhash_ffi_basics ... ok
+test tests::rdkit_compat_logp_exact_small_molecules ... ok
+test surface::tests::atomic_surface_and_crippen_contributions_match_independent_reference ... ok
+test tests::rdkit_compat_maccs_ffi_exact_on_bits ... ok
+test tests::rdkit_compat_tanimoto_on_rdkit_maccs_bits ... ok
+test tests::ring_descriptors_acyclic_is_all_zero ... ok
+test tests::rdkit_compat_tpsa_reference_values ... ok
+test tests::ring_descriptors_benzene_is_aromatic_carbocycle ... ok
+test tests::ring_descriptors_cyclohexene_is_aliphatic_unsaturated_carbocycle ... ok
+test tests::ring_descriptors_cyclohexane_is_saturated_carbocycle ... ok
+test tests::ring_descriptors_piperidine_is_saturated_heterocycle ... ok
+test tests::ring_descriptors_indole_mixes_carbo_and_hetero ... ok
+test tests::ring_descriptors_pyridine_is_aromatic_heterocycle ... ok
+test tests::ring_systems_json_ffi_basics ... ok
+test tests::standardization_ffi_basics ... ok
+test tests::substructure_ffi_basics ... ok
+test tests::test_acetic_acid ... ok
+test tests::test_aspirin ... ok
+test tests::test_bedroc_ffi_invalid_returns_nan ... ok
+test tests::scaffold_ffi_basics ... ok
+test tests::test_benzene ... ok
+test tests::test_enrichment_ffi ... ok
+test tests::test_ethanol ... ok
+test tests::test_invalid ... ok
+test tests::test_maccs_ffi_invalid_is_neg1 ... ok
+test tests::test_maccs_ffi_small_buffer_is_neg1 ... ok
+test tests::test_num_fragments_ffi ... ok
+test tests::test_maccs_ffi ... ok
+test tests::test_roc_auc_ffi_perfect ... ok
+test tests::test_salt ... ok
+test tests::test_tpsa_ffi ... ok
+test tests::test_tpsa_ffi_invalid_is_nan ... ok
+test tests::test_water ... ok
+test tpsa::tests::tpsa_default_excludes_s_and_p ... ok
+test tests::test_profile_descriptor_ffi ... ok
+test tpsa::tests::tpsa_nitrogen_cases ... ok
+test tpsa::tests::tpsa_simple_non_fixture_oxygen_cases ... ok
+test tpsa::tests::tpsa_three_membered_ring_cases ... ok
+test weights::tests::test_carbon_mono ... ok
+test weights::tests::test_carbon_weight ... ok
+test weights::tests::test_unknown ... ok
+test workbench::tests::blank_final_structure_is_retained_as_an_issue_row ... ok
+test tpsa::tests::tpsa_named_fixture_regression ... ok
+test workbench::tests::dative_inputs_preserve_endpoint_direction_hydrogens_and_raw_grammar ... ok
+test workbench::tests::impossible_aromatic_kekule_inputs_are_issue_rows ... ok
+test workbench::tests::large_input_domain_matches_declared_budgets_without_changing_raw_graph ... ok
+test workbench::tests::prepared_hydrogen_vectors_match_reference_and_raw_contract_is_retained ... ok
+test workbench::tests::prepared_kekule_graphs_match_independent_sanitization ... ok
+test workbench::tests::supplied_population_preparation_acceptance ... ignored, external unselected100k source is supplied explicitly
+test workbench_canonical::tests::pinned_cluster_and_random_graph_ranks ... ok
+test workbench_cleanup::tests::cleanup_is_idempotent_and_does_not_change_the_raw_graph_contract ... ok
+test extra_descriptors::tests::large_harary_matches_exact_rational_distance_sums ... ok
+test workbench::tests::explicit_valence_acceptance_matches_pinned_sanitization ... ok
+test workbench_cleanup::tests::workbench_aromatic_preparation_preserves_raw_graph_consumer_semantics ... ok
+test workbench_cleanup::tests::prepared_ring_membership_and_first_sizes_match_independent_reference ... ok
+test workbench_rings::tests::logical_bond_iteration_preserves_smiles_closure_provenance ... ok
+test stereo::sps::tests::modern_atom_and_double_bond_masks_match_pinned_pipeline ... ok
+test workbench_cleanup::tests::directed_preparation_matches_independent_atomic_bond_and_ring_contexts ... ok
+test qed::tests::registered_reference_properties_and_scores ... ok
+test information::tests::factor_cut_identity_matches_all_58_independent_coefficient_vectors ... ok
+test information::tests::integer_coefficients_and_entropy_match_independent_exact_oracles ... ok
+test charge::tests::full_hybridization_radical_and_conjugation_context_matches_oracle ... ok
+
+test result: ok. 638 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 6.54s
+
+     Running tests/aromaticity.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/aromaticity-c2fbcdb9cd787b06)
+
+running 1 test
+test aromatic_and_kekule_spellings_agree ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.94s
+
+     Running tests/canonical.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/canonical-48dee1f7747025f0)
+
+running 5 tests
+test stereo_is_invariant_and_enantiomers_differ ... ok
+test distinct_molecules_have_distinct_canonical_forms ... ok
+test idempotence ... ok
+test order_invariance ... ok
+test round_trip_preserves_structure ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.91s
+
+     Running tests/edge_cases.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/edge_cases-2009ef6ed5d2176a)
+
+running 5 tests
+test invalid_inputs_are_rejected ... ok
+test single_atoms_and_disconnected_fragments ... ok
+test undersized_non_null_buffer_returns_required_length ... ok
+test every_string_function_obeys_small_buffer_contract ... ok
+test very_long_chain_parses ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+     Running tests/fingerprints.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/fingerprints-98daaf2b0bcd243c)
+
+running 3 tests
+test morgan_density_and_similarity_track_rdkit ... ok
+test morgan_is_spelling_invariant ... ok
+test maccs_matches_rdkit_exactly ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.19s
+
+     Running tests/large_inputs.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/large_inputs-7741ec68e5079c10)
+
+running 1 test
+test large_input_path257_matches_all_independent_descriptor_references ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/murcko.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/murcko-c4517c0b32a7fd00)
+
+running 5 tests
+test acyclic_molecules_have_empty_scaffolds ... ok
+test exocyclic_double_bonded_framework_atoms_are_retained ... ok
+test outputs_reparse ... ok
+test scaffold_is_idempotent ... ok
+test scaffold_is_order_invariant ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.69s
+
+     Running tests/non_tetra.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/non_tetra-97542defd600a3c2)
+
+running 3 tests
+test extended_prepared_geometry_does_not_change_the_raw_graph_grammar ... ok
+test invalid_non_tetrahedral_permutations_are_not_accepted_as_prefixes ... ok
+test non_tetrahedral_original_inputs_match_all_registered_reference_values ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+     Running tests/profile_parity.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/profile_parity-35b936b562178f5b)
+
+running 23 tests
+test fixture_is_complete_and_contains_regressions ... ok
+test mol_heteroatom_fraction ... ok
+test mol_heavy_atom_mass ... ok
+test mol_mean_degree ... ok
+test mol_formal_charge ... ok
+test mol_num_aromatic_atoms ... ok
+test mol_aromatic_fraction ... ok
+test mol_num_aromatic_bonds ... ok
+test mol_num_explicit_h ... ok
+test mol_largest_ring_size ... ok
+test mol_num_nitrogens ... ok
+test mol_num_carbons ... ok
+test mol_num_fragments ... ok
+test mol_num_double_bonds ... ok
+test mol_num_implicit_h ... ok
+test profile_hydrogen_partition_and_invalid_inputs ... ok
+test mol_num_halogens ... ok
+test mol_num_oxygens ... ok
+test mol_num_triple_bonds ... ok
+test mol_num_single_bonds ... ok
+test mol_num_total_h ... ok
+test mol_num_ring_atoms ... ok
+test mol_num_ring_bonds ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.69s
+
+     Running tests/rdkit_parity.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/rdkit_parity-dc5433afc407e9e2)
+
+running 28 tests
+test exact_mass ... ok
+test formula ... ok
+test aliphatic_heterocycles ... ok
+test aliphatic_rings ... ok
+test aromatic_rings ... ok
+test aromatic_heterocycles ... ok
+test fraction_csp3 ... ok
+test aromatic_carbocycles ... ok
+test heteroatoms ... ok
+test h_donors ... ok
+test aliphatic_carbocycles ... ok
+test mol_mr ... ok
+test mol_weight ... ok
+test logp ... ok
+test num_atoms ... ok
+test h_acceptors ... ok
+test num_bonds ... ok
+test rotatable_bonds ... ok
+test ring_count ... ok
+test saturated_carbocycles ... ok
+test saturated_heterocycles ... ok
+test saturated_rings ... ok
+test tpsa ... ok
+test structural_alert_count ... ok
+test qed ... ok
+test canonical_smiles ... ok
+test murcko_scaffold ... ok
+test lipinski_violations ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s
+
+     Running tests/workbench.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/workbench-010f6e64d44fbbc5)
+
+running 35 tests
+test cache_revision_obeys_sized_output_contract ... ok
+test cx_wedges_reject_malformed_or_chemically_unhandled_extensions ... ok
+test ethanol_has_physically_expected_descriptors ... ok
+test explicit_ring_bonds_are_accepted_without_moving_the_bond ... ok
+test attached_hydrogens_on_hydrogen_vertices_are_included_in_profiles ... ok
+test extended_batch_preserves_legacy_values_and_exposes_descriptor_vector ... ok
+test fraction_csp3_requires_four_carbon_neighbors_including_attached_h ... ok
+test malformed_and_unbounded_inputs_do_not_produce_results ... ok
+test mass_uses_isotopes_charge_and_complete_element_data ... ok
+test native_batch_preserves_source_positions_and_obeys_buffer_contract ... ok
+test charged_oxygen_and_sulfur_acceptors_match_pinned_smarts ... ok
+test catalog_values_match_pinned_independent_rdkit_literals ... ok
+test partial_explicit_hydrogens_keep_expanded_totals_and_original_atom_surfaces ... ok
+test native_workbench_cleanup_matches_pinned_all_catalog_and_formula_controls ... ok
+test phosphorus_implicit_hydrogen_and_carbon_free_formula_match_rdkit ... ok
+test aromatic_radical_and_default_valence_preparation_matches_all_catalog_controls ... ok
+test registered_bcut_descriptors_match_end_to_end_reference_inputs ... ok
+test registered_charge_descriptors_match_end_to_end_reference_inputs ... ok
+test registered_graph_descriptors_match_end_to_end_reference_inputs ... ok
+test partial_aromatic_bond_hydrogens_and_retained_formula_residuals_match_reference ... ok
+test registered_functional_groups_match_independent_rdkit_counts ... ok
+test directed_coordination_matches_independent_all_catalog_and_formula_controls ... ok
+test original_and_permuted_clusters_match_all_descriptors_and_formula ... ok
+test registered_information_descriptors_match_exact_graph_definitions ... ok
+test registered_surface_descriptors_match_independent_rdkit_values ... ok
+test rejected_carbon_stereo_tags_reclassify_hydrogens_without_losing_radicals ... ok
+test salt_keeps_charge_and_disconnected_components ... ok
+test strict_rotors_keep_explicit_vertex_degree_and_total_h_query_semantics ... ok
+test registered_structural_counts_match_independent_source_references ... ok
+test registered_morgan_density_uses_unfolded_sparse_keys_and_heavy_denominator ... ok
+test registered_qed_matches_independent_scores_with_original_inputs ... ok
+test coordinate_free_cx_wedges_match_original_annotated_references ... ok
+test additional_fifty_descriptors_match_independent_dense_graph_reference ... ok
+test registered_legacy_stereocounts_match_original_input_reference ... ok
+test registered_sps_matches_independent_modern_stereo_pipeline ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.83s
+
+   Doc-tests ducksmiles_analytics
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ducksmiles_inchi
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ducksmiles_mol
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ducksmiles_pdb
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ducksmiles_selfies
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ducksmiles_smiles
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

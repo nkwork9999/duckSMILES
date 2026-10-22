@@ -1,0 +1,58 @@
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.3") found components: Interpreter
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- The CXX compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+CMake Warning at CMakeLists.txt:382 (message):
+  Not disabling vptr sanitizer on M1 Macbook - set DISABLE_VPTR_SANITIZER
+  manually if you run into issues with false positives in the sanitizer
+
+
+-- Looking for fdatasync
+-- Looking for fdatasync - not found
+-- Found Git: /usr/bin/git (found version "2.50.1 (Apple Git-155)")
+-- git hash d54cbbe3df, version v2.0.0-alpha49307, extension folder v2.0.0-alpha49307
+-- Build workers: compile= link_release=4 link_non_release=2
+-- Extensions will be deployed to: /private/tmp/ducksmiles-jmp-parity-20261022/native/build/repository
+-- Load extension 'ducksmiles' from '/Users/nk/Desktop/ducksmiles-analytics-20261021' @ b5f629e470
+-- Use prebuilt extension 'core_functions' from '/private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libcore_functions_extension.a'
+-- Load extension 'core_functions' from '/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk/extensions' @ v2.0.0-alpha49307
+-- Use prebuilt extension 'parquet' from '/private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libparquet_extension.a'
+-- Load extension 'parquet' from '/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk/extensions' @ v2.0.0-alpha49307
+-- Use prebuilt extension 'json' from '/private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libjson_extension.a'
+-- Load extension 'json' from '/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk/extensions' @ v2.0.0-alpha49307
+-- Use prebuilt extension 'icu' from '/private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libicu_extension.a'
+-- Load extension 'icu' from '/private/tmp/ducksmiles-jmp-parity-20261022/duckdb-sdk/extensions' @ v2.0.0-alpha49307
+CMake Warning at extension/extension_build_tools.cmake:1008 (message):
+  Extension 'ducksmiles' has a vcpkg.json, but build was not run with VCPKG.
+  If build fails, check out VCPKG build instructions in
+  'duckdb/extension/README.md' or try manually installing the dependencies in
+  /Users/nk/Desktop/ducksmiles-analytics-20261021/vcpkg.json
+Call Stack (most recent call first):
+  CMakeLists.txt:1256 (include)
+
+
+-- Rust target: host default
+-- Linked into DuckDB: extensions [core_functions, json], capabilities [httplib, loadable_extensions, local_extension_repository]
+-- Extensions built but not linked: [ducksmiles, parquet, icu]
+-- Tests loaded for extensions: [ducksmiles]
+-- Using pre-built static library from file /private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libduckdb_static.a
+-- Using pre-built shell library from file /private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libduckdb_shell.a
+-- Using pre-built capability from file /private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libduckdb_httplib.a
+-- Using pre-built capability from file /private/tmp/ducksmiles-jmp-parity-20261022/native-sdk/lib/libduckdb_loadable_extensions.a
+-- Skipping third_party/ because PREBUILT_BINARY is set
+-- DuckDB CLI Release architecture flags: -mcpu=apple-m1
+-- Configuring done (2.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /private/tmp/ducksmiles-jmp-parity-20261022/native/build

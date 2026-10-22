@@ -1,0 +1,34 @@
+{
+  "layer": "actual production ds_analytics_run/free from development static archive; no copiednumerics/testwrapper",
+  "profile": "dev/default features",
+  "command": [
+    "cargo",
+    "build",
+    "-p",
+    "ducksmiles_analytics",
+    "--locked"
+  ],
+  "link_command": [
+    "clang",
+    "-dynamiclib",
+    "-Wl,-force_load,/private/tmp/ducksmiles-jmp-parity-20261022/debug/libducksmiles_analytics.a",
+    "-Wl,-exported_symbol,_ds_analytics_run",
+    "-Wl,-exported_symbol,_ds_analytics_free",
+    "-framework",
+    "Security",
+    "-framework",
+    "CoreFoundation",
+    "-liconv",
+    "-o",
+    "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/analytics_abi.dylib"
+  ],
+  "seconds": 0.27329625000038504,
+  "library": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/analytics_abi.dylib",
+  "library_sha256": "cfa277a3718c33feb6eeb2dacfbb5311991beb8c09f8bc3d894f98f3ba43d4a7",
+  "archive_sha256": "1da6d9c32ef0e8e71bf5307af8e234ff1e85f07d4bfb37c86083242203321b28",
+  "source_sha256": {
+    "crates/analytics/src/lib.rs": "fcc718ace268b15c3b5ba496d33bbfe94c4fc799683697ae16372d0b9e7805bd",
+    "crates/analytics/src/static_reports.rs": "71caafdada08388cd04fe81279a97123688136e72fa431a9fd0cc38db4aa30c6"
+  },
+  "ordinal_dispatch": "not yet activated atthisbuild; reportsactualABIgateonly"
+}

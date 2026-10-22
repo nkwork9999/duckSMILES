@@ -1,0 +1,31 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.77s
+     Running tests/report_artifact_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/report_artifact_contracts-1725ce7301979cbb)
+
+running 9 tests
+
+thread 'long_group_identifiers_reject_overlapping_labels' (578990) panicked at crates/analytics/tests/report_artifact_contracts.rs:183:5:
+assertion failed: execute("report_box_plot_svg", &d, &[1., 400., 600., 0., 0., 1., 0.]).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test reports_reject_invalid_states_unrepresentable_ranges_and_dense_layouts ... ok
+
+thread 'narrow_value_domains_reject_indistinguishable_axis_labels' (578991) panicked at crates/analytics/tests/report_artifact_contracts.rs:170:5:
+narrow value domain renders indistinguishable numeric axis labels
+test quantile_box_has_full_range_and_four_additional_type6_ticks ... ok
+test hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks ... ok
+test box_quartiles_use_type6_and_observed_tukey_whiskers ... ok
+test long_group_identifiers_reject_overlapping_labels ... FAILED
+test frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n ... ok
+test narrow_value_domains_reject_indistinguishable_axis_labels ... FAILED
+test explicit_histogram_edges_include_final_edge_and_preserve_density_units ... ok
+test singleton_and_permuted_rows_have_deterministic_finite_artifacts ... ok
+
+failures:
+
+failures:
+    long_group_identifiers_reject_overlapping_labels
+    narrow_value_domains_reject_indistinguishable_axis_labels
+
+test result: FAILED. 7 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p ducksmiles_analytics --test report_artifact_contracts`

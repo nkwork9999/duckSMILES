@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "schema": "ducksmiles-cpu-plot-v1",
+  "operation": "report_histogram_svg",
+  "media_type": "image/svg+xml",
+  "width": 800,
+  "height": 500,
+  "source_rows": 5,
+  "selected_rows": 5,
+  "N": 5,
+  "selection_policy": "observed=1 and excluded=0 and frequency>0; hidden retains summaries and suppresses individual marks; row-state counts overlap",
+  "policy": "explicit_edges_native_left_closed_right_open_final_closed",
+  "limits": {
+    "source_rows": 100000,
+    "groups": 16,
+    "sum_frequency_per_call": 1000000,
+    "histogram_bins": 512,
+    "rendered_individual_markers": 20000,
+    "svg_utf8_bytes": 2097152
+  },
+  "implemented_options": [
+    "explicit edges",
+    "count percent density",
+    "integer frequency",
+    "group facets",
+    "both orientations"
+  ],
+  "remaining_options": [
+    "JMP automatic bins and exact tie membership",
+    "analytic Weight and fractional Freq",
+    "KDE polygon shadowgram fill and overlays",
+    "full styling and annotations"
+  ],
+  "orientation": 0,
+  "response_scale": 2,
+  "edges": [
+    0,
+    1,
+    3
+  ],
+  "groups": [
+    {
+      "group_id": 0,
+      "status": "ok",
+      "source_rows": 5,
+      "selected_rows": 5,
+      "N": 5,
+      "excluded_rows": 0,
+      "missing_rows": 0,
+      "zero_frequency_rows": 0,
+      "hidden_rows": 0,
+      "counts": [
+        2,
+        3
+      ],
+      "probabilities": [
+        0.4,
+        0.6
+      ],
+      "percents": [
+        40,
+        60
+      ],
+      "densities": [
+        0.4,
+        0.3
+      ],
+      "responses": [
+        0.4,
+        0.3
+      ],
+      "bins": [
+        {
+          "left": 0,
+          "right": 1,
+          "count": 2,
+          "probability": 0.4,
+          "percent": 40,
+          "density": 0.4,
+          "response": 0.4
+        },
+        {
+          "left": 1,
+          "right": 3,
+          "count": 3,
+          "probability": 0.6,
+          "percent": 60,
+          "density": 0.3,
+          "response": 0.3
+        }
+      ],
+      "panel": {
+        "left": 86,
+        "top": 78,
+        "width": 670,
+        "height": 336
+      },
+      "value_domain": [
+        0,
+        3
+      ],
+      "response_domain": [
+        0,
+        0.4
+      ],
+      "affine": {
+        "value_scale": 223.33333333333334,
+        "value_offset": 86,
+        "value_origin": 0,
+        "svg_origin": 86,
+        "response_scale": -840,
+        "response_offset": 414
+      }
+    }
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"800\" height=\"500\" viewBox=\"0 0 800 500\" role=\"img\" aria-labelledby=\"report-title report-description\"><title id=\"report-title\">Histogram</title><desc id=\"report-description\">Explicit bin edges; left-closed right-open bins, final right edge included. Counts and probabilities include hidden observations.</desc><style>text{font-family:sans-serif;font-size:12px;fill:#17212b}line{stroke:#17212b;stroke-width:1.5}.axis{stroke:#17212b;stroke-width:1}.box{fill:white;stroke:#17212b;stroke-width:2}.bar{fill:#2877a8;stroke:#17212b;stroke-width:0.6}.median{stroke:#111;stroke-width:3}</style><rect width=\"800\" height=\"500\" fill=\"white\"/><text x=\"400\" y=\"22\" text-anchor=\"middle\">Histogram</text><defs><clipPath id=\"panel-clip-0\"><rect x=\"86\" y=\"78\" width=\"670\" height=\"336\"/></clipPath></defs><text x=\"421\" y=\"51\" text-anchor=\"middle\">Group 0 \u00b7 N=5</text><line x1=\"86\" y1=\"414\" x2=\"756\" y2=\"414\" class=\"axis\"/><line x1=\"86\" y1=\"414\" x2=\"86\" y2=\"418\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"0\" x=\"86\" y=\"432\" text-anchor=\"middle\">0</text><line x1=\"253.5\" y1=\"414\" x2=\"253.5\" y2=\"418\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"0.75\" x=\"253.5\" y=\"432\" text-anchor=\"middle\">0.75</text><line x1=\"421\" y1=\"414\" x2=\"421\" y2=\"418\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"1.5\" x=\"421\" y=\"432\" text-anchor=\"middle\">1.5</text><line x1=\"588.5\" y1=\"414\" x2=\"588.5\" y2=\"418\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"2.25\" x=\"588.5\" y=\"432\" text-anchor=\"middle\">2.25</text><line x1=\"756\" y1=\"414\" x2=\"756\" y2=\"418\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"3\" x=\"756\" y=\"432\" text-anchor=\"middle\">3</text><text x=\"421\" y=\"450\" text-anchor=\"middle\">Value</text><line x1=\"86\" y1=\"78\" x2=\"86\" y2=\"414\" class=\"axis\"/><line x1=\"82\" y1=\"414\" x2=\"86\" y2=\"414\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"0\" x=\"79\" y=\"418\" text-anchor=\"end\">0</text><line x1=\"82\" y1=\"330\" x2=\"86\" y2=\"330\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"0.1\" x=\"79\" y=\"334\" text-anchor=\"end\">0.1</text><line x1=\"82\" y1=\"246\" x2=\"86\" y2=\"246\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"0.2\" x=\"79\" y=\"250\" text-anchor=\"end\">0.2</text><line x1=\"82\" y1=\"161.99999999999994\" x2=\"86\" y2=\"161.99999999999994\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"0.30000000000000004\" x=\"79\" y=\"165.99999999999994\" text-anchor=\"end\">0.3</text><line x1=\"82\" y1=\"78\" x2=\"86\" y2=\"78\" class=\"axis\"/><text data-role=\"response-tick-label\" data-value=\"0.4\" x=\"79\" y=\"82\" text-anchor=\"end\">0.4</text><text x=\"86\" y=\"66\" text-anchor=\"start\">Density</text><g clip-path=\"url(#panel-clip-0)\"><rect id=\"hist-0-0\" class=\"bar\" data-role=\"histogram-bin\" data-group-id=\"0\" data-bin-index=\"0\" data-count=\"2\" x=\"86\" y=\"78\" width=\"223.33333333333331\" height=\"336\"><title>Group 0, bin [0,1): count 2, probability 0.4, density 0.4</title></rect><rect id=\"hist-0-1\" class=\"bar\" data-role=\"histogram-bin\" data-group-id=\"0\" data-bin-index=\"1\" data-count=\"3\" x=\"309.3333333333333\" y=\"162.00000000000003\" width=\"446.6666666666667\" height=\"251.99999999999997\"><title>Group 0, bin [1,3]: count 3, probability 0.6, density 0.3</title></rect></g></svg>"
+}

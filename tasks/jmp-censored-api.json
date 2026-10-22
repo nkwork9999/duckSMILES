@@ -32,7 +32,15 @@
     "numerical_primary_references": [
       "https://dlmf.nist.gov/8.7.E1",
       "https://dlmf.nist.gov/5.7.E3"
-    ]
+    ],
+    "jmp_uncertainty_residual": {
+      "difference": "The six censored-family operations return inverse observed-information covariance. JMP19.2 Generalized Regression documents M-estimation sandwich standard errors/covariance. Its exact construction, frequency score aggregation and finite-sample correction have not been established here, so uncertainty equivalence remains unverified. Applying those general GenReg report docs to these six censored families is an inference, not an installed-JMP comparison.",
+      "primary_sources": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/model-fit-options.shtml"
+      ],
+      "basis": "General GenReg report documentation; censor-family application is an inference; exact sandwich equations and finite-sample adjustment unresolved"
+    }
   },
   "operations": [
     {
@@ -96,7 +104,8 @@
         "automatic categorical/model-effect expansion or informative missing handling",
         "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
         "left truncation/delayed entry,dependent censoring,frailty/random effects",
-        "global optimizer and finite-MLE identification proof"
+        "global optimizer and finite-MLE identification proof",
+        "Exact JMP Generalized Regression M-estimation sandwich covariance/SE; current observed-information inference is an explicit alternative contract"
       ],
       "known_value": {
         "coefficients": [
@@ -167,7 +176,8 @@
         "automatic categorical/model-effect expansion or informative missing handling",
         "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
         "left truncation/delayed entry,dependent censoring,frailty/random effects",
-        "global optimizer and finite-MLE identification proof"
+        "global optimizer and finite-MLE identification proof",
+        "Exact JMP Generalized Regression M-estimation sandwich covariance/SE; current observed-information inference is an explicit alternative contract"
       ],
       "known_value": {
         "coefficients": [
@@ -237,7 +247,8 @@
         "automatic categorical/model-effect expansion or informative missing handling",
         "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
         "left truncation/delayed entry,dependent censoring,frailty/random effects",
-        "global optimizer and finite-MLE identification proof"
+        "global optimizer and finite-MLE identification proof",
+        "Exact JMP Generalized Regression M-estimation sandwich covariance/SE; current observed-information inference is an explicit alternative contract"
       ],
       "known_value": {
         "coefficients": [
@@ -308,7 +319,8 @@
         "automatic categorical/model-effect expansion or informative missing handling",
         "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
         "left truncation/delayed entry,dependent censoring,frailty/random effects",
-        "global optimizer and finite-MLE identification proof"
+        "global optimizer and finite-MLE identification proof",
+        "Exact JMP Generalized Regression M-estimation sandwich covariance/SE; current observed-information inference is an explicit alternative contract"
       ],
       "known_value": {
         "coefficients": [
@@ -379,7 +391,8 @@
         "automatic categorical/model-effect expansion or informative missing handling",
         "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
         "left truncation/delayed entry,dependent censoring,frailty/random effects",
-        "global optimizer and finite-MLE identification proof"
+        "global optimizer and finite-MLE identification proof",
+        "Exact JMP Generalized Regression M-estimation sandwich covariance/SE; current observed-information inference is an explicit alternative contract"
       ],
       "known_value": {
         "coefficients": [
@@ -450,7 +463,8 @@
         "automatic categorical/model-effect expansion or informative missing handling",
         "profile-likelihood confidence intervals,LR effect comparisons,small-sample inference",
         "left truncation/delayed entry,dependent censoring,frailty/random effects",
-        "global optimizer and finite-MLE identification proof"
+        "global optimizer and finite-MLE identification proof",
+        "Exact JMP Generalized Regression M-estimation sandwich covariance/SE; current observed-information inference is an explicit alternative contract"
       ],
       "known_value": {
         "coefficients": [
@@ -508,7 +522,8 @@
       "unsupported": [
         "parameter-uncertainty integration over a full distribution",
         "simultaneous confidence bands",
-        "profile likelihood or guaranteed support-respecting mean Wald intervals"
+        "profile likelihood or guaranteed support-respecting mean Wald intervals",
+        "Exact JMP Generalized Regression M-estimation sandwich covariance/SE; current observed-information inference is an explicit alternative contract"
       ],
       "known_value": {
         "means": [

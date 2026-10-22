@@ -1,0 +1,20 @@
+{
+  "duckdb_source": "d54cbbe3df17e8e5ce68312f483b4155836112aa",
+  "version": "v2.0.0-alpha49307",
+  "url": "https://duckdb-staging.duckdb.org/d54cbbe3df/v2.0.0-alpha49307/duckdb/duckdb/github_release/duckdb-static-libs-osx-arm64.tar.gz",
+  "bytes": 29034222,
+  "sha256": "bd0913f2e88ae237e1fa43cdda17db6b05382541bdec6e08b4e82131942250ff",
+  "extracted_static_libraries": [
+    "libautocomplete_extension.a",
+    "libcore_functions_extension.a",
+    "libduckdb_httplib.a",
+    "libduckdb_loadable_extensions.a",
+    "libduckdb_shell.a",
+    "libduckdb_static.a",
+    "libicu_extension.a",
+    "libjson_extension.a",
+    "libparquet_extension.a",
+    "libtpcds_extension.a",
+    "libtpch_extension.a"
+  ]
+}

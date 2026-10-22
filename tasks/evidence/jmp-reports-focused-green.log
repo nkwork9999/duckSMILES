@@ -1,0 +1,21 @@
+   Compiling ducksmiles_analytics v0.3.0 (/Users/nk/Desktop/ducksmiles-analytics-20261021/crates/analytics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.24s
+     Running tests/report_artifact_contracts.rs (/private/tmp/ducksmiles-jmp-parity-20261022/debug/deps/report_artifact_contracts-1725ce7301979cbb)
+
+running 14 tests
+test accessible_group_statistics_are_explicit_without_visible_table ... ok
+test frequency_flags_and_empty_groups_keep_source_rows_distinct_from_n ... ok
+test hidden_or_disabled_outliers_keep_statistics_and_provenance_but_hide_marks ... ok
+test empty_group_statistics_are_explicit_null ... ok
+test explicit_histogram_edges_include_final_edge_and_preserve_density_units ... ok
+test box_quartiles_use_type6_and_observed_tukey_whiskers ... ok
+test long_group_identifiers_reject_overlapping_labels ... ok
+test reports_reject_invalid_states_unrepresentable_ranges_and_dense_layouts ... ok
+test exact_and_adjacent_bin_edges_and_million_frequency_remain_bounded ... ok
+test stable_geometry_origin_is_explicit ... ok
+test narrow_value_domains_keep_distinguishable_axis_labels ... ok
+test visible_five_number_table_preserves_distinct_large_offset_values ... ok
+test quantile_box_has_full_range_and_four_additional_type6_ticks ... ok
+test singleton_and_permuted_rows_have_deterministic_finite_artifacts ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

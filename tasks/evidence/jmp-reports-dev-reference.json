@@ -1,0 +1,6819 @@
+{
+  "schema": "jmp-report-independent-verification-v1",
+  "status": "PASS",
+  "checked_at_utc": "2026-10-22T23:06:03.531677+00:00",
+  "python": "3.14.3 (main, Feb  3 2026, 15:32:20) [Clang 17.0.0 (clang-1700.6.3.2)]",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "primary_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-quantiles.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/outlier-box-plot.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/quantile-box-plot.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/histogram.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/launch-the-distribution-platform.shtml"
+  ],
+  "verifier": {
+    "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/scripts/check_jmp_reports.py",
+    "sha256": "cc192f301d2bd3297e0a69796cce176607dd2c2f2a061d96c64d09c4d69405fc"
+  },
+  "reference_only": false,
+  "reference_method": "11 hand-derived literal cases; origin-centered standard Python statistics.quantiles exclusive with JMP endpoint clamps; tiny physically expanded integer frequency samples; independently counted intervals; Decimal90 audit of large-offset rounding",
+  "verification_boundaries": [
+    "public_c_abi"
+  ],
+  "cases": [
+    {
+      "name": "negative_edge_ties",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          -2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          -0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        5,
+        -2,
+        -1,
+        0,
+        1,
+        2
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/negative_edge_ties.json",
+        "sha256": "fc1d381ff0f8550183f29524604464f7e08018012d128c98372fe2e81c832789"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/negative_edge_ties.svg",
+        "sha256": "3035d5fa6e2e9072416c5746a54178452ff64ca7c8849071f43b79becf3d1791"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/negative_edge_ties.svg",
+          "sha256": "3035d5fa6e2e9072416c5746a54178452ff64ca7c8849071f43b79becf3d1791"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/negative_edge_ties.png",
+          "sha256": "21f6d0d196ed316a4691144b490397bdd5c9dd0cc1bd8b6bda06d0f1ce402fa5"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 199945,
+        "raster_mark_anchors_checked": 4,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "unequal_bin_density",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        3,
+        0,
+        1,
+        3
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_bin_density.json",
+        "sha256": "dfde00066973e5884496ac08fbec27edc2cec82d9c6b375c5083b4a856a3ec37"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_bin_density.svg",
+        "sha256": "1b75d409032d0601ed9663bbee3f1057da91f3a6bc99b1f2784d91634dcc9158"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_bin_density.svg",
+          "sha256": "1b75d409032d0601ed9663bbee3f1057da91f3a6bc99b1f2784d91634dcc9158"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_bin_density.png",
+          "sha256": "b50aae34083a08284ae35223f33b901d4940b9e595d782e6f1c7ca04560dc385"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 203398,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "replication_frequency",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          3,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        3,
+        0,
+        1,
+        2
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/replication_frequency.json",
+        "sha256": "8ecd096172a0a9153ba9debfdefcd9f733aea8dec3f07594a824df16305f19ae"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/replication_frequency.svg",
+        "sha256": "397fc3551a5ef3a9c0af2c9e21b8579b728c7795e5fe643579801b701423033c"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/replication_frequency.svg",
+          "sha256": "397fc3551a5ef3a9c0af2c9e21b8579b728c7795e5fe643579801b701423033c"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/replication_frequency.png",
+          "sha256": "cec4ba4907b9339b6938d9efcf52146f713256b161034e8873d3d088b9795f4b"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 200019,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "singleton_histogram",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          42,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        2,
+        41,
+        43
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_histogram.json",
+        "sha256": "1768f1117a6c9b68c1622785cf6448f47905fa0b557e5a6092650095cbdc7777"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_histogram.svg",
+        "sha256": "7f77e8d8f203fc11e70f5b798f208d23d2cb2e6e99bd5e261fddfa3c9b72f30f"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_histogram.svg",
+          "sha256": "7f77e8d8f203fc11e70f5b798f208d23d2cb2e6e99bd5e261fddfa3c9b72f30f"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_histogram.png",
+          "sha256": "5a05acc70b78f266ca14cdfcb7b64403825ae053043aa93ec95fa61ec9de17af"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 228078,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "unequal_density_response",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        2,
+        0,
+        3,
+        0,
+        1,
+        3
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_density_response.json",
+        "sha256": "c3021b665d0ab8131975c26390a391d949ffe279bab2d01512ab36b54504ab05"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_density_response.svg",
+        "sha256": "092454866336f571554a15651ee27773c59dca9e0f7a3e489961615d398dc1ab"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_density_response.svg",
+          "sha256": "092454866336f571554a15651ee27773c59dca9e0f7a3e489961615d398dc1ab"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/unequal_density_response.png",
+          "sha256": "5e2351a0be0ed2b3e51644f817077a7564da9bce3f9ac090a6a6cf00d63df6c4"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 191070,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "frequency_percent_response",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          2,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          3,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        1,
+        0,
+        3,
+        0,
+        1,
+        2
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_percent_response.json",
+        "sha256": "0f51825e322f312e64d6debb7160543424c67c1ba6725670b7a272a543ecee88"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_percent_response.svg",
+        "sha256": "0b4f575e719ddba92ef4b47c6cb78ee76c600a22f65a651f1747e92b555b2bb6"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_percent_response.svg",
+          "sha256": "0b4f575e719ddba92ef4b47c6cb78ee76c600a22f65a651f1747e92b555b2bb6"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_percent_response.png",
+          "sha256": "228005fb79cbb2719a4ef402800d4ef193c03724a332f0b0dd05c9a2008b19e2"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 200390,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "type6_not_type7",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/type6_not_type7.json",
+        "sha256": "c42645b61f5088b9bd80249c0fe529ad51eddda33141fdaa6d35924c136232fd"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/type6_not_type7.svg",
+        "sha256": "0ba0ee38e1112f5399ebeb819d208e5f7ade57f223b73f05d34cd9bad5f9589c"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/type6_not_type7.svg",
+          "sha256": "0ba0ee38e1112f5399ebeb819d208e5f7ade57f223b73f05d34cd9bad5f9589c"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/type6_not_type7.png",
+          "sha256": "c32afe9dfbfd6fd18707b743f502fd20fe990874695c12d0a24e394136176816"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 5072,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      },
+      "malicious_svg_mutations_rejected": 3
+    },
+    {
+      "name": "actual_data_whiskers",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/actual_data_whiskers.json",
+        "sha256": "68126ba0b227bbbb455811c4a7e590e6ac00b281d24c854dc6d5906650073d84"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/actual_data_whiskers.svg",
+        "sha256": "da133a5b5c4bfc014fdbc64fdefb34e0c4147eac4ab1fc631a0a2a6e0fef73ce"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/actual_data_whiskers.svg",
+          "sha256": "da133a5b5c4bfc014fdbc64fdefb34e0c4147eac4ab1fc631a0a2a6e0fef73ce"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/actual_data_whiskers.png",
+          "sha256": "0e08ff8207d033c0c3a67715f9b36248699e92f2746718ef9179dd74c82eb951"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 3814,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "fence_equalities",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          -5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          11,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/fence_equalities.json",
+        "sha256": "ef3f833beddee70386115e99f267a90236503e0791c2d44a64e8237700f0bf8d"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/fence_equalities.svg",
+        "sha256": "e2866aba8d39ff3634b45a11dfebe09c7b94ca8dbf698a1ebc9369a811aeeb4b"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/fence_equalities.svg",
+          "sha256": "e2866aba8d39ff3634b45a11dfebe09c7b94ca8dbf698a1ebc9369a811aeeb4b"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/fence_equalities.png",
+          "sha256": "99495e19f0053661875e652cd6a7b64a207b3a987166d3ec57607a93b10512a5"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 4232,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "zero_iqr_outlier",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          10,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/zero_iqr_outlier.json",
+        "sha256": "53c987ae715e60c38600ac51ed60f29fbaa423e98d7a84734923714e3b214f85"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/zero_iqr_outlier.svg",
+        "sha256": "329ace613d6c6c558d442092c96e9c7f6fe2e74207345825aeeb82296cc0b081"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/zero_iqr_outlier.svg",
+          "sha256": "329ace613d6c6c558d442092c96e9c7f6fe2e74207345825aeeb82296cc0b081"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/zero_iqr_outlier.png",
+          "sha256": "f7cb932a372f51ecbaacb2c00b04f68eaf82fbcdc8a5d2cbfe98573401d7c065"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 3335,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "singleton_box",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          42,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_box.json",
+        "sha256": "e65687d413563bc48857e0c1223342377dc5e9f008606ee4978fc482cc2c30ab"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_box.svg",
+        "sha256": "2ec28f32f5f65d6344bd8be7c1297df5425add2bbea402bd9da2d3c19f87493c"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_box.svg",
+          "sha256": "2ec28f32f5f65d6344bd8be7c1297df5425add2bbea402bd9da2d3c19f87493c"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/singleton_box.png",
+          "sha256": "544a265079ded68bc39a2581439d901be9b4362a4f2e139488decd37d407d916"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 3786,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "two_observations",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          -1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/two_observations.json",
+        "sha256": "1ff6ace036a9a0f64e344e4654ce5ea0c7e1fdc6e4cb63b8684b4fef6547f435"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/two_observations.svg",
+        "sha256": "b1a5d7d448fa6435ccb7142d03804624cb110a6af6fba1bdf26b86fa3fed9398"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/two_observations.svg",
+          "sha256": "b1a5d7d448fa6435ccb7142d03804624cb110a6af6fba1bdf26b86fa3fed9398"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/two_observations.png",
+          "sha256": "57929770a669d1ac0fa84bd66d17f8dd8b141855979383f0f96b5d686f147785"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 4613,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "frequency_box",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          2,
+          0,
+          2,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          10,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_box.json",
+        "sha256": "ca1a0231484e3515be16d62dba3855e0294c446235e1cd1814c9c6a4cba2c2bf"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_box.svg",
+        "sha256": "4e99a386bcbe424c85a1f208d69754669fbb4d33fbcbe105ebd3e244d7516688"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_box.svg",
+          "sha256": "4e99a386bcbe424c85a1f208d69754669fbb4d33fbcbe105ebd3e244d7516688"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/frequency_box.png",
+          "sha256": "5043482e8b7c0ecadae391286a18c362363a6de41440ec70c254b857bb27917d"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 4953,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "quantile_full_range_and_four_ticks",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        1,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/quantile_full_range_and_four_ticks.json",
+        "sha256": "baf5ab4ca19c26210cb0acc14d662ffc587fab932750590872b1f7e70211e0af"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/quantile_full_range_and_four_ticks.svg",
+        "sha256": "f556ab16069a3c22fdffff43f84e10e127eeae5be1b31a058cbc29e373544d36"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/quantile_full_range_and_four_ticks.svg",
+          "sha256": "f556ab16069a3c22fdffff43f84e10e127eeae5be1b31a058cbc29e373544d36"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/quantile_full_range_and_four_ticks.png",
+          "sha256": "c4f05fdf6ba900ecc617497363161ee212ef5b26127232bbf7ee7dbb963ec888"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 4502,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "interior_quantile_ticks",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          6,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ],
+        [
+          7,
+          0,
+          1,
+          0,
+          0,
+          1,
+          7
+        ],
+        [
+          8,
+          0,
+          1,
+          0,
+          0,
+          1,
+          8
+        ],
+        [
+          9,
+          0,
+          1,
+          0,
+          0,
+          1,
+          9
+        ],
+        [
+          10,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          11,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          12,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          13,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          14,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          15,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          16,
+          0,
+          1,
+          0,
+          0,
+          1,
+          16
+        ],
+        [
+          17,
+          0,
+          1,
+          0,
+          0,
+          1,
+          17
+        ],
+        [
+          18,
+          0,
+          1,
+          0,
+          0,
+          1,
+          18
+        ],
+        [
+          19,
+          0,
+          1,
+          0,
+          0,
+          1,
+          19
+        ],
+        [
+          20,
+          0,
+          1,
+          0,
+          0,
+          1,
+          20
+        ],
+        [
+          21,
+          0,
+          1,
+          0,
+          0,
+          1,
+          21
+        ],
+        [
+          22,
+          0,
+          1,
+          0,
+          0,
+          1,
+          22
+        ],
+        [
+          23,
+          0,
+          1,
+          0,
+          0,
+          1,
+          23
+        ],
+        [
+          24,
+          0,
+          1,
+          0,
+          0,
+          1,
+          24
+        ],
+        [
+          25,
+          0,
+          1,
+          0,
+          0,
+          1,
+          25
+        ],
+        [
+          26,
+          0,
+          1,
+          0,
+          0,
+          1,
+          26
+        ],
+        [
+          27,
+          0,
+          1,
+          0,
+          0,
+          1,
+          27
+        ],
+        [
+          28,
+          0,
+          1,
+          0,
+          0,
+          1,
+          28
+        ],
+        [
+          29,
+          0,
+          1,
+          0,
+          0,
+          1,
+          29
+        ],
+        [
+          30,
+          0,
+          1,
+          0,
+          0,
+          1,
+          30
+        ],
+        [
+          31,
+          0,
+          1,
+          0,
+          0,
+          1,
+          31
+        ],
+        [
+          32,
+          0,
+          1,
+          0,
+          0,
+          1,
+          32
+        ],
+        [
+          33,
+          0,
+          1,
+          0,
+          0,
+          1,
+          33
+        ],
+        [
+          34,
+          0,
+          1,
+          0,
+          0,
+          1,
+          34
+        ],
+        [
+          35,
+          0,
+          1,
+          0,
+          0,
+          1,
+          35
+        ],
+        [
+          36,
+          0,
+          1,
+          0,
+          0,
+          1,
+          36
+        ],
+        [
+          37,
+          0,
+          1,
+          0,
+          0,
+          1,
+          37
+        ],
+        [
+          38,
+          0,
+          1,
+          0,
+          0,
+          1,
+          38
+        ],
+        [
+          39,
+          0,
+          1,
+          0,
+          0,
+          1,
+          39
+        ],
+        [
+          40,
+          0,
+          1,
+          0,
+          0,
+          1,
+          40
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        1,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/interior_quantile_ticks.json",
+        "sha256": "4fb47d9b906d34b2cbe66c94aa3f967640b799ceb016f1328aeb5a9a2becdee2"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/interior_quantile_ticks.svg",
+        "sha256": "ea28b695498065b5ff1697d84425b4eb38e779c7d5851fde60a277da7e30a7d8"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/interior_quantile_ticks.svg",
+          "sha256": "ea28b695498065b5ff1697d84425b4eb38e779c7d5851fde60a277da7e30a7d8"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/interior_quantile_ticks.png",
+          "sha256": "fef4cbe2ec201c682a9eba8c62292b970f8db4afe8614b2a5d72b88b1cc06a7a"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 5456,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "suppressed_outlier_keeps_statistics",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        0,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/suppressed_outlier_keeps_statistics.json",
+        "sha256": "d55e47d331d1e171ba296315a59deee75fee0dbabf7580ded183f9616c18989e"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/suppressed_outlier_keeps_statistics.svg",
+        "sha256": "fcd580d7bf1ab9d4b183c5245f87cad8357a65c0ed6c0fcfb60928a7ee52c282"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/suppressed_outlier_keeps_statistics.svg",
+          "sha256": "fcd580d7bf1ab9d4b183c5245f87cad8357a65c0ed6c0fcfb60928a7ee52c282"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/suppressed_outlier_keeps_statistics.png",
+          "sha256": "b53903ea69478acec30b3faf201d05cda0849f445d8dd6dce48abba309d25789"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 3774,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "grouped_source_states",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        0,
+        0,
+        5,
+        -10,
+        0,
+        2,
+        10,
+        101
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_source_states.json",
+        "sha256": "8f3948e8c7459afce6451fd728c0e0f7ebbdae4388072212d01b5ce1c0af9670"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_source_states.svg",
+        "sha256": "42d8c65a4ef88dad294c3bbf37723bf59c6ce20b0345ece247dd989b2fa8aad9"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_source_states.svg",
+          "sha256": "42d8c65a4ef88dad294c3bbf37723bf59c6ce20b0345ece247dd989b2fa8aad9"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_source_states.png",
+          "sha256": "462ff40c07da128e2d7fac861ae18797032ecbb6257c54af7f2de094aa3a8f9f"
+        },
+        "width": 1000,
+        "height": 800,
+        "nonwhite_pixels": 100450,
+        "raster_mark_anchors_checked": 6,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "grouped_horizontal_density",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        2,
+        1,
+        5,
+        -10,
+        0,
+        2,
+        10,
+        101
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_horizontal_density.json",
+        "sha256": "acce02a4d64ddd14065394808e145d2f7538b01c5d5675ace6bf4a5eb88b00f9"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_horizontal_density.svg",
+        "sha256": "fbdcf0b84f96bf32bd0a84784287063163f4eadba48927c23872e837c8d159fa"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_horizontal_density.svg",
+          "sha256": "fbdcf0b84f96bf32bd0a84784287063163f4eadba48927c23872e837c8d159fa"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_horizontal_density.png",
+          "sha256": "6a8857492e374a5d07ec35a917fd298ca45958c898b32a785ffb4557249b49ee"
+        },
+        "width": 1000,
+        "height": 800,
+        "nonwhite_pixels": 40582,
+        "raster_mark_anchors_checked": 5,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "grouped_states_kind0_orientation0",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation0.json",
+        "sha256": "ab14871fb7c812854a8d99ef4296a6aa44e5aea77e2d767ba3336e722cd1cdfd"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation0.svg",
+        "sha256": "c023b9ff8ececad53b37ba89abb74f0c8f9fadabdbeed64a2b10e25758b71d1d"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation0.svg",
+          "sha256": "c023b9ff8ececad53b37ba89abb74f0c8f9fadabdbeed64a2b10e25758b71d1d"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation0.png",
+          "sha256": "bb0d73f8e237c06c8912de43d48104f915ee5dfd677806c8b2b22e79a0dc1f74"
+        },
+        "width": 1000,
+        "height": 800,
+        "nonwhite_pixels": 6206,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "grouped_states_kind0_orientation1",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        0,
+        1,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation1.json",
+        "sha256": "f7a0f647dc4f1050427d32917b05bf4e54eaebdbac895454daee700d41d7358c"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation1.svg",
+        "sha256": "695aa80e140c5fe24e1c75998c8651d0414e2a479149b08c1839423ae05e08b4"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation1.svg",
+          "sha256": "695aa80e140c5fe24e1c75998c8651d0414e2a479149b08c1839423ae05e08b4"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind0_orientation1.png",
+          "sha256": "056afaf4b782d010d1488c9a05b10fc8a6fc131fa2a2827168ce83d98c74c7ba"
+        },
+        "width": 1000,
+        "height": 800,
+        "nonwhite_pixels": 6821,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "grouped_states_kind1_orientation0",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        1,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation0.json",
+        "sha256": "06a1f177277cfec2b363b2ae2f8d1f2e9ea174b9a7ae780c092d94cdb4c483f3"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation0.svg",
+        "sha256": "4d1e7e12259745101b982adde1514ea201f56ada70cac4934e61b45b6e57a71b"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation0.svg",
+          "sha256": "4d1e7e12259745101b982adde1514ea201f56ada70cac4934e61b45b6e57a71b"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation0.png",
+          "sha256": "365ac696e25a16deb6627514514b4fd0189f0e3e71f6e1456b1f75c585e43caa"
+        },
+        "width": 1000,
+        "height": 800,
+        "nonwhite_pixels": 8088,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "grouped_states_kind1_orientation1",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        1,
+        1,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation1.json",
+        "sha256": "3d4c21d4379ba20ec678de1121f65d1a1a636be9c9bf324223ff65513c2aa066"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation1.svg",
+        "sha256": "6bf5011264e990c04f2f6473b5859e6aac680055bf20f20f036a0df2d32ee1ca"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation1.svg",
+          "sha256": "6bf5011264e990c04f2f6473b5859e6aac680055bf20f20f036a0df2d32ee1ca"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/grouped_states_kind1_orientation1.png",
+          "sha256": "4996def6047b9b854161cb8c46ebe93fffd4fba2b1717ed7b9f01b2f75f8d260"
+        },
+        "width": 1000,
+        "height": 800,
+        "nonwhite_pixels": 9617,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "adjacent_floating_edge_membership",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          -2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          -1.0000000000000002,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          -1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          -0.9999999999999999,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          -5e-324,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          5e-324,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ],
+        [
+          0.9999999999999999,
+          0,
+          1,
+          0,
+          0,
+          1,
+          7
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          8
+        ],
+        [
+          1.0000000000000002,
+          0,
+          1,
+          0,
+          0,
+          1,
+          9
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        5,
+        -2,
+        -1,
+        0,
+        1,
+        2
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/adjacent_floating_edge_membership.json",
+        "sha256": "6eabc8fe03e829ef8d3e8c12e049d2d786bc45c552390096478b06dd6ae0baf2"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/adjacent_floating_edge_membership.svg",
+        "sha256": "b4c6d2222e17081e29aa03edc18cf6611c4faa52795930681434d867b2c1aaa4"
+      },
+      "xml_verified": true,
+      "rasterized": false
+    },
+    {
+      "name": "narrow_distinct_axis_labels",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1.00000001,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1.00000002,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        600,
+        0,
+        0,
+        3,
+        1,
+        1.00000001,
+        1.00000002
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/narrow_distinct_axis_labels.json",
+        "sha256": "3d7057a16c38e211cd9fc7d3cdde21204e8fb3d5e20a25668d255956e5c68ba2"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/narrow_distinct_axis_labels.svg",
+        "sha256": "e7aa99170a21f1438502e29b53c55d981cfe7a322f6fb429c6812b0580e6ed58"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/narrow_distinct_axis_labels.svg",
+          "sha256": "e7aa99170a21f1438502e29b53c55d981cfe7a322f6fb429c6812b0580e6ed58"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/narrow_distinct_axis_labels.png",
+          "sha256": "441677a70df10b6c146fd04bad1fc330a0feb343cb6e28d36af37c848574c74c"
+        },
+        "width": 1000,
+        "height": 600,
+        "nonwhite_pixels": 275608,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "large_offset_small_range_labels",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1000000000000.0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1000000000000.005,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1000000000000.01,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          1000000000000.015,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          1000000000000.02,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        600,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.json",
+        "sha256": "f20522437e7d30a31f21acd8a636f95c96b56e6206939e6dd04fe0c13abeb6e6"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.svg",
+        "sha256": "3e5c78de541d59cabf63f3394c5863429957ef85247d80f276087a114b536e25"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.svg",
+          "sha256": "3e5c78de541d59cabf63f3394c5863429957ef85247d80f276087a114b536e25"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_small_range_labels.png",
+          "sha256": "af5264d8e98b46847f3139184975dc9df482c757c25055dd3f7c8133d8bad72c"
+        },
+        "width": 1000,
+        "height": 600,
+        "nonwhite_pixels": 9920,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "large_offset_ulp_spaced_labels",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1e+16,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1.0000000000000002e+16,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1.0000000000000004e+16,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          1.0000000000000006e+16,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          1.0000000000000008e+16,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ]
+      ],
+      "parameters": [
+        1,
+        1200,
+        600,
+        0,
+        1,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_ulp_spaced_labels.json",
+        "sha256": "3e99c2631c3be62c5c1d9442d69d40041aa1699e69ad17c4b0cf058fdcff1bbb"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_ulp_spaced_labels.svg",
+        "sha256": "4bddc27d4d6bb1b56254473f6f09265d89cdbb2ba5e4d817a1604a7567ae0e66"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_ulp_spaced_labels.svg",
+          "sha256": "4bddc27d4d6bb1b56254473f6f09265d89cdbb2ba5e4d817a1604a7567ae0e66"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/large_offset_ulp_spaced_labels.png",
+          "sha256": "3ec0b0a162b193969d56245e2bfe38636c81dbe05db88f5609c62118c5082471"
+        },
+        "width": 1200,
+        "height": 600,
+        "nonwhite_pixels": 13423,
+        "raster_mark_anchors_checked": 1,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "long_group_identifiers",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          2,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          3,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          4,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          2,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          20
+        ],
+        [
+          3,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          21
+        ],
+        [
+          4,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          22
+        ],
+        [
+          6,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          23
+        ]
+      ],
+      "parameters": [
+        1,
+        1200,
+        800,
+        0,
+        0,
+        4,
+        0,
+        2,
+        4,
+        6
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_group_identifiers.json",
+        "sha256": "daaaa5fcd8852284e889d0a1ce72f8f1700d52c98c867c3240074e554d8bfa93"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_group_identifiers.svg",
+        "sha256": "90cabe6151929c9617e8424fb9202a1d06caac2bd3f276858941fd8d2455159c"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_group_identifiers.svg",
+          "sha256": "90cabe6151929c9617e8424fb9202a1d06caac2bd3f276858941fd8d2455159c"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_group_identifiers.png",
+          "sha256": "ba6b78beca31dbe27ca6df1a496a3cb1b02c484225ab751d14833a73905c27e9"
+        },
+        "width": 1200,
+        "height": 800,
+        "nonwhite_pixels": 421224,
+        "raster_mark_anchors_checked": 5,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "long_horizontal_group_identifiers",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          2,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          3,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          4,
+          9007199254740000,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          2,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          20
+        ],
+        [
+          3,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          21
+        ],
+        [
+          4,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          22
+        ],
+        [
+          6,
+          9007199254740002,
+          1,
+          0,
+          0,
+          1,
+          23
+        ]
+      ],
+      "parameters": [
+        1,
+        1200,
+        600,
+        0,
+        1,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_horizontal_group_identifiers.json",
+        "sha256": "9855a89e0d62118a470541076734ff52d320a03006140c14758bbd9c3d4b798c"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_horizontal_group_identifiers.svg",
+        "sha256": "3bac8c47a474121c2ba5bb885bd48285aad8b956676d33620a4c57de8ab4a4cb"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_horizontal_group_identifiers.svg",
+          "sha256": "3bac8c47a474121c2ba5bb885bd48285aad8b956676d33620a4c57de8ab4a4cb"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/long_horizontal_group_identifiers.png",
+          "sha256": "924244b4cbcc4d448bbf3c5903bbade338bca439d921d7d390f979fdcc68046a"
+        },
+        "width": 1200,
+        "height": 600,
+        "nonwhite_pixels": 16600,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "horizontal_histogram",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          -2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          -0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        1,
+        5,
+        -2,
+        -1,
+        0,
+        1,
+        2
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_histogram.json",
+        "sha256": "756002e9102c4873fa9d42fff60dca232f26cd00a0189802a1d084eed40a9eb6"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_histogram.svg",
+        "sha256": "3b902f828ff8ff8661d6312650a81371800d77446f37af23d67687fda1ea00f2"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_histogram.svg",
+          "sha256": "3b902f828ff8ff8661d6312650a81371800d77446f37af23d67687fda1ea00f2"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_histogram.png",
+          "sha256": "692528c56e386100467126c7a57731867049364ba44edb0fb755ae4aa77842c9"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 200266,
+        "raster_mark_anchors_checked": 4,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "horizontal_box_with_outlier",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        1,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_box_with_outlier.json",
+        "sha256": "bb69c733def216c2e6a55c23fc36b5966a33f53bfc0d74c542771cbf12420b43"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_box_with_outlier.svg",
+        "sha256": "932b872dc6aedba0574ed61266463c7efdc7a5780454e81d132e4e005c615667"
+      },
+      "xml_verified": true,
+      "rasterized": true,
+      "render": {
+        "svg": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_box_with_outlier.svg",
+          "sha256": "932b872dc6aedba0574ed61266463c7efdc7a5780454e81d132e4e005c615667"
+        },
+        "png": {
+          "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/horizontal_box_with_outlier.png",
+          "sha256": "38aac9a95307dd0c784a22da72c9661c76474a6ac5c2abb11bbfc87e543db808"
+        },
+        "width": 800,
+        "height": 500,
+        "nonwhite_pixels": 4634,
+        "raster_mark_anchors_checked": 2,
+        "svg_rasterizer": "sips",
+        "png_decoder": "ImageMagick_RGBA"
+      }
+    },
+    {
+      "name": "resized_histogram",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0.5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ]
+      ],
+      "parameters": [
+        1,
+        1200,
+        700,
+        0,
+        0,
+        3,
+        0,
+        1,
+        3
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/resized_histogram.json",
+        "sha256": "e786ce1b8caad2475cb9a0a72a20d725cbd215ce57d6521797eb75197e7cde75"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/resized_histogram.svg",
+        "sha256": "e8293970123f559ab80786c8319b946dc4050bbb6fbf1b71f633fa9101545507"
+      },
+      "xml_verified": true,
+      "rasterized": false
+    },
+    {
+      "name": "resized_box",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ]
+      ],
+      "parameters": [
+        1,
+        1200,
+        700,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/resized_box.json",
+        "sha256": "cd52528ba7096567f41491bddda333919634ee71725705a58fa7d11d67d15736"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/resized_box.svg",
+        "sha256": "65e10173177f2bc06decf644258b94ca69329a43a4293f1c2c6482b52a7ff165"
+      },
+      "xml_verified": true,
+      "rasterized": false
+    },
+    {
+      "name": "affine_histogram_density",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          7,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          9.0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          11,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          15,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          19,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        2,
+        0,
+        3,
+        7,
+        11,
+        19
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/affine_histogram_density.json",
+        "sha256": "9e28ebd2375cb0f27a5c43426eb7bc2598a6c20a18cf4b524b17768622547da1"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/affine_histogram_density.svg",
+        "sha256": "90cbd54ddafecc43b700dd06e5507051ebe21d803b59ea1b04aa873a469802e4"
+      },
+      "xml_verified": true,
+      "rasterized": false
+    },
+    {
+      "name": "affine_box_summary_and_fences",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          7,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          11,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          15,
+          0,
+          1,
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          19,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3
+        ],
+        [
+          23,
+          0,
+          1,
+          0,
+          0,
+          1,
+          4
+        ],
+        [
+          27,
+          0,
+          1,
+          0,
+          0,
+          1,
+          5
+        ],
+        [
+          407,
+          0,
+          1,
+          0,
+          0,
+          1,
+          6
+        ]
+      ],
+      "parameters": [
+        1,
+        800,
+        500,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/affine_box_summary_and_fences.json",
+        "sha256": "dd96a88edbd6fa2ec039ded7a999688350318e0812b4c69ee4914f121d88b3aa"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/affine_box_summary_and_fences.svg",
+        "sha256": "84d547916c236155647baf46f5088469555647c8fe43810cbbfa39ea105ee7fe"
+      },
+      "xml_verified": true,
+      "rasterized": false
+    },
+    {
+      "name": "permuted_histogram_rows",
+      "operation": "report_histogram_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        0,
+        0,
+        5,
+        -10,
+        0,
+        2,
+        10,
+        101
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/permuted_histogram_rows.json",
+        "sha256": "8f3948e8c7459afce6451fd728c0e0f7ebbdae4388072212d01b5ce1c0af9670"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/permuted_histogram_rows.svg",
+        "sha256": "42d8c65a4ef88dad294c3bbf37723bf59c6ce20b0345ece247dd989b2fa8aad9"
+      },
+      "xml_verified": true,
+      "rasterized": false
+    },
+    {
+      "name": "permuted_box_rows",
+      "operation": "report_box_plot_svg",
+      "boundary": "public_c_abi",
+      "input": [
+        [
+          4,
+          0,
+          1,
+          0,
+          0,
+          1,
+          14
+        ],
+        [
+          100,
+          0,
+          1,
+          0,
+          1,
+          1,
+          16
+        ],
+        [
+          12345,
+          9,
+          1,
+          1,
+          0,
+          1,
+          2000
+        ],
+        [
+          999,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1001
+        ],
+        [
+          5,
+          0,
+          1,
+          0,
+          0,
+          1,
+          15
+        ],
+        [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          11
+        ],
+        [
+          888,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1002
+        ],
+        [
+          5,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1103
+        ],
+        [
+          -1,
+          7,
+          2,
+          0,
+          0,
+          1,
+          1101
+        ],
+        [
+          666,
+          0,
+          2,
+          1,
+          1,
+          0,
+          1004
+        ],
+        [
+          12345,
+          9,
+          1,
+          0,
+          0,
+          0,
+          2001
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          0,
+          1,
+          13
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          10
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          1,
+          12
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1102
+        ],
+        [
+          777,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1003
+        ],
+        [
+          -3,
+          7,
+          1,
+          0,
+          0,
+          1,
+          1100
+        ]
+      ],
+      "parameters": [
+        1,
+        1000,
+        800,
+        0,
+        0,
+        1,
+        1
+      ],
+      "result_json": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/permuted_box_rows.json",
+        "sha256": "ab14871fb7c812854a8d99ef4296a6aa44e5aea77e2d767ba3336e722cd1cdfd"
+      },
+      "svg": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/artifacts/public_c_abi/permuted_box_rows.svg",
+        "sha256": "c023b9ff8ececad53b37ba89abb74f0c8f9fadabdbeed64a2b10e25758b71d1d"
+      },
+      "xml_verified": true,
+      "rasterized": false
+    }
+  ],
+  "nullable_cases": [
+    {
+      "name": "negative_frequency",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "fractional_frequency",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonboolean_excluded",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonboolean_hidden",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonboolean_observed",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "fractional_group",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "negative_row_id",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "fractional_row_id",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "frequency_budget",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonfinite_value",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "duplicate_row_id",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "empty_matrix",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "wrong_column_count",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "extra_column",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "no_observations",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "all_excluded",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "all_zero_frequency",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "too_many_groups",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "wrong_version",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "small_canvas",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "unsupported_scale",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "bad_orientation",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "duplicate_edges",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "decreasing_edges",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "truncated_edges",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "selected_outside_domain",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "nonfinite_parameter",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "unreadably_many_bins",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "invalid_box_type",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "invalid_box_visibility",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "truncated_box_arguments",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    },
+    {
+      "name": "unknown_operation",
+      "boundary": "public_c_abi",
+      "returned_NULL": true
+    }
+  ],
+  "call_count_method": "C ABI counts native invocations. SQL counts requested scalar evaluations/selected rows, not unobservable optimizer callbacks.",
+  "visual_qa": {
+    "status": "REVIEWED_WITH_OPEN_TABLE_PRECISION_OBSERVATION",
+    "checked_at_utc": "2026-10-22T23:07:55.212191+00:00",
+    "method": "Actual C ABI SVG output rendered unchanged by macOS sips, PNGs opened with view_image; ImageMagick independently decoded RGBA for semantic mark anchors and borders.",
+    "reviewed_artifacts": [
+      {
+        "fixture": "unequal_density_response",
+        "visually_inspected_with": "view_image",
+        "svg": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/histogram-density.svg",
+          "sha256": "092454866336f571554a15651ee27773c59dca9e0f7a3e489961615d398dc1ab",
+          "bytes": 3281
+        },
+        "png": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/histogram-density.png",
+          "sha256": "5e2351a0be0ed2b3e51644f817077a7564da9bce3f9ac090a6a6cf00d63df6c4",
+          "bytes": 18580
+        }
+      },
+      {
+        "fixture": "interior_quantile_ticks",
+        "visually_inspected_with": "view_image",
+        "svg": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-quantile.svg",
+          "sha256": "ea28b695498065b5ff1697d84425b4eb38e779c7d5851fde60a277da7e30a7d8",
+          "bytes": 3794
+        },
+        "png": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-quantile.png",
+          "sha256": "fef4cbe2ec201c682a9eba8c62292b970f8db4afe8614b2a5d72b88b1cc06a7a",
+          "bytes": 21055
+        }
+      },
+      {
+        "fixture": "narrow_distinct_axis_labels",
+        "visually_inspected_with": "view_image",
+        "svg": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/histogram-narrow-domain.svg",
+          "sha256": "e7aa99170a21f1438502e29b53c55d981cfe7a322f6fb429c6812b0580e6ed58",
+          "bytes": 3464
+        },
+        "png": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/histogram-narrow-domain.png",
+          "sha256": "441677a70df10b6c146fd04bad1fc330a0feb343cb6e28d36af37c848574c74c",
+          "bytes": 22062
+        }
+      },
+      {
+        "fixture": "large_offset_small_range_labels",
+        "visually_inspected_with": "view_image",
+        "svg": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-large-offset.svg",
+          "sha256": "3e5c78de541d59cabf63f3394c5863429957ef85247d80f276087a114b536e25",
+          "bytes": 3521
+        },
+        "png": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-large-offset.png",
+          "sha256": "af5264d8e98b46847f3139184975dc9df482c757c25055dd3f7c8133d8bad72c",
+          "bytes": 27679
+        }
+      },
+      {
+        "fixture": "grouped_states_kind1_orientation1",
+        "visually_inspected_with": "view_image",
+        "svg": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-groups-horizontal.svg",
+          "sha256": "6bf5011264e990c04f2f6473b5859e6aac680055bf20f20f036a0df2d32ee1ca",
+          "bytes": 5633
+        },
+        "png": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-groups-horizontal.png",
+          "sha256": "4996def6047b9b854161cb8c46ebe93fffd4fba2b1717ed7b9f01b2f75f8d260",
+          "bytes": 32003
+        }
+      },
+      {
+        "fixture": "long_horizontal_group_identifiers",
+        "visually_inspected_with": "view_image",
+        "svg": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-long-group-ids.svg",
+          "sha256": "3bac8c47a474121c2ba5bb885bd48285aad8b956676d33620a4c57de8ab4a4cb",
+          "bytes": 4666
+        },
+        "png": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-long-group-ids.png",
+          "sha256": "924244b4cbcc4d448bbf3c5903bbade338bca439d921d7d390f979fdcc68046a",
+          "bytes": 36761
+        }
+      },
+      {
+        "fixture": "actual_data_whiskers",
+        "visually_inspected_with": "view_image",
+        "svg": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-outlier.svg",
+          "sha256": "da133a5b5c4bfc014fdbc64fdefb34e0c4147eac4ab1fc631a0a2a6e0fef73ce",
+          "bytes": 3453
+        },
+        "png": {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-outlier.png",
+          "sha256": "0e08ff8207d033c0c3a67715f9b36248699e92f2746718ef9179dd74c82eb951",
+          "bytes": 20627
+        }
+      }
+    ],
+    "observations": [
+      "Unequal-width density bars, interior quantile ticks, narrow-domain distinct axis labels, grouped full-range whiskers and long group IDs are visible and within the canvas.",
+      "Large-offset five-number table displays distinct values as the same concise1.00000e12 string; axis/JSON/title retain distinctions. Parent and source owner notified for contract decision/fix."
+    ],
+    "original_SVG_not_rewritten": true,
+    "second_reviewer": {
+      "reviewer": "root_agent",
+      "method": "view_image",
+      "observations": "Bars/density heights, distinct narrow-domain axis ticks, shared group domain, quantile marks, full labels and visible tables fit correctly for these representative artifacts. No additional defect beyond the known large-offset table.",
+      "artifacts": [
+        {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/histogram-density.png",
+          "sha256": "5e2351a0be0ed2b3e51644f817077a7564da9bce3f9ac090a6a6cf00d63df6c4",
+          "bytes": 18580
+        },
+        {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/histogram-narrow-domain.png",
+          "sha256": "441677a70df10b6c146fd04bad1fc330a0feb343cb6e28d36af37c848574c74c",
+          "bytes": 22062
+        },
+        {
+          "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-groups-horizontal.png",
+          "sha256": "4996def6047b9b854161cb8c46ebe93fffd4fba2b1717ed7b9f01b2f75f8d260",
+          "bytes": 32003
+        }
+      ]
+    }
+  },
+  "whole_JMP_feature_equivalence_claim": false,
+  "literal_reference_fixtures": 11,
+  "large_offset_reference_audit": {
+    "method": "Decimal90, exact Decimal.from_float inputs, official type6 ranks; round each output quantile once to f64",
+    "input_hex": [
+      "0x1.d1a94a2000000p+39",
+      "0x1.d1a94a2000029p+39",
+      "0x1.d1a94a2000052p+39",
+      "0x1.d1a94a200007bp+39",
+      "0x1.d1a94a20000a4p+39"
+    ],
+    "quantiles": [
+      {
+        "probability": "0.25",
+        "exact_real_quantile": "1000000000000.002502441406250",
+        "rounded_f64": 1000000000000.0024,
+        "rounded_f64_hex": "0x1.d1a94a2000014p+39"
+      },
+      {
+        "probability": "0.5",
+        "exact_real_quantile": "1000000000000.01000976562500",
+        "rounded_f64": 1000000000000.01,
+        "rounded_f64_hex": "0x1.d1a94a2000052p+39"
+      },
+      {
+        "probability": "0.75",
+        "exact_real_quantile": "1000000000000.017517089843750",
+        "rounded_f64": 1000000000000.0176,
+        "rounded_f64_hex": "0x1.d1a94a2000090p+39"
+      }
+    ],
+    "rounded_quantile_IQR": 0.01513671875,
+    "uncentered_statistics_quartiles": [
+      1000000000000.0024,
+      1000000000000.01,
+      1000000000000.0176
+    ],
+    "lesson": "The uncentered Python reference Q1 is one ULP wrong here; production matched the Decimal90-rounded quartiles. No tolerance was loosened to accept the difference."
+  },
+  "independent_expected_summaries": [
+    {
+      "name": "negative_edge_ties",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "probabilities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ],
+          "percents": [
+            14.285714285714286,
+            28.571428571428573,
+            28.571428571428573,
+            28.571428571428573
+          ],
+          "densities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unequal_bin_density",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.4,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "replication_frequency",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            4
+          ],
+          "probabilities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ],
+          "percents": [
+            42.857142857142854,
+            57.142857142857146
+          ],
+          "densities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ]
+        }
+      ]
+    },
+    {
+      "name": "singleton_histogram",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 1,
+          "selected_rows": 1,
+          "N": 1,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1
+          ],
+          "probabilities": [
+            1.0
+          ],
+          "percents": [
+            100.0
+          ],
+          "densities": [
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unequal_density_response",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.4,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "frequency_percent_response",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            4
+          ],
+          "probabilities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ],
+          "percents": [
+            42.857142857142854,
+            57.142857142857146
+          ],
+          "densities": [
+            0.42857142857142855,
+            0.5714285714285714
+          ]
+        }
+      ]
+    },
+    {
+      "name": "type6_not_type7",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.5,
+            3.75,
+            4
+          ],
+          "quartiles": [
+            1.25,
+            2.5,
+            3.75
+          ],
+          "IQR": 2.5,
+          "fences": [
+            -2.5,
+            7.5
+          ],
+          "whiskers": [
+            1,
+            4
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.5,
+            "0.75": 3.75,
+            "0.9": 4,
+            "0.975": 4
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "actual_data_whiskers",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fence_equalities",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -5,
+            1.0,
+            3.0,
+            5.0,
+            11
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            -5,
+            11
+          ],
+          "quantiles": {
+            "0.025": -5,
+            "0.1": -5,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 11,
+            "0.975": 11
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "zero_iqr_outlier",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            0,
+            0,
+            0,
+            10
+          ],
+          "quartiles": [
+            0,
+            0,
+            0
+          ],
+          "IQR": 0,
+          "fences": [
+            0.0,
+            0.0
+          ],
+          "whiskers": [
+            0,
+            0
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 0,
+            "0.5": 0,
+            "0.75": 0,
+            "0.9": 10,
+            "0.975": 10
+          },
+          "outliers": [
+            [
+              10,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "singleton_box",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 1,
+          "selected_rows": 1,
+          "N": 1,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            42,
+            42,
+            42,
+            42,
+            42
+          ],
+          "quartiles": [
+            42,
+            42,
+            42
+          ],
+          "IQR": 0,
+          "fences": [
+            42.0,
+            42.0
+          ],
+          "whiskers": [
+            42,
+            42
+          ],
+          "quantiles": {
+            "0.025": 42,
+            "0.1": 42,
+            "0.25": 42,
+            "0.5": 42,
+            "0.75": 42,
+            "0.9": 42,
+            "0.975": 42
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "two_observations",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 2,
+          "selected_rows": 2,
+          "N": 2,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -1,
+            -1,
+            0.0,
+            1,
+            1
+          ],
+          "quartiles": [
+            -1,
+            0.0,
+            1
+          ],
+          "IQR": 2,
+          "fences": [
+            -4.0,
+            4.0
+          ],
+          "whiskers": [
+            -1,
+            1
+          ],
+          "quantiles": {
+            "0.025": -1,
+            "0.1": -1,
+            "0.25": -1,
+            "0.5": 0.0,
+            "0.75": 1,
+            "0.9": 1,
+            "0.975": 1
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "frequency_box",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 3,
+          "selected_rows": 3,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.0,
+            8.0,
+            10
+          ],
+          "quartiles": [
+            1.25,
+            2.0,
+            8.0
+          ],
+          "IQR": 6.75,
+          "fences": [
+            -8.875,
+            18.125
+          ],
+          "whiskers": [
+            1,
+            10
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.0,
+            "0.75": 8.0,
+            "0.9": 10,
+            "0.975": 10
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "quantile_full_range_and_four_ticks",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "interior_quantile_ticks",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 41,
+          "selected_rows": 41,
+          "N": 41,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            9.5,
+            20.0,
+            30.5,
+            40
+          ],
+          "quartiles": [
+            9.5,
+            20.0,
+            30.5
+          ],
+          "IQR": 21.0,
+          "fences": [
+            -22.0,
+            62.0
+          ],
+          "whiskers": [
+            0,
+            40
+          ],
+          "quantiles": {
+            "0.025": 0.05,
+            "0.1": 3.2,
+            "0.25": 9.5,
+            "0.5": 20.0,
+            "0.75": 30.5,
+            "0.9": 36.8,
+            "0.975": 39.95
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "suppressed_outlier_keeps_statistics",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "grouped_source_states",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "counts": [
+            0,
+            2,
+            4,
+            1
+          ],
+          "probabilities": [
+            0.0,
+            0.2857142857142857,
+            0.5714285714285714,
+            0.14285714285714285
+          ],
+          "percents": [
+            0.0,
+            28.571428571428573,
+            57.142857142857146,
+            14.285714285714286
+          ],
+          "densities": [
+            0.0,
+            0.14285714285714285,
+            0.07142857142857142,
+            0.0015698587127158554
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            0.6,
+            0.2,
+            0.2,
+            0.0
+          ],
+          "percents": [
+            60.0,
+            20.0,
+            20.0,
+            0.0
+          ],
+          "densities": [
+            0.06,
+            0.1,
+            0.025,
+            0.0
+          ]
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_horizontal_density",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "counts": [
+            0,
+            2,
+            4,
+            1
+          ],
+          "probabilities": [
+            0.0,
+            0.2857142857142857,
+            0.5714285714285714,
+            0.14285714285714285
+          ],
+          "percents": [
+            0.0,
+            28.571428571428573,
+            57.142857142857146,
+            14.285714285714286
+          ],
+          "densities": [
+            0.0,
+            0.14285714285714285,
+            0.07142857142857142,
+            0.0015698587127158554
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            0.6,
+            0.2,
+            0.2,
+            0.0
+          ],
+          "percents": [
+            60.0,
+            20.0,
+            20.0,
+            0.0
+          ],
+          "densities": [
+            0.06,
+            0.1,
+            0.025,
+            0.0
+          ]
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind0_orientation0",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind0_orientation1",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind1_orientation0",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "grouped_states_kind1_orientation1",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "adjacent_floating_edge_membership",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 11,
+          "N": 11,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3,
+            3,
+            3
+          ],
+          "probabilities": [
+            0.18181818181818182,
+            0.2727272727272727,
+            0.2727272727272727,
+            0.2727272727272727
+          ],
+          "percents": [
+            18.181818181818183,
+            27.272727272727273,
+            27.272727272727273,
+            27.272727272727273
+          ],
+          "densities": [
+            0.18181818181818182,
+            0.2727272727272727,
+            0.2727272727272727,
+            0.2727272727272727
+          ]
+        }
+      ]
+    },
+    {
+      "name": "narrow_distinct_axis_labels",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 3,
+          "selected_rows": 3,
+          "N": 3,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2
+          ],
+          "probabilities": [
+            0.3333333333333333,
+            0.6666666666666666
+          ],
+          "percents": [
+            33.333333333333336,
+            66.66666666666667
+          ],
+          "densities": [
+            33333333.5359157,
+            66666665.59153405
+          ]
+        }
+      ]
+    },
+    {
+      "name": "large_offset_small_range_labels",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1000000000000.0,
+            1000000000000.0024,
+            1000000000000.01,
+            1000000000000.0176,
+            1000000000000.02
+          ],
+          "quartiles": [
+            1000000000000.0024,
+            1000000000000.01,
+            1000000000000.0176
+          ],
+          "IQR": 0.01513671875,
+          "fences": [
+            999999999999.9797,
+            1000000000000.0403
+          ],
+          "whiskers": [
+            1000000000000.0,
+            1000000000000.02
+          ],
+          "quantiles": {
+            "0.025": 1000000000000.0,
+            "0.1": 1000000000000.0,
+            "0.25": 1000000000000.0024,
+            "0.5": 1000000000000.01,
+            "0.75": 1000000000000.0176,
+            "0.9": 1000000000000.02,
+            "0.975": 1000000000000.02
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "large_offset_ulp_spaced_labels",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1e+16,
+            1e+16,
+            1.0000000000000004e+16,
+            1.0000000000000008e+16,
+            1.0000000000000008e+16
+          ],
+          "quartiles": [
+            1e+16,
+            1.0000000000000004e+16,
+            1.0000000000000008e+16
+          ],
+          "IQR": 8.0,
+          "fences": [
+            9999999999999988.0,
+            1.000000000000002e+16
+          ],
+          "whiskers": [
+            1e+16,
+            1.0000000000000008e+16
+          ],
+          "quantiles": {
+            "0.025": 1e+16,
+            "0.1": 1e+16,
+            "0.25": 1e+16,
+            "0.5": 1.0000000000000004e+16,
+            "0.75": 1.0000000000000008e+16,
+            "0.9": 1.0000000000000008e+16,
+            "0.975": 1.0000000000000008e+16
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "long_group_identifiers",
+      "groups": [
+        {
+          "group_id": 9007199254740000,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2,
+            1
+          ],
+          "probabilities": [
+            0.25,
+            0.5,
+            0.25
+          ],
+          "percents": [
+            25.0,
+            50.0,
+            25.0
+          ],
+          "densities": [
+            0.125,
+            0.25,
+            0.125
+          ]
+        },
+        {
+          "group_id": 9007199254740002,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            0,
+            2,
+            2
+          ],
+          "probabilities": [
+            0.0,
+            0.5,
+            0.5
+          ],
+          "percents": [
+            0.0,
+            50.0,
+            50.0
+          ],
+          "densities": [
+            0.0,
+            0.25,
+            0.25
+          ]
+        }
+      ]
+    },
+    {
+      "name": "long_horizontal_group_identifiers",
+      "groups": [
+        {
+          "group_id": 9007199254740000,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.5,
+            3.75,
+            4
+          ],
+          "quartiles": [
+            1.25,
+            2.5,
+            3.75
+          ],
+          "IQR": 2.5,
+          "fences": [
+            -2.5,
+            7.5
+          ],
+          "whiskers": [
+            1,
+            4
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.5,
+            "0.75": 3.75,
+            "0.9": 4,
+            "0.975": 4
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9007199254740002,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            2,
+            2.25,
+            3.5,
+            5.5,
+            6
+          ],
+          "quartiles": [
+            2.25,
+            3.5,
+            5.5
+          ],
+          "IQR": 3.25,
+          "fences": [
+            -2.625,
+            10.375
+          ],
+          "whiskers": [
+            2,
+            6
+          ],
+          "quantiles": {
+            "0.025": 2,
+            "0.1": 2,
+            "0.25": 2.25,
+            "0.5": 3.5,
+            "0.75": 5.5,
+            "0.9": 6,
+            "0.975": 6
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "horizontal_histogram",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            1,
+            2,
+            2,
+            2
+          ],
+          "probabilities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ],
+          "percents": [
+            14.285714285714286,
+            28.571428571428573,
+            28.571428571428573,
+            28.571428571428573
+          ],
+          "densities": [
+            0.14285714285714285,
+            0.2857142857142857,
+            0.2857142857142857,
+            0.2857142857142857
+          ]
+        }
+      ]
+    },
+    {
+      "name": "horizontal_box_with_outlier",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "resized_histogram",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.4,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "resized_box",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 4,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            1,
+            1.25,
+            2.5,
+            3.75,
+            4
+          ],
+          "quartiles": [
+            1.25,
+            2.5,
+            3.75
+          ],
+          "IQR": 2.5,
+          "fences": [
+            -2.5,
+            7.5
+          ],
+          "whiskers": [
+            1,
+            4
+          ],
+          "quantiles": {
+            "0.025": 1,
+            "0.1": 1,
+            "0.25": 1.25,
+            "0.5": 2.5,
+            "0.75": 3.75,
+            "0.9": 4,
+            "0.975": 4
+          },
+          "outliers": []
+        }
+      ]
+    },
+    {
+      "name": "affine_histogram_density",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 5,
+          "selected_rows": 5,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            2,
+            3
+          ],
+          "probabilities": [
+            0.4,
+            0.6
+          ],
+          "percents": [
+            40.0,
+            60.0
+          ],
+          "densities": [
+            0.1,
+            0.075
+          ]
+        }
+      ]
+    },
+    {
+      "name": "affine_box_summary_and_fences",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 7,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            7,
+            11.0,
+            19.0,
+            27.0,
+            407
+          ],
+          "quartiles": [
+            11.0,
+            19.0,
+            27.0
+          ],
+          "IQR": 16.0,
+          "fences": [
+            -13.0,
+            51.0
+          ],
+          "whiskers": [
+            7,
+            27
+          ],
+          "quantiles": {
+            "0.025": 7,
+            "0.1": 7,
+            "0.25": 11.0,
+            "0.5": 19.0,
+            "0.75": 27.0,
+            "0.9": 407,
+            "0.975": 407
+          },
+          "outliers": [
+            [
+              407,
+              0,
+              1,
+              0,
+              0,
+              1,
+              6
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "permuted_histogram_rows",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "counts": [
+            0,
+            2,
+            4,
+            1
+          ],
+          "probabilities": [
+            0.0,
+            0.2857142857142857,
+            0.5714285714285714,
+            0.14285714285714285
+          ],
+          "percents": [
+            0.0,
+            28.571428571428573,
+            57.142857142857146,
+            14.285714285714286
+          ],
+          "densities": [
+            0.0,
+            0.14285714285714285,
+            0.07142857142857142,
+            0.0015698587127158554
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "counts": [
+            3,
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            0.6,
+            0.2,
+            0.2,
+            0.0
+          ],
+          "percents": [
+            60.0,
+            20.0,
+            20.0,
+            0.0
+          ],
+          "densities": [
+            0.06,
+            0.1,
+            0.025,
+            0.0
+          ]
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    },
+    {
+      "name": "permuted_box_rows",
+      "groups": [
+        {
+          "group_id": 0,
+          "source_rows": 11,
+          "selected_rows": 7,
+          "N": 7,
+          "excluded_rows": 2,
+          "missing_rows": 2,
+          "zero_frequency_rows": 1,
+          "hidden_rows": 2,
+          "five_number": [
+            0,
+            1.0,
+            3.0,
+            5.0,
+            100
+          ],
+          "quartiles": [
+            1.0,
+            3.0,
+            5.0
+          ],
+          "IQR": 4.0,
+          "fences": [
+            -5.0,
+            11.0
+          ],
+          "whiskers": [
+            0,
+            5
+          ],
+          "quantiles": {
+            "0.025": 0,
+            "0.1": 0,
+            "0.25": 1.0,
+            "0.5": 3.0,
+            "0.75": 5.0,
+            "0.9": 100,
+            "0.975": 100
+          },
+          "outliers": [
+            [
+              100,
+              0,
+              1,
+              0,
+              1,
+              1,
+              16
+            ]
+          ]
+        },
+        {
+          "group_id": 7,
+          "source_rows": 4,
+          "selected_rows": 4,
+          "N": 5,
+          "excluded_rows": 0,
+          "missing_rows": 0,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0,
+          "five_number": [
+            -3,
+            -2.0,
+            -1.0,
+            2.5,
+            5
+          ],
+          "quartiles": [
+            -2.0,
+            -1.0,
+            2.5
+          ],
+          "IQR": 4.5,
+          "fences": [
+            -8.75,
+            9.25
+          ],
+          "whiskers": [
+            -3,
+            5
+          ],
+          "quantiles": {
+            "0.025": -3,
+            "0.1": -3,
+            "0.25": -2.0,
+            "0.5": -1.0,
+            "0.75": 2.5,
+            "0.9": 5,
+            "0.975": 5
+          },
+          "outliers": []
+        },
+        {
+          "group_id": 9,
+          "source_rows": 2,
+          "selected_rows": 0,
+          "N": 0,
+          "excluded_rows": 1,
+          "missing_rows": 1,
+          "zero_frequency_rows": 0,
+          "hidden_rows": 0
+        }
+      ]
+    }
+  ],
+  "renderer": {
+    "path": "/opt/homebrew/bin/magick",
+    "version": "Version: ImageMagick 7.1.1-47 Q16-HDRI aarch64 22763 https://imagemagick.org",
+    "svg_rasterizer": "sips",
+    "original_svg_used_without_rewriting": true,
+    "png_decoder": "ImageMagick_RGBA"
+  },
+  "library": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/analytics_abi.dylib",
+    "sha256": "cfa277a3718c33feb6eeb2dacfbb5311991beb8c09f8bc3d894f98f3ba43d4a7"
+  },
+  "public_c_abi_calls": 69,
+  "positive_fixtures": 36,
+  "assertions": 46501,
+  "full_public_boundaries_verified": false,
+  "rasterized_artifacts": 29,
+  "build_manifest": {
+    "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-reports-dev-abi-build.json",
+    "sha256": "b6d7bbbb4994ca72f4340307bd1cc76151b6b75c79529c0ef4145629263e4d93",
+    "bytes": 1313
+  },
+  "renderer_differential": {
+    "classification": "installed_ImageMagick_internal_SVG_renderer_limitation",
+    "initial_attempt": "ImageMagick7.1.1-47 lost a valid hollow outlier circle and box outline; original SVG displays correctly in sips and Quick Look.",
+    "minimal_reproduction": "Even an unclipped white-fill/stroked circle renders0dark pixels in ImageMagick, while the filled-circle control renders45. Explicit stroke color/style and clip units do not fix it.",
+    "failing_pixels": {
+      "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-outlier-imagemagick-internal.png",
+      "sha256": "3d382ee41cfa1b7c8d15ed63b9b58cf8504a1c596324df9a6c6d7ea9cfc3f568",
+      "bytes": 7281
+    },
+    "hollow_reproduction": {
+      "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/imagemagick-hollow-circle-repro.svg",
+      "sha256": "9e67a946e666e8d4701d722181d7c39ef8b8230942c3a756855ce2f3da85293e",
+      "bytes": 293
+    },
+    "filled_control": {
+      "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/imagemagick-filled-circle-control.svg",
+      "sha256": "e3ba026fe35626b836df299d1830b4909edcf8bda82377f25cff2608ea90b293",
+      "bytes": 295
+    },
+    "correct_original_artifact": {
+      "fixture": "actual_data_whiskers",
+      "visually_inspected_with": "view_image",
+      "svg": {
+        "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-outlier.svg",
+        "sha256": "da133a5b5c4bfc014fdbc64fdefb34e0c4147eac4ab1fc631a0a2a6e0fef73ce",
+        "bytes": 3453
+      },
+      "png": {
+        "path": "/Users/nk/Desktop/ducksmiles-analytics-20261021/tasks/evidence/jmp-report-artifacts-dev/box-outlier.png",
+        "sha256": "0e08ff8207d033c0c3a67715f9b36248699e92f2746718ef9179dd74c82eb951",
+        "bytes": 20627
+      }
+    },
+    "first_failed_run": {
+      "path": "/private/tmp/ducksmiles-jmp-parity-20261022/report-check/imagemagick-first-failure/dev-reference.json",
+      "sha256": "4d498ecc6adbaa674ef2962a265a3052620037d9496cfd6e8641d4ed021df7e4",
+      "bytes": 59484
+    }
+  },
+  "SQL_status": "PENDING_final_Release_CLI_and_extension; this evidence verifies public C ABI only"
+}

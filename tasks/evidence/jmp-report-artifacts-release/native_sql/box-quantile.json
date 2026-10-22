@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "schema": "ducksmiles-cpu-plot-v1",
+  "operation": "report_box_plot_svg",
+  "media_type": "image/svg+xml",
+  "width": 800,
+  "height": 500,
+  "source_rows": 41,
+  "selected_rows": 41,
+  "N": 41,
+  "selection_policy": "observed=1 and excluded=0 and frequency>0; hidden retains summaries and suppresses individual marks; row-state counts overlap",
+  "policy": "Hyndman_Fan_type_6_integer_replication_closed_Tukey_fences",
+  "limits": {
+    "source_rows": 100000,
+    "groups": 16,
+    "sum_frequency_per_call": 1000000,
+    "histogram_bins": 512,
+    "rendered_individual_markers": 20000,
+    "svg_utf8_bytes": 2097152
+  },
+  "implemented_options": [
+    "type6 quartiles",
+    "closed Tukey fences and actual-data whiskers",
+    "quantile ticks and full-range whiskers",
+    "integer frequency",
+    "hidden outlier provenance",
+    "five-number table",
+    "both orientations"
+  ],
+  "remaining_options": [
+    "analytic Weight and fractional Freq",
+    "mean confidence diamond notches shortest half",
+    "styles placement jitter",
+    "exact JMP hidden and fence-boundary reference fixtures"
+  ],
+  "outlier_classification": "closed_Tukey_fences_independent_of_box_type",
+  "outlier_visibility": "not_applicable_quantile",
+  "box_type": 1,
+  "orientation": 0,
+  "show_outliers": true,
+  "show_five_number_labels": true,
+  "groups": [
+    {
+      "group_id": 0,
+      "status": "ok",
+      "source_rows": 41,
+      "selected_rows": 41,
+      "N": 41,
+      "excluded_rows": 0,
+      "missing_rows": 0,
+      "zero_frequency_rows": 0,
+      "hidden_rows": 0,
+      "five_number": [
+        0,
+        9.5,
+        20,
+        30.5,
+        40
+      ],
+      "iqr": 21,
+      "fences": [
+        -22,
+        62
+      ],
+      "whiskers": [
+        0,
+        40
+      ],
+      "quantile_ticks": [
+        0.050000000000000044,
+        3.2,
+        36.800000000000004,
+        39.949999999999996
+      ],
+      "outliers": [],
+      "panel": {
+        "left": 70,
+        "top": 76,
+        "width": 690,
+        "height": 304
+      },
+      "value_domain": [
+        0,
+        40
+      ],
+      "affine": {
+        "value_scale": -7.6,
+        "value_offset": 380,
+        "value_origin": 0,
+        "svg_origin": 380
+      },
+      "group_coordinate": 415,
+      "box_half_width": 28
+    }
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"800\" height=\"500\" viewBox=\"0 0 800 500\" role=\"img\" aria-labelledby=\"report-title report-description\"><title id=\"report-title\">Box plot</title><desc id=\"report-description\">Type 6 quantiles with integer-frequency replication. Hollow boxes show quartiles, thick lines medians, capped stems observed-data whiskers, circles visible Tukey outlier source rows. Hidden rows remain in summaries.</desc><style>text{font-family:sans-serif;font-size:12px;fill:#17212b}line{stroke:#17212b;stroke-width:1.5}.axis{stroke:#17212b;stroke-width:1}.box{fill:white;stroke:#17212b;stroke-width:2}.bar{fill:#2877a8;stroke:#17212b;stroke-width:0.6}.median{stroke:#111;stroke-width:3}</style><rect width=\"800\" height=\"500\" fill=\"white\"/><text x=\"400\" y=\"22\" text-anchor=\"middle\">Box plot</text><line x1=\"70\" y1=\"76\" x2=\"70\" y2=\"380\" class=\"axis\"/><line x1=\"66\" y1=\"380\" x2=\"70\" y2=\"380\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"0\" x=\"63\" y=\"384\" text-anchor=\"end\">0</text><line x1=\"66\" y1=\"304\" x2=\"70\" y2=\"304\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"10\" x=\"63\" y=\"308\" text-anchor=\"end\">10</text><line x1=\"66\" y1=\"228\" x2=\"70\" y2=\"228\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"20\" x=\"63\" y=\"232\" text-anchor=\"end\">20</text><line x1=\"66\" y1=\"152\" x2=\"70\" y2=\"152\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"30\" x=\"63\" y=\"156\" text-anchor=\"end\">30</text><line x1=\"66\" y1=\"76\" x2=\"70\" y2=\"76\" class=\"axis\"/><text data-role=\"value-tick-label\" data-value=\"40\" x=\"63\" y=\"80\" text-anchor=\"end\">40</text><text x=\"70\" y=\"64\" text-anchor=\"start\">Value</text><defs><clipPath id=\"box-clip\"><rect x=\"66\" y=\"72\" width=\"698\" height=\"312\"/></clipPath></defs><text x=\"16\" y=\"440\" text-anchor=\"start\">Group</text><text x=\"150\" y=\"440\" text-anchor=\"start\">Minimum</text><text x=\"272\" y=\"440\" text-anchor=\"start\">Q1</text><text x=\"394\" y=\"440\" text-anchor=\"start\">Median</text><text x=\"516\" y=\"440\" text-anchor=\"start\">Q3</text><text x=\"638\" y=\"440\" text-anchor=\"start\">Maximum</text><text x=\"415\" y=\"398\" text-anchor=\"middle\">Group 0</text><text x=\"415\" y=\"48\" text-anchor=\"middle\">N=41</text><g clip-path=\"url(#box-clip)\" data-group-id=\"0\"><title>Group 0; N=41; Minimum 0; Q1 9.5; median 20; Q3 30.5; maximum 40; whiskers 0 to 40</title><line x1=\"415\" y1=\"380\" x2=\"415\" y2=\"76\" id=\"stem-0\" data-role=\"whisker-stem\" data-group-id=\"0\"/><line x1=\"398.2\" y1=\"380\" x2=\"431.8\" y2=\"380\" id=\"cap-0-lower\" data-role=\"whisker-cap\" data-end=\"lower\" data-group-id=\"0\"/><line x1=\"398.2\" y1=\"76\" x2=\"431.8\" y2=\"76\" id=\"cap-0-upper\" data-role=\"whisker-cap\" data-end=\"upper\" data-group-id=\"0\"/><rect id=\"box-0\" class=\"box\" data-role=\"box\" data-group-id=\"0\" x=\"387\" y=\"148.20000000000002\" width=\"56\" height=\"159.59999999999994\"/><line x1=\"387\" y1=\"228\" x2=\"443\" y2=\"228\" id=\"median-0\" class=\"median\" data-role=\"median\" data-group-id=\"0\"/><line x1=\"387\" y1=\"379.62\" x2=\"443\" y2=\"379.62\" id=\"tick-0-0\" data-role=\"quantile-tick\" data-probability=\"0.025\" data-group-id=\"0\"/><line x1=\"387\" y1=\"355.68\" x2=\"443\" y2=\"355.68\" id=\"tick-0-1\" data-role=\"quantile-tick\" data-probability=\"0.1\" data-group-id=\"0\"/><line x1=\"387\" y1=\"100.31999999999995\" x2=\"443\" y2=\"100.31999999999995\" id=\"tick-0-2\" data-role=\"quantile-tick\" data-probability=\"0.9\" data-group-id=\"0\"/><line x1=\"387\" y1=\"76.38000000000002\" x2=\"443\" y2=\"76.38000000000002\" id=\"tick-0-3\" data-role=\"quantile-tick\" data-probability=\"0.975\" data-group-id=\"0\"/></g><text x=\"16\" y=\"458\" text-anchor=\"start\">0</text><text data-role=\"five-number-value\" data-group-id=\"0\" data-statistic=\"minimum\" data-value=\"0\" x=\"150\" y=\"458\" text-anchor=\"start\">0</text><text data-role=\"five-number-value\" data-group-id=\"0\" data-statistic=\"q1\" data-value=\"9.5\" x=\"272\" y=\"458\" text-anchor=\"start\">9.5</text><text data-role=\"five-number-value\" data-group-id=\"0\" data-statistic=\"median\" data-value=\"20\" x=\"394\" y=\"458\" text-anchor=\"start\">20</text><text data-role=\"five-number-value\" data-group-id=\"0\" data-statistic=\"q3\" data-value=\"30.5\" x=\"516\" y=\"458\" text-anchor=\"start\">30.5</text><text data-role=\"five-number-value\" data-group-id=\"0\" data-statistic=\"maximum\" data-value=\"40\" x=\"638\" y=\"458\" text-anchor=\"start\">40</text></svg>"
+}

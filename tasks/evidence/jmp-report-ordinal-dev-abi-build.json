@@ -1,0 +1,50 @@
+{
+  "profile": "dev/default features",
+  "status": "PASS",
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "ducksmiles_analytics",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.0110845839999456,
+      "log": "tasks/evidence/jmp-report-ordinal-dev-build-0.log",
+      "log_sha256": "5df17e7be5a1cbfc3b5e0544d51b0313403d8a88c63acdcc75574db55ab2c77a"
+    },
+    {
+      "command": [
+        "clang",
+        "-dynamiclib",
+        "-Wl,-force_load,/private/tmp/ducksmiles-jmp-parity-20261022/debug/libducksmiles_analytics.a",
+        "-Wl,-exported_symbol,_ds_analytics_run",
+        "-Wl,-exported_symbol,_ds_analytics_free",
+        "-framework",
+        "Security",
+        "-framework",
+        "CoreFoundation",
+        "-liconv",
+        "-o",
+        "/private/tmp/ducksmiles-jmp-parity-20261022/all4-check/analytics_abi.dylib"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.18435670799954096,
+      "log": "tasks/evidence/jmp-report-ordinal-dev-build-1.log",
+      "log_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    }
+  ],
+  "source_hashes": {
+    "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
+    "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+    "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+    "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+  },
+  "library": {
+    "path": "/private/tmp/ducksmiles-jmp-parity-20261022/all4-check/analytics_abi.dylib",
+    "sha256": "953819e84c0d75a1ad5c1fce6a4ebf14af1803aaad4bcfb20b5963cf7891b0f6"
+  },
+  "archive_sha256": "4e424fcef438b1f8eb8721c59a77f85e31a8167dd7c540d996ae2d82f0190535"
+}

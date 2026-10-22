@@ -43,7 +43,7 @@ INSTALL ducksmiles FROM community;
 LOAD ducksmiles;
 ```
 
-The 0.6.0 source adds 263 CPU analytics functions (414 total SQL overloads).
+The 0.6.1 source provides 267 CPU analytics functions (418 total SQL overloads).
 Community packages depend on the version and source revision accepted upstream.
 At the earlier 254-function checkpoint, the DuckDB 2 CI revision
 `d54cbbe3df17e8e5ce68312f483b4155836112aa` passed all 13 SQL cases
@@ -56,8 +56,8 @@ integer APIs unavailable in that pinned Rust compiler.
 CI also builds and preloads JSON for the SQL regression suite. A required-extension
 test loads the built DuckSMILES file and executes a JSON query, so missing
 prerequisites cause a failure instead of silently skipping the tests. The earlier DuckDB 2
-preflight passed 14 SQL cases / 443 assertions. The resumed Release build passes
-16 SQL cases / 513 assertions and all414 catalog examples on macOS arm64. Community CI additionally loads
+preflight passed 14 SQL cases / 443 assertions. The current Release build passes
+18 SQL cases / 603 assertions and all418 catalog examples on macOS arm64. Community CI additionally loads
 the built extension on test initialization and marks both extensions as required.
 
 When CI supplies a prebuilt native DuckDB library, the build checks its embedded
@@ -916,7 +916,7 @@ FROM (VALUES ('CCO'), ('CC(=O)O'), ('NCC(=O)O')) AS t(smiles);
 The analytics build adds numerical methods to the molecular SQL workflow. The
 calculation core runs on the CPU, without a GUI, GPU runtime, Python or external
 chemistry library. This section lists **every currently registered analytics SQL
-function** (263 verified functions: the original 24 plus the method registry below), with its input contract and an
+function** (267 verified functions: the original 24 plus the method registry below), with its input contract and an
 executable call. Existing community packages can predate this implementation;
 use a build containing these registrations and check the loaded catalog:
 
@@ -1262,6 +1262,10 @@ limited kernel has passed tests.
 | `chem_censored_predict` / `censored_predict` | Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters. | `SELECT chem_censored_predict([[0.0,0.5],[1.0,0.975]], [1.0,0.0,0.0,0.95,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]);` |
 | `chem_spatial_fit` / `spatial_fit` | Profile Gaussian ML/REML spatial regression with estimated total variance,range and optional nugget; independent subject blocks and numeric fixed trend. | `SELECT chem_spatial_fit([[0,0,1],[1,0,2],[2,0,6]], [1,0,0,0,0,100,1e-8,0.1,0.5]);` |
 | `chem_spatial_fit_predict` / `spatial_fit_predict` | Saved estimated-spatial-model universal kriging,with conditional latent and independent-observation variances. | `SELECT chem_spatial_fit_predict([[10,0]], [1,1,0,3,0,4.666666666666667,0,0.1,0,0,1,1,0,2,2,0,6]);` |
+| `chem_report_histogram_svg` / `report_histogram_svg` | Bounded explicit-edge count, percent and density histograms with integer-frequency summaries and deterministic self-contained SVG. | `SELECT chem_report_histogram_svg([[0,0,1,0,0,1,0],[1,0,1,0,0,1,1],[2,0,1,0,0,1,2]], [1,900,600,0,0,3,0,1,2]);` |
+| `chem_report_box_plot_svg` / `report_box_plot_svg` | Bounded type6 Tukey or quantile box plots with numerical provenance and deterministic self-contained SVG. | `SELECT chem_report_box_plot_svg([[1,0,1,0,0,1,0],[2,0,1,0,0,1,1],[3,0,1,0,0,1,2],[4,0,1,0,0,1,3]], [1,900,650,0,0,1,1]);` |
+| `chem_genreg_ordinal_fit` / `genreg_ordinal_fit` | Unpenalized ordered cumulative-logit ML with sorted numeric outcome levels,integer replication frequencies,and joint observed-information inference. | `SELECT chem_genreg_ordinal_fit([[30,1],[10,1],[20,2]], []);` |
+| `chem_genreg_ordinal_predict` / `genreg_ordinal_predict` | Saved ordinal probability,CDF,mode,quantile-label and observed-information delta prediction with original training transforms. | `SELECT chem_genreg_ordinal_predict([[0.2],[0.43],[0.81]], [1.0,0.0,3.0,0.95,1.0,10.0,20.0,30.0,-1.0986122886681098,1.0986122886681098,1.3333333333333333,0.4444444444444444,0.4444444444444444,1.3333333333333333]);` |
 
 <!-- analytics-registry-table:end -->
 
@@ -1997,6 +2001,11 @@ standard error remain finite. Saved covariance must be symmetric and positive de
 material asymmetry is rejected using scaled comparisons. Observed joint-information uncertainty
 uses normal Wald intervals, not profile likelihood. Rank, local convergence and
 information checks do not certify global optimality or every nonexistence path.
+JMP Generalized Regression documents [M-estimation sandwich uncertainty](https://www.jmp.com/support/help/en/19.2/jmp/parameter-estimates-for-original-predictors.shtml).
+The present inverse observed-information covariance is an explicit alternative.
+Its equivalence to JMP sandwich construction, frequency score aggregation and
+finite-sample correction is unverified; applying the general GenReg report
+documentation to these censored families is an inference.
 The API supports at most16 features, finite data with absolute value at most1e150,
 100000 rows, 1M cells, and a cumulative200M numerical work budget. Work-budget or
 special-function convergence failure returns SQL NULL. See the
@@ -2043,6 +2052,150 @@ records the carrier, bounds and convergence diagnostics. Anisotropy, G-side rand
 effects, weights, no-intercept and categorical designs, negative variance
 components, small-sample degrees of freedom, variogram nonlinear fitting and
 automatic family selection remain outstanding.
+
+### CPU SVG reports: explicit histograms and box plots
+
+`chem_report_histogram_svg` and `chem_report_box_plot_svg` return JSON containing
+numerical summaries and a self-contained `svg` string. These bounded static
+reports pass actual Release C ABI, matching loaded SQL and independent XML/raster
+checks. The [complete report API](tasks/jmp-report-api.json)
+records the arguments, output fields, limits and evidence. Both operations also
+work through `chem_analyze('report_histogram_svg', data, parameters)` or
+`chem_analyze('report_box_plot_svg', data, parameters)`.
+
+Every input row has seven columns:
+`[value, group_id, integer_frequency, excluded, hidden, observed, unique_row_id]`.
+The three flags are0 or1. Analysis includes rows with `observed=1`, `excluded=0`
+and positive frequency. A hidden row still contributes numerically but has no
+individual marker. When `observed=0`, supply a finite ignored placeholder;
+the placeholder is not an imputation. Physical row counts and replicated `N`
+are separate. State counters count overlapping flags independently. Groups are
+sorted by numeric ID; an empty group has null statistics and no plot panel.
+At least one group must contain selected observations.
+
+Histogram parameters are
+`[1, width_px, height_px, response, orientation, edge_count, edges...]`.
+Response0 is count,1 percent and2 density; orientation0 puts values onX and1
+onY. Supply2..513 strictly increasing finite edges. Bins are left closed and
+right open, with the final right endpoint included. Every selected value must
+lie within the supplied edges. For each group, probability is bin frequency
+divided by group `N`; percent is100 times probability, and density is probability
+divided by bin width. The plot facets groups and shares the response scale.
+
+Box parameters are
+`[1, width_px, height_px, box_type, orientation, show_outliers, show_five_number_table]`.
+Type0 is a Tukey outlier box and1 a quantile box; orientation0 puts values onY
+and1 onX. Both display flags are0 or1. Quantiles use the JMP Distribution
+type6 rule: position `(N+1)*p`, linear interpolation and endpoint clamping.
+For `[1,2,3,4]`, Q1/median/Q3 are1.25/2.5/3.75. Tukey whiskers are actual
+observations within the closed `Q1-1.5*IQR` to `Q3+1.5*IQR` fences. A visible
+outlier marker represents one source row and retains its frequency and row ID.
+Quantile boxes use the full data range and add.025/.10/.90/.975 ticks; their JSON
+still records Tukey outlier classifications, but they do not draw outlier circles.
+
+```sql
+-- Explicit edges [0,1) and [1,2]: counts [1,2], N=3.
+SELECT chem_report_histogram_svg(
+    [[0,0,1,0,0,1,0],[1,0,1,0,0,1,1],[2,0,1,0,0,1,2]],
+    [1,900,600,0,0,3,0,1,2]);
+
+-- Extract a complete SVG document from the JSON result.
+WITH report AS (
+    SELECT chem_report_box_plot_svg(
+        [[1,0,1,0,0,1,0],[2,0,1,0,0,1,1],
+         [3,0,1,0,0,1,2],[4,0,1,0,0,1,3]],
+        [1,900,650,0,0,1,1]) AS result
+)
+SELECT json_extract_string(result, '$.svg') AS svg FROM report;
+```
+
+The returned metadata includes panel bounds, full numerical summaries, explicit
+implemented/remaining options and source provenance. Reconstruct value positions
+with `svg_origin + value_scale*(value-value_origin)`; the conventional form
+`value_scale*value+value_offset` can lose precision for large offsets.
+Axes and visible five-number cells adapt precision; axes also adapt tick count.
+A requested canvas must fit readable
+labels and geometry: at least100x80 pixels per plot,2 pixels per histogram bin,
+and50 pixels per box group. A five-number table requires canvas width at least650
+and sufficient column width for its actual labels.
+
+Limits per call are100000 source rows,16 groups, total source frequency1e6,
+512 bins,20000 visible individual markers and2MiB SVG. Canvas dimensions are
+320..4096 by240..4096 pixels. Group IDs are integers in
+`-(2^53-1)..2^53-1`, and unique row IDs are0..2^53-1. Frequencies are integer
+replication counts, with no analytic Weight semantics. SQL NULL cells, nonfinite
+values, ragged rows, duplicate IDs, unrepresentable numerical results and layouts
+that cannot fit return SQL NULL. The SVG contains no external assets or scripts.
+
+JMP automatic bin selection and exact histogram tie conventions, fractional
+Freq/analytic Weight, KDE/polygon/shadowgram overlays, confidence diamonds,
+notches, jitter, proportional widths and the complete styling/export options
+remain outstanding. The two report families remain partial in the JMP ledger.
+
+### Ordered categorical regression and saved prediction
+
+`chem_genreg_ordinal_fit` fits unpenalized cumulative-logit maximum likelihood to
+rows `[features..., numeric_label, integer_frequency]`, with parameters
+`[maxiter=200, tolerance=1e-7, confidence=.95]`. Positive-frequency rows define
+the ascending label order; numeric distances between labels have no role.
+Zero-frequency rows neither create levels nor train feature transformations.
+The model is `P(Y<=j)=logistic(alpha_j+X beta)`, with increasing cutpoints and
+common slopes. Thus a positive slope increases lower-category cumulative
+probabilities. GenReg display intercepts are the first cutpoint followed by
+successive cutpoint differences. Both raw and display parameterizations are
+returned, with their corresponding joint covariance when available.
+
+`chem_genreg_ordinal_predict` accepts `[features..., quantile_probability]` rows
+and the complete unchanged `predict_parameters` from the fit. It returns
+category and cumulative probabilities, the first ordered category attaining
+the maximum probability, generalized-inverse quantile labels, original-unit
+`X beta`, and available probability standard errors and untruncated normal Wald
+intervals. The quantile probability must be strictly between0 and1; it also
+provides a meaningful input column for an intercept-only saved model.
+
+```sql
+-- Ordered labels10,20,30 have fitted probabilities1/4,1/2,1/4.
+WITH fit AS (
+    SELECT chem_genreg_ordinal_fit([[30,1],[10,1],[20,2]], []) AS model
+)
+SELECT chem_genreg_ordinal_predict([[.2],[.43],[.81]],
+    json_extract(model, '$.predict_parameters')::DOUBLE[]) AS predictions
+FROM fit;
+```
+
+Training-only frequency weighted centering/scaling and QR rank checks precede
+analytic-score, observed-information Newton fitting with guarded line searches.
+There are0..16 features and2..16 levels. Limits are100000 rows,1M input cells,
+frequency0..1e6 per row and total frequency at most1e9 and strictly greater than
+`d=K-1+p`. There must be at least `p+1` active source rows. All data are finite
+with absolute value at most1e150. Fit iterations are0..2000, tolerance
+1e-10..1e-3, confidence in[.5,.999999), and predicted probability cells at most
+200000. A cumulative200M algorithmic-work budget covers preparation, separation
+checks, likelihood/line searches, matrix operations and prediction.
+
+The saved vector is
+`[1,p,K,confidence,has_covariance,feature_origins(p),feature_mean_offsets(p),
+feature_scales(p),sorted_labels(K),theta(d),normalized_covariance(d*d)]`, with
+`theta=[normalized_cutpoints(K-1),normalized_slopes(p)]`, length at most1061.
+Dimensions, strict ordering, finite entries, positive feature scales and relative
+symmetric positive definite covariance are validated; disabled covariance is
+all zero. Physical parameter overflow or loss of cutpoint ordering fails the
+call. Unrepresentable raw covariance withholds raw inference while a finite
+normalized saved covariance can still support prediction. Nonconvergence or
+singular information withholds inference. Certified complete/quasi separation
+directions fail; general multivariate finite-MLE existence and global optimality
+are not certified.
+
+This is an explicit maximum-likelihood option, whereas JMP Generalized
+Regression defaults to Lasso for ordinary observational data. Its inverse
+observed-information covariance is an explicit alternative to JMP's documented
+M-estimation sandwich convention; exact uncertainty equivalence is unverified.
+String labels and Value Ordering, categorical predictor contrasts, informative
+missingness, variable selection, other links, censoring and installed-JMP
+comparison remain outstanding. The [complete ordinal contract](tasks/jmp-ordinal-api.json)
+records the numerical guards, work charges and independent evidence. Actual
+Release C ABI and loaded SQL verification pass; this family remains
+partial in the JMP ledger.
 
 ### Worked workflows and saved models
 
@@ -2182,7 +2335,7 @@ See [the version audit](JMP_PARITY.md#200-urlの確認と版を混ぜないた�
 A function name or a restricted implementation does not establish whole-platform
 equivalence.
 
-Large outstanding families include GLMM random slopes/multiple factors and other response families, spatial covariance-parameter fitting, general SEM/FIML/multigroup beyond simple CFA and supplied RAM, further causal estimators and uplift-tree fitting, irregular functional inference and automatic basis selection, full wavelets/X11/multiplicative ETS, seasonal or multivariate transfer, arbitrary DOE/mixture/restricted-randomization designs, Bayesian repeated-measures degradation and further reliability workflows, tokenization/sentiment/text regression and multidimensional IRT, choice/conjoint/MaxDiff, GWAS/multikernel inference and linked/polyploid admixture, further tuning/uncertainty/deployment/export options. The new numeric text/functional/time-series/spatial contracts are bounded subsets. DuckDB joins, aggregates,pivot/unpivot and SQL I/O remain reused host functionality. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All 44 report/plot acceptance contracts are now [specified](tasks/jmp-report-acceptance.json): 13 have existing partial numerical backends and 31 are absent; none has been newly certified as a completed artifact/export implementation. No full-JMP coverage percentage is inferred from the unequal inventory rows. That checkpoint was pushed under the earlier stop instruction. The user has now resumed the full non-GUI, non-GPU goal; censored-response regression and spatial covariance estimation are in progress, and unverified additions are not counted as completed features.
+Large outstanding families include additional GLMM response/random-effect structures, full spatial and SEM inference, further causal and functional estimators, wavelets/X11, multivariate transfer, unrestricted DOE/mixture designs, Bayesian reliability workflows, text regression, multidimensional IRT, choice/MaxDiff, GWAS and further tuning/export options. Existing numeric and artifact implementations are bounded subsets. DuckDB supplies host joins, aggregates, pivot/unpivot and SQL I/O. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All44 report/plot acceptance contracts are [specified](tasks/jmp-report-acceptance.json):15 are partial and29 absent. Three report rows now have independently validated bounded SVG artifacts, while their full option sets remain incomplete. The complete ledger has278 partial,206 absent,37 reused database capabilities,6 implemented verified rows,17 GUI exclusions,4 external plugins and4 separate-product rows. These unequal inventory rows do not define a coverage percentage. The full JMP objective remains unfinished. Chemical data-quality implementation, including possible DuckOrch reuse, starts only after that full objective is complete; [research](tasks/chemistry-dq-research-20261022.json) is saved.
 
 The implementation workflow is test driven: observe an expected behavioral RED,
 implement the bounded contract, then verify GREEN, numerical edge cases and
@@ -2192,8 +2345,12 @@ head-to-head numerical comparison.
 
 <!-- analytics-validation-summary:start -->
 
-- The resumed **263-function checkpoint** passes **1,340 Rust tests across65 suites**, zero failures, with two existing ignored tests (diagnostic logP print helper and explicit external-population acceptance). Strict analytics Clippy, scoped formatting and diff checks pass. [Dev evidence](tasks/evidence/jmp-parity-dev-final.json).
-- The matching macOS arm64 **Release** extension loads into DuckDB `v2.0.0-alpha49307` and passes **16 SQL cases /513 assertions**, zero skips, plus all **414 catalog overload examples**. These new Release checks do not use ASan/UBSan. [Native evidence](tasks/evidence/jmp-parity-native-sqllogictest.json).
+- The current **267-function /418-overload checkpoint** passes **1,366 Rust tests across67 suites**, zero failures, with the same two pre-existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. The matching macOS arm64 Release extension passes **18 SQL cases /603 assertions**, zero skips, and **all418 catalog examples**. [Checkpoint evidence](tasks/evidence/jmp-report-ordinal-validation.json).
+- Histogram/box reports pass **105,438 independent checks** on actual Release C ABI and SQL, with36 positive fixtures per boundary,69 malformed NULL cases and58 rendered PNGs. Full JSON/SVG outputs agree across boundaries. The large-offset visible-table regression has actual old-ABI RED and fixed-ABI GREEN evidence. Representative [actual SQL SVG](tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.svg) and [PNG](tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.png) are retained. Verification renders unchanged SVG with macOS sips and independently decodes pixels with ImageMagick; that environment's ImageMagick SVG renderer loses valid outlined marks, so its discrepancy is documented separately. [Report evidence](tasks/evidence/jmp-reports-native-reference.json).
+- Ordered regression passes **1,082 C ABI/SQL checks** plus a separate **1,321-check,80-digit independent oracle** covering4 fits, saved predictions and23 invalid NULL cases. Covariance is inverse observed information; exact JMP sandwich/default-Lasso equivalence remains outstanding. [Both-boundary evidence](tasks/evidence/jmp-ordinal-reference.json), [independent Release evidence](tasks/evidence/jmp-ordinal-independent-release-reference.json).
+
+- The preceding **263-function checkpoint** passed **1,340 Rust tests across65 suites**, zero failures, with two existing ignored tests (diagnostic logP print helper and explicit external-population acceptance). Strict analytics Clippy, scoped formatting and diff checks pass. [Dev evidence](tasks/evidence/jmp-parity-dev-final.json).
+- That preceding macOS arm64 **Release** extension loaded into DuckDB `v2.0.0-alpha49307` and passed **16 SQL cases /513 assertions**, zero skips, plus all **414 catalog overload examples**. These new Release checks do not use ASan/UBSan. [Native evidence](tasks/evidence/jmp-parity-native-sqllogictest.json).
 - Documented production C ABI fixtures pass for38 operations /128 fields. The independent censored-family oracle checks6 families and4 edge contracts on **both Release C ABI and actual SQL**,768 assertions including46 edge checks. [Censored evidence](tasks/evidence/jmp-censored-reference.json).
 - Spatial estimation passes **48 production C ABI calls /810 numerical fields** and16 independently fitted SQL cases /130 fields with3 saved-model roundtrips. [C ABI evidence](tasks/evidence/jmp-spatial-estimation-reference.json), [SQL evidence](tasks/evidence/jmp-spatial-estimation-sql.json).
 - Gamma at the deliberately stricter optimizer tolerance1e-8 can finish unconverged with null inference; the independent average-score check confirms that behavior. The six-family numeric oracle uses the documented1e-7 default, unchanged reference comparison tolerances and an independent score gate. Full JMP parity and new cross-platform/Wasm runtime coverage are not inferred from this local CPU checkpoint.

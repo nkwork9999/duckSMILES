@@ -1,0 +1,13 @@
+{
+  "reason": "Remove only redundant terminal blank line so git diff --check passes; numerical output unchanged",
+  "logs": [
+    {
+      "path": "tasks/evidence/jmp-reports-focused-green.log",
+      "raw_sha256": "f54b804add7bfa31b71704c95c646307825013c8d1ca499fd9b815816c5e857b",
+      "stored_sha256": "b499e59618c6bd7cb4225af7cd50d28c6b5eaffd94dcae15e70d3d4e8f1619e2"
+    }
+  ],
+  "updated_hash_reference_files": [
+    "tasks/evidence/jmp-reports-tdd.json"
+  ]
+}

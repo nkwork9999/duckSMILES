@@ -1,0 +1,12 @@
+Captured focused public test transcript excerpt,after initial6GREEN.
+$ CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-parity-20261022 cargo test -p ducksmiles_analytics --test genreg_ordinal_contracts
+running10tests
+FAILED covariance_validation_does_not_invert_and_overflow_a_valid_tiny_covariance
+unwrap on Err:ordinal result is not representable in finite binary64
+FAILED tiny_and_huge_materially_asymmetric_covariances_are_rejected
+accepted[1e-200,1e-201,0.0,1e-200]
+FAILED predictor_units_shift_cutpoints_without_changing_probabilities_or_raw_linear_predictor
+0 !=3.662040962227033
+result:FAILED.7passed;3failed;0ignored;0filtered;0.01s
+exit101
+After scaled Cholesky validation,relative symmetry comparison,and original-unit Xbeta fix:10passed0failed,0.01s,exit0.
