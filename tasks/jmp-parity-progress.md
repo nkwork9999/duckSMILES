@@ -5,14 +5,32 @@ batch are recorded. **Full JMP parity remains unfinished.** The authoritative
 backlog is [jmp-feature-matrix.json](jmp-feature-matrix.json), with scope and
 primary sources in [JMP_PARITY.md](../JMP_PARITY.md).
 
-The inventory contains 552 heterogeneous feature/method/option rows: 235 partial,
-205 absent, 37 provided by the host database, 6 earlier verified limited contracts,
-17 GUI exclusions, 44 output/scope questions, 4 external plugins and 4 separate
+The inventory contains 552 heterogeneous feature/method/option rows: 282 partial,
+202 absent, 37 provided by the host database, 6 earlier verified limited contracts,
+17 GUI exclusions, 0 output/scope questions, 4 external plugins and 4 separate
 product entries. These counts do not constitute a completion percentage. A
 20.0 help URL returns the same index as 19.2; a distinct 20.0 feature delta has not
 been verified. No installed JMP was used for numerical comparisons.
 
-## Active until-achieved continuation (2026-10-22)
+## Existing API mapping audit (2026-10-23)
+
+Four rows previously marked absent now link to existing bounded implementations:
+`glmm_binomial_response`, `glmm_count_response`, `sem_fit_indices`, and
+`text_analysis`. Twelve API entries gained explicit feature links. The source
+hashes for GLMM, SEM and text match their recorded native SQL validation
+checkpoints. Each corrected row remains partial and lists unsupported contracts.
+See [the audit record](evidence/jmp-feature-mapping-audit-20261023.json).
+
+The registered API counts remain 267 analytics functions and 418 total overloads.
+No algorithms or APIs were added, and no runtime tests were rerun for this
+metadata/documentation correction. The previous runtime evidence and its original
+status counts remain unchanged. This audit corrects four confirmed omissions;
+it does not certify every other absent row as having no bounded implementation.
+
+The following sections describe historical checkpoints, including their then
+current counts and work status. They do not change the scope of this mapping audit.
+
+## Historical until-achieved continuation (2026-10-22)
 
 The user explicitly requested continuing until the objective is achieved. The
 persistent goal remains active; the batches below are verification checkpoints,

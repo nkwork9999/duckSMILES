@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "researched_on": "2026-10-22",
+  "researched_on": "2026-10-23",
   "reference_product": "JMP / JMP Pro 19.2 reference baseline plus the public capability catalog retrieved 2026-10-21; not a claim of current-version complete parity",
   "scope": {
     "objective": "Non-GUI numerical, data, model, experiment-planning, reproducibility and integration capability parity; CPU implementation remains in scope.",
@@ -13,9 +13,9 @@
     "catalog_occurrences": 502,
     "feature_rows": 552,
     "status_counts": {
-      "partial": 278,
+      "partial": 282,
       "database_existing": 37,
-      "absent": 206,
+      "absent": 202,
       "external_plugin": 4,
       "implemented_verified": 6,
       "excluded_gui": 17,
@@ -16746,17 +16746,148 @@
           "basis": "official_pro_badge"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
+      "implementation": [
+        "chem_text_dtm: Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+        "chem_text_weight: Fit corpus dictionary/filter and exact JMP five DTM weightings; nonnegative integer count matrix; args[mode0binary/1ternary/2frequency/3log10/4TFIDF=4,min_corpus_count=1,max_terms=all].",
+        "chem_text_weight_predict: Apply saved dictionary and training IDF to new count rows; args unchanged text_weight.weight_parameters; training vocabulary width/order required.",
+        "chem_text_lsa: Partial SVD of supplied nonnegative weighted DTM; args[k,preprocess0uncentered/1centered/2centered_scaled=2]; returns U,S,V and scores US with saved transform.",
+        "chem_text_projection: Score supplied weighted query DTM with saved LSA/topic projection; args unchanged projection_parameters. Training mean,scale,divisor and loadings reused.",
+        "chem_text_topic_svd: True orthogonal varimax of supplied-DTM SVD loadings VS; document topic vectors UR preserve reconstruction; args[k,preprocess=2,max_sweeps=200,tol=1e-8,kaiser0/1=1].",
+        "chem_text_latent_class: Conditional-independence Bernoulli mixture EM on supplied count presence; args[k,seed=0,max_iter=200,tol=1e-8,probability_floor=1e-9]. Reports genuine likelihood,mixture/term probabilities and saved posterior model.",
+        "chem_text_latent_class_predict: Score saved Bernoulli mixture using presence and absence of each fitted term; args unchanged text_latent_class.predict_parameters; returns posterior membership and log probability."
+      ],
+      "tests": [
+        "crates/analytics/tests/text_analysis.rs",
+        "scripts/check_jmp_streams.py"
+      ],
+      "evidence": [
+        "tasks/jmp-text-analysis-api.json",
+        "tasks/evidence/jmp-text-analysis-reference.json",
+        "tasks/evidence/jmp-streams-validation.json",
+        "tasks/evidence/jmp-feature-mapping-audit-20261023.json"
+      ],
       "remaining_contract": [
-        "未実装。先に適用範囲・独立参照とREDテストを確定する。"
+        "外部でtokenizeしたnumeric term IDs/供給DTMに対する8操作のみ。Unicode/string tokenizer、日本語辞書、stemming、stopword/synonym、OOV自動辞書fitは未対応。",
+        "明示rankとdense resource capに限定。自動rank選択、巨大sparse corpus、NMF/LDA、topic自動命名、sentiment、response-based term-selection/text regressionは未対応。",
+        "保存weighting/projection/latent-classモデルの再利用は実装済みだが、局所EM/varimaxの大域最適性・統計的識別性・区間推論、JMP実機のsingular-value/rotation一致は未検証。"
       ],
       "domain": "consumer-and-market-research:Survey analysis",
-      "acceptance_contract": "reproducibility"
+      "acceptance_contract": "text",
+      "current_implementation": [
+        {
+          "sql_function": "chem_text_dtm",
+          "operation": "text_dtm",
+          "bounded_scope": "Aggregate supplied numeric tokens into a document-term count matrix; rows[document_id0based,term_id0based,count]; args[n_documents,n_terms]. Caller tokenizes and defines immutable vocabulary.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_text_weight",
+          "operation": "text_weight",
+          "bounded_scope": "Fit corpus dictionary/filter and exact JMP five DTM weightings; nonnegative integer count matrix; args[mode0binary/1ternary/2frequency/3log10/4TFIDF=4,min_corpus_count=1,max_terms=all].",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_text_weight_predict",
+          "operation": "text_weight_predict",
+          "bounded_scope": "Apply saved dictionary and training IDF to new count rows; args unchanged text_weight.weight_parameters; training vocabulary width/order required.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_text_lsa",
+          "operation": "text_lsa",
+          "bounded_scope": "Partial SVD of supplied nonnegative weighted DTM; args[k,preprocess0uncentered/1centered/2centered_scaled=2]; returns U,S,V and scores US with saved transform.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_text_projection",
+          "operation": "text_projection",
+          "bounded_scope": "Score supplied weighted query DTM with saved LSA/topic projection; args unchanged projection_parameters. Training mean,scale,divisor and loadings reused.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_text_topic_svd",
+          "operation": "text_topic_svd",
+          "bounded_scope": "True orthogonal varimax of supplied-DTM SVD loadings VS; document topic vectors UR preserve reconstruction; args[k,preprocess=2,max_sweeps=200,tol=1e-8,kaiser0/1=1].",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_text_latent_class",
+          "operation": "text_latent_class",
+          "bounded_scope": "Conditional-independence Bernoulli mixture EM on supplied count presence; args[k,seed=0,max_iter=200,tol=1e-8,probability_floor=1e-9]. Reports genuine likelihood,mixture/term probabilities and saved posterior model.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_text_latent_class_predict",
+          "operation": "text_latent_class_predict",
+          "bounded_scope": "Score saved Bernoulli mixture using presence and absence of each fitted term; args unchanged text_latent_class.predict_parameters; returns posterior membership and log probability.",
+          "source": "crates/analytics/src/text_analysis.rs",
+          "tests": "crates/analytics/tests/text_analysis.rs",
+          "api": "tasks/jmp-text-analysis-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-text-analysis-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        }
+      ],
+      "verification": {
+        "mapping_audit": "tasks/evidence/jmp-feature-mapping-audit-20261023.json",
+        "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+        "jmp_head_to_head": "not performed",
+        "status_change": "Existing bounded implementation linked to a previously absent feature row; no new algorithm or API."
+      }
     },
     {
       "id": "association_rules",
@@ -23825,16 +23956,63 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_glmm_binomial: Bernoulli logit Gaussian random-intercept integrated ML: [fixed features...,y,group]; [maxiter=200,tol=1e-6,odd quadrature order=15,variance_upper=100].",
+        "chem_glmm_predict: Saved Gaussian random-intercept GLMM prediction: [features...,group] and unchanged predict_parameters; separate conditional,posterior and population means."
       ],
-      "acceptance_contract": "regression"
+      "tests": [
+        "crates/analytics/tests/glmm.rs",
+        "scripts/check_jmp_models.py"
+      ],
+      "evidence": [
+        "tasks/jmp-glmm-api.json",
+        "tasks/evidence/jmp-glmm-reference.json",
+        "tasks/evidence/jmp-models-validation.json",
+        "tasks/evidence/jmp-feature-mapping-audit-20261023.json"
+      ],
+      "remaining_contract": [
+        "Bernoulli-logit応答とGaussian単一random interceptの積分ML、および保存モデル予測に限定。集約binomial trials、probit等の他リンク、offset/exposure、frequency/analytic weights、overdispersionは未対応。",
+        "Random slopes、複数・交差・入れ子random factors、反復残差共分散、分散成分の区間・境界検定、小標本補正は未対応。",
+        "有限quadratureと局所optimizerの診断を伴う独自の限定契約。JMPの既定推定器との一致とJMP本体との数値比較は未検証。"
+      ],
+      "acceptance_contract": "regression",
+      "current_implementation": [
+        {
+          "sql_function": "chem_glmm_binomial",
+          "operation": "glmm_binomial",
+          "bounded_scope": "Bernoulli logit Gaussian random-intercept integrated ML: [fixed features...,y,group]; [maxiter=200,tol=1e-6,odd quadrature order=15,variance_upper=100].",
+          "source": "crates/analytics/src/glmm.rs",
+          "tests": "crates/analytics/tests/glmm.rs",
+          "api": "tasks/jmp-glmm-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-glmm-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_glmm_predict",
+          "operation": "glmm_predict",
+          "bounded_scope": "Saved Gaussian random-intercept GLMM prediction: [features...,group] and unchanged predict_parameters; separate conditional,posterior and population means.",
+          "source": "crates/analytics/src/glmm.rs",
+          "tests": "crates/analytics/tests/glmm.rs",
+          "api": "tasks/jmp-glmm-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-glmm-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        }
+      ],
+      "verification": {
+        "mapping_audit": "tasks/evidence/jmp-feature-mapping-audit-20261023.json",
+        "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+        "jmp_head_to_head": "not performed",
+        "status_change": "Existing bounded implementation linked to a previously absent feature row; no new algorithm or API."
+      }
     },
     {
       "id": "glmm_count_response",
@@ -23858,16 +24036,63 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_glmm_poisson: Poisson log Gaussian random-intercept integrated ML: [fixed features...,y,group]; [maxiter=200,tol=1e-6,odd quadrature order=15,variance_upper=100].",
+        "chem_glmm_predict: Saved Gaussian random-intercept GLMM prediction: [features...,group] and unchanged predict_parameters; separate conditional,posterior and population means."
       ],
-      "acceptance_contract": "regression"
+      "tests": [
+        "crates/analytics/tests/glmm.rs",
+        "scripts/check_jmp_models.py"
+      ],
+      "evidence": [
+        "tasks/jmp-glmm-api.json",
+        "tasks/evidence/jmp-glmm-reference.json",
+        "tasks/evidence/jmp-models-validation.json",
+        "tasks/evidence/jmp-feature-mapping-audit-20261023.json"
+      ],
+      "remaining_contract": [
+        "非負整数Poisson-log応答とGaussian単一random interceptの積分ML、および保存モデル予測に限定。他のcount family/link、offset/exposure、frequency/analytic weights、overdispersionは未対応。",
+        "Random slopes、複数・交差・入れ子random factors、反復残差共分散、分散成分の区間・境界検定、小標本補正は未対応。",
+        "有限quadratureと局所optimizerの診断を伴う独自の限定契約。JMPの既定推定器との一致とJMP本体との数値比較は未検証。"
+      ],
+      "acceptance_contract": "regression",
+      "current_implementation": [
+        {
+          "sql_function": "chem_glmm_poisson",
+          "operation": "glmm_poisson",
+          "bounded_scope": "Poisson log Gaussian random-intercept integrated ML: [fixed features...,y,group]; [maxiter=200,tol=1e-6,odd quadrature order=15,variance_upper=100].",
+          "source": "crates/analytics/src/glmm.rs",
+          "tests": "crates/analytics/tests/glmm.rs",
+          "api": "tasks/jmp-glmm-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-glmm-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_glmm_predict",
+          "operation": "glmm_predict",
+          "bounded_scope": "Saved Gaussian random-intercept GLMM prediction: [features...,group] and unchanged predict_parameters; separate conditional,posterior and population means.",
+          "source": "crates/analytics/src/glmm.rs",
+          "tests": "crates/analytics/tests/glmm.rs",
+          "api": "tasks/jmp-glmm-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-glmm-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        }
+      ],
+      "verification": {
+        "mapping_audit": "tasks/evidence/jmp-feature-mapping-audit-20261023.json",
+        "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+        "jmp_head_to_head": "not performed",
+        "status_change": "Existing bounded implementation linked to a previously absent feature row; no new algorithm or API."
+      }
     },
     {
       "id": "glmm_continuous_response",
@@ -24188,16 +24413,49 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_sem_fit_indices: Gaussian SEM fit indices: rows[S_MLrow(p),Sigma row(p),observedmean,modelmean]; [N,kfree]."
       ],
-      "acceptance_contract": "multivariate"
+      "tests": [
+        "crates/analytics/tests/sem.rs",
+        "scripts/check_jmp_specialized.py"
+      ],
+      "evidence": [
+        "tasks/jmp-sem-api.json",
+        "tasks/evidence/jmp-sem-reference.json",
+        "tasks/evidence/jmp-specialized-validation.json",
+        "tasks/evidence/jmp-feature-mapping-audit-20261023.json"
+      ],
+      "remaining_contract": [
+        "供給されたGaussian ML covariance・meanモデル、標本数、自由parameter数に対する適合指標計算のみ。一般SEMのparameter推定や自動識別性判定は行わない。",
+        "Robust/scaled chi-square補正、modification indices、非Gaussian/ordinal/FIML、多群・測定不変性は未対応。ML推定済みかとparameter数の正しさは呼出側が保証する。",
+        "Noncentrality上限を含む数値資源制約とAPIのmean/covariance規約を維持。JMP本体との数値比較および全SEM適合指標との同等性は未検証。"
+      ],
+      "acceptance_contract": "multivariate",
+      "current_implementation": [
+        {
+          "sql_function": "chem_sem_fit_indices",
+          "operation": "sem_fit_indices",
+          "bounded_scope": "Gaussian SEM fit indices: rows[S_MLrow(p),Sigma row(p),observedmean,modelmean]; [N,kfree].",
+          "source": "crates/analytics/src/sem.rs",
+          "tests": "crates/analytics/tests/sem.rs",
+          "api": "tasks/jmp-sem-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-sem-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-specialized-validation.json",
+          "verification_boundary": "Existing bounded Rust/C ABI reference and loaded-extension SQL evidence; source hash checked during metadata audit. No new runtime execution or whole-family JMP equivalence."
+        }
+      ],
+      "verification": {
+        "mapping_audit": "tasks/evidence/jmp-feature-mapping-audit-20261023.json",
+        "native_sql_evidence": "tasks/evidence/jmp-specialized-validation.json",
+        "jmp_head_to_head": "not performed",
+        "status_change": "Existing bounded implementation linked to a previously absent feature row; no new algorithm or API."
+      }
     },
     {
       "id": "sem_chi_square_difference_test",
@@ -31849,7 +32107,8 @@
       "source": "crates/analytics/src/glmm.rs",
       "tests": "crates/analytics/tests/glmm.rs",
       "feature_ids": [
-        "generalized_linear_mixed_models"
+        "generalized_linear_mixed_models",
+        "glmm_binomial_response"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-glmm-reference.json"
@@ -31866,7 +32125,8 @@
       "source": "crates/analytics/src/glmm.rs",
       "tests": "crates/analytics/tests/glmm.rs",
       "feature_ids": [
-        "generalized_linear_mixed_models"
+        "generalized_linear_mixed_models",
+        "glmm_count_response"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-glmm-reference.json"
@@ -31883,7 +32143,9 @@
       "source": "crates/analytics/src/glmm.rs",
       "tests": "crates/analytics/tests/glmm.rs",
       "feature_ids": [
-        "generalized_linear_mixed_models"
+        "generalized_linear_mixed_models",
+        "glmm_binomial_response",
+        "glmm_count_response"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-glmm-reference.json"
@@ -32457,7 +32719,8 @@
       "tests": "crates/analytics/tests/sem.rs",
       "feature_ids": [
         "structural_equation_modeling",
-        "confirmatory_factor_analysis"
+        "confirmatory_factor_analysis",
+        "sem_fit_indices"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-sem-reference.json"
@@ -32956,7 +33219,8 @@
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
         "latent_semantic_analysis",
-        "text_latent_class_analysis"
+        "text_latent_class_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -32973,7 +33237,8 @@
       "source": "crates/analytics/src/text_analysis.rs",
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
-        "latent_semantic_analysis"
+        "latent_semantic_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -32990,7 +33255,8 @@
       "source": "crates/analytics/src/text_analysis.rs",
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
-        "latent_semantic_analysis"
+        "latent_semantic_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -33007,7 +33273,8 @@
       "source": "crates/analytics/src/text_analysis.rs",
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
-        "latent_semantic_analysis"
+        "latent_semantic_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -33024,7 +33291,8 @@
       "source": "crates/analytics/src/text_analysis.rs",
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
-        "latent_semantic_analysis"
+        "latent_semantic_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -33041,7 +33309,8 @@
       "source": "crates/analytics/src/text_analysis.rs",
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
-        "latent_semantic_analysis"
+        "latent_semantic_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -33058,7 +33327,8 @@
       "source": "crates/analytics/src/text_analysis.rs",
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
-        "text_latent_class_analysis"
+        "text_latent_class_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -33075,7 +33345,8 @@
       "source": "crates/analytics/src/text_analysis.rs",
       "tests": "crates/analytics/tests/text_analysis.rs",
       "feature_ids": [
-        "text_latent_class_analysis"
+        "text_latent_class_analysis",
+        "text_analysis"
       ],
       "direct_reference_evidence": [
         "tasks/evidence/jmp-text-analysis-reference.json"
@@ -33471,7 +33742,7 @@
     "continuation_native_sql": "passed matching loaded-extension macOS arm64 CPU gate",
     "latest_additional_operations": 4,
     "latest_evidence": "tasks/evidence/jmp-report-ordinal-validation.json",
-    "work_status": "Full JMP incomplete;4additional bounded report/ordinal operations verified; user requested stop at2026-10-23 08:30JST",
+    "work_status": "Full JMP incomplete;267 bounded analytics functions verified at prior checkpoint. On2026-10-23 four existing-API feature omissions were corrected;metadata audit only,no new algorithms or runtime validation.",
     "active_continuation_record": "tasks/jmp-report-progress-20261022.json",
     "report_scope_audit": {
       "record": "tasks/jmp-report-acceptance.json",
@@ -33481,6 +33752,30 @@
       "new_verified_implementations": 0,
       "pure_gui_exclusions": 0,
       "bounded_artifact_rows": 3
+    },
+    "feature_mapping_audit": {
+      "date": "2026-10-23",
+      "record": "tasks/evidence/jmp-feature-mapping-audit-20261023.json",
+      "source_revision": "fca0c71f1f4f47360290d521ecb40d7c9256713d",
+      "reclassified_absent_to_partial": [
+        "glmm_binomial_response",
+        "glmm_count_response",
+        "sem_fit_indices",
+        "text_analysis"
+      ],
+      "status_counts": {
+        "partial": 282,
+        "database_existing": 37,
+        "absent": 202,
+        "external_plugin": 4,
+        "implemented_verified": 6,
+        "excluded_gui": 17,
+        "separate_product": 4,
+        "clarification_pending": 0
+      },
+      "new_algorithms": 0,
+      "new_public_analytics_functions": 0,
+      "scope": "Four confirmed missing feature links. Other absent contracts and existing unrelated mappings were not automatically promoted. Historical runtime-validation snapshots retain their original counts."
     }
   },
   "version_audit": {

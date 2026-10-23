@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-23",
+  "kind": "feature_to_existing_api_mapping_audit",
+  "source_revision": "fca0c71f1f4f47360290d521ecb40d7c9256713d",
+  "scope": "Metadata and comparison documentation correction for four confirmed underlinked feature rows; not new implementation or full JMP parity.",
+  "previous_status_counts": {
+    "partial": 278,
+    "database_existing": 37,
+    "absent": 206,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "current_status_counts": {
+    "partial": 282,
+    "database_existing": 37,
+    "absent": 202,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "feature_rows": 552,
+  "analytics_functions": 267,
+  "total_sql_overloads": 418,
+  "new_algorithms": 0,
+  "new_public_analytics_functions": 0,
+  "feature_changes": [
+    {
+      "feature_id": "glmm_binomial_response",
+      "before": "absent",
+      "after": "partial",
+      "sql_functions": [
+        "chem_glmm_binomial",
+        "chem_glmm_predict"
+      ],
+      "bounded_contract": "tasks/jmp-glmm-api.json",
+      "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+      "remaining_contract": [
+        "Bernoulli-logit応答とGaussian単一random interceptの積分ML、および保存モデル予測に限定。集約binomial trials、probit等の他リンク、offset/exposure、frequency/analytic weights、overdispersionは未対応。",
+        "Random slopes、複数・交差・入れ子random factors、反復残差共分散、分散成分の区間・境界検定、小標本補正は未対応。",
+        "有限quadratureと局所optimizerの診断を伴う独自の限定契約。JMPの既定推定器との一致とJMP本体との数値比較は未検証。"
+      ]
+    },
+    {
+      "feature_id": "glmm_count_response",
+      "before": "absent",
+      "after": "partial",
+      "sql_functions": [
+        "chem_glmm_poisson",
+        "chem_glmm_predict"
+      ],
+      "bounded_contract": "tasks/jmp-glmm-api.json",
+      "native_sql_evidence": "tasks/evidence/jmp-models-validation.json",
+      "remaining_contract": [
+        "非負整数Poisson-log応答とGaussian単一random interceptの積分ML、および保存モデル予測に限定。他のcount family/link、offset/exposure、frequency/analytic weights、overdispersionは未対応。",
+        "Random slopes、複数・交差・入れ子random factors、反復残差共分散、分散成分の区間・境界検定、小標本補正は未対応。",
+        "有限quadratureと局所optimizerの診断を伴う独自の限定契約。JMPの既定推定器との一致とJMP本体との数値比較は未検証。"
+      ]
+    },
+    {
+      "feature_id": "sem_fit_indices",
+      "before": "absent",
+      "after": "partial",
+      "sql_functions": [
+        "chem_sem_fit_indices"
+      ],
+      "bounded_contract": "tasks/jmp-sem-api.json",
+      "native_sql_evidence": "tasks/evidence/jmp-specialized-validation.json",
+      "remaining_contract": [
+        "供給されたGaussian ML covariance・meanモデル、標本数、自由parameter数に対する適合指標計算のみ。一般SEMのparameter推定や自動識別性判定は行わない。",
+        "Robust/scaled chi-square補正、modification indices、非Gaussian/ordinal/FIML、多群・測定不変性は未対応。ML推定済みかとparameter数の正しさは呼出側が保証する。",
+        "Noncentrality上限を含む数値資源制約とAPIのmean/covariance規約を維持。JMP本体との数値比較および全SEM適合指標との同等性は未検証。"
+      ]
+    },
+    {
+      "feature_id": "text_analysis",
+      "before": "absent",
+      "after": "partial",
+      "sql_functions": [
+        "chem_text_dtm",
+        "chem_text_weight",
+        "chem_text_weight_predict",
+        "chem_text_lsa",
+        "chem_text_projection",
+        "chem_text_topic_svd",
+        "chem_text_latent_class",
+        "chem_text_latent_class_predict"
+      ],
+      "bounded_contract": "tasks/jmp-text-analysis-api.json",
+      "native_sql_evidence": "tasks/evidence/jmp-streams-validation.json",
+      "remaining_contract": [
+        "外部でtokenizeしたnumeric term IDs/供給DTMに対する8操作のみ。Unicode/string tokenizer、日本語辞書、stemming、stopword/synonym、OOV自動辞書fitは未対応。",
+        "明示rankとdense resource capに限定。自動rank選択、巨大sparse corpus、NMF/LDA、topic自動命名、sentiment、response-based term-selection/text regressionは未対応。",
+        "保存weighting/projection/latent-classモデルの再利用は実装済みだが、局所EM/varimaxの大域最適性・統計的識別性・区間推論、JMP実機のsingular-value/rotation一致は未検証。"
+      ]
+    }
+  ],
+  "api_mapping_updates": [
+    "chem_glmm_binomial",
+    "chem_glmm_poisson",
+    "chem_glmm_predict",
+    "chem_sem_fit_indices",
+    "chem_text_dtm",
+    "chem_text_weight",
+    "chem_text_weight_predict",
+    "chem_text_lsa",
+    "chem_text_projection",
+    "chem_text_topic_svd",
+    "chem_text_latent_class",
+    "chem_text_latent_class_predict"
+  ],
+  "source_hash_checks": {
+    "crates/analytics/src/glmm.rs": {
+      "sha256": "2ccf86ccc2b66cc0a4f51b3601911bdf2af08345db03df1e7f92052bd7f1c77f",
+      "matches_recorded_native_validation": "tasks/evidence/jmp-models-validation.json"
+    },
+    "crates/analytics/src/sem.rs": {
+      "sha256": "dbbced0129ede7c93e24396cd3a799ab5a8ad1417718c91b778e408b3611125c",
+      "matches_recorded_native_validation": "tasks/evidence/jmp-specialized-validation.json"
+    },
+    "crates/analytics/src/text_analysis.rs": {
+      "sha256": "e807750e02519a62fb6e14e3d388af2c6e769928898f0aa365ba4a87c19eb7e4",
+      "matches_recorded_native_validation": "tasks/evidence/jmp-streams-validation.json"
+    }
+  },
+  "historical_validation_preserved": "tasks/jmp-feature-matrix.json final_validation is unchanged; tasks/evidence runtime records are unchanged.",
+  "validation": {
+    "json_parse": "PASS",
+    "status_count_recomputation": "PASS",
+    "registry_api_exact_match": 243,
+    "all_current_api_source_and_test_paths": "PASS",
+    "all_current_api_feature_ids_exist_and_are_not_absent": "PASS",
+    "changed_rows_have_bidirectional_api_links": "PASS",
+    "changed_rows_contract_test_and_evidence_paths": "PASS",
+    "current_source_matches_reused_native_validation": "PASS",
+    "runtime_tests_rerun": false,
+    "reason": "Only feature metadata and prose changed; existing source/test hashes and saved runtime evidence were inspected.",
+    "historical_runtime_snapshots_unchanged": "PASS",
+    "only_four_feature_rows_changed": "PASS",
+    "api_behavior_and_registered_names_unchanged": "PASS",
+    "source_and_test_code_unchanged": "PASS"
+  },
+  "limitations": [
+    "No installed JMP numerical comparison.",
+    "The 552 rows mix feature families,methods and options; counts are not completion percentages.",
+    "Four confirmed omissions were corrected; other absent or partial contracts remain open."
+  ],
+  "test_hash_checks": {
+    "crates/analytics/tests/glmm.rs": {
+      "sha256": "6e848ea808dc595fa8e721f6707ca4af8fb76c17a41bc184542409104bc716b7",
+      "matches_recorded_native_validation": "tasks/evidence/jmp-models-validation.json"
+    },
+    "crates/analytics/tests/sem.rs": {
+      "sha256": "50881eb8aa38231681d759764dc7152634e08d469034f5731186b6abd2d572b9",
+      "matches_recorded_native_validation": "tasks/evidence/jmp-specialized-validation.json"
+    },
+    "crates/analytics/tests/text_analysis.rs": {
+      "sha256": "e6fa21fd4ff5cbb3063ad6dafcfc639c3ce805f887508a28b70c59559fb993af",
+      "matches_recorded_native_validation": "tasks/evidence/jmp-streams-validation.json"
+    }
+  }
+}
