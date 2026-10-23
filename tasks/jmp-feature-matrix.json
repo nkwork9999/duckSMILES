@@ -13,9 +13,9 @@
     "catalog_occurrences": 502,
     "feature_rows": 552,
     "status_counts": {
-      "partial": 282,
+      "partial": 283,
       "database_existing": 37,
-      "absent": 202,
+      "absent": 201,
       "external_plugin": 4,
       "implemented_verified": 6,
       "excluded_gui": 17,
@@ -2277,20 +2277,30 @@
         "chem_censored_weibull: Weibull joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
         "chem_censored_lognormal: Lognormal joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
         "chem_censored_beta: Beta joint censored maximum likelihood: [features...,lower,upper,kind0exact/1left/2right/3interval,frequency]; [maxiter=400,tol=1e-7,confidence=.95,optional raw starts].",
-        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters."
+        "chem_censored_predict: Saved censored-family mean,CDF,survival,density,quantile and observed-information delta uncertainty: [features...,query,probability] and complete predict_parameters.",
+        "chem_zi_binomial: Shared-inflation binomial logistic ML: [features...,integer response,trials,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance0observed/1HC0=0].",
+        "chem_zi_beta_binomial: Shared-inflation beta-binomial logistic ML with intraclass delta: [features...,integer response,trials>1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_poisson: Shared-inflation Poisson log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_negative_binomial: Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_gamma: Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_predict: Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits."
       ],
       "tests": [
         "crates/analytics/tests/glm.rs",
-        "crates/analytics/tests/censored_regression_contracts.rs"
+        "crates/analytics/tests/censored_regression_contracts.rs",
+        "crates/analytics/tests/zero_inflation_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/jmp-model-reference.json",
         "tasks/evidence/jmp-sql-validation.json",
-        "tasks/evidence/jmp-censored-reference.json"
+        "tasks/evidence/jmp-censored-reference.json",
+        "tasks/evidence/jmp-zero-inflation-validation.json",
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
       ],
       "remaining_contract": [
         "Elastic Netおよび6分布の非正則化censoring joint-MLEが限定対応。penalized分布別尤度・選択経路・validation・カテゴリ効果・profile/LR推論・JMP実機一致は未達。",
-        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。"
+        "GenReg公式report文書はM-estimation sandwichのSE/covarianceを記載。本実装はinverse observed information。6打切り分布への適用は一般GenReg文書からの推論で、sandwich式・frequency集約・有限標本補正と実機一致は未確定。",
+        "Shared-inflation five-family unpenalized ML, observed-information/HC0 uncertainty and saved prediction added; exact JMP sandwich, penalized selection and full roles remain unsupported."
       ],
       "domain": "advanced-statistical-modeling:Advanced regression",
       "acceptance_contract": "regression",
@@ -2397,6 +2407,84 @@
           ],
           "native_sql_evidence": "tasks/evidence/jmp-censored-reference.json",
           "native_sql": "PASS matching263 CPU macOS arm64 Release checkpoint; whole JMP family remains partial"
+        },
+        {
+          "sql_function": "chem_zi_binomial",
+          "operation": "zi_binomial",
+          "bounded_scope": "Shared-inflation binomial logistic ML: [features...,integer response,trials,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance0observed/1HC0=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_beta_binomial",
+          "operation": "zi_beta_binomial",
+          "bounded_scope": "Shared-inflation beta-binomial logistic ML with intraclass delta: [features...,integer response,trials>1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_poisson",
+          "operation": "zi_poisson",
+          "bounded_scope": "Shared-inflation Poisson log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_negative_binomial",
+          "operation": "zi_negative_binomial",
+          "bounded_scope": "Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_gamma",
+          "operation": "zi_gamma",
+          "bounded_scope": "Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_predict",
+          "operation": "zi_predict",
+          "bounded_scope": "Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits.",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
         }
       ],
       "verification": {
@@ -25403,16 +25491,111 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_zi_binomial: Shared-inflation binomial logistic ML: [features...,integer response,trials,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance0observed/1HC0=0].",
+        "chem_zi_beta_binomial: Shared-inflation beta-binomial logistic ML with intraclass delta: [features...,integer response,trials>1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_poisson: Shared-inflation Poisson log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_negative_binomial: Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_gamma: Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+        "chem_zi_predict: Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits."
       ],
-      "acceptance_contract": "regression"
+      "tests": [
+        "crates/analytics/tests/zero_inflation_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-zero-inflation-validation.json",
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
+      ],
+      "remaining_contract": [
+        "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+        "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+        "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+        "Multi-start local optimization does not certify a global optimum or general finite-MLE existence."
+      ],
+      "acceptance_contract": "regression",
+      "current_implementation": [
+        {
+          "sql_function": "chem_zi_binomial",
+          "operation": "zi_binomial",
+          "bounded_scope": "Shared-inflation binomial logistic ML: [features...,integer response,trials,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance0observed/1HC0=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_beta_binomial",
+          "operation": "zi_beta_binomial",
+          "bounded_scope": "Shared-inflation beta-binomial logistic ML with intraclass delta: [features...,integer response,trials>1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_poisson",
+          "operation": "zi_poisson",
+          "bounded_scope": "Shared-inflation Poisson log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_negative_binomial",
+          "operation": "zi_negative_binomial",
+          "bounded_scope": "Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_gamma",
+          "operation": "zi_gamma",
+          "bounded_scope": "Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        },
+        {
+          "sql_function": "chem_zi_predict",
+          "operation": "zi_predict",
+          "bounded_scope": "Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits.",
+          "source": "crates/analytics/src/zero_inflation.rs",
+          "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+          "api": "tasks/jmp-zero-inflation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-zero-inflation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug exported C ABI and loaded SQL; no whole-family JMP equivalence."
+        }
+      ]
     },
     {
       "id": "generalized_regression_ordinal_outcome",
@@ -33686,15 +33869,129 @@
       "native_sql": "passed matching loaded macOS arm64 Release extension",
       "native_sql_evidence": "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
       "bounded_api_contract": "tasks/jmp-ordinal-api.json"
+    },
+    {
+      "sql_function": "chem_zi_binomial",
+      "operation": "zi_binomial",
+      "module": "zero_inflation",
+      "input_parameter_contract": "Shared-inflation binomial logistic ML: [features...,integer response,trials,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance0observed/1HC0=0].",
+      "example": "SELECT chem_zi_binomial([[0.0,4.0,39072.0],[1.0,4.0,24192.0],[2.0,4.0,24192.0],[3.0,4.0,10752.0],[4.0,4.0,1792.0]],[]);",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "feature_ids": [
+        "generalized_regression",
+        "generalized_regression_zero_inflation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+      "bounded_api_contract": "tasks/jmp-zero-inflation-api.json"
+    },
+    {
+      "sql_function": "chem_zi_beta_binomial",
+      "operation": "zi_beta_binomial",
+      "module": "zero_inflation",
+      "input_parameter_contract": "Shared-inflation beta-binomial logistic ML with intraclass delta: [features...,integer response,trials>1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "example": "SELECT chem_zi_beta_binomial([[0.0,4.0,7212.0],[1.0,4.0,2992.0],[2.0,4.0,2652.0],[3.0,4.0,1872.0],[4.0,4.0,897.0]],[]);",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "feature_ids": [
+        "generalized_regression",
+        "generalized_regression_zero_inflation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+      "bounded_api_contract": "tasks/jmp-zero-inflation-api.json"
+    },
+    {
+      "sql_function": "chem_zi_poisson",
+      "operation": "zi_poisson",
+      "module": "zero_inflation",
+      "input_parameter_contract": "Shared-inflation Poisson log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "example": "SELECT chem_zi_poisson([[0.0,1.0,10.0],[1.0,1.0,3.0],[2.0,1.0,4.0],[3.0,1.0,2.0],[4.0,1.0,1.0]],[]);",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "feature_ids": [
+        "generalized_regression",
+        "generalized_regression_zero_inflation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+      "bounded_api_contract": "tasks/jmp-zero-inflation-api.json"
+    },
+    {
+      "sql_function": "chem_zi_negative_binomial",
+      "operation": "zi_negative_binomial",
+      "module": "zero_inflation",
+      "input_parameter_contract": "Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "example": "SELECT chem_zi_negative_binomial([[0,1,47500],[1,1,17500],[2,1,13125],[3,1,8750],[4,1,5469],[5,1,3281],[6,1,1914],[7,1,1094],[8,1,615],[9,1,342],[10,1,188],[11,1,103],[12,1,56],[13,1,30],[14,1,16],[15,1,9],[16,1,5],[17,1,2],[18,1,1],[19,1,1]],[]);",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "feature_ids": [
+        "generalized_regression",
+        "generalized_regression_zero_inflation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+      "bounded_api_contract": "tasks/jmp-zero-inflation-api.json"
+    },
+    {
+      "sql_function": "chem_zi_gamma",
+      "operation": "zi_gamma",
+      "module": "zero_inflation",
+      "input_parameter_contract": "Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "example": "SELECT chem_zi_gamma([[0,1,3],[1,1,2],[2,1,3],[3,1,2]],[]);",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "feature_ids": [
+        "generalized_regression",
+        "generalized_regression_zero_inflation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+      "bounded_api_contract": "tasks/jmp-zero-inflation-api.json"
+    },
+    {
+      "sql_function": "chem_zi_predict",
+      "operation": "zi_predict",
+      "module": "zero_inflation",
+      "input_parameter_contract": "Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits.",
+      "example": "SELECT chem_zi_predict([[1.,1.,.5]],[1.0,2.0,0.0,0.95,0.0,0.0,0.0,0.6931471805599453,0.0,0.3,0.0,0.0,0.0,0.0]);",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "feature_ids": [
+        "generalized_regression",
+        "generalized_regression_zero_inflation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-zero-inflation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+      "bounded_api_contract": "tasks/jmp-zero-inflation-api.json"
     }
   ],
   "current_implementation_snapshot": {
-    "date": "2026-10-23",
-    "new_public_registry_entries": 243,
+    "date": "2026-10-24",
+    "new_public_registry_entries": 249,
     "prior_public_analytics_functions": 24,
-    "total_public_analytics_functions": 267,
+    "total_public_analytics_functions": 273,
     "sources_inspected": "Actual registered source/test/API and independent-reference evidence, plus matching loaded native extension. No whole-family JMP parity is inferred.",
-    "native_sql": "passed matching loaded267-function macOS arm64 Release CPU extension",
+    "native_sql": "passed matching loaded273-function macOS arm64 dev/Debug CPU extension",
     "references": [
       "tasks/evidence/jmp-distribution-arima-reference.json",
       "tasks/evidence/jmp-model-reference.json",
@@ -33733,17 +34030,18 @@
       "tasks/evidence/jmp-spatial-estimation-reference.json",
       "tasks/evidence/jmp-spatial-estimation-sql.json",
       "tasks/evidence/jmp-parity-estimation-validation.json",
-      "tasks/evidence/jmp-report-ordinal-validation.json"
+      "tasks/evidence/jmp-report-ordinal-validation.json",
+      "tasks/evidence/jmp-zero-inflation-validation.json"
     ],
     "counts_are_not_parity_percentages": true,
     "prior_verified_analytics_functions": 119,
     "continuation_target_operations": 62,
     "continuation_api_operations_documented": 62,
     "continuation_native_sql": "passed matching loaded-extension macOS arm64 CPU gate",
-    "latest_additional_operations": 4,
-    "latest_evidence": "tasks/evidence/jmp-report-ordinal-validation.json",
-    "work_status": "Full JMP incomplete;267 bounded analytics functions verified at prior checkpoint. On2026-10-23 four existing-API feature omissions were corrected;metadata audit only,no new algorithms or runtime validation.",
-    "active_continuation_record": "tasks/jmp-report-progress-20261022.json",
+    "latest_additional_operations": 6,
+    "latest_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
+    "work_status": "Full JMP incomplete;273 bounded analytics functions verified. Zero-inflation feature now partial with residual contracts explicit.",
+    "active_continuation_record": "tasks/jmp-completion-progress-20261023.json",
     "report_scope_audit": {
       "record": "tasks/jmp-report-acceptance.json",
       "rows": 44,
@@ -33806,25 +34104,34 @@
   },
   "final_validation": {
     "schema_version": 1,
-    "date": "2026-10-23",
-    "status": "PASS4additional bounded CPU operations; full JMP remains incomplete",
+    "date": "2026-10-24",
+    "status": "PASS6 additional bounded CPU operations; full JMP remains incomplete",
     "full_goal_complete": false,
-    "source_git_base": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
-    "source_identification": "Actual frozen production source hashes and artifacts; validation precedes the next source commit.",
+    "source_git_base": "0fa48b726b0aa9b04a18dc37027dac31e1fc68ed",
+    "source_identification": "Frozen production source/artifact hashes; validation before source commit.",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+    "profile": {
+      "Rust": "dev",
+      "CMake": "Debug"
+    },
+    "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
     "new_operations": [
-      "report_histogram_svg",
-      "report_box_plot_svg",
-      "genreg_ordinal_fit",
-      "genreg_ordinal_predict"
+      "zi_binomial",
+      "zi_beta_binomial",
+      "zi_poisson",
+      "zi_negative_binomial",
+      "zi_gamma",
+      "zi_predict"
     ],
-    "analytics_functions": 267,
-    "total_sql_overloads": 418,
-    "registry_operations": 243,
+    "analytics_functions": 273,
+    "total_sql_overloads": 424,
+    "registry_operations": 249,
     "rust_workspace": {
-      "passed": 1366,
+      "passed": 1381,
       "failed": 0,
       "ignored_existing": 2,
-      "suites": 67,
+      "suites": 68,
+      "focused_new_tests": 15,
       "ignored_details": [
         "logP diagnostic print helper",
         "supplied population preparation acceptance needs explicit unselected100k external data source"
@@ -33833,89 +34140,101 @@
     "strict_analytics_all_target_clippy": "PASS",
     "scoped_fmt_check": "PASS",
     "native_sql": {
-      "cases": 18,
-      "assertions": 603,
-      "skipped": 0
+      "cases": 19,
+      "assertions": 616,
+      "skipped": 0,
+      "log": "tasks/evidence/jmp-zero-inflation-native-sql.log"
     },
-    "catalog_examples_executed": 418,
-    "reports": {
-      "positive_fixtures_per_boundary": 36,
-      "checks": 105438,
-      "public_c_abi_calls": 69,
-      "invalid_NULL_cases": 69,
-      "rendered_PNGs": 58,
+    "catalog_examples_executed": 424,
+    "independent_reference": {
+      "record": "tasks/evidence/jmp-zero-inflation-native-reference.json",
+      "checks": 896,
+      "invalid_NULL_checks": 48,
       "boundaries": [
-        "actual Release C ABI",
-        "matching loaded DuckDB SQL"
+        "exported_C_ABI",
+        "loaded_DuckDB_SQL"
       ],
-      "source_SVG_equals_SQL_SVG": true,
-      "rasterizer": "macOS sips; unchanged SVG; independent ImageMagick RGBA decoding",
-      "evidence": "tasks/evidence/jmp-reports-native-reference.json"
-    },
-    "ordinal": {
-      "both_boundary_fit_fixtures": 5,
-      "both_boundary_checks": 1082,
-      "independent_mp80_fit_fixtures": 4,
-      "independent_mp80_checks": 1321,
-      "independent_C_ABI_calls": 35,
-      "independent_invalid_NULL_cases": 23,
-      "maximum_scaled_error": 1.155176771977443e-09,
-      "evidence": [
-        "tasks/evidence/jmp-ordinal-reference.json",
-        "tasks/evidence/jmp-ordinal-independent-release-reference.json"
-      ]
+      "maximum_scaled_error": 2.6218941028781146e-09,
+      "scipy": "1.17.1",
+      "mpmath": "1.3.0",
+      "gamma_shape_grid_cases_per_boundary": 21
     },
     "artifacts": {
       "cli": {
-        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
-        "sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2"
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb",
+        "sha256": "e2618bb623563289db05b90097e6f468abf3e13569de9096a6d3c6b0611a5780"
       },
       "extension": {
-        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
-        "sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+        "sha256": "f8dfab404ee349e32e23f56afd6232c23b68efc9995087510861580117d8980d"
       },
       "C_ABI": {
-        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
-        "sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe"
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib",
+        "sha256": "9548adc4e074df1c51b644af85572593d7b19ceccf6e74ccb9b3dba5aff50202"
       },
       "archive": {
-        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
-        "sha256": "3eef21aa686946a0134a60e9d84c6270455f898bf9ee1c3a970c088baf520337"
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/debug/libducksmiles_analytics.a",
+        "sha256": "1052240ed04956becc9b51999a538415052535fb60bd6012b4c6dd8d30ac8a97"
       }
     },
     "source_hashes": {
-      "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
-      "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
-      "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
-      "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+      "crates/analytics/src/lib.rs": "4f6bfcf14c1a067d54fa76797cde5c7a74fa815bd36d82fd0fb2c61feca7cce6",
+      "crates/analytics/src/zero_inflation.rs": "560dd6a92a714a876b60b4a6f35dcf964cbff9033ad9b429c460f89ef4093311",
+      "crates/analytics/tests/zero_inflation_contracts.rs": "2774f2b8cf2c4dd47e67ecf7572f24d94a67aed4be3d5dbfcdad2d3e8a9e6bca",
+      "src/include/analytics_registry.inc": "c731bd1084bdc97888f3f2369cc9b1ed972a85437dfc3ff156a6a2a4c7d75fa2"
     },
+    "test_and_checker_hashes": {
+      "scripts/check_jmp_zero_inflation.py": "995914e4466865d938c425d6e5fe24ba3d5531da21387b43fef0caac01ef7f0a",
+      "test/sql/zero_inflation.test": "a0e591e70ed1b70cb1e2d404c72a198d02d90c6736fa019ef90149edfadbda86",
+      "test/sql/function_catalog.test": "a5cc3b8f266cd1eb62cccd472a4f90b19b45866ad33cdb4e6c87473fa4416f74",
+      "test/sql/required_extensions.test": "668715d9b948c701d9da1bce504d9ebbdc18e0a42a1b7f5181b14365d02ddf46"
+    },
+    "commands": [
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
+      "rustfmt --edition 2021 --check crates/analytics/src/zero_inflation.rs crates/analytics/src/lib.rs crates/analytics/tests/zero_inflation_contracts.rs",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
+      "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib python3 scripts/check_jmp_zero_inflation.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-zero-inflation-native-reference.json",
+      "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+    ],
     "evidence": [
-      "tasks/evidence/jmp-report-ordinal-dev-validation.json",
-      "tasks/evidence/jmp-report-ordinal-native-build.json",
-      "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
-      "tasks/evidence/jmp-reports-native-reference.json",
-      "tasks/evidence/jmp-ordinal-reference.json",
-      "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+      "tasks/evidence/jmp-zero-inflation-native-reference.json",
+      "tasks/evidence/jmp-zero-inflation-workspace.log",
+      "tasks/evidence/jmp-zero-inflation-native-sql.log",
+      "tasks/evidence/jmp-zero-inflation-sql-red.log",
+      "tasks/evidence/jmp-completion-native-sdk-20261023.json"
     ],
-    "limitations": [
-      "No installed JMP comparison or whole-family completion",
-      "Observed-information ordinal inference is an explicit alternative; exact JMP M-estimation sandwich convention unverified",
-      "Histogram automatic bins and exact JMP histogram closure,weights,advanced overlays/styles remain outstanding",
-      "Box notches,diamonds,jitter,proportional widths and complete export/style options remain outstanding",
-      "New source cross-platform/community CI must be checked separately; no new Wasm runtime SQL claim"
-    ],
-    "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion",
-    "scheduled_stop_utc": "2026-10-22T23:30:00Z",
+    "TDD": {
+      "initial_positive_RED": 8,
+      "initial_failure": "unknown optimization operation",
+      "vacuous_malformed_test_counted_as_RED": false,
+      "actual_SQL_RED": "chem_zi_poisson does not exist",
+      "numerical_regression_RED_GREEN": [
+        "saturated-logit binomial tails/variance",
+        "tiny Gamma quantile and scaled-query underflow",
+        "mixture quantile just above zero atom",
+        "small/large Gamma shape normalization"
+      ]
+    },
     "status_counts": {
-      "partial": 278,
+      "partial": 283,
       "database_existing": 37,
-      "absent": 206,
+      "absent": 201,
       "external_plugin": 4,
       "implemented_verified": 6,
       "excluded_gui": 17,
       "separate_product": 4,
       "clarification_pending": 0
-    }
+    },
+    "limitations": [
+      "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+      "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+      "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+      "Multi-start local optimization does not certify a global optimum or general finite-MLE existence.",
+      "No installed JMP comparison; source cross-platform CI checked separately; no new Wasm runtime SQL claim."
+    ],
+    "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion"
   },
   "previous_final_validation": {
     "platform": "macOS arm64",
@@ -34237,5 +34556,118 @@
     "evidence": "tasks/evidence/jmp-parity-estimation-validation.json",
     "full_goal_complete": false,
     "active_continuation_record": "tasks/jmp-parity-resume-20261022.json"
+  },
+  "previous_report_ordinal_final_validation": {
+    "schema_version": 1,
+    "date": "2026-10-23",
+    "status": "PASS4additional bounded CPU operations; full JMP remains incomplete",
+    "full_goal_complete": false,
+    "source_git_base": "b5f629e4706c28b4bb1c7473bc8a65e71ddb1e24",
+    "source_identification": "Actual frozen production source hashes and artifacts; validation precedes the next source commit.",
+    "new_operations": [
+      "report_histogram_svg",
+      "report_box_plot_svg",
+      "genreg_ordinal_fit",
+      "genreg_ordinal_predict"
+    ],
+    "analytics_functions": 267,
+    "total_sql_overloads": 418,
+    "registry_operations": 243,
+    "rust_workspace": {
+      "passed": 1366,
+      "failed": 0,
+      "ignored_existing": 2,
+      "suites": 67,
+      "ignored_details": [
+        "logP diagnostic print helper",
+        "supplied population preparation acceptance needs explicit unselected100k external data source"
+      ]
+    },
+    "strict_analytics_all_target_clippy": "PASS",
+    "scoped_fmt_check": "PASS",
+    "native_sql": {
+      "cases": 18,
+      "assertions": 603,
+      "skipped": 0
+    },
+    "catalog_examples_executed": 418,
+    "reports": {
+      "positive_fixtures_per_boundary": 36,
+      "checks": 105438,
+      "public_c_abi_calls": 69,
+      "invalid_NULL_cases": 69,
+      "rendered_PNGs": 58,
+      "boundaries": [
+        "actual Release C ABI",
+        "matching loaded DuckDB SQL"
+      ],
+      "source_SVG_equals_SQL_SVG": true,
+      "rasterizer": "macOS sips; unchanged SVG; independent ImageMagick RGBA decoding",
+      "evidence": "tasks/evidence/jmp-reports-native-reference.json"
+    },
+    "ordinal": {
+      "both_boundary_fit_fixtures": 5,
+      "both_boundary_checks": 1082,
+      "independent_mp80_fit_fixtures": 4,
+      "independent_mp80_checks": 1321,
+      "independent_C_ABI_calls": 35,
+      "independent_invalid_NULL_cases": 23,
+      "maximum_scaled_error": 1.155176771977443e-09,
+      "evidence": [
+        "tasks/evidence/jmp-ordinal-reference.json",
+        "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+      ]
+    },
+    "artifacts": {
+      "cli": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/duckdb",
+        "sha256": "dd1f0533e5ba98b473fb805c69a6beb6b1a121431b1cbd14edc7cce1336924c2"
+      },
+      "extension": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+        "sha256": "6246124653196d4e0b03ffee943ba7bb1a2a7d17d5bf0f3d419471377681d93f"
+      },
+      "C_ABI": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/native/analytics_abi.dylib",
+        "sha256": "96910c9267c23fb923ada6ab0a7d0de476baadd6f31918445dc84975c65f91fe"
+      },
+      "archive": {
+        "path": "/private/tmp/ducksmiles-jmp-parity-20261022/release/libducksmiles_analytics.a",
+        "sha256": "3eef21aa686946a0134a60e9d84c6270455f898bf9ee1c3a970c088baf520337"
+      }
+    },
+    "source_hashes": {
+      "crates/analytics/src/lib.rs": "0d8090f746504a238636d6d92135f582bb767f0c3d9034dfcc023c2f9eb8ce3a",
+      "crates/analytics/src/static_reports.rs": "75f51290c5201755f31fbc7abb5c8425cffd571ed044a0a7478194a9d87b9825",
+      "crates/analytics/src/genreg_ordinal.rs": "3bb8be6e1904881d03103fd8d78abbc5c5860329af1f88a01dddbe9cb6084d90",
+      "src/include/analytics_registry.inc": "db32cab5f44ea4e0f10c7e04802cacb5b0f44cb8e0fe3c77d211bc28c4cb993b"
+    },
+    "evidence": [
+      "tasks/evidence/jmp-report-ordinal-dev-validation.json",
+      "tasks/evidence/jmp-report-ordinal-native-build.json",
+      "tasks/evidence/jmp-report-ordinal-native-sql-validation.json",
+      "tasks/evidence/jmp-reports-native-reference.json",
+      "tasks/evidence/jmp-ordinal-reference.json",
+      "tasks/evidence/jmp-ordinal-independent-release-reference.json"
+    ],
+    "limitations": [
+      "No installed JMP comparison or whole-family completion",
+      "Observed-information ordinal inference is an explicit alternative; exact JMP M-estimation sandwich convention unverified",
+      "Histogram automatic bins and exact JMP histogram closure,weights,advanced overlays/styles remain outstanding",
+      "Box notches,diamonds,jitter,proportional widths and complete export/style options remain outstanding",
+      "New source cross-platform/community CI must be checked separately; no new Wasm runtime SQL claim"
+    ],
+    "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion",
+    "scheduled_stop_utc": "2026-10-22T23:30:00Z",
+    "status_counts": {
+      "partial": 278,
+      "database_existing": 37,
+      "absent": 206,
+      "external_plugin": 4,
+      "implemented_verified": 6,
+      "excluded_gui": 17,
+      "separate_product": 4,
+      "clarification_pending": 0
+    }
   }
 }

@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-23",
+  "status": "active",
+  "objective": "Complete the remaining JMP/JMP Pro19.2 non-GUI CPU numerical,data,model,DOE,reproducibility,integration and static-output contracts,with verified changes integrated into main.",
+  "baseline_analytics_functions": 267,
+  "baseline_total_overloads": 418,
+  "baseline_feature_status_counts": {
+    "partial": 282,
+    "database_existing": 37,
+    "absent": 202,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "full_goal_complete": false,
+  "current_stage": "Verified6 zero-inflation operations,273analytics/424overloads; integrate this checkpoint into main, then continue remaining contracts.",
+  "next_stages": [
+    "Check exact-source CI after integration; investigate multivariate PLS2/PLS-DA/VIP contracts with independent numerical references.",
+    "Implement remaining selection/validation,inference,models,DOE,data/connectors and report contracts from the full matrix.",
+    "Reconcile every partial/absent contract against source and evidence; close no whole-family item based on a name or smoke test.",
+    "Integrate verified commits into main and inspect exact-source CI."
+  ],
+  "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
+  "constraints": [
+    "No installed-JMP equivalence claim without actual comparison.",
+    "One task-owned build tree; CPU numerical methods and static artifacts remain in scope.",
+    "Chemical DQ/DuckOrch implementation remains deferred until full JMP completion."
+  ],
+  "verification_so_far": {
+    "passed": 1381,
+    "failed": 0,
+    "ignored_existing": 2,
+    "suites": 68,
+    "focused_new_tests": 15,
+    "ignored_details": [
+      "logP diagnostic print helper",
+      "supplied population preparation acceptance needs explicit unselected100k external data source"
+    ],
+    "independent_reference": {
+      "record": "tasks/evidence/jmp-zero-inflation-native-reference.json",
+      "checks": 896,
+      "invalid_NULL_checks": 48,
+      "boundaries": [
+        "exported_C_ABI",
+        "loaded_DuckDB_SQL"
+      ],
+      "maximum_scaled_error": 2.6218941028781146e-09,
+      "scipy": "1.17.1",
+      "mpmath": "1.3.0",
+      "gamma_shape_grid_cases_per_boundary": 21
+    },
+    "native_sql": {
+      "cases": 19,
+      "assertions": 616,
+      "skipped": 0,
+      "log": "tasks/evidence/jmp-zero-inflation-native-sql.log"
+    },
+    "catalog_examples": 424,
+    "full_goal_complete": false
+  },
+  "updated_on": "2026-10-24",
+  "verified_checkpoint": "tasks/evidence/jmp-zero-inflation-validation.json",
+  "current_analytics_functions": 273,
+  "current_total_overloads": 424,
+  "current_feature_status_counts": {
+    "partial": 283,
+    "database_existing": 37,
+    "absent": 201,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "previous_main_integrated_commit": "0fa48b7",
+  "integration_target": "origin/main, fast-forward only; local main belongs to another worktree"
+}

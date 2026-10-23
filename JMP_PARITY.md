@@ -1,12 +1,18 @@
 # JMP / JMP Pro の計算機能差分と実装契約
 
-初回調査日: 2026-10-21。既存APIとの対応を最後に照合した日: 2026-10-23。機能台帳の版基準は **JMP / JMP Pro 19.2** と取得した公開機能一覧。初期の24 SQL関数は限定的な解析基盤であり、JMPの計算機能全体を実装したものではない。現在版を含むJMP全体との完全同等性は主張しない。
+初回調査日: 2026-10-21。既存APIとの対応を最後に照合した日: 2026-10-24。機能台帳の版基準は **JMP / JMP Pro 19.2** と取得した公開機能一覧。初期の24 SQL関数は限定的な解析基盤であり、JMPの計算機能全体を実装したものではない。現在版を含むJMP全体との完全同等性は主張しない。
 
 全項目の台帳は [tasks/jmp-feature-matrix.json](tasks/jmp-feature-matrix.json)。14領域の公式ページに記載されたメソッド・機能の502出現を保持し、同じ名称を統合し、公式19.2リファレンスの具体的な下位機能も追加した。**552行**は粒度の異なる能力・手法・オプションを含む。件数をそのまま実装率に換算しない。公式リファレンスにはさらに細かなオプションがあるため、この台帳は追跡可能な下限であり、全オプションの完全な列挙ではない。
 
-## 最新の照合結果（2026-10-23）
+## 最新の照合結果（2026-10-24）
 
-登録済みの解析APIは **267関数 / 拡張全体418 overloads**。台帳の現在の分類は、部分対応282行、未実装202行、DuckDB既存37行、従来の限定契約として検証済み6行、GUI除外17行、外部拡張4行、別製品4行、範囲未確定0行である。
+登録済みの解析APIは **273関数 / 拡張全体424 overloads**。台帳の現在の分類は、部分対応283行、未実装201行、DuckDB既存37行、従来の限定契約として検証済み6行、GUI除外17行、外部拡張4行、別製品4行、範囲未確定0行である。
+
+零過剰Binomial・Beta Binomial・Poisson・Negative Binomial・Gammaの非正則化MLと保存予測の6関数を追加した。共有pi、整数頻度、数値固定効果、observed-information/HC0 covarianceと予測の限定契約である。`generalized_regression_zero_inflation` は未実装から部分対応へ変更した。Lasso等の正則化・選択、fractional counts/trials、カテゴリ・missing roles、JMP固有のsandwich規約は残る。
+
+macOS arm64の同一dev/DebugソースでRust 1,381件（失敗0、既存ignored2）、SQL 19 cases /616 assertions（skip0）、424 catalog例、strict Clippyと書式検証が成功。公開C ABIと実ロードSQLの両方を独立SciPy/mpmath参照と照合した。[入力・制限・保存形式](tasks/jmp-zero-inflation-api.json)、[検証記録](tasks/evidence/jmp-zero-inflation-validation.json)を参照。JMP本体との比較は未実施である。
+
+### 既存API対応付けの履歴（2026-10-23）
 
 既存APIを親項目にだけ関連付けていたため、下表の4項目が `absent` のままになっていた。ソース・Rustテスト・独立参照・過去のmatching native SQL検証を照合し、具体的なAPIと残差分を追記して `partial` に修正した。API側にも対応するfeature IDを追記した。アルゴリズムや公開関数の追加は0であり、JMPの方法群全体を完了にした変更ではない。
 
@@ -19,7 +25,7 @@
 
 詳細とソースhashの照合結果は [対応付け監査記録](tasks/evidence/jmp-feature-mapping-audit-20261023.json)。GLMM・SEM・textの現行ソースは、それぞれ過去のnative SQL検証記録に保存されたhashと一致した。今回は台帳と比較文書の修正であり、Rust/C ABI/SQLテストの新しい実行結果は追加していない。[直近の実装検証記録](tasks/evidence/jmp-report-ordinal-validation.json)にあるRust 1,366件・SQL 603 assertions・418 catalog例の成功と、その当時の分類件数は履歴として保持する。
 
-零過剰5系統、選択・正則化、標準誤差/信頼区間のJMP規約、図表の詳細オプションなどは引き続き未完了である。JMP本体との数値比較も未実施。台帳の残る `absent` 行も、APIが一切存在しないことを今回全件再検証した件数とは扱わない。
+零過剰の残るオプション、選択・正則化、標準誤差/信頼区間のJMP規約、図表の詳細オプションなどは引き続き未完了である。JMP本体との数値比較も未実施。台帳の残る `absent` 行も、APIが一切存在しないことを今回全件再検証した件数とは扱わない。
 
 以下の各節の件数・「現在」「今回」は各調査・実装checkpoint当時の記録である。最新の集計は本節と台帳の `counting.status_counts` を参照する。
 

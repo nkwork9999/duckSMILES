@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "status": "PASS6 additional bounded CPU operations; full JMP remains incomplete",
+  "full_goal_complete": false,
+  "source_git_base": "0fa48b726b0aa9b04a18dc37027dac31e1fc68ed",
+  "source_identification": "Frozen production source/artifact hashes; validation before source commit.",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "profile": {
+    "Rust": "dev",
+    "CMake": "Debug"
+  },
+  "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
+  "new_operations": [
+    "zi_binomial",
+    "zi_beta_binomial",
+    "zi_poisson",
+    "zi_negative_binomial",
+    "zi_gamma",
+    "zi_predict"
+  ],
+  "analytics_functions": 273,
+  "total_sql_overloads": 424,
+  "registry_operations": 249,
+  "rust_workspace": {
+    "passed": 1381,
+    "failed": 0,
+    "ignored_existing": 2,
+    "suites": 68,
+    "focused_new_tests": 15,
+    "ignored_details": [
+      "logP diagnostic print helper",
+      "supplied population preparation acceptance needs explicit unselected100k external data source"
+    ]
+  },
+  "strict_analytics_all_target_clippy": "PASS",
+  "scoped_fmt_check": "PASS",
+  "native_sql": {
+    "cases": 19,
+    "assertions": 616,
+    "skipped": 0,
+    "log": "tasks/evidence/jmp-zero-inflation-native-sql.log"
+  },
+  "catalog_examples_executed": 424,
+  "independent_reference": {
+    "record": "tasks/evidence/jmp-zero-inflation-native-reference.json",
+    "checks": 896,
+    "invalid_NULL_checks": 48,
+    "boundaries": [
+      "exported_C_ABI",
+      "loaded_DuckDB_SQL"
+    ],
+    "maximum_scaled_error": 2.6218941028781146e-09,
+    "scipy": "1.17.1",
+    "mpmath": "1.3.0",
+    "gamma_shape_grid_cases_per_boundary": 21
+  },
+  "artifacts": {
+    "cli": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb",
+      "sha256": "e2618bb623563289db05b90097e6f468abf3e13569de9096a6d3c6b0611a5780"
+    },
+    "extension": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "sha256": "f8dfab404ee349e32e23f56afd6232c23b68efc9995087510861580117d8980d"
+    },
+    "C_ABI": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib",
+      "sha256": "9548adc4e074df1c51b644af85572593d7b19ceccf6e74ccb9b3dba5aff50202"
+    },
+    "archive": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/debug/libducksmiles_analytics.a",
+      "sha256": "1052240ed04956becc9b51999a538415052535fb60bd6012b4c6dd8d30ac8a97"
+    }
+  },
+  "source_hashes": {
+    "crates/analytics/src/lib.rs": "4f6bfcf14c1a067d54fa76797cde5c7a74fa815bd36d82fd0fb2c61feca7cce6",
+    "crates/analytics/src/zero_inflation.rs": "560dd6a92a714a876b60b4a6f35dcf964cbff9033ad9b429c460f89ef4093311",
+    "crates/analytics/tests/zero_inflation_contracts.rs": "2774f2b8cf2c4dd47e67ecf7572f24d94a67aed4be3d5dbfcdad2d3e8a9e6bca",
+    "src/include/analytics_registry.inc": "c731bd1084bdc97888f3f2369cc9b1ed972a85437dfc3ff156a6a2a4c7d75fa2"
+  },
+  "test_and_checker_hashes": {
+    "scripts/check_jmp_zero_inflation.py": "995914e4466865d938c425d6e5fe24ba3d5531da21387b43fef0caac01ef7f0a",
+    "test/sql/zero_inflation.test": "a0e591e70ed1b70cb1e2d404c72a198d02d90c6736fa019ef90149edfadbda86",
+    "test/sql/function_catalog.test": "a5cc3b8f266cd1eb62cccd472a4f90b19b45866ad33cdb4e6c87473fa4416f74",
+    "test/sql/required_extensions.test": "668715d9b948c701d9da1bce504d9ebbdc18e0a42a1b7f5181b14365d02ddf46"
+  },
+  "commands": [
+    "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
+    "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
+    "rustfmt --edition 2021 --check crates/analytics/src/zero_inflation.rs crates/analytics/src/lib.rs crates/analytics/tests/zero_inflation_contracts.rs",
+    "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
+    "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+    "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib python3 scripts/check_jmp_zero_inflation.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-zero-inflation-native-reference.json",
+    "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+  ],
+  "evidence": [
+    "tasks/evidence/jmp-zero-inflation-native-reference.json",
+    "tasks/evidence/jmp-zero-inflation-workspace.log",
+    "tasks/evidence/jmp-zero-inflation-native-sql.log",
+    "tasks/evidence/jmp-zero-inflation-sql-red.log",
+    "tasks/evidence/jmp-completion-native-sdk-20261023.json"
+  ],
+  "TDD": {
+    "initial_positive_RED": 8,
+    "initial_failure": "unknown optimization operation",
+    "vacuous_malformed_test_counted_as_RED": false,
+    "actual_SQL_RED": "chem_zi_poisson does not exist",
+    "numerical_regression_RED_GREEN": [
+      "saturated-logit binomial tails/variance",
+      "tiny Gamma quantile and scaled-query underflow",
+      "mixture quantile just above zero atom",
+      "small/large Gamma shape normalization"
+    ]
+  },
+  "status_counts": {
+    "partial": 283,
+    "database_existing": 37,
+    "absent": 201,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "limitations": [
+    "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+    "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+    "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+    "Multi-start local optimization does not certify a global optimum or general finite-MLE existence.",
+    "No installed JMP comparison; source cross-platform CI checked separately; no new Wasm runtime SQL claim."
+  ],
+  "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion"
+}

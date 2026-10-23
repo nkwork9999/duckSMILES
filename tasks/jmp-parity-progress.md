@@ -5,12 +5,26 @@ batch are recorded. **Full JMP parity remains unfinished.** The authoritative
 backlog is [jmp-feature-matrix.json](jmp-feature-matrix.json), with scope and
 primary sources in [JMP_PARITY.md](../JMP_PARITY.md).
 
-The inventory contains 552 heterogeneous feature/method/option rows: 282 partial,
-202 absent, 37 provided by the host database, 6 earlier verified limited contracts,
+The inventory contains 552 heterogeneous feature/method/option rows: 283 partial,
+201 absent, 37 provided by the host database, 6 earlier verified limited contracts,
 17 GUI exclusions, 0 output/scope questions, 4 external plugins and 4 separate
 product entries. These counts do not constitute a completion percentage. A
 20.0 help URL returns the same index as 19.2; a distinct 20.0 feature delta has not
 been verified. No installed JMP was used for numerical comparisons.
+
+## Verified zero-inflation checkpoint (2026-10-24)
+
+Five natural-support unpenalized shared-inflation regression fits and portable
+prediction add six operations: **273 analytics functions /424 total overloads**.
+The new feature row is partial; whole-family and full JMP completion remain open.
+The matching dev/Debug CPU build passes1,381 Rust tests in68 suites,0 failures,
+2 existing ignored;19 SQL cases/616 assertions,0 skips;424 catalog examples;
+strict all-target analytics Clippy and scoped formatting. Independent SciPy and
+mpmath references check coefficients, full joint covariance/HC0, saved prediction
+and numerical tails at the actual C ABI and loaded SQL boundaries.
+See [contracts](jmp-zero-inflation-api.json),
+[validation](evidence/jmp-zero-inflation-validation.json) and the
+[active continuation record](jmp-completion-progress-20261023.json).
 
 ## Existing API mapping audit (2026-10-23)
 
@@ -21,7 +35,7 @@ hashes for GLMM, SEM and text match their recorded native SQL validation
 checkpoints. Each corrected row remains partial and lists unsupported contracts.
 See [the audit record](evidence/jmp-feature-mapping-audit-20261023.json).
 
-The registered API counts remain 267 analytics functions and 418 total overloads.
+At this historical audit, the registered API counts remained 267 analytics functions and 418 total overloads.
 No algorithms or APIs were added, and no runtime tests were rerun for this
 metadata/documentation correction. The previous runtime evidence and its original
 status counts remain unchanged. This audit corrects four confirmed omissions;

@@ -1,0 +1,26 @@
+Filters: /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*
+
+[0/19] (0%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test
+[1/19] (5%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/ducksmiles.test took 0.472s
+[2/19] (10%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_specialized.test took 0.192s
+[3/19] (15%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test took 0.169s
+[4/19] (21%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_continuation.test took 0.050s
+[5/19] (26%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/report_artifacts.test took 0.054s
+[6/19] (31%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/spatial_estimation.test took 0.230s
+[7/19] (36%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_models.test took 0.041s
+[8/19] (42%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/fallibility.test took 0.026s
+[9/19] (47%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_design_classical.test took 0.112s
+[10/19] (52%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/mass_context.test took 0.036s
+[11/19] (57%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_streams.test took 0.018s
+[12/19] (63%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/jmp_analytics.test took 0.226s
+[13/19] (68%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/native_graph.test took 0.025s
+[14/19] (73%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/vector_compat.test took 0.038s
+[15/19] (78%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/analytics.test took 0.037sReplacing deprecated __BUILD_DIRECTORY__ in test /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test - please replace with {BUILD_DIRECTORY}
+
+[16/19] (84%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/required_extensions.test took 0.017s
+[17/19] (89%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/censored_regression.test took 0.054s
+[18/19] (94%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/function_catalog.test took 0.073s
+[19/19] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/genreg_ordinal.test took 0.041s
+===============================================================================
+All tests passed (616 assertions in 19 test cases)
+

@@ -43,7 +43,7 @@ INSTALL ducksmiles FROM community;
 LOAD ducksmiles;
 ```
 
-The 0.6.1 source provides 267 CPU analytics functions (418 total SQL overloads).
+The 0.6.2 source provides 273 CPU analytics functions (424 total SQL overloads).
 Community packages depend on the version and source revision accepted upstream.
 At the earlier 254-function checkpoint, the DuckDB 2 CI revision
 `d54cbbe3df17e8e5ce68312f483b4155836112aa` passed all 13 SQL cases
@@ -56,8 +56,8 @@ integer APIs unavailable in that pinned Rust compiler.
 CI also builds and preloads JSON for the SQL regression suite. A required-extension
 test loads the built DuckSMILES file and executes a JSON query, so missing
 prerequisites cause a failure instead of silently skipping the tests. The earlier DuckDB 2
-preflight passed 14 SQL cases / 443 assertions. The current Release build passes
-18 SQL cases / 603 assertions and all418 catalog examples on macOS arm64. Community CI additionally loads
+preflight passed 14 SQL cases / 443 assertions. The current dev/Debug build passes
+19 SQL cases / 616 assertions and all424 catalog examples on macOS arm64. Community CI additionally loads
 the built extension on test initialization and marks both extensions as required.
 
 When CI supplies a prebuilt native DuckDB library, the build checks its embedded
@@ -916,7 +916,7 @@ FROM (VALUES ('CCO'), ('CC(=O)O'), ('NCC(=O)O')) AS t(smiles);
 The analytics build adds numerical methods to the molecular SQL workflow. The
 calculation core runs on the CPU, without a GUI, GPU runtime, Python or external
 chemistry library. This section lists **every currently registered analytics SQL
-function** (267 verified functions: the original 24 plus the method registry below), with its input contract and an
+function** (273 verified functions: the original 24 plus the method registry below), with its input contract and an
 executable call. Existing community packages can predate this implementation;
 use a build containing these registrations and check the loaded catalog:
 
@@ -1266,8 +1266,69 @@ limited kernel has passed tests.
 | `chem_report_box_plot_svg` / `report_box_plot_svg` | Bounded type6 Tukey or quantile box plots with numerical provenance and deterministic self-contained SVG. | `SELECT chem_report_box_plot_svg([[1,0,1,0,0,1,0],[2,0,1,0,0,1,1],[3,0,1,0,0,1,2],[4,0,1,0,0,1,3]], [1,900,650,0,0,1,1]);` |
 | `chem_genreg_ordinal_fit` / `genreg_ordinal_fit` | Unpenalized ordered cumulative-logit ML with sorted numeric outcome levels,integer replication frequencies,and joint observed-information inference. | `SELECT chem_genreg_ordinal_fit([[30,1],[10,1],[20,2]], []);` |
 | `chem_genreg_ordinal_predict` / `genreg_ordinal_predict` | Saved ordinal probability,CDF,mode,quantile-label and observed-information delta prediction with original training transforms. | `SELECT chem_genreg_ordinal_predict([[0.2],[0.43],[0.81]], [1.0,0.0,3.0,0.95,1.0,10.0,20.0,30.0,-1.0986122886681098,1.0986122886681098,1.3333333333333333,0.4444444444444444,0.4444444444444444,1.3333333333333333]);` |
+| `chem_zi_binomial` / `zi_binomial` | Shared-inflation binomial logistic ML: [features...,integer response,trials,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance0observed/1HC0=0]. | `SELECT chem_zi_binomial([[0.0,4.0,39072.0],[1.0,4.0,24192.0],[2.0,4.0,24192.0],[3.0,4.0,10752.0],[4.0,4.0,1792.0]],[]);` |
+| `chem_zi_beta_binomial` / `zi_beta_binomial` | Shared-inflation beta-binomial logistic ML with intraclass delta: [features...,integer response,trials>1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0]. | `SELECT chem_zi_beta_binomial([[0.0,4.0,7212.0],[1.0,4.0,2992.0],[2.0,4.0,2652.0],[3.0,4.0,1872.0],[4.0,4.0,897.0]],[]);` |
+| `chem_zi_poisson` / `zi_poisson` | Shared-inflation Poisson log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0]. | `SELECT chem_zi_poisson([[0.0,1.0,10.0],[1.0,1.0,3.0],[2.0,1.0,4.0],[3.0,1.0,2.0],[4.0,1.0,1.0]],[]);` |
+| `chem_zi_negative_binomial` / `zi_negative_binomial` | Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0]. | `SELECT chem_zi_negative_binomial([[0,1,47500],[1,1,17500],[2,1,13125],[3,1,8750],[4,1,5469],[5,1,3281],[6,1,1914],[7,1,1094],[8,1,615],[9,1,342],[10,1,188],[11,1,103],[12,1,56],[13,1,30],[14,1,16],[15,1,9],[16,1,5],[17,1,2],[18,1,1],[19,1,1]],[]);` |
+| `chem_zi_gamma` / `zi_gamma` | Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0]. | `SELECT chem_zi_gamma([[0,1,3],[1,1,2],[2,1,3],[3,1,2]],[]);` |
+| `chem_zi_predict` / `zi_predict` | Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits. | `SELECT chem_zi_predict([[1.,1.,.5]],[1.0,2.0,0.0,0.95,0.0,0.0,0.0,0.6931471805599453,0.0,0.3,0.0,0.0,0.0,0.0]);` |
 
 <!-- analytics-registry-table:end -->
+
+### Shared-inflation regression and saved prediction (2026-10-24)
+
+Six additional CPU operations fit unpenalized zero-inflated binomial,
+beta-binomial, Poisson, negative-binomial NB2 and Gamma regression and score the
+saved models. These bring the source catalog to **273 analytics functions /424
+SQL overloads**. [Exact contracts and fixtures](tasks/jmp-zero-inflation-api.json)
+and [validation evidence](tasks/evidence/jmp-zero-inflation-validation.json)
+record the supported subset and numerical boundaries.
+
+Fit rows are `[numeric features...,response,trials,integer frequency]`.
+Binomial trials are positive integers; beta-binomial trials exceed one; other
+families require the placeholder `trials=1`. Count responses are natural
+integers. Gamma responses can be zero or positive. Zero frequencies omit a row
+after global shape/finite validation; positive frequencies mean independent
+replication. Fit parameters are `[maxiter=600,tolerance=1e-9,confidence=.95,
+covariance_kind=0]`, where kind0 selects observed-information covariance and
+kind1 selects HC0 sandwich covariance.
+
+Binomial families use a logit base mean; the other families use a log base mean.
+Each fit has one shared zero-inflation probability pi. Beta-binomial dispersion
+delta gives beta parameters `p*(1/delta-1)` and `(1-p)*(1/delta-1)`; delta0
+recovers binomial. NB2 variance is `mu*(1+mu*sigma)`; sigma0 recovers Poisson.
+The Gamma convention is **shape=mu/sigma, scale=sigma**, giving variance
+`mu*sigma`. Count models include both structural and base-distribution zeros;
+Gamma has a separate atom at zero and a positive continuous density.
+
+Fits return original-unit coefficients, physical dispersion/pi, log likelihood,
+convergence/boundary diagnostics and a complete `predict_parameters` carrier.
+Interior converged fits with positive-definite observed information return both
+model-based and HC0 covariance, including auxiliary-parameter uncertainty.
+HC0 sums `frequency*individual_score_outer_product`. Boundary or nonconverged
+fits withhold joint Wald inference. Wald intervals are untruncated. These are
+explicit native conventions; exact JMP sandwich and finite-sample conventions
+remain unverified.
+
+Pass the unchanged carrier to `chem_zi_predict` with rows
+`[same feature order...,trials,query_response,quantile_probability]`.
+It returns the base and mixture means, mixture variance, zero mass, query mass,
+separate Gamma density, CDF, direct survival probability, quantile and optional
+mean delta SE/CI. Saved normalization and covariance are reused without training
+rows. Quantiles require probability strictly between zero and one; negative
+queries have CDF0/SF1; fractional count queries have mass0 and floor CDF.
+
+Limits are 100,000 rows, 16 features, one million cells, absolute input1e150,
+total integer frequency1e9, trials/counts1e6, Gamma shape[1e-8,1e7] and a
+cumulative200M algorithmic work budget. Count means and queried/quantile support
+are bounded at1e6 except finite-support queries beyond trials. Positive Gamma
+quantiles below the smallest representable f64 fail explicitly. Invalid,
+unidentified, singular, nonfinite or budget-exhausted requests return SQL NULL.
+All-zero data, all-success binomial data, constant positive Gamma data,
+intercept-only Bernoulli inflation confounding and rank-deficient features are
+rejected. Multiple local starts do not certify a global optimum or general
+finite-MLE existence. Penalization/selection, fractional counts/trials,
+analytic weights, informative missing and categorical contrasts remain open.
 
 <!-- analytics-continuation-contracts:start -->
 
@@ -2335,7 +2396,7 @@ See [the version audit](JMP_PARITY.md#200-urlの確認と版を混ぜないた�
 A function name or a restricted implementation does not establish whole-platform
 equivalence.
 
-Large outstanding families include additional GLMM response/random-effect structures, full spatial and SEM inference, further causal and functional estimators, wavelets/X11, multivariate transfer, unrestricted DOE/mixture designs, Bayesian reliability workflows, text regression, multidimensional IRT, choice/MaxDiff, GWAS and further tuning/export options. Existing numeric and artifact implementations are bounded subsets. DuckDB supplies host joins, aggregates, pivot/unpivot and SQL I/O. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All44 report/plot acceptance contracts are [specified](tasks/jmp-report-acceptance.json):15 are partial and29 absent. Three report rows now have independently validated bounded SVG artifacts, while their full option sets remain incomplete. The complete ledger has278 partial,206 absent,37 reused database capabilities,6 implemented verified rows,17 GUI exclusions,4 external plugins and4 separate-product rows. These unequal inventory rows do not define a coverage percentage. The full JMP objective remains unfinished. Chemical data-quality implementation, including possible DuckOrch reuse, starts only after that full objective is complete; [research](tasks/chemistry-dq-research-20261022.json) is saved.
+Large outstanding families include additional GLMM response/random-effect structures, full spatial and SEM inference, further causal and functional estimators, wavelets/X11, multivariate transfer, unrestricted DOE/mixture designs, Bayesian reliability workflows, text regression, multidimensional IRT, choice/MaxDiff, GWAS and further tuning/export options. Existing numeric and artifact implementations are bounded subsets. DuckDB supplies host joins, aggregates, pivot/unpivot and SQL I/O. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All44 report/plot acceptance contracts are [specified](tasks/jmp-report-acceptance.json):15 are partial and29 absent. Three report rows now have independently validated bounded SVG artifacts, while their full option sets remain incomplete. The complete ledger has283 partial,201 absent,37 reused database capabilities,6 implemented verified rows,17 GUI exclusions,4 external plugins and4 separate-product rows. These unequal inventory rows do not define a coverage percentage. The full JMP objective remains unfinished. Chemical data-quality implementation, including possible DuckOrch reuse, starts only after that full objective is complete; [research](tasks/chemistry-dq-research-20261022.json) is saved.
 
 The implementation workflow is test driven: observe an expected behavioral RED,
 implement the bounded contract, then verify GREEN, numerical edge cases and
@@ -2345,7 +2406,8 @@ head-to-head numerical comparison.
 
 <!-- analytics-validation-summary:start -->
 
-- The current **267-function /418-overload checkpoint** passes **1,366 Rust tests across67 suites**, zero failures, with the same two pre-existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. The matching macOS arm64 Release extension passes **18 SQL cases /603 assertions**, zero skips, and **all418 catalog examples**. [Checkpoint evidence](tasks/evidence/jmp-report-ordinal-validation.json).
+- The current **273-function /424-overload checkpoint** passes **1,381 Rust tests across68 suites**, zero failures, with two existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. Its matching macOS arm64 dev/Debug extension passes **19 SQL cases /616 assertions**, zero skips, and **all424 catalog examples**. Independent SciPy/mpmath checks cover both exported C ABI and loaded SQL. [Evidence](tasks/evidence/jmp-zero-inflation-validation.json).
+- The preceding **267-function /418-overload checkpoint** passes **1,366 Rust tests across67 suites**, zero failures, with the same two pre-existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. The matching macOS arm64 Release extension passes **18 SQL cases /603 assertions**, zero skips, and **all418 catalog examples**. [Checkpoint evidence](tasks/evidence/jmp-report-ordinal-validation.json).
 - Histogram/box reports pass **105,438 independent checks** on actual Release C ABI and SQL, with36 positive fixtures per boundary,69 malformed NULL cases and58 rendered PNGs. Full JSON/SVG outputs agree across boundaries. The large-offset visible-table regression has actual old-ABI RED and fixed-ABI GREEN evidence. Representative [actual SQL SVG](tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.svg) and [PNG](tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.png) are retained. Verification renders unchanged SVG with macOS sips and independently decodes pixels with ImageMagick; that environment's ImageMagick SVG renderer loses valid outlined marks, so its discrepancy is documented separately. [Report evidence](tasks/evidence/jmp-reports-native-reference.json).
 - Ordered regression passes **1,082 C ABI/SQL checks** plus a separate **1,321-check,80-digit independent oracle** covering4 fits, saved predictions and23 invalid NULL cases. Covariance is inverse observed information; exact JMP sandwich/default-Lasso equivalence remains outstanding. [Both-boundary evidence](tasks/evidence/jmp-ordinal-reference.json), [independent Release evidence](tasks/evidence/jmp-ordinal-independent-release-reference.json).
 

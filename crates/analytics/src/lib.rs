@@ -43,6 +43,7 @@ pub mod statistics;
 pub mod survival;
 pub mod text_analysis;
 pub mod timeseries;
+pub mod zero_inflation;
 
 /// # Safety
 /// Pointers must reference the indicated readable lengths; `output_len` is writable.
@@ -118,6 +119,12 @@ pub unsafe extern "C" fn ds_analytics_free(data: *mut u8, len: usize) {
 
 pub fn execute(operation: &str, data: &[Vec<f64>], parameters: &[f64]) -> Result<String, String> {
     match operation {
+        "zi_binomial"
+        | "zi_beta_binomial"
+        | "zi_poisson"
+        | "zi_negative_binomial"
+        | "zi_gamma"
+        | "zi_predict" => zero_inflation::run(operation, data, parameters),
         "genreg_ordinal_fit" | "genreg_ordinal_predict" => {
             genreg_ordinal::run(operation, data, parameters)
         }

@@ -1,0 +1,8 @@
+{
+  "duckdb_source": "d54cbbe3df17e8e5ce68312f483b4155836112aa",
+  "version": "v2.0.0-alpha49307",
+  "native_archive_sha256": "bd0913f2e88ae237e1fa43cdda17db6b05382541bdec6e08b4e82131942250ff",
+  "source_archive_sha256": "93e3d1f9c84b6ec3493237d21565c01c2c19b9862e54e5552d3d7999ccc3bbb4",
+  "build_profile": "Debug/default Rust dev;one task-owned build root",
+  "root": "/private/tmp/ducksmiles-jmp-completion-20261023"
+}

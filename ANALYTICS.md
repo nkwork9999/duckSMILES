@@ -1,7 +1,7 @@
 # SQL analytics
 
 This guide describes the original 24-function foundation. The complete current
-119-function API, individual examples, numerical limits and validation results
+273-function API, individual examples, numerical limits and validation results
 are in [README.md](README.md#cpu-analytics-complete-sql-api-reference).
 The researched JMP feature backlog is in [JMP_PARITY.md](JMP_PARITY.md).
 

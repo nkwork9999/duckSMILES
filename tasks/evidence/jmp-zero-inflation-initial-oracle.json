@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "boundary": "independent reference only;production not executed",
+  "python_scipy": "1.17.1",
+  "nb_rows": [
+    [
+      0,
+      1,
+      47500
+    ],
+    [
+      1,
+      1,
+      17500
+    ],
+    [
+      2,
+      1,
+      13125
+    ],
+    [
+      3,
+      1,
+      8750
+    ],
+    [
+      4,
+      1,
+      5469
+    ],
+    [
+      5,
+      1,
+      3281
+    ],
+    [
+      6,
+      1,
+      1914
+    ],
+    [
+      7,
+      1,
+      1094
+    ],
+    [
+      8,
+      1,
+      615
+    ],
+    [
+      9,
+      1,
+      342
+    ],
+    [
+      10,
+      1,
+      188
+    ],
+    [
+      11,
+      1,
+      103
+    ],
+    [
+      12,
+      1,
+      56
+    ],
+    [
+      13,
+      1,
+      30
+    ],
+    [
+      14,
+      1,
+      16
+    ],
+    [
+      15,
+      1,
+      9
+    ],
+    [
+      16,
+      1,
+      5
+    ],
+    [
+      17,
+      1,
+      2
+    ],
+    [
+      18,
+      1,
+      1
+    ],
+    [
+      19,
+      1,
+      1
+    ]
+  ],
+  "nb_expected": {
+    "base_mean": 2.0001566671741937,
+    "dispersion": 0.49988967519193706,
+    "pi": 0.30003183124750976,
+    "log_likelihood": -161391.2158040805
+  },
+  "gamma_rows": [
+    [
+      0,
+      1,
+      3
+    ],
+    [
+      1,
+      1,
+      2
+    ],
+    [
+      2,
+      1,
+      3
+    ],
+    [
+      3,
+      1,
+      2
+    ]
+  ],
+  "gamma_expected": {
+    "base_mean": 2,
+    "sigma": 0.32025426596168105,
+    "pi": 0.3
+  },
+  "method": "NB: independent SciPy nbinom logpmf and 27 BFGS starts. Gamma: exact zero fraction and positive mean, scalar digamma root. Refined by independently differentiated mpmath70 likelihood and stationary score root; no production functions used.",
+  "mpmath_dps": 70,
+  "mpmath_score_max": "1.005940913297400909965002264978990542043591722449538055727560980205238e-73"
+}

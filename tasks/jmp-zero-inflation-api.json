@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "module": "zero_inflation",
+  "source": "crates/analytics/src/zero_inflation.rs",
+  "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+  "scope": "Five natural-support unpenalized shared-inflation CPU regression families and portable prediction; partial JMP19.2 coverage.",
+  "integration_status": "Verified on matching macOS arm64 CPU dev/Debug C ABI and loaded DuckDB SQL; bounded contract only.",
+  "common_contract": {
+    "families": "0ZI Binomial,1ZI Beta Binomial,2ZI Poisson,3ZI Negative Binomial NB2,4ZI Gamma(shape=mu/sigma,scale=sigma). Binomial-family means use logit; other base means use log. One shared auxiliary pi.",
+    "fit_support": "Finite nonempty rectangular numeric data,<=100000rows,<=16features,<=1Mcells,abs(data)<=1e150. Frequencies integer>=0,sum<=1e9 and greater than full parameter count. Zero-frequency rows omitted after global finite/shape validation. Trials integer<=1e6,positive for binomial,>1 for beta-binomial,exact1 for other families. Counts natural integers<=1e6;Gamma zero or positive.",
+    "identification": "Reject all-zero data,constant positive Gamma data,all-success binomial data,intercept-only Bernoulli inflation confounding and rank-deficient normalized fixed features. Other finite-MLE/global existence is not certified.",
+    "optimization": "Observed likelihood with row analytic second derivatives,Newton/BFGS line search,multiple interior starts and exact pi0 and beta-binomial/NB dispersion0 lower-model candidates. Mean objective normalized by total integer frequency. Parameter guardabs60,reported convergence additionallyabs<40;atabs>=25 joint inference is withheld.",
+    "uncertainty": "Interior converged PD observed information only. Native model-based and HC0 covariances both returned;selected kind controls saved mean delta Wald SE/CI. HC0 meat=sum frequency*individual_score outer product,not squared frequency. No finite-sample multiplier. Displayed covariance coordinates are original beta including intercept,physical native dispersion when present,physical pi. Wald intervals are untruncated.",
+    "prediction": "Returns base mean,mixture mean/variance,zero probability,query mass,separate positive Gamma density,CDF,direct survival,left generalized-inverse quantile,linear predictor,optional mean delta SE/CI. No atom is represented as a density. Negative query hasCDF0/SF1;fractional count query hasmass0 andfloor CDF.",
+    "saved_model": "[1,family,p,confidence,covariance_kind,has_covariance,at_boundary,normalized_beta(p+1),physical_dispersion_or0,pi,feature_origins(p),feature_mean_offsets(p),feature_scales(p),normalized_beta_physical_aux_covariance_flat(d*d)] with d=p+2+[dispersion family],length10+4p+d*d. Exact length and flags,finite values,positive scales,native parameter domains,symmetric PD enabled covariance or all-zero disabled covariance validated. No training rows required.",
+    "limits": "Cumulative200M algorithmic work units across starts,likelihood,information,inversion,tails and quantiles. Count means/queries/quantiles<=1e6 except finite-support queries beyondtrials. Gamma shape[1e-8,1e7];positive sub-f64 quantiles fail explicitly. Derived nonfinite outputs fail. Work units are algorithmic,not machine instruction counts.",
+    "remaining_for_full_parity": [
+      "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+      "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+      "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+      "Multi-start local optimization does not certify a global optimum or general finite-MLE existence."
+    ]
+  },
+  "operations": [
+    {
+      "operation": "zi_binomial",
+      "symbol": "ZiBinomial",
+      "sql_name": "chem_zi_binomial",
+      "description": "Shared-inflation binomial logistic ML: [features...,integer response,trials,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance0observed/1HC0=0].",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "data": "[numeric features...,response,trials,integer replication frequency]",
+      "args": [
+        "maxiter default600,integer1..5000",
+        "tolerance default1e-9,in[1e-12,1e-3]",
+        "confidence default.95,strictly(0,1)",
+        "covariance_kind0observed_information/1sandwich_HC0,default0"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            4.0,
+            39072.0
+          ],
+          [
+            1.0,
+            4.0,
+            24192.0
+          ],
+          [
+            2.0,
+            4.0,
+            24192.0
+          ],
+          [
+            3.0,
+            4.0,
+            10752.0
+          ],
+          [
+            4.0,
+            4.0,
+            1792.0
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "coefficients": [
+          -0.40546510810816444
+        ],
+        "pi": 0.3
+      },
+      "sql_example": "chem_zi_binomial([[0.0,4.0,39072.0],[1.0,4.0,24192.0],[2.0,4.0,24192.0],[3.0,4.0,10752.0],[4.0,4.0,1792.0]],[])",
+      "unsupported": [
+        "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+        "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+        "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+        "Multi-start local optimization does not certify a global optimum or general finite-MLE existence."
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ]
+    },
+    {
+      "operation": "zi_beta_binomial",
+      "symbol": "ZiBetaBinomial",
+      "sql_name": "chem_zi_beta_binomial",
+      "description": "Shared-inflation beta-binomial logistic ML with intraclass delta: [features...,integer response,trials>1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "data": "[numeric features...,response,trials,integer replication frequency]",
+      "args": [
+        "maxiter default600,integer1..5000",
+        "tolerance default1e-9,in[1e-12,1e-3]",
+        "confidence default.95,strictly(0,1)",
+        "covariance_kind0observed_information/1sandwich_HC0,default0"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            4.0,
+            7212.0
+          ],
+          [
+            1.0,
+            4.0,
+            2992.0
+          ],
+          [
+            2.0,
+            4.0,
+            2652.0
+          ],
+          [
+            3.0,
+            4.0,
+            1872.0
+          ],
+          [
+            4.0,
+            4.0,
+            897.0
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "coefficients": [
+          -0.40546510810816444
+        ],
+        "dispersion": 0.2,
+        "pi": 0.3
+      },
+      "sql_example": "chem_zi_beta_binomial([[0.0,4.0,7212.0],[1.0,4.0,2992.0],[2.0,4.0,2652.0],[3.0,4.0,1872.0],[4.0,4.0,897.0]],[])",
+      "unsupported": [
+        "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+        "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+        "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+        "Multi-start local optimization does not certify a global optimum or general finite-MLE existence."
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ]
+    },
+    {
+      "operation": "zi_poisson",
+      "symbol": "ZiPoisson",
+      "sql_name": "chem_zi_poisson",
+      "description": "Shared-inflation Poisson log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "data": "[numeric features...,response,trials,integer replication frequency]",
+      "args": [
+        "maxiter default600,integer1..5000",
+        "tolerance default1e-9,in[1e-12,1e-3]",
+        "confidence default.95,strictly(0,1)",
+        "covariance_kind0observed_information/1sandwich_HC0,default0"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            1.0,
+            10.0
+          ],
+          [
+            1.0,
+            1.0,
+            3.0
+          ],
+          [
+            2.0,
+            1.0,
+            4.0
+          ],
+          [
+            3.0,
+            1.0,
+            2.0
+          ],
+          [
+            4.0,
+            1.0,
+            1.0
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "coefficients": [
+          0.5460013727818611
+        ],
+        "pi": 0.39177549201032386
+      },
+      "sql_example": "chem_zi_poisson([[0.0,1.0,10.0],[1.0,1.0,3.0],[2.0,1.0,4.0],[3.0,1.0,2.0],[4.0,1.0,1.0]],[])",
+      "unsupported": [
+        "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+        "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+        "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+        "Multi-start local optimization does not certify a global optimum or general finite-MLE existence."
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ]
+    },
+    {
+      "operation": "zi_negative_binomial",
+      "symbol": "ZiNegativeBinomial",
+      "sql_name": "chem_zi_negative_binomial",
+      "description": "Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "data": "[numeric features...,response,trials,integer replication frequency]",
+      "args": [
+        "maxiter default600,integer1..5000",
+        "tolerance default1e-9,in[1e-12,1e-3]",
+        "confidence default.95,strictly(0,1)",
+        "covariance_kind0observed_information/1sandwich_HC0,default0"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            47500
+          ],
+          [
+            1,
+            1,
+            17500
+          ],
+          [
+            2,
+            1,
+            13125
+          ],
+          [
+            3,
+            1,
+            8750
+          ],
+          [
+            4,
+            1,
+            5469
+          ],
+          [
+            5,
+            1,
+            3281
+          ],
+          [
+            6,
+            1,
+            1914
+          ],
+          [
+            7,
+            1,
+            1094
+          ],
+          [
+            8,
+            1,
+            615
+          ],
+          [
+            9,
+            1,
+            342
+          ],
+          [
+            10,
+            1,
+            188
+          ],
+          [
+            11,
+            1,
+            103
+          ],
+          [
+            12,
+            1,
+            56
+          ],
+          [
+            13,
+            1,
+            30
+          ],
+          [
+            14,
+            1,
+            16
+          ],
+          [
+            15,
+            1,
+            9
+          ],
+          [
+            16,
+            1,
+            5
+          ],
+          [
+            17,
+            1,
+            2
+          ],
+          [
+            18,
+            1,
+            1
+          ],
+          [
+            19,
+            1,
+            1
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "coefficients": [
+          0.693225511079127
+        ],
+        "dispersion": 0.49988967519193706,
+        "pi": 0.30003183124750976
+      },
+      "sql_example": "chem_zi_negative_binomial([[0,1,47500],[1,1,17500],[2,1,13125],[3,1,8750],[4,1,5469],[5,1,3281],[6,1,1914],[7,1,1094],[8,1,615],[9,1,342],[10,1,188],[11,1,103],[12,1,56],[13,1,30],[14,1,16],[15,1,9],[16,1,5],[17,1,2],[18,1,1],[19,1,1]],[])",
+      "unsupported": [
+        "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+        "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+        "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+        "Multi-start local optimization does not certify a global optimum or general finite-MLE existence."
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ]
+    },
+    {
+      "operation": "zi_gamma",
+      "symbol": "ZiGamma",
+      "sql_name": "chem_zi_gamma",
+      "description": "Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0].",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "data": "[numeric features...,response,trials,integer replication frequency]",
+      "args": [
+        "maxiter default600,integer1..5000",
+        "tolerance default1e-9,in[1e-12,1e-3]",
+        "confidence default.95,strictly(0,1)",
+        "covariance_kind0observed_information/1sandwich_HC0,default0"
+      ],
+      "fixture": {
+        "data": [
+          [
+            0,
+            1,
+            3
+          ],
+          [
+            1,
+            1,
+            2
+          ],
+          [
+            2,
+            1,
+            3
+          ],
+          [
+            3,
+            1,
+            2
+          ]
+        ],
+        "args": []
+      },
+      "known_value": {
+        "coefficients": [
+          0.6931471805599453
+        ],
+        "dispersion": 0.32025426596168105,
+        "pi": 0.3
+      },
+      "sql_example": "chem_zi_gamma([[0,1,3],[1,1,2],[2,1,3],[3,1,2]],[])",
+      "unsupported": [
+        "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+        "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+        "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+        "Multi-start local optimization does not certify a global optimum or general finite-MLE existence."
+      ],
+      "official_references": [
+        "https://www.jmp.com/support/help/en/19.2/jmp/specify-a-distribution.shtml",
+        "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-distributions.shtml"
+      ]
+    },
+    {
+      "operation": "zi_predict",
+      "symbol": "ZiPredict",
+      "sql_name": "chem_zi_predict",
+      "description": "Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits.",
+      "source": "crates/analytics/src/zero_inflation.rs",
+      "tests": "crates/analytics/tests/zero_inflation_contracts.rs",
+      "data": "[same numeric feature order as training...,trials,query response,quantile probability strictly(0,1)]",
+      "args": [
+        "exact unchanged version1 predict_parameters from any zi fit"
+      ],
+      "fixture": {
+        "data": [
+          [
+            1.0,
+            1.0,
+            0.5
+          ]
+        ],
+        "args": [
+          1.0,
+          2.0,
+          0.0,
+          0.95,
+          0.0,
+          0.0,
+          0.0,
+          0.6931471805599453,
+          0.0,
+          0.3,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "known_value": {
+        "mixture_mean": [
+          1.4
+        ],
+        "mixture_variance": [
+          2.24
+        ],
+        "query_probability_mass": [
+          0.18946939653125777
+        ],
+        "quantile": [
+          1.0
+        ]
+      },
+      "sql_example": "chem_zi_predict([[1.,1.,.5]],[1.0,2.0,0.0,0.95,0.0,0.0,0.0,0.6931471805599453,0.0,0.3,0.0,0.0,0.0,0.0])",
+      "unsupported": [
+        "Conditional quantile is a native convenience,not a claim of an identical JMP saved column.",
+        "At-boundary/nonconverged/unidentified models cannot supply joint Wald inference.",
+        "Positive Gamma quantiles below the smallest f64 and exhausted numerical budgets return NULL."
+      ]
+    }
+  ],
+  "independent_checker": "scripts/check_jmp_zero_inflation.py",
+  "research": "tasks/jmp-generalized-next-contracts.json",
+  "validation": "tasks/evidence/jmp-zero-inflation-validation.json"
+}

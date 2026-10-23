@@ -1,0 +1,36 @@
+Filters: /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test
+
+[0/1] (0%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test
+1. /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test:9
+================================================================================
+Query unexpectedly failed (/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test:9)
+ (/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test:9)!
+================================================================================
+SELECT abs(json_extract(chem_zi_poisson([[0.,1.,10.],[1.,1.,3.],[2.,1.,4.],[3.,1.,2.],[4.,1.,1.]],[]::DOUBLE[]),'$.pi')::DOUBLE-.39177549201032386)<1e-6;
+================================================================================
+Actual result:
+================================================================================
+Catalog Error: Scalar Function with name chem_zi_poisson does not exist!
+Did you mean "chem_fit_poisson"?
+
+LINE 1: SELECT abs(json_extract(chem_zi_poisson([[0.,1.,10.],[1.,1.,3.],[2.,1.,4.],[3.,1...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+unittest is a Catch v2.13.7 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test
+-------------------------------------------------------------------------------
+/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/sqlite/../../../../duckdb-sdk/test/sqlite/test_sqllogictest.cpp:46
+...............................................................................
+
+/Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test:9: FAILED:
+
+
+[1/1] (100%): /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/zero_inflation.test took 1.225s
+===============================================================================
+test cases: 1 | 1 failed
+assertions: 1 | 1 failed
+
