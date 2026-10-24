@@ -28,6 +28,7 @@ pub mod multivariate;
 pub mod nonlinear;
 pub mod omics;
 pub mod optimize;
+pub mod pls_multivariate;
 pub mod quality;
 pub mod regression;
 pub mod reliability;
@@ -119,6 +120,9 @@ pub unsafe extern "C" fn ds_analytics_free(data: *mut u8, len: usize) {
 
 pub fn execute(operation: &str, data: &[Vec<f64>], parameters: &[f64]) -> Result<String, String> {
     match operation {
+        "pls2_fit" | "pls2_predict" | "plsda_fit" | "plsda_predict" => {
+            pls_multivariate::run(operation, data, parameters)
+        }
         "zi_binomial"
         | "zi_beta_binomial"
         | "zi_poisson"

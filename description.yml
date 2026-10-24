@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
   description: Cheminformatics and numerical analytics for DuckDB - molecular formats, descriptors, fingerprints, similarity, PCA, clustering, regression, scaffold-controlled evaluation, experimental design and candidate-pool Bayesian optimization from SQL
-  version: 0.6.2
+  version: 0.6.3
   language: C++
   build: cmake
   requires_toolchains: rust
@@ -178,7 +178,7 @@ docs:
     a build containing the analytics module; older community packages may not
     include them.
 
-    The current source registers 424 SQL overloads, including 273 CPU analytics
+    The current source registers 428 SQL overloads, including 277 CPU analytics
     functions for inference, regression, design, time series, functional/text
     preprocessing, spatial models, reliability and model evaluation. No GPU or
     Python runtime is required. Contracts and remaining gaps are documented in

@@ -288,7 +288,9 @@ fn pca(data: &[Vec<f64>], parameters: &[f64]) -> Result<String, String> {
 /// Cyclic Jacobi rotations for a real symmetric matrix. This returns vectors
 /// as columns and uses a relative residual to distinguish convergence from a
 /// merely exhausted iteration budget.
-fn symmetric_eigen(mut matrix: Vec<Vec<f64>>) -> Result<(Vec<f64>, Vec<Vec<f64>>), String> {
+pub(crate) fn symmetric_eigen(
+    mut matrix: Vec<Vec<f64>>,
+) -> Result<(Vec<f64>, Vec<Vec<f64>>), String> {
     let dimension = matrix.len();
     let mut vectors = vec![vec![0.0; dimension]; dimension];
     for (index, row) in vectors.iter_mut().enumerate() {

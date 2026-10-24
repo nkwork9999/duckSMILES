@@ -952,7 +952,7 @@ fn student_two_sided(t: f64, df: f64) -> Result<f64, String> {
     regularized_beta(df / (df + t * t), df / 2., 0.5)
 }
 
-fn student_quantile(confidence: f64, df: f64) -> Result<f64, String> {
+pub(crate) fn student_quantile(confidence: f64, df: f64) -> Result<f64, String> {
     // Preserve the tail directly; forming (1+confidence)/2 can round to 1.
     let tail = 1. - confidence;
     let mut lower = 0.;

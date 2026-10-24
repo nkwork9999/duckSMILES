@@ -13,9 +13,9 @@
     "catalog_occurrences": 502,
     "feature_rows": 552,
     "status_counts": {
-      "partial": 283,
+      "partial": 287,
       "database_existing": 37,
-      "absent": 201,
+      "absent": 197,
       "external_plugin": 4,
       "implemented_verified": 6,
       "excluded_gui": 17,
@@ -1028,20 +1028,86 @@
       "provider": "ducksmiles_extension",
       "scope": "in_scope",
       "implementation": [
-        "chem_pls; PLS1 NIPALS; reusable linear scoring"
+        "chem_pls; PLS1 NIPALS; reusable linear scoring",
+        "chem_pls2_fit: rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+        "chem_pls2_predict: Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
+        "chem_plsda_fit: rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+        "chem_plsda_predict: Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities."
       ],
       "tests": [
-        "crates/analytics/tests/regression.rs:pls_deflates_multiple_components_to_recover_a_linear_relation"
+        "crates/analytics/tests/regression.rs:pls_deflates_multiple_components_to_recover_a_linear_relation",
+        "crates/analytics/tests/pls_multivariate_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/sql-analytics-validation.json",
-        "tasks/evidence/sql-analytics-reference.json"
+        "tasks/evidence/sql-analytics-reference.json",
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-validation.json"
       ],
       "remaining_contract": [
-        "多応答PLS2、PLS-DA、VIP、区間推定、欠損、JMPの全検証選択肢は未対応。"
+        "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "JMP installed numerical equivalence and exact VIP conventions",
+        "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
       ],
       "domain": "advanced-statistical-modeling:Multivariate analysis",
-      "acceptance_contract": "multivariate"
+      "acceptance_contract": "multivariate",
+      "current_implementation": [
+        {
+          "sql_function": "chem_pls2_fit",
+          "operation": "pls2_fit",
+          "bounded_scope": "rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        },
+        {
+          "sql_function": "chem_pls2_predict",
+          "operation": "pls2_predict",
+          "bounded_scope": "Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        },
+        {
+          "sql_function": "chem_plsda_fit",
+          "operation": "plsda_fit",
+          "bounded_scope": "rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        },
+        {
+          "sql_function": "chem_plsda_predict",
+          "operation": "plsda_predict",
+          "bounded_scope": "Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        }
+      ],
+      "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "id": "t_sne",
@@ -24894,16 +24960,57 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_pls2_fit: rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+        "chem_pls2_predict: Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters."
       ],
-      "acceptance_contract": "multivariate"
+      "tests": [
+        "crates/analytics/tests/pls_multivariate_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-validation.json"
+      ],
+      "remaining_contract": [
+        "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "JMP installed numerical equivalence and exact VIP conventions",
+        "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
+      ],
+      "acceptance_contract": "multivariate",
+      "current_implementation": [
+        {
+          "sql_function": "chem_pls2_fit",
+          "operation": "pls2_fit",
+          "bounded_scope": "rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        },
+        {
+          "sql_function": "chem_pls2_predict",
+          "operation": "pls2_predict",
+          "bounded_scope": "Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        }
+      ],
+      "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "id": "pls_discriminant_analysis",
@@ -24927,16 +25034,57 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_plsda_fit: rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+        "chem_plsda_predict: Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities."
       ],
-      "acceptance_contract": "multivariate"
+      "tests": [
+        "crates/analytics/tests/pls_multivariate_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-validation.json"
+      ],
+      "remaining_contract": [
+        "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "JMP installed numerical equivalence and exact VIP conventions",
+        "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
+      ],
+      "acceptance_contract": "multivariate",
+      "current_implementation": [
+        {
+          "sql_function": "chem_plsda_fit",
+          "operation": "plsda_fit",
+          "bounded_scope": "rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        },
+        {
+          "sql_function": "chem_plsda_predict",
+          "operation": "plsda_predict",
+          "bounded_scope": "Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        }
+      ],
+      "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "id": "pls_variable_importance_vip",
@@ -24960,16 +25108,57 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_pls2_fit: rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+        "chem_plsda_fit: rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration."
       ],
-      "acceptance_contract": "multivariate"
+      "tests": [
+        "crates/analytics/tests/pls_multivariate_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-validation.json"
+      ],
+      "remaining_contract": [
+        "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "JMP installed numerical equivalence and exact VIP conventions",
+        "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
+      ],
+      "acceptance_contract": "multivariate",
+      "current_implementation": [
+        {
+          "sql_function": "chem_pls2_fit",
+          "operation": "pls2_fit",
+          "bounded_scope": "rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        },
+        {
+          "sql_function": "chem_plsda_fit",
+          "operation": "plsda_fit",
+          "bounded_scope": "rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        }
+      ],
+      "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "id": "pls_missing_data_imputation",
@@ -25092,16 +25281,57 @@
           "basis": "reference_text"
         }
       ],
-      "status": "absent",
-      "provider": "extension_required",
+      "status": "partial",
+      "provider": "ducksmiles_extension",
       "scope": "in_scope",
-      "implementation": [],
-      "tests": [],
-      "evidence": [],
-      "remaining_contract": [
-        "未実装。親プラットフォームと異なる独立の受入条件を作る。"
+      "implementation": [
+        "chem_pls2_fit: rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+        "chem_pls2_predict: Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters."
       ],
-      "acceptance_contract": "multivariate"
+      "tests": [
+        "crates/analytics/tests/pls_multivariate_contracts.rs"
+      ],
+      "evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-validation.json"
+      ],
+      "remaining_contract": [
+        "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "JMP installed numerical equivalence and exact VIP conventions",
+        "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
+      ],
+      "acceptance_contract": "multivariate",
+      "current_implementation": [
+        {
+          "sql_function": "chem_pls2_fit",
+          "operation": "pls2_fit",
+          "bounded_scope": "rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        },
+        {
+          "sql_function": "chem_pls2_predict",
+          "operation": "pls2_predict",
+          "bounded_scope": "Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+          "api": "tasks/jmp-pls-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+        }
+      ],
+      "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "id": "cpu_multilayer_perceptron",
@@ -33983,15 +34213,95 @@
       "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
       "native_sql_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
       "bounded_api_contract": "tasks/jmp-zero-inflation-api.json"
+    },
+    {
+      "sql_function": "chem_pls2_fit",
+      "operation": "pls2_fit",
+      "module": "pls_multivariate",
+      "input_parameter_contract": "rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+      "example": "SELECT chem_pls2_fit([[-2.0,-3.0,4.0],[-1.0,-1.0,2.0],[0.0,2.0,2.0],[1.0,3.0,1.0],[2.0,6.0,0.0]], [2.0,1.0]);",
+      "source": "crates/analytics/src/pls_multivariate.rs",
+      "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+      "feature_ids": [
+        "partial_least_squares_pls",
+        "pls2_multiresponse",
+        "pls_variable_importance_vip",
+        "pls_prediction_confidence_limits"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json"
+    },
+    {
+      "sql_function": "chem_pls2_predict",
+      "operation": "pls2_predict",
+      "module": "pls_multivariate",
+      "input_parameter_contract": "Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
+      "example": "SELECT chem_pls2_predict([[1.0]], [1.0,0.0,1.0,2.0,1.0,5.0,0.95,1.0,-2.0,2.0,1.5811388300841898,-3.0,4.0,4.4,-2.2,3.507135583350036,1.4832396974191324,0.9918365981341756,-0.959403223600247,1.0,4.0,0.26666666666666666,0.23333333333333336]);",
+      "source": "crates/analytics/src/pls_multivariate.rs",
+      "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+      "feature_ids": [
+        "partial_least_squares_pls",
+        "pls2_multiresponse",
+        "pls_prediction_confidence_limits"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json"
+    },
+    {
+      "sql_function": "chem_plsda_fit",
+      "operation": "plsda_fit",
+      "module": "pls_multivariate",
+      "input_parameter_contract": "rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+      "example": "SELECT chem_plsda_fit([[-3.0,10.0],[-2.0,10.0],[-1.0,10.0],[1.0,30.0],[2.0,30.0],[3.0,30.0]], [1.0]);",
+      "source": "crates/analytics/src/pls_multivariate.rs",
+      "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+      "feature_ids": [
+        "partial_least_squares_pls",
+        "pls_discriminant_analysis",
+        "pls_variable_importance_vip"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json"
+    },
+    {
+      "sql_function": "chem_plsda_predict",
+      "operation": "plsda_predict",
+      "module": "pls_multivariate",
+      "input_parameter_contract": "Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities.",
+      "example": "SELECT chem_plsda_predict([[-7.0],[0.0],[7.0]], [1.0,1.0,1.0,2.0,1.0,6.0,0.95,0.0,-3.0,3.0,2.3664319132398464,1.0,0.0,-0.5,0.5,0.5477225575051662,0.5477225575051662,-0.9258200997725513,0.9258200997725513,1.0,5.0,0.0,0.0,10.0,30.0]);",
+      "source": "crates/analytics/src/pls_multivariate.rs",
+      "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+      "feature_ids": [
+        "partial_least_squares_pls",
+        "pls_discriminant_analysis"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-pls-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json"
     }
   ],
   "current_implementation_snapshot": {
     "date": "2026-10-24",
-    "new_public_registry_entries": 249,
+    "new_public_registry_entries": 253,
     "prior_public_analytics_functions": 24,
-    "total_public_analytics_functions": 273,
+    "total_public_analytics_functions": 277,
     "sources_inspected": "Actual registered source/test/API and independent-reference evidence, plus matching loaded native extension. No whole-family JMP parity is inferred.",
-    "native_sql": "passed matching loaded273-function macOS arm64 dev/Debug CPU extension",
+    "native_sql": "passed matching loaded277-function macOS arm64 dev/Debug CPU extension",
     "references": [
       "tasks/evidence/jmp-distribution-arima-reference.json",
       "tasks/evidence/jmp-model-reference.json",
@@ -34031,16 +34341,18 @@
       "tasks/evidence/jmp-spatial-estimation-sql.json",
       "tasks/evidence/jmp-parity-estimation-validation.json",
       "tasks/evidence/jmp-report-ordinal-validation.json",
-      "tasks/evidence/jmp-zero-inflation-validation.json"
+      "tasks/evidence/jmp-zero-inflation-validation.json",
+      "tasks/evidence/jmp-pls-validation.json",
+      "tasks/evidence/jmp-zero-inflation-main-ci.json"
     ],
     "counts_are_not_parity_percentages": true,
     "prior_verified_analytics_functions": 119,
     "continuation_target_operations": 62,
     "continuation_api_operations_documented": 62,
     "continuation_native_sql": "passed matching loaded-extension macOS arm64 CPU gate",
-    "latest_additional_operations": 6,
-    "latest_evidence": "tasks/evidence/jmp-zero-inflation-validation.json",
-    "work_status": "Full JMP incomplete;273 bounded analytics functions verified. Zero-inflation feature now partial with residual contracts explicit.",
+    "latest_additional_operations": 4,
+    "latest_evidence": "tasks/evidence/jmp-pls-validation.json",
+    "work_status": "Full JMP incomplete;277 bounded analytics functions verified; PLS2/PLS-DA/VIP/approximate prediction-limit rows partial.",
     "active_continuation_record": "tasks/jmp-completion-progress-20261023.json",
     "report_scope_audit": {
       "record": "tasks/jmp-report-acceptance.json",
@@ -34105,33 +34417,31 @@
   "final_validation": {
     "schema_version": 1,
     "date": "2026-10-24",
-    "status": "PASS6 additional bounded CPU operations; full JMP remains incomplete",
+    "status": "PASS4 additional bounded CPU operations; full JMP remains incomplete",
     "full_goal_complete": false,
-    "source_git_base": "0fa48b726b0aa9b04a18dc37027dac31e1fc68ed",
-    "source_identification": "Frozen production source/artifact hashes; validation before source commit.",
-    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+    "source_git_base": "31902df2722a0405d87152d867644dbf13abbb27",
+    "source_identification": "Frozen actual production source/artifact hashes; numerical verification precedes source commit.",
     "profile": {
       "Rust": "dev",
       "CMake": "Debug"
     },
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
     "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
     "new_operations": [
-      "zi_binomial",
-      "zi_beta_binomial",
-      "zi_poisson",
-      "zi_negative_binomial",
-      "zi_gamma",
-      "zi_predict"
+      "pls2_fit",
+      "pls2_predict",
+      "plsda_fit",
+      "plsda_predict"
     ],
-    "analytics_functions": 273,
-    "total_sql_overloads": 424,
-    "registry_operations": 249,
+    "analytics_functions": 277,
+    "total_sql_overloads": 428,
+    "registry_operations": 253,
     "rust_workspace": {
-      "passed": 1381,
+      "passed": 1391,
       "failed": 0,
       "ignored_existing": 2,
-      "suites": 68,
-      "focused_new_tests": 15,
+      "suites": 69,
+      "focused_new_tests": 10,
       "ignored_details": [
         "logP diagnostic print helper",
         "supplied population preparation acceptance needs explicit unselected100k external data source"
@@ -34140,24 +34450,39 @@
     "strict_analytics_all_target_clippy": "PASS",
     "scoped_fmt_check": "PASS",
     "native_sql": {
-      "cases": 19,
-      "assertions": 616,
+      "cases": 20,
+      "assertions": 626,
       "skipped": 0,
-      "log": "tasks/evidence/jmp-zero-inflation-native-sql.log"
+      "log": "tasks/evidence/jmp-pls-native-sql.log"
     },
-    "catalog_examples_executed": 424,
+    "catalog_examples_executed": 428,
     "independent_reference": {
-      "record": "tasks/evidence/jmp-zero-inflation-native-reference.json",
-      "checks": 896,
-      "invalid_NULL_checks": 48,
+      "checks": 7220,
+      "invalid_NULL_checks": 34,
       "boundaries": [
         "exported_C_ABI",
         "loaded_DuckDB_SQL"
       ],
-      "maximum_scaled_error": 2.6218941028781146e-09,
+      "maximum_scaled_error": 1.064697028844662e-14,
+      "numpy": "2.4.2",
       "scipy": "1.17.1",
-      "mpmath": "1.3.0",
-      "gamma_shape_grid_cases_per_boundary": 21
+      "sklearn": "1.8.0",
+      "regression_fixtures_per_boundary": 24,
+      "DA_fixtures_per_boundary": 8,
+      "record": "tasks/evidence/jmp-pls-native-reference.json"
+    },
+    "source_hashes": {
+      "crates/analytics/src/lib.rs": "f4445d2c03025b872dffff415032f10cfb65fb82ca01a3172ec9e4b1eb650012",
+      "crates/analytics/src/pls_multivariate.rs": "a4f46112a4bc9e88e03917775c7d66cdc1d4eaab13fd386d8540e6921984c2d5",
+      "crates/analytics/src/explore.rs": "c148c590494b27fc2433f76e992e39b7caa452fcd2f6f0d08fa9dbd120745bf9",
+      "crates/analytics/src/glm.rs": "3fee1e3a93df8146e675fed1668071f7e7efc8c4619d8d4ff013df5b7f0a651b",
+      "crates/analytics/tests/pls_multivariate_contracts.rs": "131eba74305cf88d85855f86acf8b8a0d5f78bc7b9155b80683759e5af70530e",
+      "src/include/analytics_registry.inc": "a1a132059ff27f3a74a0be86700451855c8874dcae70e8ec3451ceea67cf74c2"
+    },
+    "test_and_checker_hashes": {
+      "scripts/check_jmp_pls.py": "5d4971bfd61a5801ce8b8a22163ed039804d4236dfb80cd3b2411378364215da",
+      "test/sql/pls_multivariate.test": "b51b0ecc7f6f7536623712fd392049ddbf3308fa565e4d4db46e2d58543d8734",
+      "test/sql/function_catalog.test": "b2681394fd46633e00aabfc15fbdcc9c66b35ba11a3b636d4d6b576dfb02ea17"
     },
     "artifacts": {
       "cli": {
@@ -34166,75 +34491,57 @@
       },
       "extension": {
         "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
-        "sha256": "f8dfab404ee349e32e23f56afd6232c23b68efc9995087510861580117d8980d"
+        "sha256": "cb5dd5acc437811cbce40143ad9d6c48e2d451dc2a3953475a0e8d60b65af4fb"
       },
       "C_ABI": {
         "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib",
-        "sha256": "9548adc4e074df1c51b644af85572593d7b19ceccf6e74ccb9b3dba5aff50202"
+        "sha256": "472f3d607aff5bdf5f67e3abab7f16cd06d434edff6639c531d1bee47c62d9a5"
       },
       "archive": {
         "path": "/private/tmp/ducksmiles-jmp-completion-20261023/debug/libducksmiles_analytics.a",
-        "sha256": "1052240ed04956becc9b51999a538415052535fb60bd6012b4c6dd8d30ac8a97"
+        "sha256": "024147f3a32aafb68e52234c11b9db395d7c6ae7c34fc6cc9f9a8feaec1e23dd"
       }
     },
-    "source_hashes": {
-      "crates/analytics/src/lib.rs": "4f6bfcf14c1a067d54fa76797cde5c7a74fa815bd36d82fd0fb2c61feca7cce6",
-      "crates/analytics/src/zero_inflation.rs": "560dd6a92a714a876b60b4a6f35dcf964cbff9033ad9b429c460f89ef4093311",
-      "crates/analytics/tests/zero_inflation_contracts.rs": "2774f2b8cf2c4dd47e67ecf7572f24d94a67aed4be3d5dbfcdad2d3e8a9e6bca",
-      "src/include/analytics_registry.inc": "c731bd1084bdc97888f3f2369cc9b1ed972a85437dfc3ff156a6a2a4c7d75fa2"
-    },
-    "test_and_checker_hashes": {
-      "scripts/check_jmp_zero_inflation.py": "995914e4466865d938c425d6e5fe24ba3d5531da21387b43fef0caac01ef7f0a",
-      "test/sql/zero_inflation.test": "a0e591e70ed1b70cb1e2d404c72a198d02d90c6736fa019ef90149edfadbda86",
-      "test/sql/function_catalog.test": "a5cc3b8f266cd1eb62cccd472a4f90b19b45866ad33cdb4e6c87473fa4416f74",
-      "test/sql/required_extensions.test": "668715d9b948c701d9da1bce504d9ebbdc18e0a42a1b7f5181b14365d02ddf46"
-    },
-    "commands": [
-      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
-      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
-      "rustfmt --edition 2021 --check crates/analytics/src/zero_inflation.rs crates/analytics/src/lib.rs crates/analytics/tests/zero_inflation_contracts.rs",
-      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
-      "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
-      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib python3 scripts/check_jmp_zero_inflation.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-zero-inflation-native-reference.json",
-      "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
-    ],
     "evidence": [
-      "tasks/evidence/jmp-zero-inflation-native-reference.json",
-      "tasks/evidence/jmp-zero-inflation-workspace.log",
-      "tasks/evidence/jmp-zero-inflation-native-sql.log",
-      "tasks/evidence/jmp-zero-inflation-sql-red.log",
-      "tasks/evidence/jmp-completion-native-sdk-20261023.json"
+      "tasks/evidence/jmp-pls-native-reference.json",
+      "tasks/evidence/jmp-pls-workspace.log",
+      "tasks/evidence/jmp-pls-native-sql.log",
+      "tasks/evidence/jmp-pls-sql-red.log",
+      "tasks/evidence/jmp-pls-initial-oracle.json"
     ],
     "TDD": {
-      "initial_positive_RED": 8,
-      "initial_failure": "unknown optimization operation",
-      "vacuous_malformed_test_counted_as_RED": false,
-      "actual_SQL_RED": "chem_zi_poisson does not exist",
-      "numerical_regression_RED_GREEN": [
-        "saturated-logit binomial tails/variance",
-        "tiny Gamma quantile and scaled-query underflow",
-        "mixture quantile just above zero atom",
-        "small/large Gamma shape normalization"
-      ]
+      "Rust_RED": "All8 initial valid-fit calls failed unknown optimization operation; invalid-argument assertions were not separately counted as RED.",
+      "SQL_RED": "Actual matching old loaded extension: chem_pls2_fit does not exist.",
+      "reference_precision_correction": "Original sklearn power tolerance1e-14 left3.825e-9 coefficient difference;tol1e-26 agrees with LAPACK-SVD within2e-15. Rust tolerance was not relaxed."
     },
+    "limitations": [
+      "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+      "Fold/holdback selection,van der Voet,bootstrap and full report options",
+      "JMP installed numerical equivalence and exact VIP conventions",
+      "Conditional-score normality intervals are an approximation, not full data-dependent factor uncertainty.",
+      "Raw PLS-DA indicator predictions can lie outside[0,1] and are not calibrated probabilities.",
+      "No installed JMP comparison or unobserved Wasm runtime SQL claim."
+    ],
     "status_counts": {
-      "partial": 283,
+      "partial": 287,
       "database_existing": 37,
-      "absent": 201,
+      "absent": 197,
       "external_plugin": 4,
       "implemented_verified": 6,
       "excluded_gui": 17,
       "separate_product": 4,
       "clarification_pending": 0
     },
-    "limitations": [
-      "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
-      "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
-      "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
-      "Multi-start local optimization does not certify a global optimum or general finite-MLE existence.",
-      "No installed JMP comparison; source cross-platform CI checked separately; no new Wasm runtime SQL claim."
-    ],
-    "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion"
+    "chemical_DQ": "Research only until full JMP completion",
+    "commands": [
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
+      "rustfmt --edition 2021 --check crates/analytics/src/pls_multivariate.rs crates/analytics/src/lib.rs crates/analytics/src/explore.rs crates/analytics/src/glm.rs crates/analytics/tests/pls_multivariate_contracts.rs",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
+      "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_jmp_pls.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-pls-native-reference.json",
+      "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+    ]
   },
   "previous_final_validation": {
     "platform": "macOS arm64",
@@ -34669,5 +34976,139 @@
       "separate_product": 4,
       "clarification_pending": 0
     }
+  },
+  "previous_zero_inflation_final_validation": {
+    "schema_version": 1,
+    "date": "2026-10-24",
+    "status": "PASS6 additional bounded CPU operations; full JMP remains incomplete",
+    "full_goal_complete": false,
+    "source_git_base": "0fa48b726b0aa9b04a18dc37027dac31e1fc68ed",
+    "source_identification": "Frozen production source/artifact hashes; validation before source commit.",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+    "profile": {
+      "Rust": "dev",
+      "CMake": "Debug"
+    },
+    "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
+    "new_operations": [
+      "zi_binomial",
+      "zi_beta_binomial",
+      "zi_poisson",
+      "zi_negative_binomial",
+      "zi_gamma",
+      "zi_predict"
+    ],
+    "analytics_functions": 273,
+    "total_sql_overloads": 424,
+    "registry_operations": 249,
+    "rust_workspace": {
+      "passed": 1381,
+      "failed": 0,
+      "ignored_existing": 2,
+      "suites": 68,
+      "focused_new_tests": 15,
+      "ignored_details": [
+        "logP diagnostic print helper",
+        "supplied population preparation acceptance needs explicit unselected100k external data source"
+      ]
+    },
+    "strict_analytics_all_target_clippy": "PASS",
+    "scoped_fmt_check": "PASS",
+    "native_sql": {
+      "cases": 19,
+      "assertions": 616,
+      "skipped": 0,
+      "log": "tasks/evidence/jmp-zero-inflation-native-sql.log"
+    },
+    "catalog_examples_executed": 424,
+    "independent_reference": {
+      "record": "tasks/evidence/jmp-zero-inflation-native-reference.json",
+      "checks": 896,
+      "invalid_NULL_checks": 48,
+      "boundaries": [
+        "exported_C_ABI",
+        "loaded_DuckDB_SQL"
+      ],
+      "maximum_scaled_error": 2.6218941028781146e-09,
+      "scipy": "1.17.1",
+      "mpmath": "1.3.0",
+      "gamma_shape_grid_cases_per_boundary": 21
+    },
+    "artifacts": {
+      "cli": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb",
+        "sha256": "e2618bb623563289db05b90097e6f468abf3e13569de9096a6d3c6b0611a5780"
+      },
+      "extension": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+        "sha256": "f8dfab404ee349e32e23f56afd6232c23b68efc9995087510861580117d8980d"
+      },
+      "C_ABI": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib",
+        "sha256": "9548adc4e074df1c51b644af85572593d7b19ceccf6e74ccb9b3dba5aff50202"
+      },
+      "archive": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/debug/libducksmiles_analytics.a",
+        "sha256": "1052240ed04956becc9b51999a538415052535fb60bd6012b4c6dd8d30ac8a97"
+      }
+    },
+    "source_hashes": {
+      "crates/analytics/src/lib.rs": "4f6bfcf14c1a067d54fa76797cde5c7a74fa815bd36d82fd0fb2c61feca7cce6",
+      "crates/analytics/src/zero_inflation.rs": "560dd6a92a714a876b60b4a6f35dcf964cbff9033ad9b429c460f89ef4093311",
+      "crates/analytics/tests/zero_inflation_contracts.rs": "2774f2b8cf2c4dd47e67ecf7572f24d94a67aed4be3d5dbfcdad2d3e8a9e6bca",
+      "src/include/analytics_registry.inc": "c731bd1084bdc97888f3f2369cc9b1ed972a85437dfc3ff156a6a2a4c7d75fa2"
+    },
+    "test_and_checker_hashes": {
+      "scripts/check_jmp_zero_inflation.py": "995914e4466865d938c425d6e5fe24ba3d5531da21387b43fef0caac01ef7f0a",
+      "test/sql/zero_inflation.test": "a0e591e70ed1b70cb1e2d404c72a198d02d90c6736fa019ef90149edfadbda86",
+      "test/sql/function_catalog.test": "a5cc3b8f266cd1eb62cccd472a4f90b19b45866ad33cdb4e6c87473fa4416f74",
+      "test/sql/required_extensions.test": "668715d9b948c701d9da1bce504d9ebbdc18e0a42a1b7f5181b14365d02ddf46"
+    },
+    "commands": [
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
+      "rustfmt --edition 2021 --check crates/analytics/src/zero_inflation.rs crates/analytics/src/lib.rs crates/analytics/tests/zero_inflation_contracts.rs",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
+      "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib python3 scripts/check_jmp_zero_inflation.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-zero-inflation-native-reference.json",
+      "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+    ],
+    "evidence": [
+      "tasks/evidence/jmp-zero-inflation-native-reference.json",
+      "tasks/evidence/jmp-zero-inflation-workspace.log",
+      "tasks/evidence/jmp-zero-inflation-native-sql.log",
+      "tasks/evidence/jmp-zero-inflation-sql-red.log",
+      "tasks/evidence/jmp-completion-native-sdk-20261023.json"
+    ],
+    "TDD": {
+      "initial_positive_RED": 8,
+      "initial_failure": "unknown optimization operation",
+      "vacuous_malformed_test_counted_as_RED": false,
+      "actual_SQL_RED": "chem_zi_poisson does not exist",
+      "numerical_regression_RED_GREEN": [
+        "saturated-logit binomial tails/variance",
+        "tiny Gamma quantile and scaled-query underflow",
+        "mixture quantile just above zero atom",
+        "small/large Gamma shape normalization"
+      ]
+    },
+    "status_counts": {
+      "partial": 283,
+      "database_existing": 37,
+      "absent": 201,
+      "external_plugin": 4,
+      "implemented_verified": 6,
+      "excluded_gui": 17,
+      "separate_product": 4,
+      "clarification_pending": 0
+    },
+    "limitations": [
+      "Lasso/Elastic Net,selection/validation and default observational JMP Lasso are not implemented by these unpenalized methods.",
+      "Fractional discrete response/trials,analytic weights,informative missing,categorical contrasts and exact JMP roles remain unsupported.",
+      "Exact JMP sandwich,finite-sample correction,auxiliary CI transformations and installed-JMP comparison remain unverified.",
+      "Multi-start local optimization does not certify a global optimum or general finite-MLE existence.",
+      "No installed JMP comparison; source cross-platform CI checked separately; no new Wasm runtime SQL claim."
+    ],
+    "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion"
   }
 }

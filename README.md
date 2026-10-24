@@ -43,7 +43,7 @@ INSTALL ducksmiles FROM community;
 LOAD ducksmiles;
 ```
 
-The 0.6.2 source provides 273 CPU analytics functions (424 total SQL overloads).
+The 0.6.3 source provides 277 CPU analytics functions (428 total SQL overloads).
 Community packages depend on the version and source revision accepted upstream.
 At the earlier 254-function checkpoint, the DuckDB 2 CI revision
 `d54cbbe3df17e8e5ce68312f483b4155836112aa` passed all 13 SQL cases
@@ -57,7 +57,7 @@ CI also builds and preloads JSON for the SQL regression suite. A required-extens
 test loads the built DuckSMILES file and executes a JSON query, so missing
 prerequisites cause a failure instead of silently skipping the tests. The earlier DuckDB 2
 preflight passed 14 SQL cases / 443 assertions. The current dev/Debug build passes
-19 SQL cases / 616 assertions and all424 catalog examples on macOS arm64. Community CI additionally loads
+20 SQL cases / 626 assertions and all428 catalog examples on macOS arm64. Community CI additionally loads
 the built extension on test initialization and marks both extensions as required.
 
 When CI supplies a prebuilt native DuckDB library, the build checks its embedded
@@ -916,7 +916,7 @@ FROM (VALUES ('CCO'), ('CC(=O)O'), ('NCC(=O)O')) AS t(smiles);
 The analytics build adds numerical methods to the molecular SQL workflow. The
 calculation core runs on the CPU, without a GUI, GPU runtime, Python or external
 chemistry library. This section lists **every currently registered analytics SQL
-function** (273 verified functions: the original 24 plus the method registry below), with its input contract and an
+function** (277 verified functions: the original 24 plus the method registry below), with its input contract and an
 executable call. Existing community packages can predate this implementation;
 use a build containing these registrations and check the loaded catalog:
 
@@ -1272,8 +1272,64 @@ limited kernel has passed tests.
 | `chem_zi_negative_binomial` / `zi_negative_binomial` | Shared-inflation negative-binomial NB2 log-mean ML: [features...,integer count,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0]. | `SELECT chem_zi_negative_binomial([[0,1,47500],[1,1,17500],[2,1,13125],[3,1,8750],[4,1,5469],[5,1,3281],[6,1,1914],[7,1,1094],[8,1,615],[9,1,342],[10,1,188],[11,1,103],[12,1,56],[13,1,30],[14,1,16],[15,1,9],[16,1,5],[17,1,2],[18,1,1],[19,1,1]],[]);` |
 | `chem_zi_gamma` / `zi_gamma` | Shared-inflation Gamma log-mean ML,shape=mu/sigma and scale=sigma: [features...,nonnegative response,trials1,integer frequency]; [maxiter=600,tol=1e-9,confidence=.95,covariance_kind=0]. | `SELECT chem_zi_gamma([[0,1,3],[1,1,2],[2,1,3],[3,1,2]],[]);` |
 | `chem_zi_predict` / `zi_predict` | Saved zero-inflation distribution prediction: [features...,trials,query response,quantile probability]; exact zi-fit.predict_parameters carrier. Joint selected-covariance mean delta Wald inference only for interior identified fits. | `SELECT chem_zi_predict([[1.,1.,.5]],[1.0,2.0,0.0,0.95,0.0,0.0,0.0,0.6931471805599453,0.0,0.3,0.0,0.0,0.0,0.0]);` |
+| `chem_pls2_fit` / `pls2_fit` | rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1. | `SELECT chem_pls2_fit([[-2.0,-3.0,4.0],[-1.0,-1.0,2.0],[0.0,2.0,2.0],[1.0,3.0,1.0],[2.0,6.0,0.0]], [2.0,1.0]);` |
+| `chem_pls2_predict` / `pls2_predict` | Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters. | `SELECT chem_pls2_predict([[1.0]], [1.0,0.0,1.0,2.0,1.0,5.0,0.95,1.0,-2.0,2.0,1.5811388300841898,-3.0,4.0,4.4,-2.2,3.507135583350036,1.4832396974191324,0.9918365981341756,-0.959403223600247,1.0,4.0,0.26666666666666666,0.23333333333333336]);` |
+| `chem_plsda_fit` / `plsda_fit` | rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration. | `SELECT chem_plsda_fit([[-3.0,10.0],[-2.0,10.0],[-1.0,10.0],[1.0,30.0],[2.0,30.0],[3.0,30.0]], [1.0]);` |
+| `chem_plsda_predict` / `plsda_predict` | Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities. | `SELECT chem_plsda_predict([[-7.0],[0.0],[7.0]], [1.0,1.0,1.0,2.0,1.0,6.0,0.95,0.0,-3.0,3.0,2.3664319132398464,1.0,0.0,-0.5,0.5,0.5477225575051662,0.5477225575051662,-0.9258200997725513,0.9258200997725513,1.0,5.0,0.0,0.0,10.0,30.0]);` |
 
 <!-- analytics-registry-table:end -->
+
+### Multivariate PLS, VIP and indicator PLS-DA (2026-10-24)
+
+Four additional operations provide centered PLS2 and PLS-DA fit/predict pairs,
+with both regression-deflation NIPALS using SVD weights and de Jong SIMPLS.
+The catalog is **277 analytics functions /428 SQL overloads**.
+[Contracts](tasks/jmp-pls-api.json) and [verification](tasks/evidence/jmp-pls-validation.json)
+record the bounded implementation. The existing `chem_pls` PLS1 interface stays
+available with its own population-standardization contract.
+
+`chem_pls2_fit` takes rows `[numeric features...,responses...]` and parameters
+`[n_responses,components,method=0,scale_x=1,scale_y=1,confidence=.95]`.
+Method0 uses successive X/Y residual deflation; method1 deflates cross covariance.
+Both center using training-only transforms. Enabled scaling uses sample SD with
+divisor `n-1`; constant columns use scale1. The requested component count is
+1 through `min(p,n-1)`; extraction stops at predictive rank. The output reports
+the actual count, original/standardized coefficients, scores, loadings, rotations,
+per-factor explained fractions, fitted values, SSE and a complete scoring carrier.
+Zero explained response variation produces an undefined/null VIP and an intercept
+model rather than fabricated latent factors.
+
+VIP is `sqrt(p*sum_a(SSY_a*normalized_weight_ja^2)/sum_a SSY_a)`, with
+`SSY_a=score_squared_norm_a*sum_response_loading_squared_a`.
+NIPALS uses deflated-block unit weights; SIMPLS normalizes its original-X score
+projections for this calculation. Algorithm-specific values are intentional.
+Exact JMP VIP equivalence has not been checked against an installed JMP.
+
+`chem_pls2_predict` takes rows with the original feature order and the unchanged
+`predict_parameters`. It reuses training transforms and returns each response
+and the latent scores. When `df=n-components_used-1` is positive, per-response
+residual MSE gives approximate mean and individual intervals. Their leverage is
+`1/n+sum(new_score_a^2/training_score_squared_norm_a)`; standard errors are
+`sqrt(MSE*leverage)` and `sqrt(MSE*(1+leverage))`, with central Student limits.
+These are a normality-based conditional-score approximation; data-dependent
+factor estimation is not fully represented. Saturated fits return null uncertainty.
+
+`chem_plsda_fit` takes `[features...,numeric_class_label]` and parameters
+`[components,method=0,scale_x=1,scale_indicator_y=1]`.
+It records sorted training labels, fits every one-hot indicator jointly and saves
+the same transforms. `chem_plsda_predict` returns **raw indicator predictions**,
+which can be negative or exceed one, and the largest-score class; exact ties use
+the smallest sorted label. These scores are not calibrated probabilities.
+Regression normality intervals are disabled for PLS-DA.
+
+The exact version1 scoring vector, including row-major B and score projections,
+is documented in the contract. Prediction checks exact lengths, model kind,
+positive scales/score norms, residual variances, inference flags and sorted labels.
+Limits are 100,000 rows, one million cells, 128 features,32 responses/classes,
+absolute input1e150 and a cumulative200M algorithmic work budget.
+Invalid, nonfinite, singular or exhausted requests return SQL NULL.
+Uncentered methods, weights, categorical predictor effects, missing-data fitting,
+validation/component selection, van der Voet comparison and bootstrap remain open.
 
 ### Shared-inflation regression and saved prediction (2026-10-24)
 
@@ -2396,7 +2452,7 @@ See [the version audit](JMP_PARITY.md#200-urlの確認と版を混ぜないた�
 A function name or a restricted implementation does not establish whole-platform
 equivalence.
 
-Large outstanding families include additional GLMM response/random-effect structures, full spatial and SEM inference, further causal and functional estimators, wavelets/X11, multivariate transfer, unrestricted DOE/mixture designs, Bayesian reliability workflows, text regression, multidimensional IRT, choice/MaxDiff, GWAS and further tuning/export options. Existing numeric and artifact implementations are bounded subsets. DuckDB supplies host joins, aggregates, pivot/unpivot and SQL I/O. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All44 report/plot acceptance contracts are [specified](tasks/jmp-report-acceptance.json):15 are partial and29 absent. Three report rows now have independently validated bounded SVG artifacts, while their full option sets remain incomplete. The complete ledger has283 partial,201 absent,37 reused database capabilities,6 implemented verified rows,17 GUI exclusions,4 external plugins and4 separate-product rows. These unequal inventory rows do not define a coverage percentage. The full JMP objective remains unfinished. Chemical data-quality implementation, including possible DuckOrch reuse, starts only after that full objective is complete; [research](tasks/chemistry-dq-research-20261022.json) is saved.
+Large outstanding families include additional GLMM response/random-effect structures, full spatial and SEM inference, further causal and functional estimators, wavelets/X11, multivariate transfer, unrestricted DOE/mixture designs, Bayesian reliability workflows, text regression, multidimensional IRT, choice/MaxDiff, GWAS and further tuning/export options. Existing numeric and artifact implementations are bounded subsets. DuckDB supplies host joins, aggregates, pivot/unpivot and SQL I/O. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All44 report/plot acceptance contracts are [specified](tasks/jmp-report-acceptance.json):15 are partial and29 absent. Three report rows now have independently validated bounded SVG artifacts, while their full option sets remain incomplete. The complete ledger has287 partial,197 absent,37 reused database capabilities,6 implemented verified rows,17 GUI exclusions,4 external plugins and4 separate-product rows. These unequal inventory rows do not define a coverage percentage. The full JMP objective remains unfinished. Chemical data-quality implementation, including possible DuckOrch reuse, starts only after that full objective is complete; [research](tasks/chemistry-dq-research-20261022.json) is saved.
 
 The implementation workflow is test driven: observe an expected behavioral RED,
 implement the bounded contract, then verify GREEN, numerical edge cases and
@@ -2406,7 +2462,8 @@ head-to-head numerical comparison.
 
 <!-- analytics-validation-summary:start -->
 
-- The current **273-function /424-overload checkpoint** passes **1,381 Rust tests across68 suites**, zero failures, with two existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. Its matching macOS arm64 dev/Debug extension passes **19 SQL cases /616 assertions**, zero skips, and **all424 catalog examples**. Independent SciPy/mpmath checks cover both exported C ABI and loaded SQL. [Evidence](tasks/evidence/jmp-zero-inflation-validation.json).
+- The current **277-function /428-overload checkpoint** passes **1,391 Rust tests across69 suites**, zero failures, two existing ignored; **20 SQL cases /626 assertions**, zero skips; all428 catalog examples; strict analytics Clippy and scoped formatting. Independent NumPy/SciPy/sklearn references match **7,220 numerical checks** and34 malformed NULL requests across the exported C ABI and loaded SQL. [Evidence](tasks/evidence/jmp-pls-validation.json).
+- The preceding **273-function /424-overload checkpoint** passes **1,381 Rust tests across68 suites**, zero failures, with two existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. Its matching macOS arm64 dev/Debug extension passes **19 SQL cases /616 assertions**, zero skips, and **all424 catalog examples**. Independent SciPy/mpmath checks cover both exported C ABI and loaded SQL. [Evidence](tasks/evidence/jmp-zero-inflation-validation.json). This source was integrated into main as `31902df`; the exact-source distribution and Rust workflows passed. [CI record](tasks/evidence/jmp-zero-inflation-main-ci.json).
 - The preceding **267-function /418-overload checkpoint** passes **1,366 Rust tests across67 suites**, zero failures, with the same two pre-existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. The matching macOS arm64 Release extension passes **18 SQL cases /603 assertions**, zero skips, and **all418 catalog examples**. [Checkpoint evidence](tasks/evidence/jmp-report-ordinal-validation.json).
 - Histogram/box reports pass **105,438 independent checks** on actual Release C ABI and SQL, with36 positive fixtures per boundary,69 malformed NULL cases and58 rendered PNGs. Full JSON/SVG outputs agree across boundaries. The large-offset visible-table regression has actual old-ABI RED and fixed-ABI GREEN evidence. Representative [actual SQL SVG](tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.svg) and [PNG](tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.png) are retained. Verification renders unchanged SVG with macOS sips and independently decodes pixels with ImageMagick; that environment's ImageMagick SVG renderer loses valid outlined marks, so its discrepancy is documented separately. [Report evidence](tasks/evidence/jmp-reports-native-reference.json).
 - Ordered regression passes **1,082 C ABI/SQL checks** plus a separate **1,321-check,80-digit independent oracle** covering4 fits, saved predictions and23 invalid NULL cases. Covariance is inverse observed information; exact JMP sandwich/default-Lasso equivalence remains outstanding. [Both-boundary evidence](tasks/evidence/jmp-ordinal-reference.json), [independent Release evidence](tasks/evidence/jmp-ordinal-independent-release-reference.json).

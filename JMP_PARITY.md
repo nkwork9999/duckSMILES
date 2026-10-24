@@ -6,7 +6,13 @@
 
 ## 最新の照合結果（2026-10-24）
 
-登録済みの解析APIは **273関数 / 拡張全体424 overloads**。台帳の現在の分類は、部分対応283行、未実装201行、DuckDB既存37行、従来の限定契約として検証済み6行、GUI除外17行、外部拡張4行、別製品4行、範囲未確定0行である。
+登録済みの解析APIは **277関数 / 拡張全体428 overloads**。台帳の現在の分類は、部分対応287行、未実装197行、DuckDB既存37行、従来の限定契約として検証済み6行、GUI除外17行、外部拡張4行、別製品4行、範囲未確定0行である。
+
+多応答PLS2とPLS-DAのfit/predict各2操作を追加した。両方でNIPALS/SVDとSIMPLS、sample SDによる学習時変換、VIPを提供し、回帰では条件付きscoreに基づく近似予測区間を返す。多応答PLS、PLS-DA、VIP、予測区間の4行を未実装から部分対応に変更した。未中心化、重み、カテゴリ説明変数、欠損、validation/成分選択、van der Voet、bootstrapと全JMP規約は残る。PLS-DAの出力は指示変数の生予測値で、確率の校正を主張しない。
+
+同一dev/DebugソースのRust 1,391件（失敗0、既存ignored2）、SQL 20 cases /626 assertions（skip0）、428 catalog例、strict Clippyと書式検証が成功した。独立NumPy/SciPy/sklearn参照の7,220数値項目と34不正NULLを公開C ABIと実ロードSQLで照合した。[PLS契約](tasks/jmp-pls-api.json)、[検証記録](tasks/evidence/jmp-pls-validation.json)を参照。
+
+### 零過剰回帰の検証checkpoint（2026-10-24）
 
 零過剰Binomial・Beta Binomial・Poisson・Negative Binomial・Gammaの非正則化MLと保存予測の6関数を追加した。共有pi、整数頻度、数値固定効果、observed-information/HC0 covarianceと予測の限定契約である。`generalized_regression_zero_inflation` は未実装から部分対応へ変更した。Lasso等の正則化・選択、fractional counts/trials、カテゴリ・missing roles、JMP固有のsandwich規約は残る。
 

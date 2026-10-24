@@ -1,0 +1,93 @@
+{
+  "conclusion": "success",
+  "headSha": "31902df2722a0405d87152d867644dbf13abbb27",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "name": "Code Quality Check / Format Check",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120503057119"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / Generate matrix",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120503057405"
+    },
+    {
+      "conclusion": "success",
+      "name": "Code Quality Check / Tidy Check",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120503057411"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "Build extension binaries",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120503059038"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / Linux (linux_amd64, ubuntu-24.04, x64-linux-release, x64-linux-release, true, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120503131402"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / Linux (linux_arm64, ubuntu-24.04-arm, arm64-linux-release, arm64-linux-release, false, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120503131936"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / MacOS (osx_amd64, macos-15, x86_64, x64-osx-release, arm64-osx-release, false, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120506501182"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / MacOS (osx_arm64, macos-15, arm64, arm64-osx-release, arm64-osx-release, true, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120506501198"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / Windows (windows_amd64, windows-latest, x64-windows-static-release, x64-windows-static-release, t...",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120506501203"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / Windows (windows_amd64_mingw, windows-latest, x64-mingw-static, x64-mingw-static, true, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120506501225"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / DuckDB-Wasm (wasm_eh, wasm32-emscripten, x64-linux, false, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120506501230"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / DuckDB-Wasm (wasm_threads, wasm32-emscripten, x64-linux, false, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120506501316"
+    },
+    {
+      "conclusion": "success",
+      "name": "Build extension binaries / DuckDB-Wasm (wasm_mvp, wasm32-emscripten, x64-linux, true, false)",
+      "status": "completed",
+      "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343/job/120506501492"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979590343",
+  "date": "2026-10-24",
+  "note": "Distribution matrix/build/format/tidy success for exact integrated source. No unobserved Wasm runtime SQL or community publication is inferred.",
+  "Rust_workspace_workflow": {
+    "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/39979589415",
+    "headSha": "31902df2722a0405d87152d867644dbf13abbb27",
+    "conclusion": "success"
+  }
+}

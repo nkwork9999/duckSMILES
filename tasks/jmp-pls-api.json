@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "status": "Verified bounded macOS arm64 CPU dev/Debug C ABI and loaded SQL contracts; full JMP incomplete",
+  "operations": [
+    {
+      "operation": "pls2_fit",
+      "symbol": "Pls2Fit",
+      "sql_name": "chem_pls2_fit",
+      "description": "rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+      "fixture": {
+        "data": [
+          [
+            -2.0,
+            -3.0,
+            4.0
+          ],
+          [
+            -1.0,
+            -1.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0,
+            2.0
+          ],
+          [
+            1.0,
+            3.0,
+            1.0
+          ],
+          [
+            2.0,
+            6.0,
+            0.0
+          ]
+        ],
+        "args": [
+          2.0,
+          1.0
+        ]
+      },
+      "sql_example": "chem_pls2_fit([[-2.0,-3.0,4.0],[-1.0,-1.0,2.0],[0.0,2.0,2.0],[1.0,3.0,1.0],[2.0,6.0,0.0]], [2.0,1.0])"
+    },
+    {
+      "operation": "pls2_predict",
+      "symbol": "Pls2Predict",
+      "sql_name": "chem_pls2_predict",
+      "description": "Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
+      "fixture": {
+        "data": [
+          [
+            1.0
+          ]
+        ],
+        "args": [
+          1,
+          0,
+          1,
+          2,
+          1,
+          5,
+          0.95,
+          1,
+          -2,
+          2,
+          1.5811388300841898,
+          -3,
+          4,
+          4.4,
+          -2.2,
+          3.507135583350036,
+          1.4832396974191324,
+          0.9918365981341756,
+          -0.959403223600247,
+          1,
+          4,
+          0.26666666666666666,
+          0.23333333333333336
+        ]
+      },
+      "sql_example": "chem_pls2_predict([[1.0]], [1.0,0.0,1.0,2.0,1.0,5.0,0.95,1.0,-2.0,2.0,1.5811388300841898,-3.0,4.0,4.4,-2.2,3.507135583350036,1.4832396974191324,0.9918365981341756,-0.959403223600247,1.0,4.0,0.26666666666666666,0.23333333333333336])"
+    },
+    {
+      "operation": "plsda_fit",
+      "symbol": "PlsdaFit",
+      "sql_name": "chem_plsda_fit",
+      "description": "rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+      "fixture": {
+        "data": [
+          [
+            -3.0,
+            10.0
+          ],
+          [
+            -2.0,
+            10.0
+          ],
+          [
+            -1.0,
+            10.0
+          ],
+          [
+            1.0,
+            30.0
+          ],
+          [
+            2.0,
+            30.0
+          ],
+          [
+            3.0,
+            30.0
+          ]
+        ],
+        "args": [
+          1.0
+        ]
+      },
+      "sql_example": "chem_plsda_fit([[-3.0,10.0],[-2.0,10.0],[-1.0,10.0],[1.0,30.0],[2.0,30.0],[3.0,30.0]], [1.0])"
+    },
+    {
+      "operation": "plsda_predict",
+      "symbol": "PlsdaPredict",
+      "sql_name": "chem_plsda_predict",
+      "description": "Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities.",
+      "fixture": {
+        "data": [
+          [
+            -7.0
+          ],
+          [
+            0.0
+          ],
+          [
+            7.0
+          ]
+        ],
+        "args": [
+          1,
+          1,
+          1,
+          2,
+          1,
+          6,
+          0.95,
+          0,
+          -3,
+          3,
+          2.3664319132398464,
+          1,
+          0,
+          -0.5,
+          0.5,
+          0.5477225575051662,
+          0.5477225575051662,
+          -0.9258200997725513,
+          0.9258200997725513,
+          1,
+          5,
+          0,
+          0,
+          10,
+          30
+        ]
+      },
+      "sql_example": "chem_plsda_predict([[-7.0],[0.0],[7.0]], [1.0,1.0,1.0,2.0,1.0,6.0,0.95,0.0,-3.0,3.0,2.3664319132398464,1.0,0.0,-0.5,0.5,0.5477225575051662,0.5477225575051662,-0.9258200997725513,0.9258200997725513,1.0,5.0,0.0,0.0,10.0,30.0])"
+    }
+  ],
+  "regression_fit": "rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
+  "DA_fit": "rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
+  "VIP": "sqrt(p*sum_a(SSY_a*normalized_weight_ja^2)/sum_a SSY_a). SSY_a=score_norm_squared*sum_response_loading_squared. NIPALS uses deflated-block unit weights;SIMPLS uses original-X projections normalized to unit length. VIP undefined/null when no explained Y. Exact JMP VIP equivalence not verified.",
+  "inference": "Per-response normality-based conditional-score approximation,df=n-components_used-1;h=1/n+sum_a new_score_a^2/training_score_squared_a; meanSE=sqrt(MSE_j*h),individualSE=sqrt(MSE_j*(1+h)); Student central confidence. Disabled for DA/df<=0. No claim of exact PLS sampling uncertainty.",
+  "boundary": "p<=128,q/classes<=32,n<=100000,cells<=1M,absinput<=1e150,cumulative200M work units,finite output. Stop at predictive rank without padding fictitious factors.",
+  "remaining": [
+    "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+    "Fold/holdback selection,van der Voet,bootstrap and full report options",
+    "JMP installed numerical equivalence and exact VIP conventions"
+  ],
+  "primary_sources": [
+    "https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-partial-least-squares.shtml",
+    "https://www.jmp.com/support/help/en/19.2/jmp/centering-and-scaling.shtml",
+    "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/multivariate-methods.pdf",
+    "https://www.mathworks.com/help/stats/plsregress.html",
+    "https://raw.githubusercontent.com/bhmevik/pls/master/R/simpls.fit.R"
+  ],
+  "source": "crates/analytics/src/pls_multivariate.rs",
+  "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
+  "saved_model": "[1,kind0regression/1DA,p,q,components_used,n_training,confidence,has_inference,X_origins(p),X_mean_offsets(p),X_scales(p),Y_origins(q),Y_mean_offsets(q),Y_scales(q),standardized_B_rowmajor(p*q),original_X_score_projections_rowmajor(p*a),training_score_squared_norms(a),original_response_residual_variances(q),DA_class_labels(q only for DA)]. Exact dimensions,model kind,finite values,positive scales/score norms,inference flags and sorted distinct labels validated. Length8+3p+4q+pq+pa+a+[q for DA].",
+  "diagnostics": "Fit returns requested/used factor counts,coefficients in original/standardized units,intercepts,unit VIP weights,original-X rotations,loadings,training scores and norms,per-factor explained fractions,VIP,fitted values,SSE,residual degrees of freedom,selected scaling flags and complete scoring carrier.",
+  "reference_refinement": "Original sklearn power tolerance1e-14 left3.825e-9 coefficient difference;tol1e-26 agrees with LAPACK-SVD within2e-15. Rust tolerance was not relaxed.",
+  "module": "pls_multivariate",
+  "validation": "tasks/evidence/jmp-pls-validation.json",
+  "independent_checker": "scripts/check_jmp_pls.py"
+}

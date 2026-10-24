@@ -5,12 +5,25 @@ batch are recorded. **Full JMP parity remains unfinished.** The authoritative
 backlog is [jmp-feature-matrix.json](jmp-feature-matrix.json), with scope and
 primary sources in [JMP_PARITY.md](../JMP_PARITY.md).
 
-The inventory contains 552 heterogeneous feature/method/option rows: 283 partial,
-201 absent, 37 provided by the host database, 6 earlier verified limited contracts,
+The inventory contains 552 heterogeneous feature/method/option rows: 287 partial,
+197 absent, 37 provided by the host database, 6 earlier verified limited contracts,
 17 GUI exclusions, 0 output/scope questions, 4 external plugins and 4 separate
 product entries. These counts do not constitute a completion percentage. A
 20.0 help URL returns the same index as 19.2; a distinct 20.0 feature delta has not
 been verified. No installed JMP was used for numerical comparisons.
+
+## Verified multivariate PLS checkpoint (2026-10-24)
+
+PLS2 and indicator PLS-DA fit/predict add four operations, for **277 analytics
+functions /428 overloads**. Both NIPALS/SVD and SIMPLS include VIP; regression
+prediction includes explicit normality-based conditional-score approximate
+mean/individual Student limits. Four feature rows move from absent to partial.
+The matching macOS arm64 dev/Debug source passes1,391 Rust tests in69 suites,
+0 failures,2 existing ignored;20 SQL cases/626 assertions,0 skips;428 catalog
+examples;strict Clippy and formatting. Independent NumPy/SciPy/sklearn checks
+pass7,220 numerical fields and34 malformed NULL requests across C ABI and SQL.
+[Contracts](jmp-pls-api.json), [validation](evidence/jmp-pls-validation.json).
+Full JMP completion remains open.
 
 ## Verified zero-inflation checkpoint (2026-10-24)
 

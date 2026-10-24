@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "status": "PASS4 additional bounded CPU operations; full JMP remains incomplete",
+  "full_goal_complete": false,
+  "source_git_base": "31902df2722a0405d87152d867644dbf13abbb27",
+  "source_identification": "Frozen actual production source/artifact hashes; numerical verification precedes source commit.",
+  "profile": {
+    "Rust": "dev",
+    "CMake": "Debug"
+  },
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
+  "new_operations": [
+    "pls2_fit",
+    "pls2_predict",
+    "plsda_fit",
+    "plsda_predict"
+  ],
+  "analytics_functions": 277,
+  "total_sql_overloads": 428,
+  "registry_operations": 253,
+  "rust_workspace": {
+    "passed": 1391,
+    "failed": 0,
+    "ignored_existing": 2,
+    "suites": 69,
+    "focused_new_tests": 10,
+    "ignored_details": [
+      "logP diagnostic print helper",
+      "supplied population preparation acceptance needs explicit unselected100k external data source"
+    ]
+  },
+  "strict_analytics_all_target_clippy": "PASS",
+  "scoped_fmt_check": "PASS",
+  "native_sql": {
+    "cases": 20,
+    "assertions": 626,
+    "skipped": 0,
+    "log": "tasks/evidence/jmp-pls-native-sql.log"
+  },
+  "catalog_examples_executed": 428,
+  "independent_reference": {
+    "checks": 7220,
+    "invalid_NULL_checks": 34,
+    "boundaries": [
+      "exported_C_ABI",
+      "loaded_DuckDB_SQL"
+    ],
+    "maximum_scaled_error": 1.064697028844662e-14,
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "sklearn": "1.8.0",
+    "regression_fixtures_per_boundary": 24,
+    "DA_fixtures_per_boundary": 8,
+    "record": "tasks/evidence/jmp-pls-native-reference.json"
+  },
+  "source_hashes": {
+    "crates/analytics/src/lib.rs": "f4445d2c03025b872dffff415032f10cfb65fb82ca01a3172ec9e4b1eb650012",
+    "crates/analytics/src/pls_multivariate.rs": "a4f46112a4bc9e88e03917775c7d66cdc1d4eaab13fd386d8540e6921984c2d5",
+    "crates/analytics/src/explore.rs": "c148c590494b27fc2433f76e992e39b7caa452fcd2f6f0d08fa9dbd120745bf9",
+    "crates/analytics/src/glm.rs": "3fee1e3a93df8146e675fed1668071f7e7efc8c4619d8d4ff013df5b7f0a651b",
+    "crates/analytics/tests/pls_multivariate_contracts.rs": "131eba74305cf88d85855f86acf8b8a0d5f78bc7b9155b80683759e5af70530e",
+    "src/include/analytics_registry.inc": "a1a132059ff27f3a74a0be86700451855c8874dcae70e8ec3451ceea67cf74c2"
+  },
+  "test_and_checker_hashes": {
+    "scripts/check_jmp_pls.py": "5d4971bfd61a5801ce8b8a22163ed039804d4236dfb80cd3b2411378364215da",
+    "test/sql/pls_multivariate.test": "b51b0ecc7f6f7536623712fd392049ddbf3308fa565e4d4db46e2d58543d8734",
+    "test/sql/function_catalog.test": "b2681394fd46633e00aabfc15fbdcc9c66b35ba11a3b636d4d6b576dfb02ea17"
+  },
+  "artifacts": {
+    "cli": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb",
+      "sha256": "e2618bb623563289db05b90097e6f468abf3e13569de9096a6d3c6b0611a5780"
+    },
+    "extension": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+      "sha256": "cb5dd5acc437811cbce40143ad9d6c48e2d451dc2a3953475a0e8d60b65af4fb"
+    },
+    "C_ABI": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib",
+      "sha256": "472f3d607aff5bdf5f67e3abab7f16cd06d434edff6639c531d1bee47c62d9a5"
+    },
+    "archive": {
+      "path": "/private/tmp/ducksmiles-jmp-completion-20261023/debug/libducksmiles_analytics.a",
+      "sha256": "024147f3a32aafb68e52234c11b9db395d7c6ae7c34fc6cc9f9a8feaec1e23dd"
+    }
+  },
+  "evidence": [
+    "tasks/evidence/jmp-pls-native-reference.json",
+    "tasks/evidence/jmp-pls-workspace.log",
+    "tasks/evidence/jmp-pls-native-sql.log",
+    "tasks/evidence/jmp-pls-sql-red.log",
+    "tasks/evidence/jmp-pls-initial-oracle.json"
+  ],
+  "TDD": {
+    "Rust_RED": "All8 initial valid-fit calls failed unknown optimization operation; invalid-argument assertions were not separately counted as RED.",
+    "SQL_RED": "Actual matching old loaded extension: chem_pls2_fit does not exist.",
+    "reference_precision_correction": "Original sklearn power tolerance1e-14 left3.825e-9 coefficient difference;tol1e-26 agrees with LAPACK-SVD within2e-15. Rust tolerance was not relaxed."
+  },
+  "limitations": [
+    "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+    "Fold/holdback selection,van der Voet,bootstrap and full report options",
+    "JMP installed numerical equivalence and exact VIP conventions",
+    "Conditional-score normality intervals are an approximation, not full data-dependent factor uncertainty.",
+    "Raw PLS-DA indicator predictions can lie outside[0,1] and are not calibrated probabilities.",
+    "No installed JMP comparison or unobserved Wasm runtime SQL claim."
+  ],
+  "status_counts": {
+    "partial": 287,
+    "database_existing": 37,
+    "absent": 197,
+    "external_plugin": 4,
+    "implemented_verified": 6,
+    "excluded_gui": 17,
+    "separate_product": 4,
+    "clarification_pending": 0
+  },
+  "chemical_DQ": "Research only until full JMP completion",
+  "commands": [
+    "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
+    "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
+    "rustfmt --edition 2021 --check crates/analytics/src/pls_multivariate.rs crates/analytics/src/lib.rs crates/analytics/src/explore.rs crates/analytics/src/glm.rs crates/analytics/tests/pls_multivariate_contracts.rs",
+    "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
+    "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+    "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_jmp_pls.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-pls-native-reference.json",
+    "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+  ]
+}
