@@ -1032,24 +1032,31 @@
         "chem_pls2_fit: rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
         "chem_pls2_predict: Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
         "chem_plsda_fit: rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
-        "chem_plsda_predict: Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities."
+        "chem_plsda_predict: Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities.",
+        "chem_pls2_validate: rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+        "chem_plsda_validate: rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes."
       ],
       "tests": [
         "crates/analytics/tests/regression.rs:pls_deflates_multiple_components_to_recover_a_linear_relation",
-        "crates/analytics/tests/pls_multivariate_contracts.rs"
+        "crates/analytics/tests/pls_multivariate_contracts.rs",
+        "crates/analytics/tests/pls_validation_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/sql-analytics-validation.json",
         "tasks/evidence/sql-analytics-reference.json",
         "tasks/evidence/jmp-pls-native-reference.json",
-        "tasks/evidence/jmp-pls-validation.json"
+        "tasks/evidence/jmp-pls-validation.json",
+        "tasks/evidence/jmp-pls-validation-native-reference.json",
+        "tasks/evidence/jmp-pls-component-validation.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "remaining_contract": [
         "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
-        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "Randomstratified/repeated/nested selection,van der Voet,bootstrap and full report options",
         "JMP installed numerical equivalence and exact VIP conventions",
         "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
-        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified.",
+        "Supplied-fold/role PLS selection now supported;random stratified/repeated/nested tuning,van der Voet,bootstrap,missingdata and exact installed-JMP conventions remain outstanding."
       ],
       "domain": "advanced-statistical-modeling:Multivariate analysis",
       "acceptance_contract": "multivariate",
@@ -1062,10 +1069,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         },
         {
           "sql_function": "chem_pls2_predict",
@@ -1075,10 +1084,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         },
         {
           "sql_function": "chem_plsda_fit",
@@ -1088,10 +1099,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         },
         {
           "sql_function": "chem_plsda_predict",
@@ -1101,10 +1114,38 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
+        },
+        {
+          "sql_function": "chem_pls2_validate",
+          "operation": "pls2_validate",
+          "bounded_scope": "rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+          "api": "tasks/jmp-pls-validation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-validation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL; bounded supplied-fold/role contracts only."
+        },
+        {
+          "sql_function": "chem_plsda_validate",
+          "operation": "plsda_validate",
+          "bounded_scope": "rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+          "api": "tasks/jmp-pls-validation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-validation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL; bounded supplied-fold/role contracts only."
         }
       ],
       "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
@@ -15177,20 +15218,55 @@
       "provider": "ducksmiles_extension",
       "scope": "in_scope",
       "implementation": [
-        "chem_cross_validate; supplied fold labels; Ridge/PLS1; fold-local preprocessing"
+        "chem_cross_validate; supplied fold labels; Ridge/PLS1; fold-local preprocessing",
+        "chem_pls2_validate: rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+        "chem_plsda_validate: rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes."
       ],
       "tests": [
-        "crates/analytics/tests/regression.rs:cross_validation_fits_scaling_on_each_training_fold_only"
+        "crates/analytics/tests/regression.rs:cross_validation_fits_scaling_on_each_training_fold_only",
+        "crates/analytics/tests/pls_validation_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/sql-analytics-validation.json",
-        "tasks/evidence/sql-analytics-reference.json"
+        "tasks/evidence/sql-analytics-reference.json",
+        "tasks/evidence/jmp-pls-validation-native-reference.json",
+        "tasks/evidence/jmp-pls-component-validation.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "remaining_contract": [
-        "他モデル、ネスト化、ハイパーパラメータ探索、層化/時系列検証は別項目。"
+        "他モデル、ネスト化、ハイパーパラメータ探索、層化/時系列検証は別項目。",
+        "Supplied-fold/role PLS selection now supported;random stratified/repeated/nested tuning,van der Voet,bootstrap,missingdata and exact installed-JMP conventions remain outstanding."
       ],
       "domain": "predictive-modeling-and-machine-learning:Validation (cross validation)",
-      "acceptance_contract": "ml"
+      "acceptance_contract": "ml",
+      "current_implementation": [
+        {
+          "sql_function": "chem_pls2_validate",
+          "operation": "pls2_validate",
+          "bounded_scope": "rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+          "api": "tasks/jmp-pls-validation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-validation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL; bounded supplied-fold/role contracts only."
+        },
+        {
+          "sql_function": "chem_plsda_validate",
+          "operation": "plsda_validate",
+          "bounded_scope": "rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+          "api": "tasks/jmp-pls-validation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-validation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL; bounded supplied-fold/role contracts only."
+        }
+      ]
     },
     {
       "id": "data_partitioning",
@@ -24965,21 +25041,27 @@
       "scope": "in_scope",
       "implementation": [
         "chem_pls2_fit: rows[features...,responses...]; args[n_responses,components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,confidence=.95]. Centering required; scaling uses training sample SD,constant columns scale1.",
-        "chem_pls2_predict: Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters."
+        "chem_pls2_predict: Saved multivariate PLS prediction, latent scores, conditional-score approximate mean/individual Student intervals; rows[training feature order], exact predict_parameters.",
+        "chem_pls2_validate: rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0]."
       ],
       "tests": [
-        "crates/analytics/tests/pls_multivariate_contracts.rs"
+        "crates/analytics/tests/pls_multivariate_contracts.rs",
+        "crates/analytics/tests/pls_validation_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/jmp-pls-native-reference.json",
-        "tasks/evidence/jmp-pls-validation.json"
+        "tasks/evidence/jmp-pls-validation.json",
+        "tasks/evidence/jmp-pls-validation-native-reference.json",
+        "tasks/evidence/jmp-pls-component-validation.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "remaining_contract": [
         "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
-        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "Randomstratified/repeated/nested selection,van der Voet,bootstrap and full report options",
         "JMP installed numerical equivalence and exact VIP conventions",
         "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
-        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified.",
+        "Supplied-fold/role PLS selection now supported;random stratified/repeated/nested tuning,van der Voet,bootstrap,missingdata and exact installed-JMP conventions remain outstanding."
       ],
       "acceptance_contract": "multivariate",
       "current_implementation": [
@@ -24991,10 +25073,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         },
         {
           "sql_function": "chem_pls2_predict",
@@ -25004,10 +25088,25 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
+        },
+        {
+          "sql_function": "chem_pls2_validate",
+          "operation": "pls2_validate",
+          "bounded_scope": "rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+          "api": "tasks/jmp-pls-validation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-validation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL; bounded supplied-fold/role contracts only."
         }
       ],
       "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
@@ -25039,21 +25138,27 @@
       "scope": "in_scope",
       "implementation": [
         "chem_plsda_fit: rows[numeric features...,numeric label]; args[components,method=0,scale_x=1,scale_indicator_y=1]. Full one-hot encoding,sorted training labels. Raw predicted indicator scores,largest score class with smallest sorted label on ties; no probability calibration.",
-        "chem_plsda_predict: Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities."
+        "chem_plsda_predict: Saved PLS-DA raw indicator scores and largest-score labels; rows[training feature order], exact predict_parameters. Scores are not calibrated probabilities.",
+        "chem_plsda_validate: rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes."
       ],
       "tests": [
-        "crates/analytics/tests/pls_multivariate_contracts.rs"
+        "crates/analytics/tests/pls_multivariate_contracts.rs",
+        "crates/analytics/tests/pls_validation_contracts.rs"
       ],
       "evidence": [
         "tasks/evidence/jmp-pls-native-reference.json",
-        "tasks/evidence/jmp-pls-validation.json"
+        "tasks/evidence/jmp-pls-validation.json",
+        "tasks/evidence/jmp-pls-validation-native-reference.json",
+        "tasks/evidence/jmp-pls-component-validation.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "remaining_contract": [
         "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
-        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "Randomstratified/repeated/nested selection,van der Voet,bootstrap and full report options",
         "JMP installed numerical equivalence and exact VIP conventions",
         "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
-        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
+        "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified.",
+        "Supplied-fold/role PLS selection now supported;random stratified/repeated/nested tuning,van der Voet,bootstrap,missingdata and exact installed-JMP conventions remain outstanding."
       ],
       "acceptance_contract": "multivariate",
       "current_implementation": [
@@ -25065,10 +25170,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         },
         {
           "sql_function": "chem_plsda_predict",
@@ -25078,10 +25185,25 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
+        },
+        {
+          "sql_function": "chem_plsda_validate",
+          "operation": "plsda_validate",
+          "bounded_scope": "rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes.",
+          "source": "crates/analytics/src/pls_multivariate.rs",
+          "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+          "api": "tasks/jmp-pls-validation-api.json",
+          "direct_reference_evidence": [
+            "tasks/evidence/jmp-pls-validation-native-reference.json"
+          ],
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL; bounded supplied-fold/role contracts only."
         }
       ],
       "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
@@ -25120,11 +25242,13 @@
       ],
       "evidence": [
         "tasks/evidence/jmp-pls-native-reference.json",
-        "tasks/evidence/jmp-pls-validation.json"
+        "tasks/evidence/jmp-pls-validation.json",
+        "tasks/evidence/jmp-pls-component-validation.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "remaining_contract": [
         "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
-        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "Randomstratified/repeated/nested selection,van der Voet,bootstrap and full report options",
         "JMP installed numerical equivalence and exact VIP conventions",
         "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
         "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
@@ -25139,10 +25263,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         },
         {
           "sql_function": "chem_plsda_fit",
@@ -25152,10 +25278,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         }
       ],
       "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
@@ -25293,11 +25421,13 @@
       ],
       "evidence": [
         "tasks/evidence/jmp-pls-native-reference.json",
-        "tasks/evidence/jmp-pls-validation.json"
+        "tasks/evidence/jmp-pls-validation.json",
+        "tasks/evidence/jmp-pls-component-validation.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "remaining_contract": [
         "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
-        "Fold/holdback selection,van der Voet,bootstrap and full report options",
+        "Randomstratified/repeated/nested selection,van der Voet,bootstrap and full report options",
         "JMP installed numerical equivalence and exact VIP conventions",
         "Per-response conditional-score normality intervals are approximate; full data-dependent factor uncertainty remains open.",
         "VIP weighting is explicitly defined per algorithm; exact installed-JMP VIP equivalence remains unverified."
@@ -25312,10 +25442,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         },
         {
           "sql_function": "chem_pls2_predict",
@@ -25325,10 +25457,12 @@
           "tests": "crates/analytics/tests/pls_multivariate_contracts.rs",
           "api": "tasks/jmp-pls-api.json",
           "direct_reference_evidence": [
-            "tasks/evidence/jmp-pls-native-reference.json"
+            "tasks/evidence/jmp-pls-native-reference.json",
+            "tasks/evidence/jmp-pls-v2-native-reference.json"
           ],
-          "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence."
+          "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+          "verification_boundary": "Matching macOS arm64 CPU dev/Debug C ABI and loaded SQL. No whole-family or installed-JMP equivalence.",
+          "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
         }
       ],
       "latest_bounded_verification": "tasks/evidence/jmp-pls-validation.json"
@@ -34229,11 +34363,13 @@
         "pls_prediction_confidence_limits"
       ],
       "direct_reference_evidence": [
-        "tasks/evidence/jmp-pls-native-reference.json"
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
-      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-      "bounded_api_contract": "tasks/jmp-pls-api.json"
+      "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json",
+      "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "sql_function": "chem_pls2_predict",
@@ -34249,11 +34385,13 @@
         "pls_prediction_confidence_limits"
       ],
       "direct_reference_evidence": [
-        "tasks/evidence/jmp-pls-native-reference.json"
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
-      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-      "bounded_api_contract": "tasks/jmp-pls-api.json"
+      "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json",
+      "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "sql_function": "chem_plsda_fit",
@@ -34269,11 +34407,13 @@
         "pls_variable_importance_vip"
       ],
       "direct_reference_evidence": [
-        "tasks/evidence/jmp-pls-native-reference.json"
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
-      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-      "bounded_api_contract": "tasks/jmp-pls-api.json"
+      "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json",
+      "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
     },
     {
       "sql_function": "chem_plsda_predict",
@@ -34288,20 +34428,62 @@
         "pls_discriminant_analysis"
       ],
       "direct_reference_evidence": [
-        "tasks/evidence/jmp-pls-native-reference.json"
+        "tasks/evidence/jmp-pls-native-reference.json",
+        "tasks/evidence/jmp-pls-v2-native-reference.json"
       ],
       "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
-      "native_sql_evidence": "tasks/evidence/jmp-pls-validation.json",
-      "bounded_api_contract": "tasks/jmp-pls-api.json"
+      "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-api.json",
+      "previous_native_sql_evidence": "tasks/evidence/jmp-pls-validation.json"
+    },
+    {
+      "sql_function": "chem_pls2_validate",
+      "operation": "pls2_validate",
+      "module": "pls_multivariate",
+      "input_parameter_contract": "rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+      "example": "SELECT chem_pls2_validate([[0.0,1.0,0.0],[1.0,3.0,1.0],[2.0,5.0,0.0],[3.0,7.0,1.0]],[1.0,1.0]);",
+      "source": "crates/analytics/src/pls_multivariate.rs",
+      "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+      "feature_ids": [
+        "partial_least_squares_pls",
+        "pls2_multiresponse",
+        "k_fold_validation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-pls-validation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-validation-api.json"
+    },
+    {
+      "sql_function": "chem_plsda_validate",
+      "operation": "plsda_validate",
+      "module": "pls_multivariate",
+      "input_parameter_contract": "rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes.",
+      "example": "SELECT chem_plsda_validate([[-3.0,10.0,0.0],[-2.0,10.0,1.0],[-1.0,10.0,0.0],[1.0,30.0,1.0],[2.0,30.0,0.0],[3.0,30.0,1.0]],[1.0]);",
+      "source": "crates/analytics/src/pls_multivariate.rs",
+      "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+      "feature_ids": [
+        "partial_least_squares_pls",
+        "pls_discriminant_analysis",
+        "k_fold_validation"
+      ],
+      "direct_reference_evidence": [
+        "tasks/evidence/jmp-pls-validation-native-reference.json"
+      ],
+      "native_sql": "passed matching loaded macOS arm64 dev/Debug extension",
+      "native_sql_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+      "bounded_api_contract": "tasks/jmp-pls-validation-api.json"
     }
   ],
   "current_implementation_snapshot": {
     "date": "2026-10-24",
-    "new_public_registry_entries": 253,
+    "new_public_registry_entries": 255,
     "prior_public_analytics_functions": 24,
-    "total_public_analytics_functions": 277,
+    "total_public_analytics_functions": 279,
     "sources_inspected": "Actual registered source/test/API and independent-reference evidence, plus matching loaded native extension. No whole-family JMP parity is inferred.",
-    "native_sql": "passed matching loaded277-function macOS arm64 dev/Debug CPU extension",
+    "native_sql": "passed matching loaded279-function macOS arm64 dev/Debug CPU extension",
     "references": [
       "tasks/evidence/jmp-distribution-arima-reference.json",
       "tasks/evidence/jmp-model-reference.json",
@@ -34343,16 +34525,18 @@
       "tasks/evidence/jmp-report-ordinal-validation.json",
       "tasks/evidence/jmp-zero-inflation-validation.json",
       "tasks/evidence/jmp-pls-validation.json",
-      "tasks/evidence/jmp-zero-inflation-main-ci.json"
+      "tasks/evidence/jmp-zero-inflation-main-ci.json",
+      "tasks/evidence/jmp-pls-component-validation.json",
+      "tasks/evidence/jmp-pls-main-ci.json"
     ],
     "counts_are_not_parity_percentages": true,
     "prior_verified_analytics_functions": 119,
     "continuation_target_operations": 62,
     "continuation_api_operations_documented": 62,
     "continuation_native_sql": "passed matching loaded-extension macOS arm64 CPU gate",
-    "latest_additional_operations": 4,
-    "latest_evidence": "tasks/evidence/jmp-pls-validation.json",
-    "work_status": "Full JMP incomplete;277 bounded analytics functions verified; PLS2/PLS-DA/VIP/approximate prediction-limit rows partial.",
+    "latest_additional_operations": 2,
+    "latest_evidence": "tasks/evidence/jmp-pls-component-validation.json",
+    "work_status": "Full JMP incomplete;279 bounded analytics verified. Supplied-fold/role PLS selection and three numerical corrections verified; no new whole-family completion.",
     "active_continuation_record": "tasks/jmp-completion-progress-20261023.json",
     "report_scope_audit": {
       "record": "tasks/jmp-report-acceptance.json",
@@ -34417,31 +34601,30 @@
   "final_validation": {
     "schema_version": 1,
     "date": "2026-10-24",
-    "status": "PASS4 additional bounded CPU operations; full JMP remains incomplete",
+    "status": "PASS2 bounded CPU operations and3 numerical corrections; full JMP incomplete",
     "full_goal_complete": false,
-    "source_git_base": "31902df2722a0405d87152d867644dbf13abbb27",
-    "source_identification": "Frozen actual production source/artifact hashes; numerical verification precedes source commit.",
+    "source_git_base": "92a16e999a2d0cffa1086a56c42fbf54fde50d0c",
+    "source_identification": "Actual frozen production source/artifact hashes; validation before source commit.",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
     "profile": {
       "Rust": "dev",
       "CMake": "Debug"
     },
-    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
     "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
     "new_operations": [
-      "pls2_fit",
-      "pls2_predict",
-      "plsda_fit",
-      "plsda_predict"
+      "pls2_validate",
+      "plsda_validate"
     ],
-    "analytics_functions": 277,
-    "total_sql_overloads": 428,
-    "registry_operations": 253,
+    "analytics_functions": 279,
+    "total_sql_overloads": 430,
+    "registry_operations": 255,
     "rust_workspace": {
-      "passed": 1391,
+      "passed": 1400,
       "failed": 0,
       "ignored_existing": 2,
-      "suites": 69,
-      "focused_new_tests": 10,
+      "suites": 70,
+      "PLS_focused_tests": 19,
+      "new_focused_tests": 9,
       "ignored_details": [
         "logP diagnostic print helper",
         "supplied population preparation acceptance needs explicit unselected100k external data source"
@@ -34450,39 +34633,67 @@
     "strict_analytics_all_target_clippy": "PASS",
     "scoped_fmt_check": "PASS",
     "native_sql": {
-      "cases": 20,
-      "assertions": 626,
+      "cases": 21,
+      "assertions": 637,
       "skipped": 0,
-      "log": "tasks/evidence/jmp-pls-native-sql.log"
+      "log": "tasks/evidence/jmp-pls-validation-native-sql.log"
     },
-    "catalog_examples_executed": 428,
-    "independent_reference": {
+    "catalog_examples_executed": 430,
+    "component_selection_reference": {
+      "checks": 6684,
+      "invalid_NULL_checks": 28,
+      "boundaries": [
+        "exported_C_ABI",
+        "loaded_DuckDB_SQL"
+      ],
+      "fixtures_per_boundary": 16,
+      "maximum_scaled_error": 2.5636720394848886e-15,
+      "mpmath": "1.3.0",
+      "sklearn": "1.8.0",
+      "edge_cases": {
+        "exported_C_ABI": {
+          "mp90_root": 1.03605634548216e-08,
+          "actual_root": 1.0360563465921946e-08,
+          "mp90_standard_error": 6.7141169859960755e-164,
+          "actual_standard_error": 6.7141170153600144e-164,
+          "carrier_version": 2
+        },
+        "loaded_DuckDB_SQL": {
+          "mp90_root": 1.03605634548216e-08,
+          "actual_root": 1.0360563465921946e-08,
+          "mp90_standard_error": 6.7141169859960755e-164,
+          "actual_standard_error": 6.7141170153600144e-164,
+          "carrier_version": 2
+        }
+      },
+      "record": "tasks/evidence/jmp-pls-validation-native-reference.json"
+    },
+    "existing_PLS_regression_reference": {
       "checks": 7220,
       "invalid_NULL_checks": 34,
       "boundaries": [
         "exported_C_ABI",
         "loaded_DuckDB_SQL"
       ],
-      "maximum_scaled_error": 1.064697028844662e-14,
-      "numpy": "2.4.2",
-      "scipy": "1.17.1",
-      "sklearn": "1.8.0",
       "regression_fixtures_per_boundary": 24,
       "DA_fixtures_per_boundary": 8,
-      "record": "tasks/evidence/jmp-pls-native-reference.json"
+      "maximum_scaled_error": 1.064697028844662e-14,
+      "record": "tasks/evidence/jmp-pls-v2-native-reference.json"
     },
     "source_hashes": {
-      "crates/analytics/src/lib.rs": "f4445d2c03025b872dffff415032f10cfb65fb82ca01a3172ec9e4b1eb650012",
-      "crates/analytics/src/pls_multivariate.rs": "a4f46112a4bc9e88e03917775c7d66cdc1d4eaab13fd386d8540e6921984c2d5",
+      "crates/analytics/src/lib.rs": "a4f03bc7578fca73a2fc31241ac3afc600066a7f37d9d1daa4156a916deddb63",
+      "crates/analytics/src/pls_multivariate.rs": "60e74dcaa33b599c34093eea35e86bf137f5041c6ff19d6e75e98866ab4d5003",
+      "crates/analytics/tests/pls_multivariate_contracts.rs": "5fcb0f1c6c2f283743b96f325725956cfd15d23485108d9f6892410202a87b7d",
+      "crates/analytics/tests/pls_validation_contracts.rs": "35b2efe8f1902a68aa31409520da433eaf82b1fdb41aa947805e85a1f3c2c86a",
+      "src/include/analytics_registry.inc": "e8efe919dcf69ef3ae63563fd5818eb4dbe7d5c304ba18cb8b2000c5ae1b3a77",
       "crates/analytics/src/explore.rs": "c148c590494b27fc2433f76e992e39b7caa452fcd2f6f0d08fa9dbd120745bf9",
-      "crates/analytics/src/glm.rs": "3fee1e3a93df8146e675fed1668071f7e7efc8c4619d8d4ff013df5b7f0a651b",
-      "crates/analytics/tests/pls_multivariate_contracts.rs": "131eba74305cf88d85855f86acf8b8a0d5f78bc7b9155b80683759e5af70530e",
-      "src/include/analytics_registry.inc": "a1a132059ff27f3a74a0be86700451855c8874dcae70e8ec3451ceea67cf74c2"
+      "crates/analytics/src/glm.rs": "3fee1e3a93df8146e675fed1668071f7e7efc8c4619d8d4ff013df5b7f0a651b"
     },
     "test_and_checker_hashes": {
-      "scripts/check_jmp_pls.py": "5d4971bfd61a5801ce8b8a22163ed039804d4236dfb80cd3b2411378364215da",
-      "test/sql/pls_multivariate.test": "b51b0ecc7f6f7536623712fd392049ddbf3308fa565e4d4db46e2d58543d8734",
-      "test/sql/function_catalog.test": "b2681394fd46633e00aabfc15fbdcc9c66b35ba11a3b636d4d6b576dfb02ea17"
+      "scripts/check_jmp_pls_validation.py": "f1146a31f8448c67c5b2ece53f39c675d669b479cd262c5d61684d94b35124f2",
+      "scripts/check_jmp_pls.py": "2a074d1d25f1673c6e482d56f59ef61a21a8ffbecbfeb6f3ba563e45391033a8",
+      "test/sql/pls_validation.test": "44968e2a929bf585ffc12c1e937cb4602a9590d38101de92cf67f4c09b580358",
+      "test/sql/function_catalog.test": "84724ef040d694b060054302fbcdd802dbb7f8af78123a05256db477cd638533"
     },
     "artifacts": {
       "cli": {
@@ -34491,37 +34702,17 @@
       },
       "extension": {
         "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
-        "sha256": "cb5dd5acc437811cbce40143ad9d6c48e2d451dc2a3953475a0e8d60b65af4fb"
+        "sha256": "9164afcc232862ec769409484bbf51b68eb1f63b7ad30d2ef30728a0c0036f1d"
       },
       "C_ABI": {
         "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib",
-        "sha256": "472f3d607aff5bdf5f67e3abab7f16cd06d434edff6639c531d1bee47c62d9a5"
+        "sha256": "b64ce3322726a213b35042cf7e31dad811829b04338a4d960b9669a1abf9f335"
       },
       "archive": {
         "path": "/private/tmp/ducksmiles-jmp-completion-20261023/debug/libducksmiles_analytics.a",
-        "sha256": "024147f3a32aafb68e52234c11b9db395d7c6ae7c34fc6cc9f9a8feaec1e23dd"
+        "sha256": "3dfb89a9334308ccd3f1419f7e578adfe9c35f5bb7401ae2de07f4fa8088ad0b"
       }
     },
-    "evidence": [
-      "tasks/evidence/jmp-pls-native-reference.json",
-      "tasks/evidence/jmp-pls-workspace.log",
-      "tasks/evidence/jmp-pls-native-sql.log",
-      "tasks/evidence/jmp-pls-sql-red.log",
-      "tasks/evidence/jmp-pls-initial-oracle.json"
-    ],
-    "TDD": {
-      "Rust_RED": "All8 initial valid-fit calls failed unknown optimization operation; invalid-argument assertions were not separately counted as RED.",
-      "SQL_RED": "Actual matching old loaded extension: chem_pls2_fit does not exist.",
-      "reference_precision_correction": "Original sklearn power tolerance1e-14 left3.825e-9 coefficient difference;tol1e-26 agrees with LAPACK-SVD within2e-15. Rust tolerance was not relaxed."
-    },
-    "limitations": [
-      "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
-      "Fold/holdback selection,van der Voet,bootstrap and full report options",
-      "JMP installed numerical equivalence and exact VIP conventions",
-      "Conditional-score normality intervals are an approximation, not full data-dependent factor uncertainty.",
-      "Raw PLS-DA indicator predictions can lie outside[0,1] and are not calibrated probabilities.",
-      "No installed JMP comparison or unobserved Wasm runtime SQL claim."
-    ],
     "status_counts": {
       "partial": 287,
       "database_existing": 37,
@@ -34532,16 +34723,50 @@
       "separate_product": 4,
       "clarification_pending": 0
     },
-    "chemical_DQ": "Research only until full JMP completion",
+    "evidence": [
+      "tasks/evidence/jmp-pls-validation-native-reference.json",
+      "tasks/evidence/jmp-pls-v2-native-reference.json",
+      "tasks/evidence/jmp-pls-validation-regressions.json",
+      "tasks/evidence/jmp-pls-validation-workspace.log",
+      "tasks/evidence/jmp-pls-validation-native-sql.log",
+      "tasks/evidence/jmp-pls-validation-sql-red.log"
+    ],
+    "TDD": {
+      "initial_positive_RED": 4,
+      "initial_failure": "unknown optimization operation",
+      "vacuous_invalid_input_test_counted_as_RED": false,
+      "actual_SQL_RED": "chem_pls2_validate does not exist",
+      "numerical_RED_GREEN": [
+        "normalized PRESS became0 after raw squared loss underflow",
+        "prediction standard error became0 after residual variance underflow",
+        "balanced18row/3class baseline predicted20,10 alternating instead ofall10"
+      ]
+    },
+    "saved_model_migration": {
+      "new_version": 2,
+      "stored_uncertainty": "residual standard deviation",
+      "reads_legacy_version1": true,
+      "legacy_stored_uncertainty": "variance",
+      "JSON_result_version": 1
+    },
+    "limitations": [
+      "Randomstratified fold generation/repeats,nested tuning,frequency/analyticweights,categoricalpredictors and missingdata",
+      "Van der Voet comparison,bootstrap and exact installed-JMP metric/default equivalence",
+      "Native pooled predictive R2 is separately named;exact JMP Q2/cumulativeQ2 and installed-JMP defaults remain unverified.",
+      "Anyzero/unrepresentable evaluation reference variance,missingtrainingclass or exhausted shared work/path budget fails the whole request.",
+      "No installed JMP or new Wasm runtime SQL claim."
+    ],
     "commands": [
       "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
       "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
-      "rustfmt --edition 2021 --check crates/analytics/src/pls_multivariate.rs crates/analytics/src/lib.rs crates/analytics/src/explore.rs crates/analytics/src/glm.rs crates/analytics/tests/pls_multivariate_contracts.rs",
+      "rustfmt --edition 2021 --check crates/analytics/src/pls_multivariate.rs crates/analytics/src/lib.rs crates/analytics/tests/pls_multivariate_contracts.rs crates/analytics/tests/pls_validation_contracts.rs",
       "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
       "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
-      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_jmp_pls.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-pls-native-reference.json",
+      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_jmp_pls_validation.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-pls-validation-native-reference.json",
+      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_jmp_pls.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-pls-v2-native-reference.json",
       "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
-    ]
+    ],
+    "chemical_DQ": "Research only until full JMP completion"
   },
   "previous_final_validation": {
     "platform": "macOS arm64",
@@ -35110,5 +35335,134 @@
       "No installed JMP comparison; source cross-platform CI checked separately; no new Wasm runtime SQL claim."
     ],
     "chemical_DQ": "Research saved; implementation starts only after full JMP objective completion"
+  },
+  "previous_pls_final_validation": {
+    "schema_version": 1,
+    "date": "2026-10-24",
+    "status": "PASS4 additional bounded CPU operations; full JMP remains incomplete",
+    "full_goal_complete": false,
+    "source_git_base": "31902df2722a0405d87152d867644dbf13abbb27",
+    "source_identification": "Frozen actual production source/artifact hashes; numerical verification precedes source commit.",
+    "profile": {
+      "Rust": "dev",
+      "CMake": "Debug"
+    },
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+    "build_root": "/private/tmp/ducksmiles-jmp-completion-20261023",
+    "new_operations": [
+      "pls2_fit",
+      "pls2_predict",
+      "plsda_fit",
+      "plsda_predict"
+    ],
+    "analytics_functions": 277,
+    "total_sql_overloads": 428,
+    "registry_operations": 253,
+    "rust_workspace": {
+      "passed": 1391,
+      "failed": 0,
+      "ignored_existing": 2,
+      "suites": 69,
+      "focused_new_tests": 10,
+      "ignored_details": [
+        "logP diagnostic print helper",
+        "supplied population preparation acceptance needs explicit unselected100k external data source"
+      ]
+    },
+    "strict_analytics_all_target_clippy": "PASS",
+    "scoped_fmt_check": "PASS",
+    "native_sql": {
+      "cases": 20,
+      "assertions": 626,
+      "skipped": 0,
+      "log": "tasks/evidence/jmp-pls-native-sql.log"
+    },
+    "catalog_examples_executed": 428,
+    "independent_reference": {
+      "checks": 7220,
+      "invalid_NULL_checks": 34,
+      "boundaries": [
+        "exported_C_ABI",
+        "loaded_DuckDB_SQL"
+      ],
+      "maximum_scaled_error": 1.064697028844662e-14,
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "sklearn": "1.8.0",
+      "regression_fixtures_per_boundary": 24,
+      "DA_fixtures_per_boundary": 8,
+      "record": "tasks/evidence/jmp-pls-native-reference.json"
+    },
+    "source_hashes": {
+      "crates/analytics/src/lib.rs": "f4445d2c03025b872dffff415032f10cfb65fb82ca01a3172ec9e4b1eb650012",
+      "crates/analytics/src/pls_multivariate.rs": "a4f46112a4bc9e88e03917775c7d66cdc1d4eaab13fd386d8540e6921984c2d5",
+      "crates/analytics/src/explore.rs": "c148c590494b27fc2433f76e992e39b7caa452fcd2f6f0d08fa9dbd120745bf9",
+      "crates/analytics/src/glm.rs": "3fee1e3a93df8146e675fed1668071f7e7efc8c4619d8d4ff013df5b7f0a651b",
+      "crates/analytics/tests/pls_multivariate_contracts.rs": "131eba74305cf88d85855f86acf8b8a0d5f78bc7b9155b80683759e5af70530e",
+      "src/include/analytics_registry.inc": "a1a132059ff27f3a74a0be86700451855c8874dcae70e8ec3451ceea67cf74c2"
+    },
+    "test_and_checker_hashes": {
+      "scripts/check_jmp_pls.py": "5d4971bfd61a5801ce8b8a22163ed039804d4236dfb80cd3b2411378364215da",
+      "test/sql/pls_multivariate.test": "b51b0ecc7f6f7536623712fd392049ddbf3308fa565e4d4db46e2d58543d8734",
+      "test/sql/function_catalog.test": "b2681394fd46633e00aabfc15fbdcc9c66b35ba11a3b636d4d6b576dfb02ea17"
+    },
+    "artifacts": {
+      "cli": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb",
+        "sha256": "e2618bb623563289db05b90097e6f468abf3e13569de9096a6d3c6b0611a5780"
+      },
+      "extension": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension",
+        "sha256": "cb5dd5acc437811cbce40143ad9d6c48e2d451dc2a3953475a0e8d60b65af4fb"
+      },
+      "C_ABI": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib",
+        "sha256": "472f3d607aff5bdf5f67e3abab7f16cd06d434edff6639c531d1bee47c62d9a5"
+      },
+      "archive": {
+        "path": "/private/tmp/ducksmiles-jmp-completion-20261023/debug/libducksmiles_analytics.a",
+        "sha256": "024147f3a32aafb68e52234c11b9db395d7c6ae7c34fc6cc9f9a8feaec1e23dd"
+      }
+    },
+    "evidence": [
+      "tasks/evidence/jmp-pls-native-reference.json",
+      "tasks/evidence/jmp-pls-workspace.log",
+      "tasks/evidence/jmp-pls-native-sql.log",
+      "tasks/evidence/jmp-pls-sql-red.log",
+      "tasks/evidence/jmp-pls-initial-oracle.json"
+    ],
+    "TDD": {
+      "Rust_RED": "All8 initial valid-fit calls failed unknown optimization operation; invalid-argument assertions were not separately counted as RED.",
+      "SQL_RED": "Actual matching old loaded extension: chem_pls2_fit does not exist.",
+      "reference_precision_correction": "Original sklearn power tolerance1e-14 left3.825e-9 coefficient difference;tol1e-26 agrees with LAPACK-SVD within2e-15. Rust tolerance was not relaxed."
+    },
+    "limitations": [
+      "Uncentered methods,frequency/analytic weights,categorical predictor effects and missing-data algorithms",
+      "Fold/holdback selection,van der Voet,bootstrap and full report options",
+      "JMP installed numerical equivalence and exact VIP conventions",
+      "Conditional-score normality intervals are an approximation, not full data-dependent factor uncertainty.",
+      "Raw PLS-DA indicator predictions can lie outside[0,1] and are not calibrated probabilities.",
+      "No installed JMP comparison or unobserved Wasm runtime SQL claim."
+    ],
+    "status_counts": {
+      "partial": 287,
+      "database_existing": 37,
+      "absent": 197,
+      "external_plugin": 4,
+      "implemented_verified": 6,
+      "excluded_gui": 17,
+      "separate_product": 4,
+      "clarification_pending": 0
+    },
+    "chemical_DQ": "Research only until full JMP completion",
+    "commands": [
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo test --workspace --locked",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cargo clippy -p ducksmiles_analytics --all-targets --locked -- -D warnings",
+      "rustfmt --edition 2021 --check crates/analytics/src/pls_multivariate.rs crates/analytics/src/lib.rs crates/analytics/src/explore.rs crates/analytics/src/glm.rs crates/analytics/tests/pls_multivariate_contracts.rs",
+      "CARGO_TARGET_DIR=/private/tmp/ducksmiles-jmp-completion-20261023 cmake --build /private/tmp/ducksmiles-jmp-completion-20261023/native/build --target duckdb_local_extension_repo shell unittest --parallel 2",
+      "/private/tmp/ducksmiles-jmp-completion-20261023/native/build/test/unittest /Users/nk/Desktop/ducksmiles-analytics-20261021/test/sql/*",
+      "PYTHONPATH=/private/tmp/ducksmiles-jmp-completion-20261023/oracle-lib PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_jmp_pls.py --library /private/tmp/ducksmiles-jmp-completion-20261023/native/analytics_abi.dylib --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension --output tasks/evidence/jmp-pls-native-reference.json",
+      "python3 scripts/check_function_catalog.py --duckdb /private/tmp/ducksmiles-jmp-completion-20261023/native/build/duckdb --extension /private/tmp/ducksmiles-jmp-completion-20261023/native/build/extension/ducksmiles/ducksmiles.duckdb_extension"
+    ]
   }
 }

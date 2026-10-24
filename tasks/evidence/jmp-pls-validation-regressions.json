@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-24",
+  "observed_RED_cases": [
+    {
+      "name": "normalized_PRESS_raw_squared_underflow",
+      "old_actual": 0,
+      "ordinary_scale_reference": 1.0360563141183834e-08,
+      "scale": 1e-155,
+      "fix": "Accumulate response-SD-normalized residual norms before squaring;compute root directly from norms."
+    },
+    {
+      "name": "prediction_standard_error_squared_variance_underflow",
+      "old_actual": 0,
+      "scaled_reference": 6.71411683140272e-164,
+      "fix": "Carrier2 stores residualSD,computed directly from RSSnorm;legacy1 variance readthroughsqrt."
+    },
+    {
+      "name": "balanced_three_class_baseline_tie",
+      "rows": 18,
+      "old_actual": "20,10 alternating",
+      "expected": "all10",
+      "fix": "Indicator origin0 and integer class_count/n means;no arbitrary tie epsilon."
+    }
+  ],
+  "initial_feature_RED": "4 positive tests unknown optimization operation;one invalid-input test passed vacuously and not counted.",
+  "actual_SQL_RED": "tasks/evidence/jmp-pls-validation-sql-red.log",
+  "status": "PASS final Rust,C ABI,matching loaded SQL and independent90digit/NumPy/sklearn gates",
+  "validation": "tasks/evidence/jmp-pls-component-validation.json",
+  "final_mp90_edges": {
+    "exported_C_ABI": {
+      "mp90_root": 1.03605634548216e-08,
+      "actual_root": 1.0360563465921946e-08,
+      "mp90_standard_error": 6.7141169859960755e-164,
+      "actual_standard_error": 6.7141170153600144e-164,
+      "carrier_version": 2
+    },
+    "loaded_DuckDB_SQL": {
+      "mp90_root": 1.03605634548216e-08,
+      "actual_root": 1.0360563465921946e-08,
+      "mp90_standard_error": 6.7141169859960755e-164,
+      "actual_standard_error": 6.7141170153600144e-164,
+      "carrier_version": 2
+    }
+  }
+}

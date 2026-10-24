@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-24",
+  "source": "92a16e999a2d0cffa1086a56c42fbf54fde50d0c",
+  "run_id": 40051133880,
+  "attempt": 1,
+  "run_url": "https://github.com/nkwork9999/duckSMILES/actions/runs/40051133880",
+  "status": "failure before extension compilation",
+  "failed_job_id": 120743888082,
+  "failed_step": "Build Docker image",
+  "platform": "linux_arm64 /ubuntu-24.04-arm",
+  "first_meaningful_error": "quay.io/pypa/manylinux_2_28_aarch64: metadata fetch returned502 Bad Gateway",
+  "registry_manifest_sha": "84176c47944bf8617a42bb0b9087232453d3c05875a1153645c54a6ba30a8162",
+  "ci_tools_sha": "3fd6109fc01555673b7c7123eba8d0d143fe8ce4",
+  "workflow_ref": "v1.5-variegata",
+  "requested_DuckDB_version": "v1.5.5",
+  "skip_tests_input": false,
+  "extension_compilation_ran": false,
+  "SQL_tests_ran": false,
+  "Rust_workflow": {
+    "url": "https://github.com/nkwork9999/duckSMILES/actions/runs/40051133633",
+    "conclusion": "success"
+  },
+  "source_changes_for_retry": false,
+  "next_action": "Retry failed/dependent jobs for same source once; monitor actual complete target matrix,do not treat skipped/cancelled as passing."
+}

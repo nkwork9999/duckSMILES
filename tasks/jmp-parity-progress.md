@@ -12,6 +12,20 @@ product entries. These counts do not constitute a completion percentage. A
 20.0 help URL returns the same index as 19.2; a distinct 20.0 feature delta has not
 been verified. No installed JMP was used for numerical comparisons.
 
+## Verified PLS component-selection checkpoint (2026-10-24)
+
+Two supplied-fold/role validation operations bring the API to **279 functions
+/430 overloads**. Zero-component baseline, split-local transforms, complete
+component paths and train/test separation are verified. Norm-based normalized
+PRESS and v2 residual-SD carriers preserve tiny numerical results; v1 carriers
+remain readable. Exact integer indicator means preserve balanced baseline ties.
+The matching dev/Debug build passes1,400 Rust tests in70 suites,0 failures,
+2 existing ignored;21 SQL cases/637 assertions,0 skips;430 catalog examples;
+strict Clippy and formatting. Independent references pass6,684 selection checks
+and28 malformed NULLs, plus7,220 existing PLS checks and34 malformed NULLs,
+through C ABI and SQL. [Evidence](evidence/jmp-pls-component-validation.json).
+The feature status counts stay287 partial/197 absent; full JMP remains open.
+
 ## Verified multivariate PLS checkpoint (2026-10-24)
 
 PLS2 and indicator PLS-DA fit/predict add four operations, for **277 analytics

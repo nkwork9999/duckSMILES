@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "status": "Verified matching macOS arm64 CPU dev/Debug C ABI and loaded SQL; full JMP incomplete",
+  "operations": [
+    {
+      "operation": "pls2_validate",
+      "sql_name": "chem_pls2_validate",
+      "symbol": "Pls2Validate",
+      "description": "rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+      "fixture": {
+        "data": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            3.0,
+            1.0
+          ],
+          [
+            2.0,
+            5.0,
+            0.0
+          ],
+          [
+            3.0,
+            7.0,
+            1.0
+          ]
+        ],
+        "args": [
+          1.0,
+          1.0
+        ]
+      },
+      "sql_example": "chem_pls2_validate([[0.0,1.0,0.0],[1.0,3.0,1.0],[2.0,5.0,0.0],[3.0,7.0,1.0]],[1.0,1.0])"
+    },
+    {
+      "operation": "plsda_validate",
+      "sql_name": "chem_plsda_validate",
+      "symbol": "PlsdaValidate",
+      "description": "rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes.",
+      "fixture": {
+        "data": [
+          [
+            -3.0,
+            10.0,
+            0.0
+          ],
+          [
+            -2.0,
+            10.0,
+            1.0
+          ],
+          [
+            -1.0,
+            10.0,
+            0.0
+          ],
+          [
+            1.0,
+            30.0,
+            1.0
+          ],
+          [
+            2.0,
+            30.0,
+            0.0
+          ],
+          [
+            3.0,
+            30.0,
+            1.0
+          ]
+        ],
+        "args": [
+          1.0
+        ]
+      },
+      "sql_example": "chem_plsda_validate([[-3.0,10.0,0.0],[-2.0,10.0,1.0],[-1.0,10.0,0.0],[1.0,30.0,1.0],[2.0,30.0,0.0],[3.0,30.0,1.0]],[1.0])"
+    }
+  ],
+  "regression": "rows[features...,responses...,fold_or_role];params[n_responses,max_components,method0NIPALS/1SIMPLS=0,scale_x=1,scale_y=1,mode0supplied_folds/1supplied_roles=0].",
+  "classification": "rows[features...,numeric_class_label,fold_or_role];params[max_components,method=0,scale_x=1,scale_indicator_y=1,mode=0]. Every training split must contain all evaluation classes.",
+  "splits": "K-fold:2..1000 distinct nonnegative exact integer fold ids<=2^53-1; every row held out once. Holdback:role0training,1validation,2test; training>=2,validation>=1. Every training split supports requestedmax_components<=min(p,n_train-1). Grid includes0..max_components,smallest exact-tie minimum selected.",
+  "training": "Center/scale learned only within each training split; defaultsampleSD. No global StandardizeX. K-fold selected model refit on all rows; holdbackselectedmodel fit on role0 only. Role2 never used for selection or transforms.",
+  "selection": "Documented root mean PRESS:for each response,sum across folds of validationMSE/response_sample_variance,divide byF-1 whenF>1,then square root of mean across responses. K-fold referencevariance from whole response column for evaluationonly; holdback fromtrainingonly. Anyzero referencevariance rejected.",
+  "metrics": "Return component0..A OOF/holdbackpredictions,raw PRESS per response,documented rootmeanPRESS and explicit pooled per-response predictiveR2. Native pooledR2 is not asserted to match all JMP Q2/cumulativeQ2 conventions.",
+  "provenance": "Return validation rowindices,split training/validationcounts and selected-split feature origins/offsets/scales plus final complete native predict_parameters.",
+  "limits": "Prior PLS inputlimits,cumulative200Mwork shared across every fit/prediction/refit,max32requestedcomponents,atmost2Mpathpredictioncells. Undefined,singular,nonfinite,missingclass or exhausted requests fail without partial outputs.",
+  "remaining": [
+    "Randomstratified fold generation/repeats,nested tuning,frequency/analyticweights,categoricalpredictors and missingdata",
+    "Van der Voet comparison,bootstrap and exact installed-JMP metric/default equivalence"
+  ],
+  "primary_sources": [
+    "https://www.jmp.com/content/dam/jmp/documents/en/support/jmp19/multivariate-methods.pdf#page=155",
+    "https://www.jmp.com/support/help/en/19.2/jmp/model-launch-control-panel-4.shtml"
+  ],
+  "source": "crates/analytics/src/pls_multivariate.rs",
+  "tests": "crates/analytics/tests/pls_validation_contracts.rs",
+  "stable_numerics": "Accumulate raw and reference-SD-normalized residual norms before squaring; rootmeanPRESS remains representable when squared raw loss underflows. Saved modelv2 stores residual SD directly; legacyv1 variance carriers remain readable.",
+  "validation": "tasks/evidence/jmp-pls-component-validation.json",
+  "independent_checker": "scripts/check_jmp_pls_validation.py",
+  "indicator_centering": "DA response origins0,mean offsets exact integer class_count/n,sampleSD from count*(n-count)/(n*(n-1)). No tie epsilon."
+}

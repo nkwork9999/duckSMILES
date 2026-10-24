@@ -266,7 +266,7 @@ fn malformed_inputs_carriers_and_wrong_model_kind_are_rejected() {
     assert!(execute("plsda_predict", &[vec![1., 2., 3.]], &saved).is_err());
     assert!(execute("plsda_fit", &[vec![0., 1.], vec![1., 1.]], &[1.]).is_err());
     let mut bad = saved.clone();
-    bad[0] = 2.;
+    bad[0] = 99.;
     assert!(execute("pls2_predict", &[vec![1., 2., 3.]], &bad).is_err());
 }
 
@@ -303,4 +303,74 @@ fn saturated_two_row_model_withholds_undefined_residual_variance() {
     .unwrap();
     near(values(&pred, "predictions")[0], 5.);
     assert!(pred.contains("\"mean_standard_error\":null"));
+}
+
+#[test]
+fn tiny_representable_prediction_standard_errors_survive_squared_variance_underflow() {
+    let noise = [0., 1., -1., 2., -2., 1.];
+    let ordinary = (0..6)
+        .map(|i| vec![i as f64, 2. * i as f64 + noise[i] * 1e-8])
+        .collect::<Vec<_>>();
+    let tiny = ordinary
+        .iter()
+        .map(|r| vec![r[0], r[1] * 1e-155])
+        .collect::<Vec<_>>();
+    for method in [0., 1.] {
+        let fit = execute("pls2_fit", &ordinary, &[1., 1., method]).unwrap();
+        let tinyfit = execute("pls2_fit", &tiny, &[1., 1., method]).unwrap();
+        let prediction = execute(
+            "pls2_predict",
+            &[vec![2.5]],
+            &values(&fit, "predict_parameters"),
+        )
+        .unwrap();
+        let tinypred = execute(
+            "pls2_predict",
+            &[vec![2.5]],
+            &values(&tinyfit, "predict_parameters"),
+        )
+        .unwrap();
+        let expected = values(&prediction, "mean_standard_error")[0] * 1e-155;
+        let actual = values(&tinypred, "mean_standard_error")[0];
+        assert!(expected > 0. && actual > 0., "{actual} != {expected}");
+        assert!(
+            (actual / expected - 1.).abs() < 1e-6,
+            "{actual} != {expected}"
+        );
+    }
+}
+
+#[test]
+fn legacy_version1_variance_carrier_remains_readable() {
+    let saved = [
+        1.0,
+        0.0,
+        1.0,
+        2.0,
+        1.0,
+        5.0,
+        0.95,
+        1.0,
+        -2.0,
+        2.0,
+        1.5811388300841898,
+        -3.0,
+        4.0,
+        4.4,
+        -2.2,
+        3.507135583350036,
+        1.4832396974191324,
+        0.9918365981341756,
+        -0.959403223600247,
+        1.0,
+        4.0,
+        0.26666666666666666,
+        0.23333333333333336,
+    ];
+    let prediction = execute("pls2_predict", &[vec![1.]], &saved).unwrap();
+    near(values(&prediction, "predictions")[0], 3.6);
+    near(
+        values(&prediction, "mean_standard_error")[0],
+        0.08_f64.sqrt(),
+    );
 }

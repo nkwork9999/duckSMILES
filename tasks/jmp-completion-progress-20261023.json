@@ -15,9 +15,9 @@
     "clarification_pending": 0
   },
   "full_goal_complete": false,
-  "current_stage": "PLS2/PLS-DA/VIP and approximate prediction intervals verified:4operations,277analytics/428overloads. Integrate into main,then continue remaining contracts.",
+  "current_stage": "279analytics/430overloads verified; integrate checkpoint into main and check exact-source CI,then continue remaining contracts. Prior277-function main passed all9 native/Wasm builds after same-source Quay502 retry;Rust CI also passed.",
   "next_stages": [
-    "Check exact-source CI; continue PLS fold/holdback selection,van der Voet,bootstrap and missing-data contracts.",
+    "Integrate verified checkpoint and check exact-source CI;continue PLS van der Voet,bootstrap and missing-data contracts.",
     "Implement remaining selection/validation,inference,models,DOE,data/connectors and report contracts from the full matrix.",
     "Reconcile every partial/absent contract against source and evidence; close no whole-family item based on a name or smoke test.",
     "Integrate verified commits into main and inspect exact-source CI."
@@ -29,43 +29,70 @@
     "Chemical DQ/DuckOrch implementation remains deferred until full JMP completion."
   ],
   "verification_so_far": {
-    "passed": 1391,
+    "passed": 1400,
     "failed": 0,
     "ignored_existing": 2,
-    "suites": 69,
-    "focused_new_tests": 10,
+    "suites": 70,
+    "PLS_focused_tests": 19,
+    "new_focused_tests": 9,
     "ignored_details": [
       "logP diagnostic print helper",
       "supplied population preparation acceptance needs explicit unselected100k external data source"
     ],
-    "independent_reference": {
+    "component_reference": {
+      "checks": 6684,
+      "invalid_NULL_checks": 28,
+      "boundaries": [
+        "exported_C_ABI",
+        "loaded_DuckDB_SQL"
+      ],
+      "fixtures_per_boundary": 16,
+      "maximum_scaled_error": 2.5636720394848886e-15,
+      "mpmath": "1.3.0",
+      "sklearn": "1.8.0",
+      "edge_cases": {
+        "exported_C_ABI": {
+          "mp90_root": 1.03605634548216e-08,
+          "actual_root": 1.0360563465921946e-08,
+          "mp90_standard_error": 6.7141169859960755e-164,
+          "actual_standard_error": 6.7141170153600144e-164,
+          "carrier_version": 2
+        },
+        "loaded_DuckDB_SQL": {
+          "mp90_root": 1.03605634548216e-08,
+          "actual_root": 1.0360563465921946e-08,
+          "mp90_standard_error": 6.7141169859960755e-164,
+          "actual_standard_error": 6.7141170153600144e-164,
+          "carrier_version": 2
+        }
+      },
+      "record": "tasks/evidence/jmp-pls-validation-native-reference.json"
+    },
+    "existing_PLS_regression_reference": {
       "checks": 7220,
       "invalid_NULL_checks": 34,
       "boundaries": [
         "exported_C_ABI",
         "loaded_DuckDB_SQL"
       ],
-      "maximum_scaled_error": 1.064697028844662e-14,
-      "numpy": "2.4.2",
-      "scipy": "1.17.1",
-      "sklearn": "1.8.0",
       "regression_fixtures_per_boundary": 24,
       "DA_fixtures_per_boundary": 8,
-      "record": "tasks/evidence/jmp-pls-native-reference.json"
+      "maximum_scaled_error": 1.064697028844662e-14,
+      "record": "tasks/evidence/jmp-pls-v2-native-reference.json"
     },
     "native_sql": {
-      "cases": 20,
-      "assertions": 626,
+      "cases": 21,
+      "assertions": 637,
       "skipped": 0,
-      "log": "tasks/evidence/jmp-pls-native-sql.log"
+      "log": "tasks/evidence/jmp-pls-validation-native-sql.log"
     },
-    "catalog_examples": 428,
+    "catalog_examples": 430,
     "full_goal_complete": false
   },
   "updated_on": "2026-10-24",
-  "verified_checkpoint": "tasks/evidence/jmp-pls-validation.json",
-  "current_analytics_functions": 277,
-  "current_total_overloads": 428,
+  "verified_checkpoint": "tasks/evidence/jmp-pls-component-validation.json",
+  "current_analytics_functions": 279,
+  "current_total_overloads": 430,
   "current_feature_status_counts": {
     "partial": 287,
     "database_existing": 37,
@@ -78,6 +105,6 @@
   },
   "previous_main_integrated_commit": "0fa48b7",
   "integration_target": "origin/main, fast-forward only; local main belongs to another worktree",
-  "main_integrated_commit": "31902df2722a0405d87152d867644dbf13abbb27",
-  "main_CI": "tasks/evidence/jmp-zero-inflation-main-ci.json"
+  "main_CI": "tasks/evidence/jmp-pls-main-ci.json",
+  "last_observed_main_integrated_commit": "92a16e999a2d0cffa1086a56c42fbf54fde50d0c"
 }

@@ -1,0 +1,54 @@
+# name: test/sql/pls_validation.test
+# description: Fold/holdback PLS selection, saved model and numerical underflow regression
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+query I
+SELECT json_extract(chem_pls2_validate([[0.,1.,0.],[1.,3.,1.],[2.,5.,0.],[3.,7.,1.]],[1.,1.]),'$.selected_components')::INTEGER=1;
+----
+true
+
+query I
+WITH fit AS (SELECT chem_pls2_validate([[0.,1.,0.],[1.,3.,1.],[2.,5.,0.],[3.,7.,1.]],[1.,1.,1.]) AS j)
+SELECT abs(json_extract(chem_pls2_predict([[4.]],json_extract(j,'$.predict_parameters')::DOUBLE[]),'$.predictions[0][0]')::DOUBLE-9.)<1e-10 FROM fit;
+----
+true
+
+query I
+SELECT json_extract(chem_plsda_validate([[-3.,10.,0.],[-2.,10.,1.],[-1.,10.,0.],[1.,30.,1.],[2.,30.,0.],[3.,30.,1.]],[1.]),'$.selected_validation_labels')='[10,10,10,30,30,30]'::JSON;
+----
+true
+
+query I
+SELECT json_extract(chem_pls2_validate([[0.,1.,0.],[1.,3.,0.],[2.,5.,0.],[3.,7.,1.],[4.,9.,1.],[5.,9999.,2.]],[1.,1.,0.,1.,1.,1.]),'$.predict_parameters[5]')::INTEGER=3;
+----
+true
+
+query IIII
+SELECT chem_pls2_validate([[0.,1.,0.],[1.,3.,0.],[2.,5.,0.]],[1.,1.]) IS NULL,
+       chem_plsda_validate([[0.,10.,0.],[1.,10.,0.],[2.,30.,1.],[3.,30.,1.]],[1.]) IS NULL,
+       chem_pls2_validate([[0.,1.,0.],[1.,3.,1.],[2.,5.,0.],[3.,7.,1.]],[1.,1.,0.,1.,1.,2.]) IS NULL,
+       chem_pls2_validate([[0.,NULL,0.],[1.,3.,1.]],[1.,1.]) IS NULL;
+----
+true	true	true	true
+
+query I
+WITH d AS (SELECT list([i::DOUBLE,(2.*i+CASE i WHEN 1 THEN 1e-8 WHEN 2 THEN -1e-8 WHEN 3 THEN 2e-8 WHEN 4 THEN -2e-8 WHEN 5 THEN 1e-8 ELSE 0. END)*1e-155,(i%2)::DOUBLE] ORDER BY i) AS rows FROM range(6) t(i)), v AS (SELECT json_extract(chem_pls2_validate(rows,[1.,1.]),'$.root_mean_press[1]')::DOUBLE AS value FROM d)
+SELECT value>1e-9 AND value<1e-7 FROM v;
+----
+true
+
+query I
+WITH d AS (SELECT list([0.,(i%3+1)*10.,(i%2)::DOUBLE] ORDER BY i) AS rows FROM range(18) t(i)), v AS (SELECT json_extract(chem_plsda_validate(rows,[1.]),'$.selected_validation_labels')::DOUBLE[] AS labels FROM d)
+SELECT list_min(labels)=10. AND list_max(labels)=10. FROM v;
+----
+true
+
+query I
+WITH d AS (SELECT list([i::DOUBLE,(2.*i+CASE i WHEN 1 THEN 1e-8 WHEN 2 THEN -1e-8 WHEN 3 THEN 2e-8 WHEN 4 THEN -2e-8 WHEN 5 THEN 1e-8 ELSE 0. END)*1e-155] ORDER BY i) AS rows FROM range(6) t(i)), f AS (SELECT chem_pls2_fit(rows,[1.,1.]) AS model FROM d), p AS (SELECT chem_pls2_predict([[2.5]],json_extract(model,'$.predict_parameters')::DOUBLE[]) AS j FROM f)
+SELECT json_extract(j,'$.mean_standard_error[0][0]')::DOUBLE>0. FROM p;
+----
+true

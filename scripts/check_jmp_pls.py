@@ -152,7 +152,7 @@ def main():
     for layer,call in boundaries.items():
         saved=call('pls2_fit',fitdata,[2,2])['predict_parameters']
         cases=[('pls2_fit',fitdata,a) for a in [[],[0,1],[2,0],[2,2,2],[2,2,0,2],[2,2,0,1,1,1],[2,2,0,1,1,0],[2,2,0,1,1,.95,1]]]
-        cases += [('pls2_predict',[[1.,2.,3.,4.]],a) for a in [[],saved[:-1],saved+[0], [2]+saved[1:],saved[:6]+[1]+saved[7:],saved[:7]+[0]+saved[8:]]]
+        cases += [('pls2_predict',[[1.,2.,3.,4.]],a) for a in [[],saved[:-1],saved+[0], [99]+saved[1:],saved[:6]+[1]+saved[7:],saved[:7]+[0]+saved[8:]]]
         cases += [('pls2_predict',[[1.]],saved),('plsda_predict',[[1.,2.,3.,4.]],saved),('plsda_fit',[[0,1],[1,1]],[1])]
         for op,data,a in cases:
             assert nulls[layer](op,data,a) is None,(layer,op,data,a)

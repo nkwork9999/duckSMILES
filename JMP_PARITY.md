@@ -6,7 +6,13 @@
 
 ## 最新の照合結果（2026-10-24）
 
-登録済みの解析APIは **277関数 / 拡張全体428 overloads**。台帳の現在の分類は、部分対応287行、未実装197行、DuckDB既存37行、従来の限定契約として検証済み6行、GUI除外17行、外部拡張4行、別製品4行、範囲未確定0行である。
+登録済みの解析APIは **279関数 / 拡張全体430 overloads**。台帳の現在の分類は、部分対応287行、未実装197行、DuckDB既存37行、従来の限定契約として検証済み6行、GUI除外17行、外部拡張4行、別製品4行、範囲未確定0行である。
+
+PLS2/PLS-DAに、指定fold・指定roleでの検証と0成分を含む成分数選択の2操作を追加した。各学習集合だけで変換を求め、holdbackのtest行は選択・最終学習に使わない。Root Mean PRESSの分散範囲とfold平均の規約を明示した。小さい誤差の正規化・予測標準誤差のunderflow、および均衡3クラスの基準予測の丸めを修正し、保存形式2でresidual SDを保持する。形式1も読める。
+
+同一dev/DebugソースのRust 1,400件（失敗0、既存ignored2）、SQL 21 cases /637 assertions（skip0）、430 catalog例が成功。検証・選択の6,684数値項目/28不正NULLと、既存PLSの7,220項目/34不正NULLをC ABI・実SQLの両方で独立参照と照合した。90桁計算による小さい評価値・標準誤差の確認も含む。[検証・成分選択の契約](tasks/jmp-pls-validation-api.json)、[検証記録](tasks/evidence/jmp-pls-component-validation.json)。random stratification、repeated/nested tuning、van der Voet、missing-data fitting、bootstrapとJMP実機比較は残る。台帳の行分類件数は前checkpointから変わらない。
+
+### 多応答PLSの検証checkpoint（2026-10-24）
 
 多応答PLS2とPLS-DAのfit/predict各2操作を追加した。両方でNIPALS/SVDとSIMPLS、sample SDによる学習時変換、VIPを提供し、回帰では条件付きscoreに基づく近似予測区間を返す。多応答PLS、PLS-DA、VIP、予測区間の4行を未実装から部分対応に変更した。未中心化、重み、カテゴリ説明変数、欠損、validation/成分選択、van der Voet、bootstrapと全JMP規約は残る。PLS-DAの出力は指示変数の生予測値で、確率の校正を主張しない。
 
