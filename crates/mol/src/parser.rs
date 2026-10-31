@@ -183,8 +183,9 @@ impl Molecule {
     }
 }
 
-fn parse_f32(s: &str) -> f32 {
-    s.trim().parse::<f32>().unwrap_or(0.0)
+fn parse_f32(s: &str) -> Option<f32> {
+    let value = s.trim().parse::<f32>().ok()?;
+    value.is_finite().then_some(value)
 }
 
 fn parse_u32(s: &str) -> u32 {
@@ -348,38 +349,33 @@ fn parse_sdf_properties(lines: &[&str], start: usize) -> Vec<(String, String)> {
 fn parse_mol_v2000(lines: &[&str]) -> Option<Molecule> {
     let name = lines[0].trim().to_string();
     let counts = lines[3];
-    if counts.len() < 6 {
-        return None;
-    }
-    let num_atoms = counts[0..3].trim().parse::<usize>().ok()?;
-    let num_bonds = counts[3..6].trim().parse::<usize>().ok()?;
+    let num_atoms = counts.get(0..3)?.trim().parse::<usize>().ok()?;
+    let num_bonds = counts.get(3..6)?.trim().parse::<usize>().ok()?;
 
-    if lines.len() < 4 + num_atoms + num_bonds {
+    let records_end = 4usize.checked_add(num_atoms)?.checked_add(num_bonds)?;
+    if lines.len() < records_end {
         return None;
     }
 
     let mut atoms = Vec::with_capacity(num_atoms);
     for i in 0..num_atoms {
         let line = lines[4 + i];
-        if line.len() < 34 {
-            continue;
-        }
-        let x = parse_f32(&line[0..10]);
-        let y = parse_f32(&line[10..20]);
-        let z = parse_f32(&line[20..30]);
-        let symbol = line[30..34].trim().to_string();
+        let x = parse_f32(line.get(0..10)?)?;
+        let y = parse_f32(line.get(10..20)?)?;
+        let z = parse_f32(line.get(20..30)?)?;
+        let symbol = line.get(30..34)?.trim().to_string();
         atoms.push(Atom { x, y, z, symbol });
     }
 
     let mut bonds = Vec::with_capacity(num_bonds);
     for i in 0..num_bonds {
         let line = lines[4 + num_atoms + i];
-        if line.len() < 9 {
-            continue;
+        let a1 = line.get(0..3)?.trim().parse::<u32>().ok()?;
+        let a2 = line.get(3..6)?.trim().parse::<u32>().ok()?;
+        let bt = line.get(6..9)?.trim().parse::<u8>().ok()?;
+        if a1 == 0 || a2 == 0 || a1 as usize > num_atoms || a2 as usize > num_atoms || a1 == a2 {
+            return None;
         }
-        let a1 = parse_u32(&line[0..3]);
-        let a2 = parse_u32(&line[3..6]);
-        let bt = line[6..9].trim().parse::<u8>().unwrap_or(1);
         bonds.push(Bond {
             atom1: a1,
             atom2: a2,
@@ -387,7 +383,7 @@ fn parse_mol_v2000(lines: &[&str]) -> Option<Molecule> {
         });
     }
 
-    let properties = parse_sdf_properties(lines, 4 + num_atoms + num_bonds);
+    let properties = parse_sdf_properties(lines, records_end);
 
     Some(Molecule {
         name,
@@ -438,6 +434,10 @@ fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
     }
     let num_atoms = counts_parts[1].parse::<usize>().ok()?;
     let num_bonds = counts_parts[2].parse::<usize>().ok()?;
+    // Every atom/bond needs a record. Check before allocating from untrusted counts.
+    if num_atoms.checked_add(num_bonds)? > records.len() {
+        return None;
+    }
 
     let mut atoms = Vec::with_capacity(num_atoms);
     let mut bonds = Vec::with_capacity(num_bonds);
@@ -473,9 +473,9 @@ fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
                 continue;
             }
             let symbol = parts[1].to_string();
-            let x = parse_f32(parts[2]);
-            let y = parse_f32(parts[3]);
-            let z = parse_f32(parts[4]);
+            let x = parse_f32(parts[2])?;
+            let y = parse_f32(parts[3])?;
+            let z = parse_f32(parts[4])?;
             atoms.push(Atom { x, y, z, symbol });
         } else if in_bond_block {
             let parts: Vec<&str> = record.split_whitespace().collect();
@@ -541,6 +541,88 @@ mod tests {
     const SAMPLE_MOL: &str = "ethanol\n  test\n\n  3  2  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0\n    1.5400    0.0000    0.0000 C   0  0  0  0  0\n    2.3100    1.3300    0.0000 O   0  0  0  0  0\n  1  2  1  0\n  2  3  2  0\nM  END\n";
     const SAMPLE_MOL_V3000: &str = "ethanol_v3000\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 3 2 0 0 0\nM  V30 BEGIN ATOM\nM  V30 1 C 0.0000 0.0000 0.0000 0\nM  V30 2 C 1.5400 0.0000 0.0000 0 CFG=0\nM  V30 3 O 2.3100 1.3300 1.0000 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 1 1 1 2 CFG=0\nM  V30 2 2 2 3\nM  V30 END BOND\nM  V30 END CTAB\nM  END\n";
     const SAMPLE_MOL_V3000_CONTINUED: &str = "continued_v3000\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 3 2 0 0 0\nM  V30 BEGIN ATOM\nM  V30 1 C 0.0000 0.0000 0.0000 0\nM  V30 2 C 1.5400 0.0000 0.0000 0 ATTCHPT=(2 1 -\nM  V30 2)\nM  V30 3 O 2.3100 1.3300 1.0000 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 1 1 1 2\nM  V30 2 2 2 3\nM  V30 END BOND\nM  V30 END CTAB\nM  END\n";
+
+    #[test]
+    fn rejects_invalid_or_nonfinite_coordinates() {
+        for sample in [SAMPLE_MOL, SAMPLE_MOL_V3000] {
+            for value in ["bad", "NaN", "inf", "-inf", "1e100", ""] {
+                // Each of the three coordinate fields must be checked.
+                for coordinate in 0..3 {
+                    let mut lines: Vec<String> = sample.lines().map(str::to_owned).collect();
+                    if sample == SAMPLE_MOL {
+                        let field = format!("{value:>10}");
+                        lines[4].replace_range(coordinate * 10..coordinate * 10 + 10, &field);
+                    } else {
+                        let mut parts: Vec<String> =
+                            lines[7].split_whitespace().map(str::to_owned).collect();
+                        parts[coordinate + 4] = value.to_owned();
+                        lines[7] = parts.join(" ");
+                    }
+                    assert!(
+                        parse_mol(&lines.join("\n")).is_none(),
+                        "accepted coordinate {coordinate}: {value:?}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn rejects_v2000_utf8_at_fixed_width_boundaries_without_panicking() {
+        for (line_index, replacement) in [
+            (3, "  é  2  0  0  0  0  0  0  0  0999 V2000".to_owned()),
+            (4, format!("{}é{}", " ".repeat(9), " ".repeat(30))),
+            (4, "    0.0000    0.0000    0.0000   é".to_owned()),
+            (7, "  é  2  1  0".to_owned()),
+        ] {
+            let mut lines: Vec<&str> = SAMPLE_MOL.lines().collect();
+            lines[line_index] = &replacement;
+            let text = lines.join("\n");
+            assert!(
+                parse_mol(&text).is_none(),
+                "accepted malformed line {line_index}"
+            );
+        }
+    }
+
+    #[test]
+    fn rejects_v2000_truncated_records_instead_of_shifting_atom_indices() {
+        for line_index in [4, 5, 7, 8] {
+            let mut lines: Vec<&str> = SAMPLE_MOL.lines().collect();
+            lines[line_index] = "";
+            assert!(
+                parse_mol(&lines.join("\n")).is_none(),
+                "skipped line {line_index}"
+            );
+        }
+    }
+
+    #[test]
+    fn rejects_v2000_invalid_bond_fields_and_references() {
+        for bond in [
+            "  x  2  1",
+            "  1  x  1",
+            "  1  2  x",
+            "  0  2  1",
+            "  1  4  1",
+            "  2  2  1",
+        ] {
+            let text = SAMPLE_MOL.replacen("  1  2  1  0", bond, 1);
+            assert!(parse_mol(&text).is_none(), "accepted bond {bond:?}");
+        }
+    }
+
+    #[test]
+    fn rejects_v3000_counts_that_exceed_available_records() {
+        for counts in [
+            "18446744073709551615 2",
+            "3 18446744073709551615",
+            "1000000000 2",
+        ] {
+            let text = SAMPLE_MOL_V3000.replace("COUNTS 3 2", &format!("COUNTS {counts}"));
+            assert!(parse_mol(&text).is_none());
+        }
+    }
 
     #[test]
     fn test_parse_mol() {

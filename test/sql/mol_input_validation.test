@@ -1,0 +1,59 @@
+# name: test/sql/mol_input_validation.test
+# group: [sql]
+
+require ducksmiles
+
+# Preserve Unicode metadata and valid geometry.
+query TT
+SELECT mol_block_name('水
+  test
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 O   0  0
+M  END'),
+       mol_block_formula('水
+  test
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 O   0  0
+M  END');
+----
+水	O
+
+# Invalid numeric fields must not be replaced by zero or emitted as JSON NaN.
+query II
+SELECT mol_block_formula('invalid
+  test
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+       NaN    0.0000    0.0000 O   0  0
+M  END') IS NULL,
+       mol_block_json('invalid
+  test
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+       bad    0.0000    0.0000 O   0  0
+M  END') IS NULL;
+----
+true	true
+
+# A UTF-8 codepoint crossing a fixed-width field must not terminate DuckDB.
+query I
+SELECT mol_block_formula('invalid
+  test
+
+  é  0  0  0  0  0  0  0  0  0999 V2000
+M  END') IS NULL;
+----
+true
+
+# A short atom row is an invalid molecule, not an empty atom table.
+query I
+SELECT mol_block_formula('invalid
+  test
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+short
+M  END') IS NULL;
+----
+true

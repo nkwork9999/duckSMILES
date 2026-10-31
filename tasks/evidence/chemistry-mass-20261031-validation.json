@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-31",
+  "platform": "macOS arm64",
+  "base_commit": "e00f4ff",
+  "branch": "feat/isotope-formula-mass-20261031",
+  "rust_workspace": {
+    "command": "CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=2 cargo test --workspace --locked",
+    "passed": 1408,
+    "failed": 0,
+    "ignored": 2,
+    "completed_suites_including_doctests": 70,
+    "ignored_tests": [
+      "test logp_crippen::print_values::print_logp_table ... ignored",
+      "test workbench::tests::supplied_population_preparation_acceptance ... ignored, external unselected100k source is supplied explicitly"
+    ]
+  },
+  "native_sql": {
+    "duckdb_version": "v1.5.2",
+    "sql_files": [
+      "formula_monoisotopic_mass.test",
+      "mol_input_validation.test",
+      "mass_context.test",
+      "function_catalog.test"
+    ],
+    "sql_queries_passed": 26,
+    "decimal_formula_cases_passed": 1000,
+    "maximum_absolute_error_Da": 9.094947017729282e-13
+  },
+  "catalog": "PASS: 431 overloads documented; 431 examples executed",
+  "format": "changed Rust files pass rustfmt; git diff --check passes",
+  "clippy": {
+    "mol_all_targets_strict": "passed",
+    "smiles_all_targets": "fails on 95 pre-existing not_unsafe_ptr_arg_deref errors in unchanged crates/smiles/src/lib.rs",
+    "mass_context_diagnostics": 0
+  },
+  "scope": [
+    "Reject malformed/non-finite MOL coordinates without substituting zero",
+    "Reject short V2000 atom/bond records, invalid numeric bond fields and invalid endpoints",
+    "Safely reject UTF-8 crossing V2000 fixed-width boundaries",
+    "Bound V3000 counts before allocation",
+    "Add formula_monoisotopic_mass SQL/Rust/C API using pinned SMILES isotope masses; preserve legacy AFIX mass API"
+  ],
+  "source_sha256": {
+    "crates/mol/src/parser.rs": "0be2c689be46b8ab95482d4eccb283c40797119d156d4023584a16bead6d2811",
+    "crates/smiles/src/mass_context.rs": "632b4c3917aa831fef0371f121958eba56ef349ceee74e1550cede08f0704309",
+    "src/ducksmiles_extension.cpp": "6a122fda92569a0d4551a1f37ffd45f2597f8b36d74fa7f84d1633e7ee8a4aaa",
+    "src/include/ducksmiles.h": "185e7abb9ac5e21cbe1930bb7fe4c4120c3f06751b52a503611639d71e984152",
+    "test/sql/formula_monoisotopic_mass.test": "53839145bcca7445a902a4c2c6c03eec77fa10f8370d11b7c6ea09f9cde1fd13",
+    "test/sql/mol_input_validation.test": "2a3c367fd582673c33b34c996e5366f90f7683255bb6b406edd19f2c880ededd",
+    "test/sql/function_catalog.test": "a97c2485f02bcc80810e1ac536cd4cef07107bfb605b5df8e769b1ab7de54f35"
+  },
+  "verification_notes": [
+    "The first workspace build ran out of disk; task-owned build output was removed and the complete suite was rerun without debug information.",
+    "Native SQL uses source-matched DuckDB v1.5.2 without sanitizers to match the installed CLI.",
+    "Windows, Linux and Wasm builds were not run.",
+    "The decimal oracle checks arithmetic against fixed pinned table values; it is not an estimate of physical mass uncertainty."
+  ]
+}

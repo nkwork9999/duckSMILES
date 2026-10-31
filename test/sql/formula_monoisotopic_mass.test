@@ -1,0 +1,48 @@
+# name: test/sql/formula_monoisotopic_mass.test
+# group: [sql]
+
+require ducksmiles
+
+query IIII
+SELECT abs(formula_monoisotopic_mass('[13C]6H12O6') - 186.083517144) < 1e-9,
+       abs(formula_monoisotopic_mass('[2H]2O') - 20.023118176) < 1e-9,
+       abs(formula_monoisotopic_mass('He') - 4.002603254) < 1e-9,
+       abs(formula_monoisotopic_mass('Li') - 7.01600455) < 1e-9;
+----
+true	true	true	true
+
+query I
+SELECT count(*) FROM (VALUES (''), ('[999C]'), ('[13CH4]'), ('[13C]0'),
+ ('[13C]01'), ('NH4+'), ('(CH3)2'), ('CuSO4.5H2O'), ('[13C]1000001'),
+ ('C999999[2H]2'), (NULL)) f(formula)
+WHERE formula_monoisotopic_mass(formula) IS NULL;
+----
+11
+
+query II
+SELECT count(*), count(*) FILTER (WHERE abs(formula_monoisotopic_mass('[13C]6H12O6') - 186.083517144) < 1e-9)
+FROM range(4097);
+----
+4097	4097
+
+query II
+WITH rows AS (SELECT i, CASE WHEN i % 3 = 0 THEN NULL
+ WHEN i % 3 = 1 THEN '[13C]6H12O6' ELSE '[999C]' END f FROM range(4097) t(i))
+SELECT count(*), count(formula_monoisotopic_mass(f)) FROM rows WHERE i % 2 = 0;
+----
+2049	683
+
+# The versioned AFIX API retains its separate grammar and numerical table.
+query III
+SELECT formula_exact_mass('[13C]6H12O6') IS NULL,
+       abs(formula_exact_mass('C6H12O6') - 180.06338810244) < 1e-10,
+       abs(formula_monoisotopic_mass('C6H12O6') - 180.063388104) < 1e-10;
+----
+true	true	true
+
+query I
+SELECT count(*) FROM duckdb_functions() WHERE function_name = 'formula_monoisotopic_mass'
+ AND parameters = ['formula'] AND len(description) > 0
+ AND len(examples) > 0 AND list_contains(categories, 'ducksmiles');
+----
+1

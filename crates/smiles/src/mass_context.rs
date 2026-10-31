@@ -84,6 +84,74 @@ pub fn formula_exact_mass(formula: &str) -> Option<f64> {
     Some(total)
 }
 
+/// Sum neutral masses using the same pinned periodic table as SMILES masses.
+/// An unlabelled element uses its most abundant isotope; `[13C]` selects an
+/// explicit isotope. Counts follow the element or closing bracket. This flat
+/// formula syntax does not infer charges, hydrates, groups or ion chemistry.
+pub fn formula_monoisotopic_mass(formula: &str) -> Option<f64> {
+    if formula.is_empty() || formula.len() > MAX_FORMULA_BYTES || !formula.is_ascii() {
+        return None;
+    }
+    let bytes = formula.as_bytes();
+    let mut pos = 0;
+    let mut total = 0.0;
+    let mut atoms = 0u32;
+    while pos < bytes.len() {
+        let labelled = bytes[pos] == b'[';
+        let isotope = if labelled {
+            pos += 1;
+            Some(u16::try_from(formula_number(bytes, &mut pos)?).ok()?)
+        } else {
+            None
+        };
+        let start = pos;
+        if !bytes.get(pos)?.is_ascii_uppercase() {
+            return None;
+        }
+        pos += 1;
+        if bytes.get(pos).is_some_and(u8::is_ascii_lowercase) {
+            pos += 1;
+        }
+        let symbol = &formula[start..pos];
+        let mass = match isotope {
+            Some(isotope) => {
+                if bytes.get(pos) != Some(&b']') {
+                    return None;
+                }
+                pos += 1;
+                crate::weights::isotope_mass(symbol, isotope)?
+            }
+            None => crate::weights::monoisotopic_mass(symbol)?,
+        };
+        let count = if bytes.get(pos).is_some_and(u8::is_ascii_digit) {
+            formula_number(bytes, &mut pos)?
+        } else {
+            1
+        };
+        atoms = atoms.checked_add(count)?;
+        if atoms > MAX_ELEMENT_COUNT {
+            return None;
+        }
+        total += mass * f64::from(count);
+    }
+    Some(total)
+}
+
+// Positive decimal integer with no leading zeroes; reject overflow completely.
+fn formula_number(bytes: &[u8], pos: &mut usize) -> Option<u32> {
+    if !matches!(bytes.get(*pos), Some(b'1'..=b'9')) {
+        return None;
+    }
+    let mut value = 0u32;
+    while let Some(digit) = bytes.get(*pos).filter(|b| b.is_ascii_digit()) {
+        value = value
+            .checked_mul(10)?
+            .checked_add(u32::from(*digit - b'0'))?;
+        *pos += 1;
+    }
+    Some(value)
+}
+
 /// Explicitly supported labels. No aliases or missing-charge guesses are made.
 pub const SUPPORTED_ADDUCTS: &[&str] = &[
     "[M+H]+",
@@ -197,6 +265,17 @@ pub unsafe extern "C" fn ds_formula_exact_mass(ptr: *const u8, len: usize) -> f6
 /// # Safety
 /// A non-null `ptr` must address at least `len` readable bytes.
 #[unsafe(no_mangle)]
+pub unsafe extern "C" fn ds_formula_monoisotopic_mass(ptr: *const u8, len: usize) -> f64 {
+    // SAFETY: inherited from this function's caller contract.
+    unsafe { input_text(ptr, len) }
+        .and_then(formula_monoisotopic_mass)
+        .unwrap_or(f64::NAN)
+}
+
+/// Neutral mass or NaN for invalid/unsupported input.
+/// # Safety
+/// A non-null `ptr` must address at least `len` readable bytes.
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ds_adduct_neutral_mass(mz: f64, ptr: *const u8, len: usize) -> f64 {
     // SAFETY: inherited from this function's caller contract.
     unsafe { input_text(ptr, len) }
@@ -218,6 +297,79 @@ pub unsafe extern "C" fn ds_adduct_precursor_mz(mass: f64, ptr: *const u8, len: 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn monoisotopic_formulas_resolve_isotope_labels_and_additional_elements() {
+        // Hand-calculated from the pinned neutral isotope masses, in Da.
+        for (formula, expected) in [
+            ("C6H12O6", 180.063388104),
+            ("[13C]6H12O6", 186.083517144),
+            ("[13C]C5H12O6", 181.066742944),
+            ("[2H]2O", 20.023118176),
+            ("[15N]2", 30.0002178),
+            ("[18O]2", 35.998322),
+            ("[37Cl]2", 73.93180518),
+            ("He", 4.002603254),
+            ("Li", 7.01600455),
+            ("CH3COOH", 60.021129368),
+            ("C1000000", 12_000_000.0),
+        ] {
+            let actual = formula_monoisotopic_mass(formula).expect(formula);
+            assert!((actual - expected).abs() < 1e-9, "{formula}: {actual}");
+        }
+    }
+
+    #[test]
+    fn monoisotopic_formulas_reject_partial_syntax_unknown_isotopes_and_limits() {
+        for formula in [
+            "",
+            " ",
+            "C0",
+            "C01",
+            "[13C]0",
+            "[13C]01",
+            "[0C]",
+            "[013C]",
+            "[999C]",
+            "[65536C]",
+            "[13Xx]",
+            "[C]",
+            "[13C",
+            "13C",
+            "[13CH4]",
+            "[13C]+",
+            "NH4+",
+            "(CH3)2",
+            "CuSO4.5H2O",
+            "C H",
+            "C\0H",
+            "Cé",
+            "Xx",
+            "[13C]1000001",
+            "C999999[2H]2",
+            "C999999999999999999999",
+        ] {
+            assert!(formula_monoisotopic_mass(formula).is_none(), "{formula:?}");
+        }
+        assert!(formula_monoisotopic_mass(&"C".repeat(MAX_FORMULA_BYTES + 1)).is_none());
+    }
+
+    #[test]
+    fn monoisotopic_formula_ffi_returns_mass_or_nan_for_invalid_input() {
+        // SAFETY: every non-null pointer addresses the supplied readable slice.
+        unsafe {
+            let formula = b"[13C]6H12O6";
+            assert!(
+                (ds_formula_monoisotopic_mass(formula.as_ptr(), formula.len()) - 186.083517144)
+                    .abs()
+                    < 1e-9
+            );
+            assert!(ds_formula_monoisotopic_mass(std::ptr::null(), 10).is_nan());
+            assert!(ds_formula_monoisotopic_mass(b"C".as_ptr(), usize::MAX).is_nan());
+            assert!(ds_formula_monoisotopic_mass([0xffu8].as_ptr(), 1).is_nan());
+            assert!(ds_formula_monoisotopic_mass(b"[999C]".as_ptr(), 6).is_nan());
+        }
+    }
 
     #[test]
     fn formula_examples_and_nitrogen() {

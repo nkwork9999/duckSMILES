@@ -243,6 +243,7 @@ DEFINE_STR_FUNC(MolFormulaFunc, ds_mol_formula)
 DEFINE_DOUBLE_FUNC(MolWeightFunc, ds_mol_weight)
 DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
 DEFINE_DOUBLE_FUNC(FormulaExactMassFunc, ds_formula_exact_mass)
+DEFINE_DOUBLE_FUNC(FormulaMonoisotopicMassFunc, ds_formula_monoisotopic_mass)
 
 // Mass + adduct uses a nullable flat-vector path for constants, dictionaries,
 // and ordinary vectors. Rust errors are represented by NaN, never SQL NaN.
@@ -1280,6 +1281,16 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       "the versioned AFIX 18-symbol table. NULL for unsupported or malformed "
       "input.",
       "formula_exact_mass('C8H10N4O2')", "mass_spectrometry");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("formula_monoisotopic_mass", {LogicalType::VARCHAR},
+                             LogicalType::DOUBLE, FormulaMonoisotopicMassFunc),
+      {"formula"},
+      "Sum neutral atomic masses from a strict flat formula, including explicit "
+      "isotope labels such as [13C] and [2H], using the pinned SMILES periodic "
+      "table. Unlabelled elements use their most abundant isotope. NULL for "
+      "unknown isotopes, unsupported syntax or invalid input.",
+      "formula_monoisotopic_mass('[13C]6H12O6')", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,
       FallibleScalarFunction(

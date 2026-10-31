@@ -12,6 +12,10 @@ Formula-first reference indexing and explicit adduct mass conversions are
 available through [`formula_exact_mass`, `adduct_neutral_mass`, and
 `adduct_precursor_mz`](MASS_CONTEXT.md).
 
+For isotope-labelled formulas, use
+[`formula_monoisotopic_mass`](MASS_CONTEXT.md#isotope-labelled-formula-masses):
+`SELECT formula_monoisotopic_mass('[13C]6H12O6'); -- 186.083517144 Da`.
+
 [`mol_graph_json`](NATIVE_GRAPH.md) exports a versioned native atom/bond graph
 sidecar with input atom order, H, charge, isotope and raw stereo metadata. It is
 not a pretrained GLACIER/ICEBERG tensor replacement.
@@ -720,6 +724,14 @@ SELECT inchi_skeleton_match(
 ### MOL/SDF Functions
 
 MOL blocks (V2000/V3000) are the standard file format for storing 2D/3D molecular structures with explicit atom coordinates. SDF (Structure Data Format) concatenates multiple MOL blocks with associated properties. These functions parse MOL/SDF text directly from VARCHAR columns. V3000 support covers `COUNTS`, `ATOM`, and `BOND` CTAB blocks, including V3000 line continuation records, so the same MOL block functions work across V2000 and V3000 inputs. Structural JSON functions expose the complete parsed atom table, bond table, and SDF property block from SQL.
+
+Both formats reject malformed or non-finite coordinates. V2000 rejects short
+atom/bond records and malformed, zero, out-of-range or self-referencing bond
+endpoints rather than returning a partial molecule. Non-ASCII text crossing
+fixed-width numeric fields is rejected safely; Unicode names and SDF properties
+are supported. Invalid blocks return `NULL` from molecule functions and are
+omitted by SDF parsing. V3000 counts are bounded by available records before
+allocation.
 
 #### `mol_block_name(mol) -> VARCHAR`
 

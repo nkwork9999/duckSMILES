@@ -61,6 +61,45 @@ allocation of the supplied length.
 | Unknown/ambiguous adduct | `[M-2H]-`, `[M+H]`, `[M+Li]+`, aliases or spaces |
 | Numeric value | NULL, NaN, infinity, zero, negative, overflow or nonpositive result |
 
+## Isotope-labelled formula masses
+
+`formula_monoisotopic_mass(VARCHAR) -> DOUBLE` calculates neutral atomic mass
+using the pinned RDKit 2026.03.6-derived periodic/isotope table already used by
+SMILES mass calculations. It supports the element symbols in that table and
+explicit isotope tokens, with a count after the closing bracket:
+
+```sql
+SELECT formula_monoisotopic_mass('C6H12O6');        -- 180.063388104 Da
+SELECT formula_monoisotopic_mass('[13C]6H12O6');    -- 186.083517144 Da
+SELECT formula_monoisotopic_mass('[13C]C5H12O6');   -- 181.066742944 Da
+SELECT formula_monoisotopic_mass('[2H]2O');         -- 20.023118176 Da
+SELECT formula_monoisotopic_mass('He');            -- 4.002603254 Da
+```
+
+Unlabelled elements use their most abundant isotope; labelled atoms use the
+specified isotope's neutral atomic mass. This follows the distinction between
+RDKit's [most-common isotope and explicit isotope mass lookups](https://www.rdkit.org/docs/source/rdkit.Chem.rdchem.html).
+These are sums of the vendored table values, not updated metrological values
+or isotope abundance distributions. For example, its carbon-13 mass is
+13.00335484 Da; [NIST lists 13.00335483507 Da](https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl?ele=C).
+
+Repeated tokens are summed. Counts and isotope numbers must be positive decimal
+integers without leading zeroes. The same 4,096-byte and 1,000,000-atom limits
+apply. Unknown elements/isotopes, partial tokens, parentheses, hydrates,
+whitespace and charge suffixes return NULL. Use `[2H]` for deuterium and `[3H]`
+for tritium; `D` and `T` are not element symbols in this API. No electron-mass
+correction or adduct inference is performed.
+
+The Rust API is `mass_context::formula_monoisotopic_mass(&str) -> Option<f64>`;
+the C ABI is `ds_formula_monoisotopic_mass`, returning NaN for invalid input.
+The existing `formula_exact_mass` keeps its AFIX v1 numerical table and grammar,
+including rejecting bracketed isotopes. Choose one mass table consistently when
+comparing masses; this addition does not change either table.
+
+Regression coverage includes labelled and mixed formulas, additional elements,
+malformed labels, unknown isotopes, count/size limits, the C ABI, SQL NULLs,
+4,097-row vectors, filtered inputs and function catalog metadata.
+
 ## AFIX indexing and BIO candidate structures
 
 The public **CASMI26: Metric Fusion Consensus Backfill** notebook's cell 9 embeds
