@@ -1,0 +1,75 @@
+HISTORICAL STOP SNAPSHOT — user subsequently resumed this task.
+Additional improvements have now been validated; see tasks/evidence/chemistry-extra-20261031-validation.json.
+Use Git history and origin/main for current integration status. Original stop snapshot follows.
+
+STOP / Resume memo — 2026-10-31
+
+User instruction: 現状の内容を記録してstop メモか何か
+Stopped at user request. Do not continue implementation, testing, integration or push without a resume request.
+
+Repository: /Users/nk/Desktop/duckSMILES
+Branch: feat/isotope-formula-mass-20261031
+HEAD: fbd6f47f692b79de61ea92347bfd74d7e5ac3fa6
+origin/main at last fetch: e00f4ff79dc27bb4e3861ff4022d357ac0a00edf
+No push or main integration has been performed.
+
+Accepted objective before stopping
+- Integrate the previous improvements into main.
+- Add approximately ten further improvements focused on chemical accuracy and capabilities, then validate and integrate.
+
+Completed previous batch (committed locally as fbd6f47)
+- Isotope-aware formula_monoisotopic_mass SQL/Rust/C API.
+- MOL coordinate, fixed-width UTF-8, truncated-record, bond-reference and V3000 count validation.
+- Verified before this additional batch: workspace 1,408 passed / 2 existing ignored, 26 SQL checks, 431 catalog examples, 1,000 independent decimal mass comparisons (max absolute error 9.094947017729282e-13 Da).
+- Receipt: tasks/evidence/chemistry-mass-20261031-validation.json.
+- Existing SMILES Clippy failures: 95 not_unsafe_ptr_arg_deref errors in unchanged lib.rs; previous new mass module had no diagnostics.
+
+Additional ten improvements — WORK IN PROGRESS, NOT COMPLETED OR COMMITTED
+1. formula_weight: average atomic weights, explicit isotope masses for labelled atoms.
+2. formula_composition_json: aggregate repeated tokens; keep isotope labels distinct; deterministic JSON.
+3. formula_dbe: conservative neutral closed-shell DBE, limited to CHNOFClBrI; reject negative/half-integer results and unsupported elements. This is not molecular-identity validation.
+4. mass_error_ppm: signed (observed-reference)/reference*1e6, finite positive inputs.
+5. V3000 sparse atom IDs: map to dense 1-based output indices; reject duplicate/invalid IDs, missing/self bond references and malformed bond types.
+6. V3000 block integrity: balanced CTAB/ATOM/BOND and optional blocks; reject duplicates, missing boundaries and unfinished continuation.
+7. SDF delimiter recognition: only a complete $$$$ line, preserving embedded dollar strings in property values.
+8. Preserve empty SDF title lines, including CRLF and records after delimiters.
+9. Confine V3000 format detection/records to structure text before M  END, avoiding property-data false positives.
+10. MOL coordinate storage and geometry in f64, with stable centroid/radius calculations at large origins.
+
+Current edits
+- Modified: crates/mol/src/parser.rs; crates/smiles/src/mass_context.rs; src/ducksmiles_extension.cpp; src/include/ducksmiles.h; test/sql/function_catalog.test.
+- New untracked test files: crates/smiles/tests/formula_tools.rs; crates/smiles/tests/formula_tools_ffi.rs.
+- New C ABI implementations for formula_weight, formula_dbe, formula_composition_json and mass_error_ppm were written.
+- New C++ SQL registrations were written; catalog expectation was changed from 431 to 435.
+- Changes remain in the working tree, unstaged and uncommitted. Do not discard them.
+
+Actual verification state of the additional batch
+- All six parser regressions were first observed failing against the previous implementation.
+- Four new Rust formula_tools tests were observed failing, then all four passed after implementation (before the final FFI changes).
+- Intermediate MOL run: 25 passed, one failed because radius 0.49999999999999994 was compared bitwise to 0.5. The assertion was changed to tolerance 1e-15; the large-origin f32 bug would still fail that test.
+- Two new FFI tests were first observed failing with placeholders. Real FFI implementations were then written, but their final verification did not finish.
+- Last combined focused build FAILED due to disk exhaustion: rustc-LLVM ERROR: IO failure on output stream: No space left on device. This is not a passing test run.
+- No complete workspace test, native SQL test, catalog-example run or new Clippy validation was completed for the additional batch.
+- Diagnostics preserved in tasks/evidence/chemistry-extra-20261031-stop-log.txt.
+
+Compatibility / review points
+- MOL Rust public Atom.x/y/z fields changed from f32 to f64. The C ABI uses doubles already and its signatures are unchanged. Document the Rust source API change before merging.
+- Coordinate overflow regression now uses 1e400 instead of 1e100 because f64 can represent 1e100.
+- DBE deliberately excludes P/S/metals; document its scope and assumptions.
+- Check optional V3000 block handling against supported-format scope; no claim of full CTfile support.
+- New SQL regression file(s), README/MASS_CONTEXT additions and a final validation receipt for the ten additions are NOT written yet.
+
+Next actions ONLY after explicit resume
+1. Inspect git diff/status and this memo. Fetch origin/main again before integration.
+2. Check free disk first. Only the task-owned /private/tmp/rusta-ducksmiles-20261031-target was removed on stop, including its cloned DuckDB source/build products. No other project/user files were cleaned.
+3. Recreate one task-owned target with CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=2. Run focused MOL/formula/C ABI tests and fix actual failures.
+4. Add SQL tests for the four new functions (NULLs, vectors, filtered input, dynamic JSON buffers) and parser/geometry fixes; update documentation and review compatibility.
+5. Run cargo test --workspace --locked and appropriate checks. Given disk pressure, a branch CI workflow was considered, but no branch push or workflow dispatch occurred.
+6. Build version-matched native extension and execute SQL/catalog checks. The installed /opt/homebrew/bin/duckdb was v1.5.2; its matching source commit is 8a5851971fae891f292c2714d86046ee018e9737. Debug DuckDB defaults to sanitizers; disable ENABLE_SANITIZER and ENABLE_UBSAN for loading in the unsanitized CLI.
+7. Record evidence, commit reviewed additions, then integrate and push main as the user requested. Handle concurrent remote changes safely; never force-push main.
+
+Sources checked
+- IUPAC ring and double bond equivalent: https://goldbook.iupac.org/terms/view/12561
+- Publisher CTfile specification, sparse atom IDs and block structure: https://mdli.com/downloads/literature/ctfile.pdf (chapter 10).
+
+Recorded: 2026-10-31T14:25:34.238380+09:00

@@ -1,0 +1,211 @@
+===== baseline.log =====
+   Compiling ducksmiles_mol v0.3.0 (/Users/nk/Desktop/duckSMILES/crates/mol)
+   Compiling ducksmiles_smiles v0.3.0 (/Users/nk/Desktop/duckSMILES/crates/smiles)
+    Finished `test` profile [unoptimized] target(s) in 40.73s
+     Running unittests src/lib.rs (/private/tmp/rusta-ducksmiles-20261031-target/debug/deps/ducksmiles_mol-3489fc99007ad33e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/private/tmp/rusta-ducksmiles-20261031-target/debug/deps/ducksmiles_smiles-d3cabf9b374096e3)
+
+running 9 tests
+test mass_context::tests::charge_and_multimer_mass_balance ... ok
+test mass_context::tests::formula_examples_and_nitrogen ... ok
+test mass_context::tests::ffi_valid_null_utf8_and_length ... ok
+test mass_context::tests::invalid_and_impossible_mass ... ok
+test mass_context::tests::every_supported_adduct_roundtrips ... ok
+test mass_context::tests::monoisotopic_formula_ffi_returns_mass_or_nan_for_invalid_input ... ok
+test mass_context::tests::monoisotopic_formulas_resolve_isotope_labels_and_additional_elements ... ok
+test mass_context::tests::monoisotopic_formulas_reject_partial_syntax_unknown_isotopes_and_limits ... ok
+test mass_context::tests::reject_partial_formula_or_overflow ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 634 filtered out; finished in 0.00s
+
+
+
+===== mol-red.log =====
+   Compiling ducksmiles_mol v0.3.0 (/Users/nk/Desktop/duckSMILES/crates/mol)
+    Finished `test` profile [unoptimized] target(s) in 3.25s
+     Running unittests src/lib.rs (/private/tmp/rusta-ducksmiles-20261031-target/debug/deps/ducksmiles_mol-3489fc99007ad33e)
+
+running 26 tests
+test parser::tests::rejects_v2000_utf8_at_fixed_width_boundaries_without_panicking ... ok
+test parser::tests::rejects_v2000_truncated_records_instead_of_shifting_atom_indices ... ok
+test parser::tests::rejects_v3000_counts_that_exceed_available_records ... ok
+test parser::tests::rejects_v2000_invalid_bond_fields_and_references ... ok
+test parser::tests::mol_geometry_retains_double_precision_at_large_coordinate_origins ... FAILED
+test parser::tests::sdf_delimiters_are_complete_lines_not_property_substrings ... FAILED
+test parser::tests::sdf_preserves_empty_title_lines_between_records_and_with_crlf ... FAILED
+test parser::tests::sdf_property_text_does_not_select_the_structure_format ... FAILED
+test parser::tests::test_formula ... ok
+test parser::tests::test_parse_mol ... ok
+test parser::tests::test_atoms_bonds_and_mol_json ... ok
+test parser::tests::test_parse_mol_v3000 ... ok
+test parser::tests::test_parse_mol_v3000_line_continuation ... ok
+test parser::tests::test_sdf ... ok
+test parser::tests::test_sdf_properties_preserve_multiline_duplicates_and_empty_values ... ok
+test parser::tests::test_sdf_properties_json_includes_record_names ... ok
+test parser::tests::test_sdf_v3000_properties ... ok
+test parser::tests::test_weight ... ok
+test parser::tests::v3000_rejects_incomplete_or_nested_structure_blocks ... FAILED
+test tests::test_ffi_formula ... ok
+test parser::tests::v3000_resolves_sparse_atom_identifiers_to_output_indices ... FAILED
+test tests::test_ffi_weight ... ok
+test tests::test_ffi_sdf_property_and_json ... ok
+test parser::tests::rejects_invalid_or_nonfinite_coordinates ... ok
+test tests::test_ffi_3d_coordinates ... ok
+test tests::test_ffi_mol_block_property_and_json ... ok
+
+failures:
+
+---- parser::tests::mol_geometry_retains_double_precision_at_large_coordinate_origins stdout ----
+
+thread 'parser::tests::mol_geometry_retains_double_precision_at_large_coordinate_origins' (2041321) panicked at crates/mol/src/parser.rs:615:13:
+assertion `left == right` failed
+  left: Some((100000000.0, 0.0, 0.0))
+ right: Some((100000000.5, 0.0, 0.0))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- parser::tests::sdf_delimiters_are_complete_lines_not_property_substrings stdout ----
+
+thread 'parser::tests::sdf_delimiters_are_complete_lines_not_property_substrings' (2041327) panicked at crates/mol/src/parser.rs:587:9:
+assertion `left == right` failed
+  left: Some("value ")
+ right: Some("value $$$$ kept\n$$$$suffix")
+
+---- parser::tests::sdf_preserves_empty_title_lines_between_records_and_with_crlf stdout ----
+
+thread 'parser::tests::sdf_preserves_empty_title_lines_between_records_and_with_crlf' (2041328) panicked at crates/mol/src/parser.rs:595:13:
+assertion `left == right` failed
+  left: 0
+ right: 2
+
+---- parser::tests::sdf_property_text_does_not_select_the_structure_format stdout ----
+
+thread 'parser::tests::sdf_property_text_does_not_select_the_structure_format' (2041329) panicked at crates/mol/src/parser.rs:604:36:
+called `Option::unwrap()` on a `None` value
+
+---- parser::tests::v3000_rejects_incomplete_or_nested_structure_blocks stdout ----
+
+thread 'parser::tests::v3000_rejects_incomplete_or_nested_structure_blocks' (2041340) panicked at crates/mol/src/parser.rs:578:13:
+"M  V30 END ATOM\n"
+
+---- parser::tests::v3000_resolves_sparse_atom_identifiers_to_output_indices stdout ----
+
+thread 'parser::tests::v3000_resolves_sparse_atom_identifiers_to_output_indices' (2041341) panicked at crates/mol/src/parser.rs:554:9:
+assertion `left == right` failed
+  left: "[{\"index\":1,\"atom1\":10,\"atom2\":20,\"bond_type\":1},{\"index\":2,\"atom1\":20,\"atom2\":30,\"bond_type\":2}]"
+ right: "[{\"index\":1,\"atom1\":1,\"atom2\":2,\"bond_type\":1},{\"index\":2,\"atom1\":2,\"atom2\":3,\"bond_type\":2}]"
+
+
+failures:
+    parser::tests::mol_geometry_retains_double_precision_at_large_coordinate_origins
+    parser::tests::sdf_delimiters_are_complete_lines_not_property_substrings
+    parser::tests::sdf_preserves_empty_title_lines_between_records_and_with_crlf
+    parser::tests::sdf_property_text_does_not_select_the_structure_format
+    parser::tests::v3000_rejects_incomplete_or_nested_structure_blocks
+    parser::tests::v3000_resolves_sparse_atom_identifiers_to_output_indices
+
+test result: FAILED. 20 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p ducksmiles_mol --lib`
+
+
+===== formula-red.log =====
+   Compiling ducksmiles_smiles v0.3.0 (/Users/nk/Desktop/duckSMILES/crates/smiles)
+    Finished `test` profile [unoptimized] target(s) in 19.78s
+     Running tests/formula_tools.rs (/private/tmp/rusta-ducksmiles-20261031-target/debug/deps/formula_tools-778516e0bb508614)
+
+running 4 tests
+test ppm_error_is_signed_reference_relative_and_retains_small_differences ... FAILED
+test average_formula_weight_uses_isotope_mass_only_for_labelled_atoms ... FAILED
+test formula_composition_aggregates_repeated_tokens_and_keeps_isotopes_distinct ... FAILED
+test dbe_counts_isotope_elements_and_rejects_unsupported_chemistry ... FAILED
+
+failures:
+
+---- ppm_error_is_signed_reference_relative_and_retains_small_differences stdout ----
+
+thread 'ppm_error_is_signed_reference_relative_and_retains_small_differences' (2051373) panicked at crates/smiles/tests/formula_tools.rs:33:44:
+called `Option::unwrap()` on a `None` value
+
+---- average_formula_weight_uses_isotope_mass_only_for_labelled_atoms stdout ----
+
+thread 'average_formula_weight_uses_isotope_mass_only_for_labelled_atoms' (2051370) panicked at crates/smiles/tests/formula_tools.rs:6:42:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- formula_composition_aggregates_repeated_tokens_and_keeps_isotopes_distinct stdout ----
+
+thread 'formula_composition_aggregates_repeated_tokens_and_keeps_isotopes_distinct' (2051372) panicked at crates/smiles/tests/formula_tools.rs:15:5:
+assertion `left == right` failed
+  left: None
+ right: Some("[{\"element\":\"C\",\"isotope\":null,\"count\":1},{\"element\":\"C\",\"isotope\":13,\"count\":2},{\"element\":\"H\",\"isotope\":null,\"count\":4},{\"element\":\"O\",\"isotope\":null,\"count\":1}]")
+
+---- dbe_counts_isotope_elements_and_rejects_unsupported_chemistry stdout ----
+
+thread 'dbe_counts_isotope_elements_and_rejects_unsupported_chemistry' (2051371) panicked at crates/smiles/tests/formula_tools.rs:24:9:
+assertion `left == right` failed: C6H6
+  left: None
+ right: Some(4.0)
+
+
+failures:
+    average_formula_weight_uses_isotope_mass_only_for_labelled_atoms
+    dbe_counts_isotope_elements_and_rejects_unsupported_chemistry
+    formula_composition_aggregates_repeated_tokens_and_keeps_isotopes_distinct
+    ppm_error_is_signed_reference_relative_and_retains_small_differences
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p ducksmiles_smiles --test formula_tools`
+
+
+===== ffi-red.log =====
+   Compiling ducksmiles_smiles v0.3.0 (/Users/nk/Desktop/duckSMILES/crates/smiles)
+    Finished `test` profile [unoptimized] target(s) in 16.57s
+     Running tests/formula_tools_ffi.rs (/private/tmp/rusta-ducksmiles-20261031-target/debug/deps/formula_tools_ffi-63d7a1b9ef3944a9)
+
+running 2 tests
+test composition_abi_reports_required_capacity_without_partial_writes ... FAILED
+test numeric_formula_abi_returns_values_and_nan_sentinels ... FAILED
+
+failures:
+
+---- composition_abi_reports_required_capacity_without_partial_writes stdout ----
+
+thread 'composition_abi_reports_required_capacity_without_partial_writes' (2083049) panicked at crates/smiles/tests/formula_tools_ffi.rs:26:9:
+assertion `left == right` failed
+  left: -1
+ right: 124
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- numeric_formula_abi_returns_values_and_nan_sentinels stdout ----
+
+thread 'numeric_formula_abi_returns_values_and_nan_sentinels' (2083050) panicked at crates/smiles/tests/formula_tools_ffi.rs:7:9:
+assertion failed: (ds_formula_weight(b"C2H6O".as_ptr(), 5) - 46.069).abs() < 1e-9
+
+
+failures:
+    composition_abi_reports_required_capacity_without_partial_writes
+    numeric_formula_abi_returns_values_and_nan_sentinels
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p ducksmiles_smiles --test formula_tools_ffi`
+
+
+===== focused.log =====
+   Compiling ducksmiles_smiles v0.3.0 (/Users/nk/Desktop/duckSMILES/crates/smiles)
+   Compiling ducksmiles_mol v0.3.0 (/Users/nk/Desktop/duckSMILES/crates/mol)
+rustc-LLVM ERROR: IO failure on output stream: No space left on device
+error: could not compile `ducksmiles_smiles` (lib)
+
+Caused by:
+  failed to create file `/private/tmp/rusta-ducksmiles-20261031-target/debug/.fingerprint/ducksmiles_smiles-045e8eeb3024f369/output-lib-ducksmiles_smiles`
+
+Caused by:
+  failed to parse process output: `/Users/nk/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc --crate-name ducksmiles_smiles --edition=2021 crates/smiles/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type staticlib --crate-type rlib --emit=dep-info,link -C embed-bitcode=no --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=bedf253e8ca8dda4 -C extra-filename=-045e8eeb3024f369 --out-dir /private/tmp/rusta-ducksmiles-20261031-target/debug/deps -C linker=cc -C strip=debuginfo -L dependency=/private/tmp/rusta-ducksmiles-20261031-target/debug/deps` (exit status: 101)
+warning: build failed, waiting for other jobs to finish...

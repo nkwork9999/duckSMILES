@@ -3,6 +3,7 @@
 
 pub const SPEC_VERSION: &str = "duck-formula-adduct-v1";
 pub const MAX_FORMULA_BYTES: usize = 4096;
+
 const MAX_ELEMENT_COUNT: u32 = 1_000_000;
 const ELECTRON: f64 = 0.00054857990;
 const H: f64 = 1.00782503207;
@@ -89,16 +90,84 @@ pub fn formula_exact_mass(formula: &str) -> Option<f64> {
 /// explicit isotope. Counts follow the element or closing bracket. This flat
 /// formula syntax does not infer charges, hydrates, groups or ion chemistry.
 pub fn formula_monoisotopic_mass(formula: &str) -> Option<f64> {
+    Some(
+        parse_formula(formula)?
+            .iter()
+            .map(|term| term.mono_mass * f64::from(term.count))
+            .sum(),
+    )
+}
+
+/// Average atomic weights for unlabelled atoms; exact masses for labelled atoms.
+pub fn formula_weight(formula: &str) -> Option<f64> {
+    parse_formula(formula)?.iter().try_fold(0.0, |sum, term| {
+        let mass = if term.isotope.is_some() {
+            term.mono_mass
+        } else {
+            crate::weights::atomic_weight(term.symbol)?
+        };
+        Some(sum + mass * f64::from(term.count))
+    })
+}
+
+/// Deterministic element/isotope composition; repeated tokens are aggregated.
+pub fn formula_composition_json(formula: &str) -> Option<String> {
+    let mut counts = std::collections::BTreeMap::new();
+    for term in parse_formula(formula)? {
+        *counts.entry((term.symbol, term.isotope)).or_insert(0u32) += term.count;
+    }
+    let rows: Vec<String> = counts
+        .into_iter()
+        .map(|((symbol, isotope), count)| {
+            let isotope = isotope.map_or_else(|| "null".to_owned(), |n| n.to_string());
+            format!("{{\"element\":\"{symbol}\",\"isotope\":{isotope},\"count\":{count}}}")
+        })
+        .collect();
+    Some(format!("[{}]", rows.join(",")))
+}
+
+/// Conservative neutral closed-shell DBE for CHNOFClBrI formulas only.
+/// Unsupported valence models, negative and half-integer results are rejected.
+pub fn formula_dbe(formula: &str) -> Option<f64> {
+    let mut twice_dbe = 2i64;
+    for term in parse_formula(formula)? {
+        let coefficient = match term.symbol {
+            "C" => 2,
+            "N" => 1,
+            "H" | "F" | "Cl" | "Br" | "I" => -1,
+            "O" => 0,
+            _ => return None,
+        };
+        twice_dbe += coefficient * i64::from(term.count);
+    }
+    (twice_dbe >= 0 && twice_dbe % 2 == 0).then_some(twice_dbe as f64 / 2.0)
+}
+
+/// Signed (observed - reference) / reference * 1e6; finite positive masses only.
+pub fn mass_error_ppm(observed: f64, reference: f64) -> Option<f64> {
+    positive_finite(observed)?;
+    positive_finite(reference)?;
+    let error = ((observed - reference) / reference) * 1e6;
+    error.is_finite().then_some(error)
+}
+
+struct FormulaTerm<'a> {
+    symbol: &'a str,
+    isotope: Option<u16>,
+    count: u32,
+    mono_mass: f64,
+}
+
+fn parse_formula(formula: &str) -> Option<Vec<FormulaTerm<'_>>> {
     if formula.is_empty() || formula.len() > MAX_FORMULA_BYTES || !formula.is_ascii() {
         return None;
     }
     let bytes = formula.as_bytes();
     let mut pos = 0;
-    let mut total = 0.0;
+    let mut terms = Vec::new();
     let mut atoms = 0u32;
     while pos < bytes.len() {
-        let labelled = bytes[pos] == b'[';
-        let isotope = if labelled {
+        let isotope = if bytes[pos] == b'[' {
             pos += 1;
             Some(u16::try_from(formula_number(bytes, &mut pos)?).ok()?)
         } else {
@@ -113,7 +182,7 @@ pub fn formula_monoisotopic_mass(formula: &str) -> Option<f64> {
             pos += 1;
         }
         let symbol = &formula[start..pos];
-        let mass = match isotope {
+        let mono_mass = match isotope {
             Some(isotope) => {
                 if bytes.get(pos) != Some(&b']') {
                     return None;
@@ -132,9 +201,14 @@ pub fn formula_monoisotopic_mass(formula: &str) -> Option<f64> {
         if atoms > MAX_ELEMENT_COUNT {
             return None;
         }
-        total += mass * f64::from(count);
+        terms.push(FormulaTerm {
+            symbol,
+            isotope,
+            count,
+            mono_mass,
+        });
     }
-    Some(total)
+    Some(terms)
 }
 
 // Positive decimal integer with no leading zeroes; reject overflow completely.
@@ -248,6 +322,61 @@ unsafe fn input_text<'a>(ptr: *const u8, len: usize) -> Option<&'a str> {
     }
     // SAFETY: the FFI caller guarantees readability; length is bounded above.
     std::str::from_utf8(unsafe { std::slice::from_raw_parts(ptr, len) }).ok()
+}
+
+/// Formula average weight or NaN for invalid input.
+/// # Safety
+/// A non-null `ptr` must address at least `len` readable bytes.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ds_formula_weight(ptr: *const u8, len: usize) -> f64 {
+    // SAFETY: inherited from the caller contract.
+    unsafe { input_text(ptr, len) }
+        .and_then(formula_weight)
+        .unwrap_or(f64::NAN)
+}
+
+/// Conservative formula DBE or NaN for invalid/unsupported input.
+/// # Safety
+/// A non-null `ptr` must address at least `len` readable bytes.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ds_formula_dbe(ptr: *const u8, len: usize) -> f64 {
+    // SAFETY: inherited from the caller contract.
+    unsafe { input_text(ptr, len) }
+        .and_then(formula_dbe)
+        .unwrap_or(f64::NAN)
+}
+
+/// Signed mass error in ppm; NaN for invalid/nonfinite input or output.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_mass_error_ppm(observed: f64, reference: f64) -> f64 {
+    mass_error_ppm(observed, reference).unwrap_or(f64::NAN)
+}
+
+/// Composition JSON length, or -1 for invalid input. Short/null buffers are not written.
+/// # Safety
+/// A non-null `ptr` must address `len` readable bytes. A non-null `out` must
+/// address `cap` writable bytes.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ds_formula_composition_json(
+    ptr: *const u8,
+    len: usize,
+    out: *mut u8,
+    cap: usize,
+) -> i32 {
+    // SAFETY: inherited from the caller contract.
+    let Some(json) = (unsafe { input_text(ptr, len) }).and_then(formula_composition_json) else {
+        return -1;
+    };
+    let Ok(required) = i32::try_from(json.len()) else {
+        return -1;
+    };
+    if !out.is_null() && cap >= json.len() {
+        // SAFETY: caller guarantees output capacity; source is a separate owned allocation.
+        unsafe {
+            std::ptr::copy_nonoverlapping(json.as_ptr(), out, json.len());
+        }
+    }
+    required
 }
 
 /// Formula mass or NaN for invalid/unsupported input.

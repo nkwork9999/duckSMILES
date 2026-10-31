@@ -1,0 +1,77 @@
+# name: test/sql/chemistry_tools.test
+# group: [sql]
+
+require ducksmiles
+
+query IIII
+SELECT abs(formula_weight('C2H6O') - 46.069) < 1e-9,
+       abs(formula_weight('[13C]2H6O') - 48.05370968) < 1e-9,
+       formula_dbe('C8H10N4O2') = 6,
+       formula_dbe('[13C]6[2H]6') = 4;
+----
+true	true	true	true
+
+query T
+SELECT formula_composition_json('[13C]CH3[13C]OH');
+----
+[{"element":"C","isotope":null,"count":1},{"element":"C","isotope":13,"count":2},{"element":"H","isotope":null,"count":4},{"element":"O","isotope":null,"count":1}]
+
+query III
+SELECT count(*), count(formula_weight(f)), count(formula_composition_json(f))
+FROM (VALUES (NULL), (''), ('C0'), ('C01'), ('[999C]'), ('[13CH4]'), ('C1000001'), ('C H')) t(f);
+----
+8	0	0
+
+query III
+SELECT count(*), count(formula_dbe(f)), formula_dbe('C6H5Cl') = 4
+FROM (VALUES ('NaCl'), ('C2H5P'), ('C2H6S'), ('CH6'), ('C2H7'), (NULL)) t(f);
+----
+6	0	true
+
+# Dynamic JSON output exceeds the old fixed stack-buffer size.
+query II
+SELECT length(formula_composition_json('HHeLiBeBCNOFNeNaMgAlSiPSClArKCaScTiVCrMnFeCoNiCuZnGaGeAsSeBrKr')) > 1024,
+       json_array_length(formula_composition_json('HHeLiBeBCNOFNeNaMgAlSiPSClArKCaScTiVCrMnFeCoNiCuZnGaGeAsSeBrKr'));
+----
+true	36
+
+query IIII
+SELECT abs(mass_error_ppm(100.001, 100.0) - 10.0) < 1e-9,
+       abs(mass_error_ppm(99.999, 100.0) + 10.0) < 1e-9,
+       mass_error_ppm(1e300, 1e300) = 0,
+       mass_error_ppm(100.0, NULL) IS NULL;
+----
+true	true	true	true
+
+query I
+SELECT count(*) FROM (VALUES (0.0, 100.0), (100.0, 0.0), (-1.0, 1.0),
+ ('NaN'::DOUBLE, 1.0), (1.0, 'Infinity'::DOUBLE), (1.7976931348623157e308, 1e-300), (NULL, 1.0)) t(observed, reference)
+WHERE mass_error_ppm(observed, reference) IS NULL;
+----
+7
+
+# Constants, flat vectors and filtered dictionaries with mixed invalids/NULLs.
+query IIII
+WITH rows AS (SELECT i, CASE WHEN i % 3 = 0 THEN NULL WHEN i % 3 = 1 THEN 'C2H6O' ELSE '[999C]' END f FROM range(4097) t(i))
+SELECT count(*), count(formula_weight(f)), count(formula_dbe(f)), count(formula_composition_json(f)) FROM rows WHERE i % 2 = 0;
+----
+2049	683	683	683
+
+query III
+WITH rows AS (SELECT i, CASE WHEN i % 4 = 0 THEN NULL WHEN i % 4 = 1 THEN 0.0 WHEN i % 4 = 2 THEN 100.001 ELSE 99.999 END observed FROM range(4097) t(i))
+SELECT count(*), count(mass_error_ppm(observed, 100.0)),
+       count(*) FILTER (WHERE abs(mass_error_ppm(observed, 100.0) + 10) < 1e-9) FROM rows WHERE i % 2 = 1;
+----
+2048	1024	1024
+
+query II
+SELECT count(*), count(*) FILTER (WHERE abs(formula_weight('C2H6O') - 46.069) < 1e-9 AND abs(mass_error_ppm(100.001, 100.0) - 10) < 1e-9) FROM range(4097);
+----
+4097	4097
+
+query I
+SELECT count(*) FROM duckdb_functions()
+WHERE function_name IN ('formula_weight', 'formula_dbe', 'formula_composition_json', 'mass_error_ppm')
+ AND len(description) > 0 AND len(examples) > 0 AND list_contains(categories, 'ducksmiles');
+----
+4

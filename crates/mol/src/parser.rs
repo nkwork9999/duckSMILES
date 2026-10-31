@@ -2,9 +2,9 @@
 
 #[derive(Debug, Clone)]
 pub struct Atom {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
     pub symbol: String,
 }
 
@@ -91,45 +91,56 @@ impl Molecule {
         if self.atoms.is_empty() {
             return None;
         }
-        let n = self.atoms.len() as f64;
-        let (sx, sy, sz) = self.atoms.iter().fold((0.0, 0.0, 0.0), |acc, atom| {
-            (
-                acc.0 + atom.x as f64,
-                acc.1 + atom.y as f64,
-                acc.2 + atom.z as f64,
-            )
-        });
-        Some((sx / n, sy / n, sz / n))
+        let mut center = (0.0, 0.0, 0.0);
+        fn update(mean: f64, value: f64, count: f64) -> f64 {
+            let delta = value - mean;
+            if delta.is_finite() {
+                mean + delta / count
+            } else {
+                mean * ((count - 1.0) / count) + value / count
+            }
+        }
+        for (index, atom) in self.atoms.iter().enumerate() {
+            let count = (index + 1) as f64;
+            center = (
+                update(center.0, atom.x, count),
+                update(center.1, atom.y, count),
+                update(center.2, atom.z, count),
+            );
+        }
+        Some(center)
     }
 
     pub fn radius_of_gyration(&self) -> Option<f64> {
         let (cx, cy, cz) = self.centroid()?;
-        let n = self.atoms.len() as f64;
-        let sum_sq = self
-            .atoms
-            .iter()
-            .map(|atom| {
-                let dx = atom.x as f64 - cx;
-                let dy = atom.y as f64 - cy;
-                let dz = atom.z as f64 - cz;
-                dx * dx + dy * dy + dz * dz
-            })
-            .sum::<f64>();
-        Some((sum_sq / n).sqrt())
+        let scale = 1.0 / (self.atoms.len() as f64).sqrt();
+        let mut radius: f64 = 0.0;
+        for atom in &self.atoms {
+            for (value, center) in [(atom.x, cx), (atom.y, cy), (atom.z, cz)] {
+                let delta = value - center;
+                let scaled = if delta.is_finite() {
+                    delta * scale
+                } else {
+                    value * scale - center * scale
+                };
+                radius = radius.hypot(scaled);
+            }
+        }
+        Some(radius)
     }
 
     pub fn coordinate_bounds(&self) -> Option<[(f64, f64); 3]> {
         let first = self.atoms.first()?;
-        let mut min_x = first.x as f64;
-        let mut min_y = first.y as f64;
-        let mut min_z = first.z as f64;
+        let mut min_x = first.x;
+        let mut min_y = first.y;
+        let mut min_z = first.z;
         let mut max_x = min_x;
         let mut max_y = min_y;
         let mut max_z = min_z;
         for atom in self.atoms.iter().skip(1) {
-            let x = atom.x as f64;
-            let y = atom.y as f64;
-            let z = atom.z as f64;
+            let x = atom.x;
+            let y = atom.y;
+            let z = atom.z;
             min_x = min_x.min(x);
             min_y = min_y.min(y);
             min_z = min_z.min(z);
@@ -183,13 +194,9 @@ impl Molecule {
     }
 }
 
-fn parse_f32(s: &str) -> Option<f32> {
-    let value = s.trim().parse::<f32>().ok()?;
+fn parse_coordinate(s: &str) -> Option<f64> {
+    let value = s.trim().parse::<f64>().ok()?;
     value.is_finite().then_some(value)
-}
-
-fn parse_u32(s: &str) -> u32 {
-    s.trim().parse::<u32>().unwrap_or(0)
 }
 
 fn parse_property_name(line: &str) -> Option<String> {
@@ -222,14 +229,6 @@ fn json_escape(s: &str) -> String {
     out
 }
 
-fn push_json_f32(out: &mut String, value: f32) {
-    if value == 0.0 {
-        out.push('0');
-    } else {
-        out.push_str(&value.to_string());
-    }
-}
-
 fn push_json_f64(out: &mut String, value: f64) {
     if value == 0.0 {
         out.push('0');
@@ -249,11 +248,11 @@ pub fn atoms_to_json(atoms: &[Atom]) -> String {
         out.push_str(",\"symbol\":\"");
         out.push_str(&json_escape(&atom.symbol));
         out.push_str("\",\"x\":");
-        push_json_f32(&mut out, atom.x);
+        push_json_f64(&mut out, atom.x);
         out.push_str(",\"y\":");
-        push_json_f32(&mut out, atom.y);
+        push_json_f64(&mut out, atom.y);
         out.push_str(",\"z\":");
-        push_json_f32(&mut out, atom.z);
+        push_json_f64(&mut out, atom.z);
         out.push('}');
     }
     out.push(']');
@@ -319,7 +318,7 @@ fn parse_sdf_properties(lines: &[&str], start: usize) -> Vec<(String, String)> {
     let mut i = start;
     while i < lines.len() {
         let line = lines[i];
-        if line.starts_with("$$$$") {
+        if line == "$$$$" {
             break;
         }
         let Some(prop_name) = parse_property_name(line) else {
@@ -331,7 +330,7 @@ fn parse_sdf_properties(lines: &[&str], start: usize) -> Vec<(String, String)> {
         let mut value_lines = Vec::new();
         while i < lines.len() {
             let value_line = lines[i];
-            if value_line.starts_with("$$$$") || value_line.trim().is_empty() {
+            if value_line == "$$$$" || value_line.trim().is_empty() {
                 break;
             }
             value_lines.push(value_line);
@@ -360,9 +359,9 @@ fn parse_mol_v2000(lines: &[&str]) -> Option<Molecule> {
     let mut atoms = Vec::with_capacity(num_atoms);
     for i in 0..num_atoms {
         let line = lines[4 + i];
-        let x = parse_f32(line.get(0..10)?)?;
-        let y = parse_f32(line.get(10..20)?)?;
-        let z = parse_f32(line.get(20..30)?)?;
+        let x = parse_coordinate(line.get(0..10)?)?;
+        let y = parse_coordinate(line.get(10..20)?)?;
+        let z = parse_coordinate(line.get(20..30)?)?;
         let symbol = line.get(30..34)?.trim().to_string();
         atoms.push(Atom { x, y, z, symbol });
     }
@@ -393,11 +392,14 @@ fn parse_mol_v2000(lines: &[&str]) -> Option<Molecule> {
     })
 }
 
-fn v3000_records(lines: &[&str]) -> Vec<String> {
+fn v3000_records(lines: &[&str]) -> Option<Vec<String>> {
     let mut records = Vec::new();
     let mut current = String::new();
-    for line in lines {
-        if !line.starts_with("M  V30") {
+    for line in lines.iter().skip(4) {
+        if line.trim() == "M  END" {
+            break;
+        }
+        if !line.starts_with("M  V30 ") {
             continue;
         }
         let mut payload = line.get(6..).unwrap_or("").trim_start().to_string();
@@ -417,93 +419,122 @@ fn v3000_records(lines: &[&str]) -> Vec<String> {
         }
     }
     if !current.trim().is_empty() {
-        records.push(current.trim().to_string());
+        return None;
     }
-    records
+    Some(records)
 }
 
 fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
+    use std::collections::{HashMap, HashSet};
     let name = lines[0].trim().to_string();
-    let records = v3000_records(lines);
+    let property_start = lines.iter().position(|line| line.trim() == "M  END")? + 1;
+    let records = v3000_records(lines)?;
     let counts = records
         .iter()
         .find(|record| record.starts_with("COUNTS "))?;
-    let counts_parts: Vec<&str> = counts.split_whitespace().collect();
-    if counts_parts.len() < 3 {
-        return None;
-    }
-    let num_atoms = counts_parts[1].parse::<usize>().ok()?;
-    let num_bonds = counts_parts[2].parse::<usize>().ok()?;
-    // Every atom/bond needs a record. Check before allocating from untrusted counts.
+    let parts: Vec<&str> = counts.split_whitespace().collect();
+    let num_atoms = parts.get(1)?.parse::<usize>().ok()?;
+    let num_bonds = parts.get(2)?.parse::<usize>().ok()?;
     if num_atoms.checked_add(num_bonds)? > records.len() {
         return None;
     }
-
     let mut atoms = Vec::with_capacity(num_atoms);
     let mut bonds = Vec::with_capacity(num_bonds);
-    let mut in_atom_block = false;
-    let mut in_bond_block = false;
-
+    let mut atom_ids = HashMap::new();
+    let mut bond_ids = HashSet::new();
+    let mut stack = Vec::new();
+    let (mut seen_ctab, mut closed_ctab, mut seen_counts, mut seen_atom, mut seen_bond) =
+        (false, false, false, false, false);
+    fn identifier(value: &str) -> Option<u32> {
+        value.parse::<u32>().ok().filter(|id| *id > 0)
+    }
     for record in &records {
-        match record.as_str() {
-            "BEGIN ATOM" => {
-                in_atom_block = true;
-                in_bond_block = false;
-                continue;
+        if let Some(block) = record.strip_prefix("BEGIN ") {
+            match block {
+                "CTAB" if stack.is_empty() && !seen_ctab => {
+                    seen_ctab = true;
+                }
+                "ATOM" if stack == ["CTAB"] && seen_counts && !seen_atom && !seen_bond => {
+                    seen_atom = true;
+                }
+                "BOND" if stack == ["CTAB"] && seen_atom && !seen_bond => {
+                    seen_bond = true;
+                }
+                "CTAB" | "ATOM" | "BOND" => return None,
+                _ if stack.is_empty() || matches!(stack.last(), Some(&"ATOM" | &"BOND")) => {
+                    return None
+                }
+                _ => {}
             }
-            "END ATOM" => {
-                in_atom_block = false;
-                continue;
-            }
-            "BEGIN BOND" => {
-                in_bond_block = true;
-                in_atom_block = false;
-                continue;
-            }
-            "END BOND" => {
-                in_bond_block = false;
-                continue;
-            }
-            _ => {}
+            stack.push(block);
+            continue;
         }
-
-        if in_atom_block {
+        if let Some(block) = record.strip_prefix("END ") {
+            if stack.pop() != Some(block) {
+                return None;
+            }
+            if block == "CTAB" {
+                closed_ctab = true;
+            }
+            continue;
+        }
+        if closed_ctab || stack.is_empty() {
+            return None;
+        }
+        if record.starts_with("COUNTS ") {
+            if stack != ["CTAB"] || seen_counts || seen_atom {
+                return None;
+            }
+            seen_counts = true;
+        } else if stack.last() == Some(&"ATOM") {
             let parts: Vec<&str> = record.split_whitespace().collect();
             if parts.len() < 6 {
-                continue;
+                return None;
             }
-            let symbol = parts[1].to_string();
-            let x = parse_f32(parts[2])?;
-            let y = parse_f32(parts[3])?;
-            let z = parse_f32(parts[4])?;
-            atoms.push(Atom { x, y, z, symbol });
-        } else if in_bond_block {
+            let id = identifier(parts[0])?;
+            let output_index = u32::try_from(atoms.len()).ok()?.checked_add(1)?;
+            if atom_ids.insert(id, output_index).is_some() {
+                return None;
+            }
+            atoms.push(Atom {
+                symbol: parts[1].to_string(),
+                x: parse_coordinate(parts[2])?,
+                y: parse_coordinate(parts[3])?,
+                z: parse_coordinate(parts[4])?,
+            });
+        } else if stack.last() == Some(&"BOND") {
             let parts: Vec<&str> = record.split_whitespace().collect();
-            if parts.len() < 4 {
-                continue;
+            if parts.len() < 4 || !bond_ids.insert(identifier(parts[0])?) {
+                return None;
             }
-            let bt = parts[1].parse::<u8>().unwrap_or(1);
-            let a1 = parse_u32(parts[2]);
-            let a2 = parse_u32(parts[3]);
+            let bond_type = parts[1].parse::<u8>().ok().filter(|value| *value > 0)?;
+            let atom1 = identifier(parts[2])?;
+            let atom2 = identifier(parts[3])?;
+            if atom1 == atom2 {
+                return None;
+            }
             bonds.push(Bond {
-                atom1: a1,
-                atom2: a2,
-                bond_type: bt,
+                atom1,
+                atom2,
+                bond_type,
             });
         }
     }
-
-    if atoms.len() != num_atoms || bonds.len() != num_bonds {
+    if !closed_ctab
+        || !stack.is_empty()
+        || !seen_counts
+        || (num_atoms > 0 && !seen_atom)
+        || (num_bonds > 0 && !seen_bond)
+        || atoms.len() != num_atoms
+        || bonds.len() != num_bonds
+    {
         return None;
     }
-
-    let property_start = lines
-        .iter()
-        .position(|line| line.trim() == "M  END")
-        .map(|idx| idx + 1)
-        .unwrap_or(lines.len());
+    for bond in &mut bonds {
+        bond.atom1 = *atom_ids.get(&bond.atom1)?;
+        bond.atom2 = *atom_ids.get(&bond.atom2)?;
+    }
     let properties = parse_sdf_properties(lines, property_start);
-
     Some(Molecule {
         name,
         atoms,
@@ -518,7 +549,13 @@ pub fn parse_mol(text: &str) -> Option<Molecule> {
     if lines.len() < 4 {
         return None;
     }
-    if lines[3].contains("V3000") || lines.iter().any(|line| line.starts_with("M  V30")) {
+    if lines[3].contains("V3000")
+        || lines
+            .iter()
+            .skip(4)
+            .take_while(|line| line.trim() != "M  END")
+            .any(|line| line.starts_with("M  V30 "))
+    {
         parse_mol_v3000(&lines)
     } else {
         parse_mol_v2000(&lines)
@@ -527,11 +564,22 @@ pub fn parse_mol(text: &str) -> Option<Molecule> {
 
 /// Parse SDF file (multiple molecules separated by $$$$)
 pub fn parse_sdf(text: &str) -> Vec<Molecule> {
-    text.split("$$$$")
-        .map(|block| block.trim_matches(|c| c == '\n' || c == '\r'))
-        .filter(|block| !block.trim().is_empty())
-        .filter_map(parse_mol)
-        .collect()
+    let mut molecules = Vec::new();
+    let mut record = Vec::new();
+    for line in text.lines() {
+        if line == "$$$$" {
+            if let Some(mol) = parse_mol(&record.join("\n")) {
+                molecules.push(mol);
+            }
+            record.clear();
+        } else {
+            record.push(line);
+        }
+    }
+    if let Some(mol) = parse_mol(&record.join("\n")) {
+        molecules.push(mol);
+    }
+    molecules
 }
 
 #[cfg(test)]
@@ -543,9 +591,108 @@ mod tests {
     const SAMPLE_MOL_V3000_CONTINUED: &str = "continued_v3000\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 3 2 0 0 0\nM  V30 BEGIN ATOM\nM  V30 1 C 0.0000 0.0000 0.0000 0\nM  V30 2 C 1.5400 0.0000 0.0000 0 ATTCHPT=(2 1 -\nM  V30 2)\nM  V30 3 O 2.3100 1.3300 1.0000 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 1 1 1 2\nM  V30 2 2 2 3\nM  V30 END BOND\nM  V30 END CTAB\nM  END\n";
 
     #[test]
+    fn v3000_resolves_sparse_atom_identifiers_to_output_indices() {
+        let text = SAMPLE_MOL_V3000
+            .replace("M  V30 1 C", "M  V30 10 C")
+            .replace("M  V30 2 C", "M  V30 20 C")
+            .replace("M  V30 3 O", "M  V30 30 O")
+            .replace("M  V30 1 1 1 2", "M  V30 11 1 10 20")
+            .replace("M  V30 2 2 2 3", "M  V30 22 2 20 30");
+        let mol = parse_mol(&text).unwrap();
+        assert_eq!(mol.bonds_json(), "[{\"index\":1,\"atom1\":1,\"atom2\":2,\"bond_type\":1},{\"index\":2,\"atom1\":2,\"atom2\":3,\"bond_type\":2}]");
+        for text in [
+            SAMPLE_MOL_V3000.replace("M  V30 2 C", "M  V30 1 C"),
+            SAMPLE_MOL_V3000.replace("M  V30 1 C", "M  V30 0 C"),
+            SAMPLE_MOL_V3000.replace("M  V30 1 1 1 2", "M  V30 1 1 1 99"),
+            SAMPLE_MOL_V3000.replace("M  V30 1 1 1 2", "M  V30 1 1 1 1"),
+            SAMPLE_MOL_V3000.replace("M  V30 1 1 1 2", "M  V30 1 bad 1 2"),
+            SAMPLE_MOL_V3000.replace("M  V30 2 2 2 3", "M  V30 1 2 2 3"),
+        ] {
+            assert!(parse_mol(&text).is_none());
+        }
+    }
+
+    #[test]
+    fn v3000_rejects_incomplete_or_nested_structure_blocks() {
+        for (old, new) in [
+            ("M  V30 END ATOM\n", ""),
+            ("M  V30 END BOND\n", ""),
+            ("M  V30 BEGIN CTAB\n", ""),
+            ("M  V30 END CTAB\n", ""),
+            ("M  V30 BEGIN ATOM", "M  V30 BEGIN ATOM\nM  V30 BEGIN ATOM"),
+            (
+                "M  V30 COUNTS 3 2 0 0 0",
+                "M  V30 COUNTS 3 2 0 0 0\nM  V30 COUNTS 3 2 0 0 0",
+            ),
+            ("M  V30 END CTAB", "M  V30 END CTAB -"),
+        ] {
+            assert!(
+                parse_mol(&SAMPLE_MOL_V3000.replace(old, new)).is_none(),
+                "{old:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn sdf_delimiters_are_complete_lines_not_property_substrings() {
+        let text = format!(
+            "{SAMPLE_MOL}> <NOTE>\nvalue $$$$ kept\n$$$$suffix\n\n$$$$\n{SAMPLE_MOL_V3000}$$$$\n"
+        );
+        let mols = parse_sdf(&text);
+        assert_eq!(mols.len(), 2);
+        assert_eq!(
+            mols[0].property("NOTE"),
+            Some("value $$$$ kept\n$$$$suffix")
+        );
+    }
+
+    #[test]
+    fn sdf_preserves_empty_title_lines_between_records_and_with_crlf() {
+        let unnamed = SAMPLE_MOL.replacen("ethanol", "", 1);
+        for text in [
+            format!("{unnamed}$$$$\n{unnamed}$$$$\n"),
+            format!("{unnamed}$$$$\n{unnamed}$$$$\n").replace('\n', "\r\n"),
+        ] {
+            let mols = parse_sdf(&text);
+            assert_eq!(mols.len(), 2);
+            assert_eq!(mols[0].name, "");
+            assert_eq!(mols[1].formula(), "C2O");
+        }
+    }
+
+    #[test]
+    fn sdf_property_text_does_not_select_the_structure_format() {
+        let text = format!("{SAMPLE_MOL}> <NOTE>\nM  V30 not a CTAB record\n\n");
+        let mol = parse_mol(&text).unwrap();
+        assert_eq!(mol.formula(), "C2O");
+        assert_eq!(mol.property("NOTE"), Some("M  V30 not a CTAB record"));
+    }
+
+    #[test]
+    fn mol_geometry_retains_double_precision_at_large_coordinate_origins() {
+        let v2000 = "precise\n  test\n\n  2  1  0  0  0  0  0  0  0  0999 V2000\n 100000000    0.0000    0.0000 C   0  0\n 100000001    0.0000    0.0000 C   0  0\n  1  2  1  0\nM  END\n";
+        let v3000 = "precise\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 2 1 0 0 0\nM  V30 BEGIN ATOM\nM  V30 1 C 100000000 0 0 0\nM  V30 2 C 100000001 0 0 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 1 1 1 2\nM  V30 END BOND\nM  V30 END CTAB\nM  END\n";
+        for text in [v2000, v3000] {
+            let mol = parse_mol(text).unwrap();
+            assert_eq!(mol.centroid(), Some((100000000.5, 0.0, 0.0)));
+            assert!((mol.radius_of_gyration().unwrap() - 0.5).abs() < 1e-15);
+            assert_eq!(
+                mol.coordinate_bounds().unwrap()[0],
+                (100000000.0, 100000001.0)
+            );
+        }
+        let extreme = v3000
+            .replace("100000000", "1e300")
+            .replace("100000001", "-1e300");
+        let mol = parse_mol(&extreme).unwrap();
+        assert_eq!(mol.centroid(), Some((0.0, 0.0, 0.0)));
+        assert!((mol.radius_of_gyration().unwrap() / 1e300 - 1.0).abs() < 1e-14);
+    }
+
+    #[test]
     fn rejects_invalid_or_nonfinite_coordinates() {
         for sample in [SAMPLE_MOL, SAMPLE_MOL_V3000] {
-            for value in ["bad", "NaN", "inf", "-inf", "1e100", ""] {
+            for value in ["bad", "NaN", "inf", "-inf", "1e400", ""] {
                 // Each of the three coordinate fields must be checked.
                 for coordinate in 0..3 {
                     let mut lines: Vec<String> = sample.lines().map(str::to_owned).collect();

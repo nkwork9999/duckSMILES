@@ -49,6 +49,10 @@ double ds_mol_exact_mass(const uint8_t *ptr, size_t len);
 // Non-null pointers must address at least len readable bytes; bytes are UTF-8.
 double ds_formula_exact_mass(const uint8_t *ptr, size_t len);
 double ds_formula_monoisotopic_mass(const uint8_t *ptr, size_t len);
+double ds_formula_weight(const uint8_t *ptr, size_t len);
+double ds_formula_dbe(const uint8_t *ptr, size_t len);
+int32_t ds_formula_composition_json(const uint8_t *ptr, size_t len, uint8_t *out, size_t cap);
+double ds_mass_error_ppm(double observed, double reference);
 double ds_adduct_neutral_mass(double mz, const uint8_t *ptr, size_t len);
 double ds_adduct_precursor_mz(double mass, const uint8_t *ptr, size_t len);
 double ds_logp_crippen(const uint8_t *ptr, size_t len);

@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-10-31T15:32:20.877490+09:00",
+  "status": "passed with pre-existing SMILES Clippy errors",
+  "base_commit": "fbd6f47f692b79de61ea92347bfd74d7e5ac3fa6",
+  "improvements": [
+    {
+      "id": "formula_weight",
+      "description": "Average atomic weights with explicit isotope masses",
+      "status": "verified"
+    },
+    {
+      "id": "formula_composition_json",
+      "description": "Aggregated element/isotope composition JSON",
+      "status": "verified"
+    },
+    {
+      "id": "formula_dbe",
+      "description": "Conservative neutral closed-shell CHNOFClBrI DBE",
+      "status": "verified"
+    },
+    {
+      "id": "mass_error_ppm",
+      "description": "Signed, reference-relative mass error",
+      "status": "verified"
+    },
+    {
+      "id": "v3000_atom_ids",
+      "description": "Sparse ID mapping and reference integrity",
+      "status": "verified"
+    },
+    {
+      "id": "v3000_blocks",
+      "description": "Balanced structure blocks and complete continuations",
+      "status": "verified"
+    },
+    {
+      "id": "sdf_separators",
+      "description": "Complete delimiter lines; preserve dollar substrings",
+      "status": "verified"
+    },
+    {
+      "id": "sdf_empty_names",
+      "description": "Preserve unnamed records including CRLF",
+      "status": "verified"
+    },
+    {
+      "id": "sdf_format_detection",
+      "description": "Exclude property data from format detection",
+      "status": "verified"
+    },
+    {
+      "id": "mol_coordinates",
+      "description": "f64 coordinates and stable centroid/radius computation",
+      "status": "verified"
+    }
+  ],
+  "rust_workspace": {
+    "command": "CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=2 cargo test --workspace --locked",
+    "passed": 1420,
+    "failed": 0,
+    "ignored": 2,
+    "suites_including_doctests": 72,
+    "ignored_tests": [
+      "test logp_crippen::print_values::print_logp_table ... ignored",
+      "test workbench::tests::supplied_population_preparation_acceptance ... ignored, external unselected100k source is supplied explicitly"
+    ]
+  },
+  "native_sql": {
+    "status": "passed",
+    "duckdb_version": "v1.5.2",
+    "sql_files": [
+      "chemistry_tools.test",
+      "mol_structure_integrity.test",
+      "formula_monoisotopic_mass.test",
+      "mol_input_validation.test",
+      "mass_context.test",
+      "function_catalog.test"
+    ],
+    "sql_queries_passed": 42,
+    "independent_cases": {
+      "monoisotopic_mass": 1000,
+      "average_weight": 1000,
+      "composition": 1000,
+      "dbe": 1000,
+      "ppm": 1000
+    },
+    "maximum_absolute_errors": {
+      "monoisotopic_mass_Da": 9.094947017729282e-13,
+      "average_weight_Da": 9.094947017729282e-13,
+      "ppm": 1.4210854715202004e-14
+    },
+    "oracle_seed": 20261031,
+    "extension_sha256": "1d1a7c651712305cf37e490075fa6ea88e94937200772a12b0bcdcd670b42350"
+  },
+  "catalog": "PASS: 435 overloads documented; 435 examples executed",
+  "clippy": {
+    "mol_all_targets_with_warnings_denied": "passed",
+    "smiles_all_targets": "95 pre-existing not_unsafe_ptr_arg_deref errors in unchanged crates/smiles/src/lib.rs; no diagnostics in changed mass_context or new integration tests"
+  },
+  "other_checks": {
+    "rustfmt_changed_rust_files": "passed",
+    "git_diff_check": "passed",
+    "rust_target_selection": "passed",
+    "msvc_fmt_shim": "passed",
+    "prebuilt_version_python_tests": 13,
+    "wasm_validator_node_tests": 6
+  },
+  "compatibility": {
+    "rust_mol_Atom_coordinates": "f32 -> f64, documented source API change",
+    "existing_C_ABI_signatures": "unchanged",
+    "new_C_ABI_exports": [
+      "ds_formula_weight",
+      "ds_formula_dbe",
+      "ds_formula_composition_json",
+      "ds_mass_error_ppm"
+    ],
+    "legacy_AFIX_v1_table_and_grammar": "unchanged",
+    "DBE_scope": "CHNOFClBrI only; P/S/metals and fractional/negative results rejected"
+  },
+  "build": {
+    "platform": "macOS arm64",
+    "duckdb": "v1.5.2",
+    "duckdb_source_commit": "8a5851971fae891f292c2714d86046ee018e9737",
+    "profile": "Debug, no C++ sanitizers to match installed CLI; no Rust debug info or incremental output"
+  },
+  "limits": [
+    "Physical mass uncertainty is not estimated; decimal checks use fixed vendored-table reference values.",
+    "Full Windows/Linux/Wasm native extension builds were not run locally."
+  ],
+  "source_sha256": {
+    "crates/mol/src/parser.rs": "495f0b84e4243b7c7510281c5791ebd99d0288b83603d2d72ddaa507f9062163",
+    "crates/smiles/src/mass_context.rs": "bc646357f0f9246cf0336b64817f55175161cad1ae516d97d7db26bcb7a8f12d",
+    "src/ducksmiles_extension.cpp": "3aa157cf4e5a7232092cd3e62b8c50e330e54d1b9c5e3e0970155a9532f2db1d",
+    "src/include/ducksmiles.h": "61b71f80de27ac5b51e50153cc4ff9290ed73bd1fcf29826a4315c01ac23773b",
+    "crates/smiles/tests/formula_tools.rs": "df8357f1bfae746e6a649bc26149c57ac2cab44d334898d55b86b906002014f0",
+    "crates/smiles/tests/formula_tools_ffi.rs": "0de5aa539b7f035ab337c14054104ff638d7e534d8ea1574f728b837e8489157",
+    "test/sql/chemistry_tools.test": "03cb1c20e7f53bf8d908645ccf22bf3596c7aa7559b1851c682f9961c3e41b22",
+    "test/sql/mol_structure_integrity.test": "2fdae8c8dc5c6512fe5c9bf70375053b782e0950a75de4db75032f6a877509de",
+    "test/sql/function_catalog.test": "05375b9cc1c6ed7587bebbda0d79c18df8f3c06e2afd111b594cc1866dedd0ca",
+    "scripts/check_chemistry_tools.py": "d10a00c8b43592f97f85cf8c236144f38231e1a958ae708a5336a32241f01096"
+  }
+}

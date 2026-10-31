@@ -1,0 +1,89 @@
+# name: test/sql/mol_structure_integrity.test
+# group: [sql]
+
+require ducksmiles
+
+# Sparse IDs refer to input atoms; JSON endpoints refer to output table indices.
+query T
+SELECT mol_block_bonds_json('sparse
+  test
+
+  0  0  0     0  0            999 V3000
+M  V30 BEGIN CTAB
+M  V30 COUNTS 2 1 0 0 0
+M  V30 BEGIN ATOM
+M  V30 10 C 0 0 0 0
+M  V30 20 O 1 0 0 0
+M  V30 END ATOM
+M  V30 BEGIN BOND
+M  V30 7 1 10 20
+M  V30 END BOND
+M  V30 END CTAB
+M  END');
+----
+[{"index":1,"atom1":1,"atom2":2,"bond_type":1}]
+
+query I
+SELECT mol_block_json('incomplete
+  test
+
+  0  0  0     0  0            999 V3000
+M  V30 BEGIN CTAB
+M  V30 COUNTS 1 0 0 0 0
+M  V30 BEGIN ATOM
+M  V30 10 C 0 0 0 0
+M  V30 END CTAB
+M  END') IS NULL;
+----
+true
+
+# Preserve the half-unit spread that f32 lost at this coordinate origin.
+query II
+WITH input AS (SELECT 'precise
+  test
+
+  2  1  0  0  0  0  0  0  0  0999 V2000
+ 100000000    0.0000    0.0000 C   0  0
+ 100000001    0.0000    0.0000 C   0  0
+  1  2  1  0
+M  END' AS mol)
+SELECT mol_block_centroid_x(mol) = 100000000.5,
+       abs(mol_block_radius_of_gyration(mol) - 0.5) < 1e-15 FROM input;
+----
+true	true
+
+# Empty names survive record boundaries; a dollar substring is ordinary data.
+query III
+WITH input AS (SELECT '
+  test
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 O   0  0
+M  END
+> <NOTE>
+value $$$$ kept
+$$$$suffix
+
+$$$$
+' AS sdf)
+SELECT sdf_count(sdf || sdf) = 2,
+       mol_block_name(sdf) = '',
+       sdf_property(sdf, 1, 'NOTE') = 'value $$$$ kept
+$$$$suffix' FROM input;
+----
+true	true	true
+
+# Property records cannot change the detected MOL version.
+query T
+SELECT mol_block_formula('water
+  test
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 O   0  0
+M  END
+> <NOTE>
+M  V30 not a CTAB record
+
+');
+----
+O

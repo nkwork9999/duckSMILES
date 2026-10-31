@@ -100,6 +100,59 @@ Regression coverage includes labelled and mixed formulas, additional elements,
 malformed labels, unknown isotopes, count/size limits, the C ABI, SQL NULLs,
 4,097-row vectors, filtered inputs and function catalog metadata.
 
+## Formula composition, average weight, DBE and mass error
+
+Three additional formula functions share the isotope-aware grammar and limits
+above. The AFIX v1 API remains separate.
+
+```sql
+SELECT formula_weight('C2H6O');              -- 46.069
+SELECT formula_weight('[13C]2H6O');          -- 48.05370968
+SELECT formula_dbe('C8H10N4O2');             -- 6
+SELECT formula_composition_json('[13C]CH4');
+-- [{"element":"C","isotope":null,"count":1},
+--  {"element":"C","isotope":13,"count":1},
+--  {"element":"H","isotope":null,"count":4}]
+SELECT mass_error_ppm(100.001, 100.0);        -- approximately +10
+SELECT mass_error_ppm(99.999, 100.0);         -- approximately -10
+```
+
+`formula_weight(VARCHAR) -> DOUBLE` uses the vendored average atomic weights
+for unlabelled atoms and explicit isotope masses for labelled atoms. It does
+not add implicit hydrogens: supply the complete molecular formula.
+
+`formula_composition_json(VARCHAR) -> VARCHAR` aggregates repeated tokens into
+`{element, isotope, count}` records. Isotope `null` denotes unlabelled atoms.
+Rows sort by element symbol, then unlabelled before increasing isotope number.
+The JSON array preserves the distinction between `C` and `[13C]`.
+
+`formula_dbe(VARCHAR) -> DOUBLE` applies `C + 1 + N/2 - (H + F + Cl + Br + I)/2`
+to neutral, closed-shell formulas restricted to C/H/N/O/F/Cl/Br/I. Isotopes count
+as their elements and O contributes zero. This is a conservative subset of
+the [IUPAC ring and double bond equivalent convention](https://goldbook.iupac.org/terms/view/12561).
+Unsupported elements (including P/S/metals), negative and half-integer results,
+charge suffixes and malformed formulas return NULL. A nonnegative integer DBE
+does not prove that a formula represents a realizable molecule or identify its
+rings and bonds.
+
+`mass_error_ppm(DOUBLE, DOUBLE) -> DOUBLE` returns the signed error
+`(observed_mass - reference_mass) / reference_mass * 1e6`. Both masses must be
+finite and positive; invalid inputs and nonfinite output return NULL. Use the
+same mass or m/z basis for both values. This function performs no charge or
+adduct conversion.
+
+The Rust functions in `mass_context` return `Option`; numeric C ABI exports
+return NaN for invalid input. `ds_formula_composition_json` returns -1 for
+invalid input, otherwise the required byte length. Null/short output buffers
+are not written; an adequately sized buffer receives the complete JSON bytes.
+
+Run the CLI-based SQL and independent decimal/composition checks with:
+
+```sh
+python3 scripts/check_chemistry_tools.py --duckdb /path/to/duckdb \
+  --extension /path/to/ducksmiles.duckdb_extension --receipt /path/to/receipt.json
+```
+
 ## AFIX indexing and BIO candidate structures
 
 The public **CASMI26: Metric Fusion Consensus Backfill** notebook's cell 9 embeds

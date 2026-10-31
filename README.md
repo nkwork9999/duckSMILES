@@ -16,6 +16,10 @@ For isotope-labelled formulas, use
 [`formula_monoisotopic_mass`](MASS_CONTEXT.md#isotope-labelled-formula-masses):
 `SELECT formula_monoisotopic_mass('[13C]6H12O6'); -- 186.083517144 Da`.
 
+[Formula analysis](MASS_CONTEXT.md#formula-composition-average-weight-dbe-and-mass-error)
+also provides `formula_weight`, `formula_composition_json`, conservative
+`formula_dbe`, and signed `mass_error_ppm` calculations.
+
 [`mol_graph_json`](NATIVE_GRAPH.md) exports a versioned native atom/bond graph
 sidecar with input atom order, H, charge, isotope and raw stereo metadata. It is
 not a pretrained GLACIER/ICEBERG tensor replacement.
@@ -732,6 +736,22 @@ fixed-width numeric fields is rejected safely; Unicode names and SDF properties
 are supported. Invalid blocks return `NULL` from molecule functions and are
 omitted by SDF parsing. V3000 counts are bounded by available records before
 allocation.
+
+V3000 atom IDs may be non-contiguous. Bond endpoints in JSON are mapped to the
+1-based indices of the exported atom table in input order. Duplicate IDs,
+missing/self references, malformed bond fields, unbalanced structure blocks
+and incomplete continuation records are rejected. This remains a parser for
+the supported atom/bond CTAB subset, not a full CTfile implementation.
+
+SDF separators are complete `$$$$` lines; dollar substrings in property values
+are preserved. Empty title lines and CRLF records are supported, and property
+text cannot switch a V2000 structure into V3000 parsing.
+
+MOL coordinates, centroids, bounds and radii of gyration now use double
+precision, retaining small spreads at large coordinate origins. **Rust source
+API change:** `ducksmiles_mol::parser::Atom.x/y/z` are now `f64` rather than `f32`;
+Rust callers supplying `f32` variables must convert them. C ABI signatures and
+SQL argument/result types are unchanged.
 
 #### `mol_block_name(mol) -> VARCHAR`
 
