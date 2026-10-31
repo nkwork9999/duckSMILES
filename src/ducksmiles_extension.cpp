@@ -248,7 +248,8 @@ DEFINE_DOUBLE_FUNC(FormulaWeightFunc, ds_formula_weight)
 DEFINE_DOUBLE_FUNC(FormulaDbeFunc, ds_formula_dbe)
 DEFINE_DYNAMIC_STR_FUNC(FormulaCompositionJsonFunc, ds_formula_composition_json)
 
-static void MassErrorPpmFunc(DataChunk &args, ExpressionState &state, Vector &result) {
+static void MassErrorPpmFunc(DataChunk &args, ExpressionState &state,
+                             Vector &result) {
   const auto count = args.size();
   ducksmiles_compat::Flatten(args.data[0], count);
   ducksmiles_compat::Flatten(args.data[1], count);
@@ -1310,29 +1311,53 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       "formula_exact_mass('C8H10N4O2')", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,
-      FallibleScalarFunction("formula_monoisotopic_mass", {LogicalType::VARCHAR},
-                             LogicalType::DOUBLE, FormulaMonoisotopicMassFunc),
+      FallibleScalarFunction("formula_monoisotopic_mass",
+                             {LogicalType::VARCHAR}, LogicalType::DOUBLE,
+                             FormulaMonoisotopicMassFunc),
       {"formula"},
-      "Sum neutral atomic masses from a strict flat formula, including explicit "
+      "Sum neutral atomic masses from a strict flat formula, including "
+      "explicit "
       "isotope labels such as [13C] and [2H], using the pinned SMILES periodic "
       "table. Unlabelled elements use their most abundant isotope. NULL for "
       "unknown isotopes, unsupported syntax or invalid input.",
       "formula_monoisotopic_mass('[13C]6H12O6')", "mass_spectrometry");
-  RegisterDocumentedScalar(loader,
-      FallibleScalarFunction("formula_weight", {LogicalType::VARCHAR}, LogicalType::DOUBLE, FormulaWeightFunc),
-      {"formula"}, "Calculate formula weight using pinned average atomic weights for unlabelled atoms and explicit isotope masses for labelled atoms. NULL for invalid input.",
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("formula_weight", {LogicalType::VARCHAR},
+                             LogicalType::DOUBLE, FormulaWeightFunc),
+      {"formula"},
+      "Calculate formula weight using pinned average atomic weights for "
+      "unlabelled atoms and explicit isotope masses for labelled atoms. NULL "
+      "for invalid input.",
       "formula_weight('C2H6O')", "mass_spectrometry");
-  RegisterDocumentedScalar(loader,
-      FallibleScalarFunction("formula_dbe", {LogicalType::VARCHAR}, LogicalType::DOUBLE, FormulaDbeFunc),
-      {"formula"}, "Calculate conservative neutral closed-shell DBE for CHNOFClBrI formulas, including isotopes. NULL for unsupported elements, negative or half-integer DBE, or invalid syntax. Does not validate molecular identity.",
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("formula_dbe", {LogicalType::VARCHAR},
+                             LogicalType::DOUBLE, FormulaDbeFunc),
+      {"formula"},
+      "Calculate conservative neutral closed-shell DBE for CHNOFClBrI "
+      "formulas, including isotopes. NULL for unsupported elements, negative "
+      "or half-integer DBE, or invalid syntax. Does not validate molecular "
+      "identity.",
       "formula_dbe('C8H10N4O2')", "mass_spectrometry");
-  RegisterDocumentedScalar(loader,
-      FallibleScalarFunction("formula_composition_json", {LogicalType::VARCHAR}, LogicalType::VARCHAR, FormulaCompositionJsonFunc),
-      {"formula"}, "Export sorted element/isotope counts as JSON. Repeated tokens are summed; labelled and unlabelled atoms remain distinct. NULL for invalid formula input.",
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("formula_composition_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, FormulaCompositionJsonFunc),
+      {"formula"},
+      "Export sorted element/isotope counts as JSON. Repeated tokens are "
+      "summed; labelled and unlabelled atoms remain distinct. NULL for invalid "
+      "formula input.",
       "formula_composition_json('[13C]CH4')", "mass_spectrometry");
-  RegisterDocumentedScalar(loader,
-      FallibleScalarFunction("mass_error_ppm", {LogicalType::DOUBLE, LogicalType::DOUBLE}, LogicalType::DOUBLE, MassErrorPpmFunc),
-      {"observed_mass", "reference_mass"}, "Calculate signed mass error as (observed_mass-reference_mass)/reference_mass*1e6. NULL for nonpositive or nonfinite masses and nonfinite output.",
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mass_error_ppm",
+                             {LogicalType::DOUBLE, LogicalType::DOUBLE},
+                             LogicalType::DOUBLE, MassErrorPpmFunc),
+      {"observed_mass", "reference_mass"},
+      "Calculate signed mass error as "
+      "(observed_mass-reference_mass)/reference_mass*1e6. NULL for nonpositive "
+      "or nonfinite masses and nonfinite output.",
       "mass_error_ppm(100.001, 100.0)", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,

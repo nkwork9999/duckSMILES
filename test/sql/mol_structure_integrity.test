@@ -5,48 +5,18 @@ require ducksmiles
 
 # Sparse IDs refer to input atoms; JSON endpoints refer to output table indices.
 query T
-SELECT mol_block_bonds_json('sparse
-  test
-
-  0  0  0     0  0            999 V3000
-M  V30 BEGIN CTAB
-M  V30 COUNTS 2 1 0 0 0
-M  V30 BEGIN ATOM
-M  V30 10 C 0 0 0 0
-M  V30 20 O 1 0 0 0
-M  V30 END ATOM
-M  V30 BEGIN BOND
-M  V30 7 1 10 20
-M  V30 END BOND
-M  V30 END CTAB
-M  END');
+SELECT mol_block_bonds_json(E'sparse\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 2 1 0 0 0\nM  V30 BEGIN ATOM\nM  V30 10 C 0 0 0 0\nM  V30 20 O 1 0 0 0\nM  V30 END ATOM\nM  V30 BEGIN BOND\nM  V30 7 1 10 20\nM  V30 END BOND\nM  V30 END CTAB\nM  END');
 ----
 [{"index":1,"atom1":1,"atom2":2,"bond_type":1}]
 
 query I
-SELECT mol_block_json('incomplete
-  test
-
-  0  0  0     0  0            999 V3000
-M  V30 BEGIN CTAB
-M  V30 COUNTS 1 0 0 0 0
-M  V30 BEGIN ATOM
-M  V30 10 C 0 0 0 0
-M  V30 END CTAB
-M  END') IS NULL;
+SELECT mol_block_json(E'incomplete\n  test\n\n  0  0  0     0  0            999 V3000\nM  V30 BEGIN CTAB\nM  V30 COUNTS 1 0 0 0 0\nM  V30 BEGIN ATOM\nM  V30 10 C 0 0 0 0\nM  V30 END CTAB\nM  END') IS NULL;
 ----
 true
 
 # Preserve the half-unit spread that f32 lost at this coordinate origin.
 query II
-WITH input AS (SELECT 'precise
-  test
-
-  2  1  0  0  0  0  0  0  0  0999 V2000
- 100000000    0.0000    0.0000 C   0  0
- 100000001    0.0000    0.0000 C   0  0
-  1  2  1  0
-M  END' AS mol)
+WITH input AS (SELECT E'precise\n  test\n\n  2  1  0  0  0  0  0  0  0  0999 V2000\n 100000000    0.0000    0.0000 C   0  0\n 100000001    0.0000    0.0000 C   0  0\n  1  2  1  0\nM  END' AS mol)
 SELECT mol_block_centroid_x(mol) = 100000000.5,
        abs(mol_block_radius_of_gyration(mol) - 0.5) < 1e-15 FROM input;
 ----
@@ -54,36 +24,15 @@ true	true
 
 # Empty names survive record boundaries; a dollar substring is ordinary data.
 query III
-WITH input AS (SELECT '
-  test
-
-  1  0  0  0  0  0  0  0  0  0999 V2000
-    0.0000    0.0000    0.0000 O   0  0
-M  END
-> <NOTE>
-value $$$$ kept
-$$$$suffix
-
-$$$$
-' AS sdf)
+WITH input AS (SELECT E'\n  test\n\n  1  0  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 O   0  0\nM  END\n> <NOTE>\nvalue $$$$ kept\n$$$$suffix\n\n$$$$\n' AS sdf)
 SELECT sdf_count(sdf || sdf) = 2,
        mol_block_name(sdf) = '',
-       sdf_property(sdf, 1, 'NOTE') = 'value $$$$ kept
-$$$$suffix' FROM input;
+       sdf_property(sdf, 1, 'NOTE') = E'value $$$$ kept\n$$$$suffix' FROM input;
 ----
 true	true	true
 
 # Property records cannot change the detected MOL version.
 query T
-SELECT mol_block_formula('water
-  test
-
-  1  0  0  0  0  0  0  0  0  0999 V2000
-    0.0000    0.0000    0.0000 O   0  0
-M  END
-> <NOTE>
-M  V30 not a CTAB record
-
-');
+SELECT mol_block_formula(E'water\n  test\n\n  1  0  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 O   0  0\nM  END\n> <NOTE>\nM  V30 not a CTAB record\n\n');
 ----
 O
