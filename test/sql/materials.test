@@ -1,5 +1,6 @@
 # name: test/sql/materials.test
 # group: [sql]
+
 require ducksmiles
 require json
 
