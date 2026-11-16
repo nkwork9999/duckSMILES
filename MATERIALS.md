@@ -14,6 +14,8 @@ Examples: `CsPbI3`, `Cs0.5Rb0.5Pb(I0.8Br0.2)3`, `Ca(OH)2`. Input is ASCII,
 amounts, never hydrate separators. Charges, isotopes, hydrate separators, variable
 symbols and implicit MA/FA aliases are unsupported; expand organic cations to
 explicit elemental compositions when computing composition-only features.
+Amounts or normalized fractions that underflow to zero are rejected rather than
+emitting zero occupancies or nonfinite JSON values.
 
 The result contains alphabetically sorted element amounts and atomic fractions,
 number of elements, formula amount and formula weight (g/mol of the entered
@@ -155,7 +157,7 @@ and chemicals logarithmic mixing (development-only Python dependencies).
 ### Verified checkpoint
 
 The [validation receipt](tasks/evidence/materials-validation.json) records:
-1,428 Rust tests passed, zero failed, two pre-existing ignored tests; 4,385 native
+1,429 Rust tests passed, zero failed, two pre-existing ignored tests; 4,386 native
 SQL/reference assertions passed on macOS arm64 Release, DuckDB 1.5.5. This
 includes 15 solvent/additive structures, nine compositions, 100 random radius and
 mixture cases, the noisy-temperature regression and selected multi-batch SQL

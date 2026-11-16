@@ -59,7 +59,11 @@ pub fn composition(formula: &str) -> Option<BTreeMap<String, f64>> {
             };
             let scale = amount(b, i)?;
             for (e, n) in terms {
-                *out.entry(e).or_insert(0.) += n * scale;
+                let scaled = n * scale;
+                if scaled <= 0. || !scaled.is_finite() {
+                    return None;
+                }
+                *out.entry(e).or_insert(0.) += scaled;
             }
             if out.values().sum::<f64>() > 1e6 {
                 return None;
@@ -86,6 +90,9 @@ pub fn composition_json(formula: &str) -> Option<String> {
             + 1;
         let mass = crate::weights::atomic_weight(e)?;
         let fraction = n / total;
+        if fraction <= 0. || !fraction.is_finite() {
+            return None;
+        }
         weight += n * mass;
         zmean += fraction * z as f64;
         entropy -= fraction * fraction.ln();

@@ -68,3 +68,10 @@ fn public_abi_capacity_null_and_utf8_contracts() {
         }
     }
 }
+
+#[test]
+fn composition_underflow_never_emits_nonfinite_json_or_zero_amounts() {
+    let tiny = format!("0.{}5", "0".repeat(323));
+    assert!(composition_json(&format!("C{tiny}H999999")).is_none());
+    assert!(composition(&format!("(C{tiny}){tiny}")).is_none());
+}

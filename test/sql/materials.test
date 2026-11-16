@@ -46,3 +46,11 @@ SELECT count(*) FROM range(4097)
 WHERE abs(json_extract(chem_viscosity_mix([[0.5,0.001],[0.5,0.004]], []), '$.viscosity_Pa_s')::DOUBLE - 0.002) < 1e-12;
 ----
 4097
+
+# Numerically unrepresentable occupancies must not produce NaN in JSON.
+query II
+WITH tiny AS (SELECT '0.' || repeat('0',323) || '5' AS x)
+SELECT composition_descriptors_json('C' || x || 'H999999') IS NULL,
+       composition_descriptors_json('(C' || x || ')' || x) IS NULL FROM tiny;
+----
+true	true
