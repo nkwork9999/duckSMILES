@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "checks": 4385,
+  "versions": {
+    "duckdb": "1.5.5",
+    "rdkit": "2026.3.6",
+    "pymatgen": "2026.10.24",
+    "scipy": "1.18.1",
+    "chemicals": "1.5.2"
+  },
+  "solvents": 15,
+  "solvent_max_abs_errors": {
+    "MolWt": 4.263256414560601e-14,
+    "MolLogP": 0,
+    "MolMR": 0,
+    "TPSA": 0,
+    "NumHDonors": 0,
+    "NumHAcceptors": 0,
+    "NumRotatableBonds": 0,
+    "HeavyAtomCount": 0,
+    "FractionCSP3": 0,
+    "MaxPartialCharge": 5.551115123125783e-17,
+    "MinPartialCharge": 5.551115123125783e-17
+  },
+  "compositions": 9,
+  "random_perovskite_and_mixture_cases": 100,
+  "extension_sha256": "a695616b24de97384dd9460f600cb57862abd4ceec01695be20e452c6890ec87",
+  "scope": "native SQL, descriptors and correlation numerics; no experimental predictive-accuracy or full RDKit/structure parity claim",
+  "rust_tests": {
+    "passed": 1428,
+    "failed": 0,
+    "existing_ignored": 2
+  },
+  "native_build": {
+    "duckdb_source": "d8cdaa33fda8df955cc76ef58a280f68f4cd43fa",
+    "duckdb_version": "v1.5.5",
+    "configuration": "Release, macOS arm64, loadable extension, no sanitizers"
+  },
+  "analytics_clippy": "all targets, -D warnings: pass",
+  "smiles_clippy": "fails on existing not_unsafe_ptr_arg_deref functions outside this change; no lint suppression added"
+}

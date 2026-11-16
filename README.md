@@ -2,6 +2,10 @@
 
 **SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
+[Materials and liquid-viscosity tools](MATERIALS.md) add composition/perovskite
+descriptors, solvent and mixture feature profiles, temperature correlations,
+logarithmic mixing, and experimental viscosity fitting.
+
 [CPU analytics](#cpu-analytics-complete-sql-api-reference) adds statistical inference,
 regression and GLMs, multivariate analysis, experimental design, quality/MSA,
 distribution and survival methods, time-series forecasting and bounded predictive

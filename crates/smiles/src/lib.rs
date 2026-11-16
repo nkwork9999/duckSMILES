@@ -19,6 +19,7 @@ pub mod ion_context;
 mod logp_crippen;
 mod maccs;
 pub mod mass_context;
+pub mod materials;
 mod mcs;
 pub mod minhash;
 mod molhash;

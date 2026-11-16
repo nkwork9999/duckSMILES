@@ -22,6 +22,7 @@ pub mod latent;
 pub mod latent_inference;
 pub mod learning;
 pub mod market;
+pub mod materials;
 pub mod mixed;
 pub mod mixed_advanced;
 pub mod multivariate;
@@ -120,6 +121,8 @@ pub unsafe extern "C" fn ds_analytics_free(data: *mut u8, len: usize) {
 
 pub fn execute(operation: &str, data: &[Vec<f64>], parameters: &[f64]) -> Result<String, String> {
     match operation {
+        "perovskite_descriptors" | "mixture_descriptors" | "viscosity_arrhenius" | "viscosity_fit"
+        | "viscosity_mix" => materials::run(operation, data, parameters),
         "pls2_fit" | "pls2_predict" | "plsda_fit" | "plsda_predict" | "pls2_validate"
         | "plsda_validate" => pls_multivariate::run(operation, data, parameters),
         "zi_binomial"

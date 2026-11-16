@@ -247,6 +247,9 @@ DEFINE_DOUBLE_FUNC(FormulaMonoisotopicMassFunc, ds_formula_monoisotopic_mass)
 DEFINE_DOUBLE_FUNC(FormulaWeightFunc, ds_formula_weight)
 DEFINE_DOUBLE_FUNC(FormulaDbeFunc, ds_formula_dbe)
 DEFINE_DYNAMIC_STR_FUNC(FormulaCompositionJsonFunc, ds_formula_composition_json)
+DEFINE_DYNAMIC_STR_FUNC(CompositionDescriptorsJsonFunc,
+                        ds_composition_descriptors_json)
+DEFINE_DYNAMIC_STR_FUNC(SolventDescriptorsJsonFunc, ds_solvent_descriptors_json)
 
 static void MassErrorPpmFunc(DataChunk &args, ExpressionState &state,
                              Vector &result) {
@@ -1330,6 +1333,26 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       "unlabelled atoms and explicit isotope masses for labelled atoms. NULL "
       "for invalid input.",
       "formula_weight('C2H6O')", "mass_spectrometry");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("composition_descriptors_json",
+                             {LogicalType::VARCHAR}, LogicalType::VARCHAR,
+                             CompositionDescriptorsJsonFunc),
+      {"composition"},
+      "Element fractions, stoichiometry norms, atomic-number statistics and "
+      "formula weight. Positive fractional counts and parentheses; no hydrate "
+      "dots, charges or structure inference. NULL for invalid input.",
+      "composition_descriptors_json('Cs0.5Rb0.5PbI3')", "materials");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("solvent_descriptors_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, SolventDescriptorsJsonFunc),
+      {"smiles"},
+      "Versioned single-component molecular feature profile for "
+      "solvents/additives. Undefined descriptor values are JSON null. Does not "
+      "predict viscosity or solvent donor number; NULL for invalid or "
+      "disconnected input.",
+      "solvent_descriptors_json('CS(C)=O')", "materials");
   RegisterDocumentedScalar(
       loader,
       FallibleScalarFunction("formula_dbe", {LogicalType::VARCHAR},

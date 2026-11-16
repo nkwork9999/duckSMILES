@@ -1,0 +1,46 @@
+# name: test/sql/materials.test
+# group: [sql]
+require ducksmiles
+require json
+
+query III
+SELECT json_extract(composition_descriptors_json('Cs0.5Rb0.5PbI3'), '$.n_elements')::INT = 4,
+       json_extract(composition_descriptors_json('Ca(OH)2'), '$.formula_amount')::DOUBLE = 5,
+       composition_descriptors_json('XxPbI3') IS NULL;
+----
+true	true	true
+
+query III
+SELECT json_extract(solvent_descriptors_json('CCO'), '$.descriptors.NumHDonors')::INT = 1,
+       solvent_descriptors_json('CCO.O') IS NULL,
+       solvent_descriptors_json(NULL) IS NULL;
+----
+true	true	true
+
+query III
+SELECT json_extract(chem_perovskite_descriptors([[1.88,1.19,2.2,1.0,2.0,-1.0]], []), '$.rows[0].charge_balanced')::BOOLEAN,
+       abs(json_extract(chem_viscosity_mix([[0.5,0.001],[0.5,0.004]], []), '$.viscosity_Pa_s')::DOUBLE - 0.002) < 1e-12,
+       chem_viscosity_fit([[300.0,0.001],[300.0,0.002],[300.0,0.003]], []) IS NULL;
+----
+true	true	true
+
+query III
+SELECT chem_viscosity_arrhenius([[0.0]], [1.0,2.0]) IS NULL,
+       chem_viscosity_mix([[0.4,0.001],[0.4,0.004]], []) IS NULL,
+       chem_mixture_descriptors([[0.5,1.0],[0.5,NULL]], []) IS NULL;
+----
+true	true	true
+
+# Dictionary selections, repeated constants, NULLs and batches > DuckDB vector size.
+query II
+SELECT count(*), count(composition_descriptors_json(f))
+FROM (SELECT CASE WHEN i % 2 = 0 THEN 'CsPbI3' ELSE NULL END AS f FROM range(5000) t(i))
+WHERE f IS NOT NULL OR f IS NULL;
+----
+5000	2500
+
+query I
+SELECT count(*) FROM range(4097)
+WHERE abs(json_extract(chem_viscosity_mix([[0.5,0.001],[0.5,0.004]], []), '$.viscosity_Pa_s')::DOUBLE - 0.002) < 1e-12;
+----
+4097

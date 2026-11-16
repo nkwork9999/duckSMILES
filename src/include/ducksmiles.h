@@ -51,6 +51,10 @@ double ds_formula_exact_mass(const uint8_t *ptr, size_t len);
 double ds_formula_monoisotopic_mass(const uint8_t *ptr, size_t len);
 double ds_formula_weight(const uint8_t *ptr, size_t len);
 double ds_formula_dbe(const uint8_t *ptr, size_t len);
+int32_t ds_composition_descriptors_json(const uint8_t *ptr, size_t len,
+                                        uint8_t *out, size_t out_cap);
+int32_t ds_solvent_descriptors_json(const uint8_t *ptr, size_t len,
+                                    uint8_t *out, size_t out_cap);
 int32_t ds_formula_composition_json(const uint8_t *ptr, size_t len,
                                     uint8_t *out, size_t cap);
 double ds_mass_error_ppm(double observed, double reference);
