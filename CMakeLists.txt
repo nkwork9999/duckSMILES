@@ -187,6 +187,12 @@ if(APPLE)
 elseif(WIN32)
     target_link_libraries(${EXTENSION_NAME} ws2_32 userenv bcrypt ntdll)
     target_link_libraries(${LOADABLE_EXTENSION_NAME} ws2_32 userenv bcrypt ntdll)
+    if(MSVC)
+        # Rust std uses WaitOnAddress/WakeByAddress* on current Windows toolchains.
+        # These imports are supplied by the Windows SDK Synchronization library.
+        target_link_libraries(${EXTENSION_NAME} synchronization)
+        target_link_libraries(${LOADABLE_EXTENSION_NAME} synchronization)
+    endif()
 endif()
 
 install(
