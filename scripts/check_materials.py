@@ -50,6 +50,9 @@ def main():
         text = (root / 'test/sql' / name).read_text()
         for block in re.split(r'\n\s*\n', text):
             lines = [line for line in block.splitlines() if not line.startswith('#')]
+            if lines and lines[0].startswith('require '):
+                assert len(lines) == 1, 'sqllogictest requires an empty line after each require'
+                continue
             if not lines or not lines[0].startswith('query '):
                 continue
             split = lines.index('----')
