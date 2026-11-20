@@ -1,0 +1,14 @@
+name = "descriptorVerification"
+version = "0.1.0"
+defaultTargets = ["descriptor_check"]
+
+[[lean_lib]]
+name = "Descriptors"
+
+[[lean_exe]]
+name = "descriptor_check"
+root = "Main"
+
+[[lean_exe]]
+name = "bench_counts"
+root = "Bench"

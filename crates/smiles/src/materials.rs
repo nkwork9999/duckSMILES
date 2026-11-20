@@ -158,7 +158,7 @@ pub fn solvent_json(smiles: &str) -> Option<String> {
     Some(format!("{{\"schema\":1,\"method\":\"solvent-molecular-profile-v1\",\"descriptor_reference\":\"RDKit-2026.03.6\",\"formal_charge\":{},\"descriptors\":{{{}}}}}",d.formal_charge,features.join(",")))
 }
 
-unsafe fn json_ffi(
+pub(crate) unsafe fn json_ffi(
     ptr: *const u8,
     len: usize,
     out: *mut u8,

@@ -9,6 +9,9 @@ extern "C" {
 
 // ===================== SMILES crate =====================
 
+int32_t ds_workbench_catalog(uint8_t *out, size_t cap);
+int32_t ds_descriptor_values_json(const uint8_t *ptr, size_t len, uint8_t *out,
+                                  size_t cap);
 int32_t ds_mol_is_valid(const uint8_t *ptr, size_t len);
 int32_t ds_mol_num_atoms(const uint8_t *ptr, size_t len);
 int32_t ds_mol_num_fragments(const uint8_t *ptr, size_t len);
