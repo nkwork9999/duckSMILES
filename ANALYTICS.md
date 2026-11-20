@@ -487,3 +487,10 @@ UTF-8 JSON buffer, and requires freeing it with `ds_analytics_free` using its ex
 length. Rust calls expose error text as `Result`; the SQL wrapper deliberately
 returns `NULL` on failure. A successful Rust test does not replace loading the
 matching compiled DuckDB extension and exercising its SQL boundary.
+
+## Materials and liquid-viscosity methods
+
+Five additional numeric matrix methods cover perovskite site descriptors, mixture
+feature moments, temperature-dependent viscosity evaluation, experimental log-OLS
+fitting and liquid mixing. See [MATERIALS.md](MATERIALS.md) for the full parameter
+contracts, SI units, examples and independent reference checks.

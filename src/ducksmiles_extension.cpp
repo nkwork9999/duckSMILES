@@ -292,6 +292,10 @@ DEFINE_DOUBLE_FUNC(FormulaMonoisotopicMassFunc, ds_formula_monoisotopic_mass)
 DEFINE_DOUBLE_FUNC(FormulaWeightFunc, ds_formula_weight)
 DEFINE_DOUBLE_FUNC(FormulaDbeFunc, ds_formula_dbe)
 DEFINE_DYNAMIC_STR_FUNC(FormulaCompositionJsonFunc, ds_formula_composition_json)
+DEFINE_STR_FUNC(DescriptorValuesJsonFunc, ds_descriptor_values_json)
+DEFINE_DYNAMIC_STR_FUNC(CompositionDescriptorsJsonFunc,
+                        ds_composition_descriptors_json)
+DEFINE_DYNAMIC_STR_FUNC(SolventDescriptorsJsonFunc, ds_solvent_descriptors_json)
 
 static void MassErrorPpmFunc(DataChunk &args, ExpressionState &state,
                              Vector &result) {
@@ -585,8 +589,9 @@ static void PrepareReceptorFunc(DataChunk &args, ExpressionState &state,
   }
 }
 
-static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state,
-                                   Vector &result) {
+template <int32_t (*WriteJson)(uint8_t *, size_t)>
+static void StaticJsonFunc(DataChunk &args, ExpressionState &state,
+                           Vector &result) {
   idx_t count = args.size();
   auto result_data =
       ducksmiles_compat::ResultData<string_t>(result, args.size());
@@ -594,7 +599,7 @@ static void MolHashMethodsJsonFunc(DataChunk &args, ExpressionState &state,
   for (idx_t i = 0; i < count; i++) {
     result_data[i] = DynamicStringResult(
         result, validity, i, [&](uint8_t *out, size_t cap) -> int32_t {
-          return ds_mol_hash_methods_json(out, cap);
+          return WriteJson(out, cap);
         });
   }
 }
@@ -1389,6 +1394,26 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       "formula_weight('C2H6O')", "mass_spectrometry");
   RegisterDocumentedScalar(
       loader,
+      FallibleScalarFunction("composition_descriptors_json",
+                             {LogicalType::VARCHAR}, LogicalType::VARCHAR,
+                             CompositionDescriptorsJsonFunc),
+      {"composition"},
+      "Element fractions, stoichiometry norms, atomic-number statistics and "
+      "formula weight. Positive fractional counts and parentheses; no hydrate "
+      "dots, charges or structure inference. NULL for invalid input.",
+      "composition_descriptors_json('Cs0.5Rb0.5PbI3')", "materials");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("solvent_descriptors_json", {LogicalType::VARCHAR},
+                             LogicalType::VARCHAR, SolventDescriptorsJsonFunc),
+      {"smiles"},
+      "Versioned single-component molecular feature profile for "
+      "solvents/additives. Undefined descriptor values are JSON null. Does not "
+      "predict viscosity or solvent donor number; NULL for invalid or "
+      "disconnected input.",
+      "solvent_descriptors_json('CS(C)=O')", "materials");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("formula_dbe", {LogicalType::VARCHAR},
                              LogicalType::DOUBLE, FormulaDbeFunc),
       {"formula"},
@@ -1490,8 +1515,24 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       "mol_hash('CCO', 'element_graph')", "molecular");
   RegisterDocumentedScalar(
       loader,
+      FallibleScalarFunction("mol_descriptor_catalog_json", {},
+                             LogicalType::VARCHAR,
+                             StaticJsonFunc<ds_workbench_catalog>),
+      {}, "Return the molecular descriptor catalog in profile vector order.",
+      "mol_descriptor_catalog_json()", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction("mol_descriptor_values_json",
+                             {LogicalType::VARCHAR}, LogicalType::VARCHAR,
+                             DescriptorValuesJsonFunc),
+      {"smiles"},
+      "Return catalog-ordered molecular descriptor values as JSON. "
+      "Undefined entries are null. Unsupported input returns SQL NULL.",
+      "mol_descriptor_values_json('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
       FallibleScalarFunction("mol_hash_methods", {}, LogicalType::VARCHAR,
-                             MolHashMethodsJsonFunc),
+                             StaticJsonFunc<ds_mol_hash_methods_json>),
       {}, "List supported molecular hash method names as JSON.",
       "mol_hash_methods()", "molecular");
   RegisterDocumentedScalar(

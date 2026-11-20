@@ -72,6 +72,37 @@ pub fn analyze(input: &str) -> Option<BasicDescriptors> {
     Some(result)
 }
 
+fn append_values(json: &mut String, values: &[Option<f64>]) {
+    use std::fmt::Write;
+    json.push('[');
+    for (i, value) in values.iter().enumerate() {
+        if i > 0 {
+            json.push(',');
+        }
+        match value {
+            Some(v) => { let _ = write!(json, "{v}"); }
+            None => json.push_str("null"),
+        }
+    }
+    json.push(']');
+}
+
+/// # Safety
+/// Input/output regions must cover the declared lengths and be disjoint.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ds_descriptor_values_json(
+    ptr: *const u8, len: usize, out: *mut u8, cap: usize,
+) -> i32 {
+    unsafe {
+        crate::materials::json_ffi(ptr, len, out, cap, |s| {
+            let profile = analyze(s)?;
+            let mut json = String::new();
+            append_values(&mut json, &profile.descriptor_values);
+            Some(json)
+        })
+    }
+}
+
 /// UTF-8, newline-delimited input; one result per source row. Required length is
 /// returned without writing when capacity is insufficient. Negative = bad ABI input.
 ///
@@ -102,12 +133,9 @@ pub unsafe extern "C" fn ds_workbench_analyze(
                         d.formula, d.mw, d.exact_mass, d.heavy_atoms, d.bonds, d.formal_charge,
                         d.fragments, d.hbd, d.hba, d.tpsa, d.logp, d.rotatable_bonds, d.fraction_csp3);
                     json.pop(); // append the catalog-ordered vector to the existing object
-                    json.push_str(",\"descriptor_values\":[");
-                    for (i, value) in d.descriptor_values.iter().enumerate() {
-                        if i > 0 { json.push(','); }
-                        match value { Some(value) => { let _ = write!(json, "{value}"); }, None => json.push_str("null") }
-                    }
-                    json.push_str("]}");
+                    json.push_str(",\"descriptor_values\":");
+                    append_values(&mut json, &d.descriptor_values);
+                    json.push('}');
                 }
             }
         }

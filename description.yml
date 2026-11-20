@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
   description: Cheminformatics and numerical analytics for DuckDB - molecular formats, descriptors, fingerprints, similarity, PCA, clustering, regression, scaffold-controlled evaluation, experimental design and candidate-pool Bayesian optimization from SQL
-  version: 0.6.4
+  version: 0.7.1
   language: C++
   build: cmake
   requires_toolchains: rust
@@ -178,11 +178,20 @@ docs:
     a build containing the analytics module; older community packages may not
     include them.
 
-    The current source registers 430 SQL overloads, including 279 CPU analytics
+    The current source registers 442 SQL overloads, including 284 CPU analytics
     functions for inference, regression, design, time series, functional/text
     preprocessing, spatial models, reliability and model evaluation. No GPU or
     Python runtime is required. Contracts and remaining gaps are documented in
     [README](https://github.com/nkwork9999/duckSMILES#cpu-analytics-complete-sql-api-reference);
     these bounded methods do not establish full JMP equivalence.
+
+    **Materials and liquid viscosity:** composition and perovskite descriptors,
+    solvent/additive feature profiles, mixture feature moments, Andrade-Arrhenius
+    temperature evaluation and experimental fitting, and logarithmic liquid mixing
+    with optional binary Grunberg-Nissan interaction. Units, assumptions and
+    validation are documented in
+    [MATERIALS.md](https://github.com/nkwork9999/duckSMILES/blob/main/MATERIALS.md).
+    These explicit-input correlations do not establish precursor-ink predictive
+    accuracy or crystal phase stability.
 
     **Architecture:** Rust (core logic, 6 crates) + C++ (DuckDB integration via FFI)

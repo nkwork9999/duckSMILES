@@ -26,3 +26,26 @@ jobs:
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/ducksmiles-target
         run: cargo test --workspace --locked
+
+  lean-descriptors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install the pinned Lean toolchain
+        run: |
+          version=$(sed 's/^leanprover\/lean4:v//' verification/lean/lean-toolchain)
+          archive="lean-${version}-linux"
+          curl -fsSL --retry 3 "https://github.com/leanprover/lean4/releases/download/v${version}/${archive}.tar.zst" | tar --zstd -x -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/$archive/bin" >> "$GITHUB_PATH"
+      - name: Build and verify the executable specification
+        working-directory: verification/lean
+        run: lake build && lake env lean Tests.lean
+      - name: Compare the complete native profile with the independent oracle
+        run: |
+          python -m pip install 'rdkit==2026.3.6'
+          cargo rustc --release --locked -p ducksmiles_smiles --lib --crate-type cdylib
+          python verification/lean/integration.py target/release/libducksmiles_smiles.so

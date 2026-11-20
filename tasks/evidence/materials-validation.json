@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "checks": 4386,
+  "versions": {
+    "duckdb": "1.5.5",
+    "rdkit": "2026.3.6",
+    "pymatgen": "2026.10.24",
+    "scipy": "1.18.1",
+    "chemicals": "1.5.2"
+  },
+  "solvents": 15,
+  "solvent_max_abs_errors": {
+    "MolWt": 4.263256414560601e-14,
+    "MolLogP": 0,
+    "MolMR": 0,
+    "TPSA": 0,
+    "NumHDonors": 0,
+    "NumHAcceptors": 0,
+    "NumRotatableBonds": 0,
+    "HeavyAtomCount": 0,
+    "FractionCSP3": 0,
+    "MaxPartialCharge": 5.551115123125783e-17,
+    "MinPartialCharge": 5.551115123125783e-17
+  },
+  "compositions": 9,
+  "random_perovskite_and_mixture_cases": 100,
+  "extension_sha256": "54c5f48bac89c84945e342c63b3267ca49f3c755815960b7f3a6b387ef9e3dfe",
+  "scope": "native SQL, descriptors and correlation numerics; no experimental predictive-accuracy or full RDKit/structure parity claim",
+  "native_build": {
+    "duckdb_source": "d8cdaa33fda8df955cc76ef58a280f68f4cd43fa",
+    "duckdb_version": "v1.5.5",
+    "configuration": "Release, macOS arm64, loadable extension, no sanitizers",
+    "working_tree_base_commit": "ea09cd5f4d6afb71b44328498b6b432fd48a4e9c",
+    "source_identity": "Working-tree build; implementation hashes above lock the tested source independently of commit metadata."
+  },
+  "analytics_clippy": "all targets, -D warnings: pass",
+  "smiles_clippy": "fails on existing not_unsafe_ptr_arg_deref functions outside this change; no lint suppression added",
+  "rust_tests": {
+    "passed": 1429,
+    "failed": 0,
+    "existing_ignored": 2
+  },
+  "source_files_sha256": {
+    "CMakeLists.txt": "6c857c32bc0921b57a2658500a54ec6cf6185ef9c7991694540bca4056031005",
+    "Cargo.lock": "b40085f7825b3402a7118e9ae910806fa8e050f5b792c32981977304b0522c5a",
+    "crates/smiles/src/materials.rs": "48c2478182993ee23f15c62ae3aec325de2092e04e64dabc17b5dc9b93b7e5bd",
+    "crates/analytics/src/materials.rs": "4fa307ebfbd196c83b82588ea39feea6e96e00620fa453b6395a276d5cdcbe98",
+    "src/ducksmiles_extension.cpp": "b4b0e477413df038f98f8a79ddc3577880a0ec23a6701cbdfde7079aa6d444cb",
+    "src/include/analytics_registry.inc": "7aede9fc6e8dda65281910c8e3bb376d5eaad5f6f30aa1c53d198cf4d5cdae5b"
+  }
+}

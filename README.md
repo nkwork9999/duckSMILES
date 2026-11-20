@@ -2,6 +2,14 @@
 
 **SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
+The [Lean 4 descriptor verifier](verification/lean/README.md) checks complete
+291-column molecular profiles. SQL exposes their ordered metadata through
+`mol_descriptor_catalog_json()` and values through `mol_descriptor_values_json(smiles)`.
+
+[Materials and liquid-viscosity tools](MATERIALS.md) add composition/perovskite
+descriptors, solvent and mixture feature profiles, temperature correlations,
+logarithmic mixing, and experimental viscosity fitting.
+
 [CPU analytics](#cpu-analytics-complete-sql-api-reference) adds statistical inference,
 regression and GLMs, multivariate analysis, experimental design, quality/MSA,
 distribution and survival methods, time-series forecasting and bounded predictive
