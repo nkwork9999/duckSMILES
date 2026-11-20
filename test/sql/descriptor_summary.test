@@ -1,0 +1,21 @@
+# name: test/sql/descriptor_summary.test
+# description: Fixed molecular descriptor bundle agrees with individual functions
+# group: [sql]
+
+require ducksmiles
+
+query I
+WITH inputs AS (SELECT CASE i % 5 WHEN 0 THEN 'O' WHEN 1 THEN 'c1ccccc1'
+    WHEN 2 THEN '[13CH4]' WHEN 3 THEN 'invalid' ELSE NULL END AS s
+    FROM range(5000) t(i) WHERE i % 7 > 0),
+bundles AS (SELECT s, mol_descriptor_summary(s) AS bundle FROM inputs)
+SELECT count(*) FROM bundles WHERE bundle.weight IS DISTINCT FROM mol_weight(s)
+    OR bundle.atom_count IS DISTINCT FROM mol_num_atoms(s)
+    OR bundle.ring_count IS DISTINCT FROM ring_count(s);
+----
+0
+
+query I
+SELECT mol_descriptor_summary('invalid') IS NULL AND mol_descriptor_summary(NULL) IS NULL;
+----
+true

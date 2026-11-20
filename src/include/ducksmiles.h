@@ -90,6 +90,14 @@ int32_t ds_num_h_acceptors(const uint8_t *ptr, size_t len);
 int32_t ds_num_h_donors(const uint8_t *ptr, size_t len);
 int32_t ds_num_rotatable_bonds(const uint8_t *ptr, size_t len);
 int32_t ds_ring_count(const uint8_t *ptr, size_t len);
+
+typedef struct {
+  double weight;
+  int32_t atom_count;
+  int32_t ring_count;
+} DSDescriptorSummary;
+
+DSDescriptorSummary ds_descriptor_summary(const uint8_t *ptr, size_t len);
 int32_t ds_num_aromatic_rings(const uint8_t *ptr, size_t len);
 int32_t ds_num_heteroatoms(const uint8_t *ptr, size_t len);
 double ds_fraction_csp3(const uint8_t *ptr, size_t len);

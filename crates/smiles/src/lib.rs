@@ -858,6 +858,32 @@ pub extern "C" fn ds_mol_weight(ptr: *const u8, len: usize) -> f64 {
     }
 }
 
+/// Fixed descriptor bundle for a single parsed molecule.
+#[repr(C)]
+pub struct DescriptorSummary {
+    pub weight: f64,
+    pub atom_count: i32,
+    pub ring_count: i32,
+}
+
+/// Uses the same invalid-input sentinels as the individual descriptors.
+#[unsafe(no_mangle)]
+pub extern "C" fn ds_descriptor_summary(ptr: *const u8, len: usize) -> DescriptorSummary {
+    let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(ptr, len)) };
+    match parse(s) {
+        Some(mol) => DescriptorSummary {
+            weight: mol.molecular_weight(),
+            atom_count: mol.heavy_atom_count() as i32,
+            ring_count: ring_count(&mol) as i32,
+        },
+        None => DescriptorSummary {
+            weight: f64::NAN,
+            atom_count: -1,
+            ring_count: -1,
+        },
+    }
+}
+
 /// Returns monoisotopic mass, or NaN on invalid
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_mol_exact_mass(ptr: *const u8, len: usize) -> f64 {
