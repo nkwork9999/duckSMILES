@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
   description: Cheminformatics and numerical analytics for DuckDB - molecular formats, descriptors, fingerprints, similarity, PCA, clustering, regression, scaffold-controlled evaluation, experimental design and candidate-pool Bayesian optimization from SQL
-  version: 0.7.1
+  version: 0.8.0
   language: C++
   build: cmake
   requires_toolchains: rust
@@ -195,3 +195,8 @@ docs:
     accuracy or crystal phase stability.
 
     **Architecture:** Rust (core logic, 6 crates) + C++ (DuckDB integration via FFI)
+
+    The native mol_descriptor_summary(smiles) function returns average molecular weight,
+    heavy-atom count and ring count in one STRUCT from a single parse. The source
+    repository also includes a Python typed mass-window join and a batched descriptor
+    reader.

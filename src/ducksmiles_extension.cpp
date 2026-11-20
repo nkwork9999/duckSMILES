@@ -2548,7 +2548,7 @@ std::string DucksmilesExtension::Version() const {
 #ifdef EXT_VERSION_DUCKSMILES
   return EXT_VERSION_DUCKSMILES;
 #else
-  return "0.1.0";
+  return "0.8.0";
 #endif
 }
 
