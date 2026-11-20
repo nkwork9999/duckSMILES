@@ -1,5 +1,6 @@
 # name: test/sql/descriptor_profile.test
 # group: [sql]
+
 require ducksmiles
 require json
 
