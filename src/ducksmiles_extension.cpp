@@ -16,6 +16,10 @@
 #include "duckdb/common/types/vector.hpp"
 #endif
 
+#if __has_include("duckdb/common/vector/struct_vector.hpp")
+#include "duckdb/common/vector/struct_vector.hpp"
+#endif
+
 #include <cmath>
 #include <vector>
 
@@ -242,6 +246,47 @@ DEFINE_DOUBLE_FUNC(MolMeanDegreeFunc, ds_mol_mean_degree)
 DEFINE_STR_FUNC(MolFormulaFunc, ds_mol_formula)
 DEFINE_DOUBLE_FUNC(MolWeightFunc, ds_mol_weight)
 DEFINE_DOUBLE_FUNC(MolExactMassFunc, ds_mol_exact_mass)
+
+inline Vector &DescriptorField(Vector &field) { return field; }
+
+template <class Field> static Vector &DescriptorField(Field &field) {
+  return *field;
+}
+
+static void MolDescriptorSummaryFunc(DataChunk &args, ExpressionState &,
+                                     Vector &result) {
+  UnifiedVectorFormat input;
+  ducksmiles_compat::ToUnifiedFormat(args.data[0], args.size(), input);
+  const auto strings = UnifiedVectorFormat::GetData<string_t>(input);
+  auto &fields = StructVector::GetEntries(result);
+  auto weights = ducksmiles_compat::ResultData<double>(
+      DescriptorField(fields[0]), args.size());
+  auto atoms = ducksmiles_compat::ResultData<int32_t>(
+      DescriptorField(fields[1]), args.size());
+  auto rings = ducksmiles_compat::ResultData<int32_t>(
+      DescriptorField(fields[2]), args.size());
+  auto &validity = ducksmiles_compat::ResultValidity(result);
+  for (idx_t row = 0; row < args.size(); ++row) {
+    auto index = input.sel->get_index(row);
+    DSDescriptorSummary summary{0, -1, -1};
+    if (input.validity.RowIsValid(index)) {
+      const auto &value = strings[index];
+      summary = ds_descriptor_summary(
+          reinterpret_cast<const uint8_t *>(value.GetData()), value.GetSize());
+    }
+    if (summary.atom_count < 0) {
+      validity.SetInvalid(row);
+      for (auto &field : fields) {
+        ducksmiles_compat::ResultValidity(DescriptorField(field))
+            .SetInvalid(row);
+      }
+      continue;
+    }
+    weights[row] = summary.weight;
+    atoms[row] = summary.atom_count;
+    rings[row] = summary.ring_count;
+  }
+}
 DEFINE_DOUBLE_FUNC(FormulaExactMassFunc, ds_formula_exact_mass)
 DEFINE_DOUBLE_FUNC(FormulaMonoisotopicMassFunc, ds_formula_monoisotopic_mass)
 DEFINE_DOUBLE_FUNC(FormulaWeightFunc, ds_formula_weight)
@@ -1129,6 +1174,18 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       {"smiles"},
       "Test whether the SMILES is accepted by the supported parser.",
       "mol_is_valid('CCO')", "molecular");
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction(
+          "mol_descriptor_summary", {LogicalType::VARCHAR},
+          LogicalType::STRUCT({{"weight", LogicalType::DOUBLE},
+                               {"atom_count", LogicalType::INTEGER},
+                               {"ring_count", LogicalType::INTEGER}}),
+          MolDescriptorSummaryFunc),
+      {"smiles"},
+      "Calculate average molecular weight, heavy-atom count and "
+      "ring count from one parse. Returns NULL for invalid input.",
+      "mol_descriptor_summary('CCO')", "molecular");
   RegisterDocumentedScalar(loader,
                            ScalarFunction("mol_formula", {LogicalType::VARCHAR},
                                           LogicalType::VARCHAR, MolFormulaFunc),
@@ -2491,7 +2548,7 @@ std::string DucksmilesExtension::Version() const {
 #ifdef EXT_VERSION_DUCKSMILES
   return EXT_VERSION_DUCKSMILES;
 #else
-  return "0.1.0";
+  return "0.8.0";
 #endif
 }
 

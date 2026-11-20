@@ -2682,6 +2682,21 @@ Wasm toolchain, standard-library rebuild, and artifact checks:
 - Vectorized execution via DuckDB's `UnaryExecutor`
 - Invalid input returns `NULL` — never crashes
 
+## Embedded descriptor reader
+
+`MoleculeReader(connection).describe(["CCO", None, "O"])` in `python/ducksmiles_embedded.py` returns formula and molecular weight for each position. The query computes both descriptors per distinct input and binds the list as a single parameter. Invalid SMILES and missing inputs yield empty descriptor fields.
+
+The native scalar `mol_descriptor_summary(smiles)` returns a STRUCT with average molecular weight, heavy-atom count and ring count from one parse. Invalid or missing input returns NULL. The host-side `MassWindowSearch(connection).match(references, peaks, tolerance_ppm)` accepts tuples of `DaltonMass` and returns zero-based reference and peak positions and signed ppm errors.
+
+Give each active caller its own connection with the matching extension loaded. With Python 3.10+,
+the `duckdb` package and the matching installed extension, run the integration tests from the repository root:
+
+```sh
+python3 -m unittest discover -s python -v
+```
+
+Set `DUCKSMILES_TEST_EXTENSION` to the absolute path of a trusted local build to test it instead of the installed package.
+
 ## License
 
 MIT License
