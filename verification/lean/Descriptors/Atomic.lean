@@ -1,3 +1,4 @@
+import Descriptors.Labute
 import Descriptors.Numerical
 
 namespace Descriptors.Atomic
@@ -5,10 +6,8 @@ open Lean
 
 /-- Binary64 contribution bit patterns from the prepared molecular observations. -/
 structure Contribution where
-  area : Nat
   logp : Nat
   mr : Nat
-  estate : Nat
   partialCharge : Nat
   deriving FromJson
 
@@ -41,9 +40,8 @@ def family (label : String) (edges : List Float) (pairs : List (Float × Float))
 private def pyMin (a b : Float) := if b < a then b else a
 private def pyMax (a b : Float) := if b > a then b else a
 
-def values (rows : List Contribution) (hydrogenArea : Nat) : List (String × Json) := Id.run do
-  let area := rows.map fun a => decode a.area
-  let estate := rows.map fun a => decode a.estate
+def values (rows : List Contribution) (areas : Labute.Areas) (estate : List Float) : List (String × Json) := Id.run do
+  let area := areas.atoms
   let q := rows.map fun a => decode a.partialCharge
   let logp := rows.map fun a => decode a.logp
   let mr := rows.map fun a => decode a.mr
@@ -55,7 +53,7 @@ def values (rows : List Contribution) (hydrogenArea : Nat) : List (String × Jso
     | x :: tail => floatJson (tail.foldl f x)
   let absEstate := estate.map Float.abs
   return [
-    ("LabuteASA", floatJson (orderedSum area + decode hydrogenArea)),
+    ("LabuteASA", floatJson (orderedSum area + areas.hydrogen)),
     ("MinPartialCharge", floatJson minQ), ("MaxPartialCharge", floatJson maxQ),
     ("MinAbsPartialCharge", floatJson (pyMin minQ.abs maxQ.abs)),
     ("MaxAbsPartialCharge", floatJson (pyMax minQ.abs maxQ.abs)),

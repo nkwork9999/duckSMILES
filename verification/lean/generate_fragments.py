@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from rdkit import Chem, RDLogger, __version__
+from rdkit.Chem import QED
 
 HERE = Path(__file__).resolve().parent
 PATTERNS = HERE.parents[1] / "tasks/descriptors/fragment-patterns.json"
@@ -27,7 +28,8 @@ def predicate(node, molecule, nested):
     val = node.get("val")
     fields = {"AtomHCount": "hydrogens", "AtomAtomicNum": "z",
               "AtomTotalDegree": "totalDegree", "AtomExplicitDegree": "degree",
-              "AtomFormalCharge": "charge", "AtomInNRings": "rings", "AtomTotalValence": "valence"}
+              "AtomFormalCharge": "charge", "AtomInNRings": "rings", "AtomTotalValence": "valence",
+              "AtomIsotope": "isotope"}
     if desc in ("AtomAnd", "BondAnd", "AtomOr", "BondOr"):
         op = " && " if desc.endswith("And") else " || "
         expr = op.join(predicate(c, molecule, nested) for c in node["children"])
@@ -38,6 +40,10 @@ def predicate(node, molecule, nested):
         expr = f"(g.atom v).z == {z} && " + ("" if aromatic else "!") + "(g.atom v).aromatic"
     elif desc == "AtomIsAromatic" and val == 1:
         expr = "(g.atom v).aromatic"
+    elif desc == "AtomIsAliphatic" and val == 1:
+        expr = "!(g.atom v).aromatic"
+    elif desc == "AtomInRing" and val == 1:
+        expr = "(g.atom v).rings > 0"
     elif desc == "BondInRing" and val == 1:
         expr = "b >= 32"
     elif desc == "AtomInNRings" and val == -1:
@@ -85,27 +91,46 @@ def render():
              "-- RDKit fragment definitions. See RDKIT-DATA-LICENSE.txt.",
              "import Descriptors.Fragment", "", "namespace Descriptors.Fragment", ""]
     specs = manifest["descriptors"] + [dict(id=name, smarts=smarts) for name, smarts in LIPINSKI.items()]
-    for spec in specs:
-        nested = []
-        parsed = Chem.MolFromSmarts(spec["smarts"])
-        mol, = json.loads(Chem.MolsToJSON([parsed]))["molecules"]
-        body = query(mol, nested)
-        lines += [f"-- {spec['smarts']}", f"private def {spec['id']} (g : Graph) : List Step :="]
-        lines += [f"  let {name} : List Step := {q}" for name, q in nested]
-        lines += ["  " + body, ""]
+    compiled = [(spec["id"], spec["smarts"], Chem.MolFromSmarts(spec["smarts"])) for spec in specs]
+    lines += render_patterns(compiled)
     lines.append("def pattern? (g : Graph) : String → Option (List Step)")
     lines.extend(f'  | "{s["id"]}" => some ({s["id"]} g)' for s in specs)
     lines += ["  | _ => none", "", "end Descriptors.Fragment", ""]
     return "\n".join(lines)
 
 
+def render_patterns(patterns):
+    lines = []
+    for ident, smarts, parsed in patterns:
+        nested = []
+        mol, = json.loads(Chem.MolsToJSON([parsed]))["molecules"]
+        body = query(mol, nested)
+        lines += [f"-- {smarts}", f"private def {ident} (g : Graph) : List Step :="]
+        lines += [f"  let {name} : List Step := {q}" for name, q in nested]
+        lines += ["  " + body, ""]
+    return lines
+
+
+def render_qed():
+    lines = ["-- Generated from the pinned RDKit QED definitions by generate_fragments.py.",
+             "-- See RDKIT-DATA-LICENSE.txt.", "import Descriptors.Fragment", "",
+             "namespace Descriptors.Fragment", ""]
+    for name, queries in [("qedAcceptors", QED.Acceptors), ("qedAlerts", QED.StructuralAlerts),
+                          ("qedAliphatic", [QED.AliphaticRings])]:
+        patterns = [(f"{name}{i}", Chem.MolToSmarts(q), q) for i, q in enumerate(queries)]
+        lines += render_patterns(patterns)
+        lines += [f"def {name} (g : Graph) : List (List Step) :=",
+                  "  [" + ",\n   ".join(f"{i} g" for i, _, _ in patterns) + "]", ""]
+    return "\n".join(lines + ["end Descriptors.Fragment", ""])
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    contents = render()
-    if args.check:
-        if contents != OUTPUT.read_text():
-            raise SystemExit("Lean fragment patterns differ from pinned definitions")
-    else:
-        OUTPUT.write_text(contents)
+    for output, contents in ((OUTPUT, render()), (OUTPUT.with_name("QEDPatterns.lean"), render_qed())):
+        if args.check:
+            if contents != output.read_text():
+                raise SystemExit(f"{output.name} differs from pinned definitions")
+        else:
+            output.write_text(contents)

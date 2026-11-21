@@ -19,13 +19,15 @@ def coverage_details(spec):
     if k.startswith("fr_") or k in ("NumHDonors", "NumHAcceptors", "NumAmideBonds", "NumRotatableBonds"):
         return "SMARTS search on graph and perceived atom properties", "fragmentCount_spec; mem_embeddings_iff; rooted_iff"
     if k.startswith(("SMR_VSA", "SlogP_VSA", "EState_VSA", "VSA_EState", "PEOE_VSA")):
-        return "interval sums of prepared atomic contributions", "bin_at_first_larger"
+        if k.startswith(("EState_VSA", "VSA_EState")):
+            return "interval sums using calculated EState and calculated Labute areas", "accepts_shortest; bin_at_first_larger"
+        return "interval sums using calculated Labute areas and prepared atomic contributions", "bin_at_first_larger"
     if k.startswith(("ds_MWC", "ds_SRW")):
-        return "integer walk multiplicities on heavy graph; logarithmic reduction", "walkRow_counts"
+        return "integer walk multiplicities on heavy graph; logarithmic reduction", "allWalks_counts; closedWalks_counts"
     if spec["origin"] == "native-extra":
-        return "heavy graph distances and pair reductions", finite
-    if k.startswith("ds_Count"):
-        return "element count", "countAtoms_perm"
+        return "certified heavy graph distances and pair reductions", "accepts_shortest; mem_finitePairs"
+    if spec["origin"] == "native-profile":
+        return "integer reductions of perceived atom, bond and ring properties", "values_reordered; maximum_le"
     if k in ("NumHeterocycles",) or k.startswith(("NumAromatic", "NumAliphatic", "NumSaturated")):
         return "classify perceived ring basis", "classCounts_partition"
     if k in ("Ipc", "AvgIpc"):
@@ -33,12 +35,16 @@ def coverage_details(spec):
     if k.startswith("BCUT2D_"):
         return "Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties", finite
     if k == "qed":
-        return "eight prepared QED components; ADS and weighted geometric mean", finite
+        return "eight components computed from prepared graph and atom contributions; ADS and weighted geometric mean", "fragmentCount_spec; hasEmbedding_iff; accepts_shortest"
     if k.startswith("FpDensityMorgan"):
-        return "three rounds of Morgan refinement from initial atom invariants", finite
+        return "initial connectivity hash and three rounds of Morgan refinement", finite
     if k.startswith(("Chi", "Kappa")) or k in ("BalabanJ", "BertzCT", "Phi"):
         return "graph connectivity, path or distance formula", finite
-    if k in ("TPSA", "MolLogP", "MolMR", "HallKierAlpha", "LabuteASA") or k.endswith(("EStateIndex", "PartialCharge")):
+    if k == "LabuteASA":
+        return "bond overlaps and periodic-table radii", finite
+    if k.endswith("EStateIndex"):
+        return "intrinsic states and distance perturbations", "accepts_shortest"
+    if k in ("TPSA", "MolLogP", "MolMR", "HallKierAlpha") or k.endswith("PartialCharge"):
         return "reduction of prepared atomic contributions", finite
     return "atom, bond, stereo or perceived-ring aggregation", finite
 

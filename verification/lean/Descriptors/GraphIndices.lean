@@ -1,3 +1,4 @@
+import Descriptors.Distance
 import Descriptors.Fragment
 import Descriptors.Numerical
 
@@ -68,26 +69,78 @@ def mdeClasses : List (String × Nat × Nat × Nat) :=
     (List.range' 1 limit).flatMap fun a => (List.range' a (limit + 1 - a)).map fun b =>
       (s!"ds_MDE{label}{a}{b}", z, a, b)
 
-private def walkColumns (g : Fragment.Graph) (vs : List Nat) (adj : Adj) : List (String × Json) := Id.run do
-  let mut total := Array.replicate 11 0
-  let mut closed := Array.replicate 11 0
-  for j in vs do
-    for k in [3:11] do
-      let row := walkRow g.atoms.size adj j k
-      total := total.modify k (· + (vs.map (fun i => row[i]!)).sum)
-      closed := closed.modify k (· + row[j]!)
-  return (List.range' 3 8).flatMap fun k =>
-    [(s!"ds_MWC{k}", floatJson (Float.log ((total[k]! + 1).toFloat))),
-     (s!"ds_SRW{k}", floatJson (Float.log ((closed[k]! + 1).toFloat)))]
+/-- Ordered pairs from a list containing each heavy vertex once.
+The sentinel is excluded so disconnected components contribute separately. -/
+def finitePairs (n : Nat) (vertices : List Nat) (d : Nat → Nat → Nat) :
+    List (Nat × Nat × Nat) :=
+  vertices.flatMap fun i => vertices.filterMap fun j =>
+    if i < j && d i j ≤ n then some (i, j, d i j) else none
 
-def values (g : Fragment.Graph) : List (String × Json) := Id.run do
+theorem mem_finitePairs (n : Nat) (vertices : List Nat) (d : Nat → Nat → Nat) (i j k : Nat) :
+    (i,j,k) ∈ finitePairs n vertices d ↔
+    i ∈ vertices ∧ j ∈ vertices ∧ i < j ∧ k = d i j ∧ k ≤ n := by
+  simp only [finitePairs, List.mem_flatMap, List.mem_filterMap]
+  constructor
+  · rintro ⟨a, ha, b, hb, pair⟩
+    split at pair
+    · rename_i h
+      simp only [Bool.and_eq_true] at h
+      obtain ⟨lt, le⟩ := h
+      simp only [decide_eq_true_eq] at lt le
+      cases pair
+      exact ⟨ha, hb, lt, rfl, le⟩
+    · contradiction
+  · rintro ⟨hi, hj, lt, rfl, le⟩
+    exact ⟨i, hi, j, hj, by simp [lt, le]⟩
+
+def allWalks (n : Nat) (vs : List Nat) (adj : Adj) (k : Nat) : Nat :=
+  (vs.map (fun j => let row := walkRow n adj j k
+                    (vs.map (fun i => row[i]?.getD 0)).sum)).sum
+
+def closedWalks (n : Nat) (vs : List Nat) (adj : Adj) (k : Nat) : Nat :=
+  (vs.map (fun j => (walkRow n adj j k)[j]?.getD 0)).sum
+
+theorem allWalks_counts (n : Nat) (vs : List Nat) (adj : Adj) (k : Nat)
+    (within : ∀ i ∈ vs, i < n)
+    (closed : ∀ i < n, ∀ v ∈ adj i, v < n) :
+    allWalks n vs adj k =
+      (vs.map (fun j => (vs.map (fun i => (endpoints adj k i).count j)).sum)).sum := by
+  unfold allWalks
+  congr 1
+  apply List.map_congr_left
+  intro j _
+  dsimp
+  congr 1
+  exact List.map_congr_left fun i hi => walkRow_counts n adj closed j k i (within i hi)
+
+theorem closedWalks_counts (n : Nat) (vs : List Nat) (adj : Adj) (k : Nat)
+    (within : ∀ i ∈ vs, i < n)
+    (closed : ∀ i < n, ∀ v ∈ adj i, v < n) :
+    closedWalks n vs adj k = (vs.map (fun i => (endpoints adj k i).count i)).sum := by
+  unfold closedWalks
+  congr 1
+  exact List.map_congr_left fun i hi => walkRow_counts n adj closed i k i (within i hi)
+
+private def walkColumns (g : Fragment.Graph) (vs : List Nat) (adj : Adj) : List (String × Json) :=
+  (List.range' 3 8).flatMap fun k =>
+    [(s!"ds_MWC{k}", floatJson (Float.log ((allWalks g.atoms.size vs adj k + 1).toFloat))),
+     (s!"ds_SRW{k}", floatJson (Float.log ((closedWalks g.atoms.size vs adj k + 1).toFloat)))]
+
+#print axioms mem_finitePairs
+#print axioms allWalks_counts
+#print axioms closedWalks_counts
+
+def values (g : Fragment.Graph) : Except String (List (String × Json)) := do
   let vs := heavyVertices g
   let n := g.atoms.size
-  let adjRows := Array.ofFn (n := n) fun i => neighbors g i.val
+  let adjRows := Array.ofFn (n := n) fun i =>
+    if (g.atom i.val).z == 1 then [] else neighbors g i.val
   let adj := fun v => adjRows[v]!
   let d := distances n vs adj
-  let pairs := vs.flatMap fun i => (vs.filterMap fun j =>
-    if i < j && d[i]![j]! <= n then some (i, j, d[i]![j]!) else none)
+  for i in vs do
+    unless Distance.accepts n adj i (fun j => d[i]![j]!) do
+      throw s!"invalid heavy-atom distance row {i}"
+  let pairs := finitePairs n vs (fun i j => d[i]![j]!)
   let degree := fun i => (adj i).length
   let mut result := walkColumns g vs adj
   let mut wiener := 0

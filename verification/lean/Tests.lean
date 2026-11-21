@@ -52,3 +52,19 @@ example : Information.pathCoefficient 80 0 = 1 := by
 #guard match Information.coefficients (carbonPath 80) with
   | .ok coefficients => coefficients.getLast? == some 1
   | .error _ => false
+
+-- 0–1–2 and one isolated vertex. Reject a false shortcut, false
+-- unreachability, and a finite value for the isolated vertex.
+private def distanceChain : GraphIndices.Adj
+  | 0 => [1]
+  | 1 => [0,2]
+  | 2 => [1]
+  | _ => []
+
+private def verifyDistance (row : List Nat) :=
+  GraphIndices.Distance.accepts 4 distanceChain 0 (fun v => row[v]!)
+
+example : verifyDistance [0,1,2,5] = true := by decide
+example : verifyDistance [0,1,1,5] = false := by decide
+example : verifyDistance [0,1,5,5] = false := by decide
+example : verifyDistance [0,1,2,3] = false := by decide

@@ -1,17 +1,27 @@
 import Descriptors.Composition
 
 namespace Descriptors.Morgan
-open Lean Fragment Atomic
+open Lean Fragment Atomic Composition
 
 private def combine (seed value : UInt32) : UInt32 :=
   seed ^^^ (value + (0x9e3779b9 : UInt32) + (seed <<< 6) + (seed >>> 2))
 
+private def encodeSigned (x : Int) : UInt32 :=
+  (x % ((2 : Int)^32)).toNat.toUInt32
+
+def connectivityInvariant (atom : Atom) (prop : AtomProperties) : UInt32 :=
+  let isotopeDelta := ((decode prop.mass - decode prop.averageMass).toInt64).toInt
+  let terms := [atom.z.toUInt32, atom.totalDegree.toUInt32, atom.hydrogens.toUInt32,
+                encodeSigned atom.charge, encodeSigned isotopeDelta]
+  (if atom.rings > 0 then terms ++ [1] else terms).foldl combine 0
+
 /-- The bond-set mask is an unbounded natural, so ordering compares the most
 significant differing bond first regardless of the number of machine words. -/
-def values (g : Graph) (edges : List (Nat × Nat × Nat)) (initial : Array UInt32) :
+def values (g : Graph) (edges : List (Nat × Nat × Nat)) (props : Array AtomProperties) :
     List (String × Json) := Id.run do
   let n := g.atoms.size
   let heavy := (g.atoms.toList.filter (fun a => a.z > 1)).length
+  let initial := g.atoms.mapIdx (fun i a => connectivityInvariant a props[i]!)
   let mut current := initial
   let mut previous := Array.replicate n (0 : Nat)
   let mut dead := Array.replicate n false

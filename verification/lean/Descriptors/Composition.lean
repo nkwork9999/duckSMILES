@@ -6,6 +6,7 @@ open Lean Fragment Atomic
 
 structure AtomProperties where
   mass : Nat
+  averageMass : Nat
   exactMass : Nat
   attachedH : Nat
   outer : Nat

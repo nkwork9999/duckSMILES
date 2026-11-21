@@ -22,6 +22,7 @@ from gen_rdkit_fixtures import MOLECULES
 HYDROGEN_CASES = ["CCO", "[H]O[H]", "[2H]O[2H]", "[H]C([H])([H])[H]", "[H]OC", "[H]N(C)C"]
 INFORMATION_CASES = ["C" * n for n in (20, 40, 64, 80)]
 UNSUPPORTED = ["C1", ""]
+DOMAIN_CASES = ["C |$label$|"]
 
 
 def raw_value(mol, name, functions):
@@ -93,6 +94,7 @@ def run(output, library=None, check=False):
     if oracle.rdkit.__version__ != "2026.03.6":
         raise ValueError("requires RDKit 2026.03.6")
     inputs = list(dict.fromkeys(MOLECULES + ["[H]", "[H][H]", "[2H]O[2H]", "[NH4+]", "[Xe]"] + UNSUPPORTED))
+    domain_differences = []
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         states, diff = compare(specs, inputs, functions, work)
@@ -118,6 +120,18 @@ def run(output, library=None, check=False):
             [HERE / ".lake/build/bin/descriptor_check", "audit", work / "catalog.json",
              work / "observations.json", actual_path], text=True))
         assert any(x["id"] == ipc[0]["id"] and x["smiles"] == INFORMATION_CASES[0] for x in mutated)
+        if library:
+            catalog_path = work / "catalog.json"
+            input_path = work / "observations.json"
+            catalog_path.write_text(json.dumps({"descriptors": specs}))
+            input_path.write_text(json.dumps(observations(DOMAIN_CASES), allow_nan=False))
+            modeled = json.loads(subprocess.check_output(
+                [HERE / ".lake/build/bin/descriptor_check", "reference", catalog_path, input_path], text=True))
+            actual = native.analyze(DOMAIN_CASES)
+            for s, result, model in zip(DOMAIN_CASES, actual, modeled, strict=True):
+                if (model["values"] is not None) != (result["status"] == "ok"):
+                    domain_differences.append({"smiles": s, "lean_columns": len(model["values"] or []),
+                                               "rust_status": result["status"]})
     counts = Counter(d["id"] for d in diff)
     hydrogen = Counter(d["id"] for d in hdiff)
     chains = Counter(d["id"] for d in idiff)
@@ -139,6 +153,7 @@ def run(output, library=None, check=False):
               "valid_rows": sum(parse(s) is not None for s in inputs), "registered_scalars": len(direct),
               "invalid_inputs": [{"smiles": s, "rdkit_default_atom_count": None if (mol := oracle.Chem.MolFromSmiles(s)) is None
                                   else mol.GetNumAtoms(), "ducksmiles_profile": None} for s in UNSUPPORTED],
+              "parser_domain_differences": domain_differences,
               "same_graph_differences": diff, "default_hydrogen_inputs": HYDROGEN_CASES,
               "default_hydrogen_differences": hdiff, "ipc_chain_lengths": list(map(len, INFORMATION_CASES)),
               "ipc_chain_differences": idiff, "ipc_rust_checked": bool(library),
@@ -147,6 +162,9 @@ def run(output, library=None, check=False):
     if check:
         if diff:
             raise ValueError(f"{len(diff)} unexpected discrepancies on the curated same-graph corpus")
+        if library and domain_differences != [{"smiles": DOMAIN_CASES[0], "lean_columns": len(specs),
+                                                "rust_status": "invalid_or_unsupported"}]:
+            raise ValueError("documented parser domain changed")
         water = next(item for item in hdiff if item["smiles"] == "[H]O[H]" and item["id"] == "Chi0")
         if water["observed"] != 0 or not math.isclose(water["modeled"], 2 + 1/math.sqrt(2)):
             raise ValueError("explicit hydrogen control changed")

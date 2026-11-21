@@ -10,8 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tasks/descriptors"))
 import compare_catalog as oracle
 from extra50_reference import reference as extra50
-from rdkit.Chem import QED, Crippen, rdMolDescriptors, rdPartialCharges
-from rdkit.Chem.EState import EStateIndices
+from rdkit.Chem import Crippen, rdMolDescriptors, rdPartialCharges
 
 CATALOG = ROOT / "tasks/descriptors/phase1-catalog.json"
 CORPUS = ["CCO", "C1CCCCC1", "c1ccncc1", "CC(=O)Oc1ccccc1C(=O)O",
@@ -66,14 +65,23 @@ def burden_observations(mol):
             "edges": [[b.GetBeginAtomIdx(), b.GetEndAtomIdx(), int(b.GetBondType())] for b in heavy.GetBonds()]}
 
 
+def qed_observations(mol):
+    prepared = oracle.Chem.RemoveHs(mol)
+    graph = graph_observations(prepared)
+    tpsa = rdMolDescriptors._CalcTPSAContribs(prepared)
+    crippen = Crippen._GetAtomContribs(oracle.Chem.AddHs(prepared), force=True)
+    atoms = [{"mass": bits(a.GetMass()), "attachedH": a.GetTotalNumHs(), "tpsa": bits(area)}
+             for a, area in zip(prepared.GetAtoms(), tpsa, strict=True)]
+    return {"vertices": graph["vertices"], "edges": graph["edges"], "ringFlags": graph["ringBonds"],
+            "atoms": atoms, "expandedLogP": [bits(lp) for lp, _ in crippen]}
+
+
 def atomic_observations(mol):
-    area, h_area = rdMolDescriptors._CalcLabuteASAContribs(mol)
     crippen = Crippen._GetAtomContribs(mol, force=True)
-    estate = EStateIndices(mol)
     rdPartialCharges.ComputeGasteigerCharges(mol)
-    rows = [{"area": bits(a), "mr": bits(mr), "logp": bits(lp), "estate": bits(e),
+    rows = [{"mr": bits(mr), "logp": bits(lp),
              "partialCharge": bits(atom.GetDoubleProp("_GasteigerCharge"))}
-            for atom, a, (lp, mr), e in zip(mol.GetAtoms(), area, crippen, estate, strict=True)]
+            for atom, (lp, mr) in zip(mol.GetAtoms(), crippen, strict=True)]
     table = oracle.Chem.GetPeriodicTable()
     tpsa = rdMolDescriptors._CalcTPSAContribs(mol)
     alpha = [0.0] * mol.GetNumAtoms()
@@ -89,14 +97,14 @@ def atomic_observations(mol):
     for i, atom in enumerate(mol.GetAtoms()):
         z, iso = atom.GetAtomicNum(), atom.GetIsotope()
         exact = table.GetMassForIsotope(z, iso) if iso else table.GetMostCommonIsotopeMass(z)
-        props.append(dict(mass=bits(atom.GetMass()), exactMass=bits(exact),
+        props.append(dict(mass=bits(atom.GetMass()), averageMass=bits(table.GetAtomicWeight(z)), exactMass=bits(exact),
                           attachedH=atom.GetTotalNumHs(), outer=table.GetNOuterElecs(z),
                           radical=atom.GetNumRadicalElectrons(), tpsa=bits(tpsa[i]), alpha=bits(alpha[i]),
                           hybrid=atom.GetHybridization().name, stereoPossible=bool(atom.HasProp("_ChiralityPossible")),
                           cipAssigned=bool(atom.HasProp("_CIPCode")), modernStereo=i in centers))
     expanded = Crippen._GetAtomContribs(oracle.Chem.AddHs(mol), force=True)
-    return {"qedProperties": list(map(bits, QED.properties(mol))), "burden": burden_observations(mol), "morganInitial": list(rdMolDescriptors.GetConnectivityInvariants(mol)),
-            "atomicContributions": rows, "hydrogenArea": bits(h_area), "atomProperties": props,
+    return {"qedGraph": qed_observations(mol), "burden": burden_observations(mol),
+            "atomicContributions": rows, "atomProperties": props,
             "expandedLogP": [bits(lp) for lp, _ in expanded], "expandedMR": [bits(mr) for _, mr in expanded]}
 
 
@@ -106,7 +114,7 @@ def graph_observations(mol):
     rings = list(mol.GetRingInfo().BondRings())
     return {"atoms": [a.GetSymbol() for a in atoms],
             "vertices": [
-                {"z": a.GetAtomicNum(), "aromatic": a.GetIsAromatic(),
+                {"z": a.GetAtomicNum(), "isotope": a.GetIsotope(), "aromatic": a.GetIsAromatic(),
                  "hydrogens": a.GetTotalNumHs(includeNeighbors=True),
                  "charge": a.GetFormalCharge(), "degree": a.GetDegree(),
                  "totalDegree": a.GetTotalDegree(), "rings": mol.GetRingInfo().NumAtomRings(a.GetIdx()),
