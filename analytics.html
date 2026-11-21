@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
+<title>統計・数値解析 · duckSMILES</title><link rel="stylesheet" href="style.css">
+<script src="search.js" defer></script>
+</head>
+<body data-project="ducksmiles">
+<a class="skip" href="#main">本文へ移動</a>
+<header class="masthead"><a href="index.html" class="product">duckSMILES</a>
+<a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
+<div class="layout"><nav aria-label="ドキュメント"><a href="index.html">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html" aria-current="page">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html">質量検索</a><a href="profiles.html">分子プロファイル</a><a href="verification.html">Leanでの記述子検証</a><a href="jmp.html">JMPとの機能比較</a><a href="wasm.html">Wasm ビルド</a></nav>
+<main id="main"><details class="toc" open><summary>このページの目次</summary><ul><li class="h2"><a href="#common-contract">Common contract</a></li><li class="h2"><a href="#exploration">Exploration</a></li><li class="h2"><a href="#regression-and-evaluation">Regression and evaluation</a></li><li class="h2"><a href="#experimental-design-and-response-surfaces">Experimental design and response surfaces</a></li><li class="h2"><a href="#candidate-pool-optimization">Candidate-pool optimization</a></li><li class="h2"><a href="#statistical-methods">Statistical methods</a></li><li class="h2"><a href="#resource-limits">Resource limits</a></li><li class="h2"><a href="#end-to-end-sql-example">End-to-end SQL example</a></li><li class="h2"><a href="#verification-and-extension-boundaries">Verification and extension boundaries</a></li><li class="h2"><a href="#materials-and-liquid-viscosity-methods">Materials and liquid-viscosity methods</a></li></ul></details><h1 id="sql-analytics">SQL analytics</h1>
+<p>This guide describes the original 24-function foundation. The complete current
+279-function API, individual examples, numerical limits and validation results
+are in <a href="guide.html#cpu-analytics-complete-sql-api-reference">README.md</a>.
+The researched JMP feature backlog is in <a href="jmp.html">JMP_PARITY.md</a>.</p>
+<p>The analytics API adds numerical exploration, regression, molecule-aware evaluation,
+experimental design, candidate selection, and a defined set of statistical methods
+to duckSMILES. Computation runs in the extension's dependency-free Rust core. It
+has no GUI and does not claim the full statistical coverage of JMP/JMP Pro.</p>
+<p>These functions require a build containing the analytics module; an older
+community extension package may not contain them. Check the loaded build:</p>
+<pre><code class="language-sql">SELECT function_name, parameters, description
+FROM duckdb_functions()
+WHERE starts_with(function_name, 'chem_')
+ORDER BY function_name;
+</code></pre>
+<h2 id="common-contract">Common contract</h2>
+<p>All numeric functions have the SQL signature
+<code>chem_function(data DOUBLE[][], parameters DOUBLE[]) -&gt; VARCHAR</code>. They return JSON
+with <code>&quot;version&quot;:1</code>. The generic entry point
+<code>chem_analyze(operation VARCHAR, data DOUBLE[][], parameters DOUBLE[])</code> calls the
+same operations, using the operation names in the tables below. The separate
+<code>chem_scaffold_folds(smiles VARCHAR[], parameters DOUBLE[])</code> wrapper computes
+molecular scaffolds before group partitioning; it is not a numeric
+<code>chem_analyze</code> operation.</p>
+<p>Each inner list is one observation. Its columns have the positional meaning
+specified below. Use <code>[]::DOUBLE[]</code> for an empty parameter list. Optional numeric
+parameters can be omitted from the end of a list. All input values must be finite,
+all rows must have the same nonzero width, and lists cannot contain <code>NULL</code>.
+Malformed, undefined, numerically singular, overflowing, or resource-limited
+requests return SQL <code>NULL</code> for that request. Missing-value imputation and
+categorical encoding are caller responsibilities. Individual JSON fields can be
+<code>null</code> where explicitly documented; that differs from a failed SQL request.</p>
+<p>JSON result indices and labels are zero based. DuckDB SQL list indexing is one
+based. Returned rows, labels, and prediction arrays preserve input order unless a
+result explicitly represents a ranking or a design. Always aggregate using a
+stable unique key, for example <code>list([mw, logp] ORDER BY id)</code>. Save the feature
+names, order, units, model JSON, input version, seed, and hyperparameters together
+when retaining a model.</p>
+<h2 id="exploration">Exploration</h2>
+<table>
+<thead>
+<tr>
+<th>SQL function / operation</th>
+<th>Data rows</th>
+<th>Parameters in order</th>
+<th>Main JSON fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chem_pca</code> / <code>pca</code></td>
+<td><code>[feature_0, ...]</code></td>
+<td><code>[components=min(p,n-1), standardize=0]</code></td>
+<td><code>mean</code>, <code>scale</code>, <code>components</code>, <code>scores</code>, <code>explained_variance</code>, <code>explained_variance_ratio</code></td>
+</tr>
+<tr>
+<td><code>chem_kmeans</code> / <code>kmeans</code></td>
+<td><code>[feature_0, ...]</code></td>
+<td><code>[clusters=min(2,n), max_iterations=300, seed=0]</code></td>
+<td><code>labels</code>, <code>centers</code>, <code>inertia</code>, <code>iterations</code>, <code>converged</code></td>
+</tr>
+</tbody>
+</table>
+<p>PCA requires at least two observations and <code>1 &lt;= components &lt;= min(p,n-1)</code>.
+It centers every feature and diagonalizes its sample covariance, using denominator
+<code>n-1</code>. Set <code>standardize=1</code> to divide features by their sample standard deviations;
+<code>0</code> uses their original units. Constant features use scale <code>1</code>. Component vectors
+are rows of <code>components</code>, ordered by descending variance. The largest absolute
+loading is assigned a positive sign for deterministic output. Explained-variance
+ratios are zero for a wholly constant matrix. Repeated eigenvalues can have
+nonunique component directions, so compare their subspaces when appropriate.</p>
+<p>For a new row <code>x</code>, reuse the saved model without refitting:</p>
+<pre><code class="language-text">z[j] = (x[j] - mean[j]) / scale[j]
+score[k] = sum_j z[j] * components[k][j]
+reconstruction[j] = mean[j] + scale[j] * sum_k score[k] * components[k][j]
+</code></pre>
+<p>The reconstruction is truncated if only some components were retained. There is
+no dedicated PCA prediction function; these saved arrays specify the transform.
+Do not fit PCA on held-out rows before evaluating a downstream predictor.</p>
+<p>K-means uses seeded k-means++ initialization followed by Euclidean assignment and
+mean updates. Features are used in their supplied units: standardize or weight
+them explicitly when needed. Inertia is the sum of squared distances to the
+returned centers. Empty clusters are repaired, including when repeated points
+produce fewer distinct positions than requested clusters. A capped run returns a
+consistent partition with <code>converged=false</code>; this is not a global-optimum claim.
+Cluster count is at most <code>min(n,256)</code>, and iterations must be in <code>1..10000</code>.</p>
+<h2 id="regression-and-evaluation">Regression and evaluation</h2>
+<table>
+<thead>
+<tr>
+<th>SQL function / operation</th>
+<th>Data rows</th>
+<th>Required parameters in order</th>
+<th>Main JSON fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chem_ridge</code> / <code>ridge</code></td>
+<td><code>[features..., target]</code></td>
+<td><code>[lambda]</code>, nonnegative</td>
+<td><code>intercept</code>, <code>coefficients</code>, <code>stable_predict_parameters</code>, <code>feature_means</code>, <code>feature_scales</code>, <code>metrics</code></td>
+</tr>
+<tr>
+<td><code>chem_pls</code> / <code>pls</code></td>
+<td><code>[features..., target]</code></td>
+<td><code>[components]</code>, integer <code>1..p</code></td>
+<td>Same model fields, plus <code>components_used</code></td>
+</tr>
+<tr>
+<td><code>chem_predict</code> / <code>predict</code></td>
+<td><code>[features...]</code></td>
+<td>Saved <code>stable_predict_parameters</code>, or <code>[intercept, coefficient_0, ...]</code></td>
+<td><code>predictions</code></td>
+</tr>
+<tr>
+<td><code>chem_cross_validate</code> / <code>cross_validate</code></td>
+<td><code>[features..., target, fold_id]</code></td>
+<td><code>[method, hyperparameter]</code>; method <code>0</code>=Ridge, <code>1</code>=PLS1</td>
+<td><code>out_of_fold_predictions</code>, <code>rmse</code>, <code>r2</code>, <code>fold_metrics</code>, <code>preprocessing</code></td>
+</tr>
+<tr>
+<td><code>chem_group_folds</code> / <code>group_folds</code></td>
+<td><code>[group_id]</code></td>
+<td><code>[n_folds, seed]</code></td>
+<td><code>folds</code>, <code>fold_sizes</code>, <code>n_groups</code></td>
+</tr>
+<tr>
+<td><code>chem_scaffold_folds</code></td>
+<td>List of SMILES strings</td>
+<td><code>[n_folds, seed]</code></td>
+<td>Same fold result</td>
+</tr>
+</tbody>
+</table>
+<p>Ridge and PLS1 require at least two training rows. Both center the target and
+center/scale each feature using the training population standard deviation
+<code>scale[j] = sqrt(sum_i (x[i,j]-mean[j])^2 / n)</code>; constant columns use scale <code>1</code>.
+Ridge minimizes</p>
+<pre><code class="language-text">sum_i (y[i] - intercept - sum_j beta[j]*z[i,j])^2
+    + lambda * sum_j beta[j]^2
+</code></pre>
+<p>The intercept is unpenalized; the penalty applies to coefficients in standardized
+feature units, and is not divided by the number of observations. Ridge uses an
+augmented QR solve. Zero-penalty unidentified designs are rejected; use a positive
+penalty or an appropriate reduced model. PLS1 supports a single response, deflates
+predictive components, and can use fewer components than requested when predictive
+rank is exhausted. Constant responses can produce zero predictive components.</p>
+<p>Returned linear <code>coefficients</code> and <code>intercept</code> are converted to the original
+feature units. <code>chem_predict</code> accepts raw feature rows; do not apply the stored
+standardization a second time. For portable models, pass the saved
+<code>stable_predict_parameters</code> vector unchanged. It contains
+<code>[response_origin, response_mean_offset, feature_origins..., feature_mean_offsets..., coefficients...]</code>
+and has length <code>3p+2</code>. The equivalent evaluation is
+<code>response_origin + (response_mean_offset + sum_j coefficients[j]*((x[j]-feature_origins[j])-feature_mean_offsets[j]))</code>.
+This preserves small differences around large numeric offsets. The older
+<code>[intercept, coefficients...]</code> form remains accepted but can lose precision through
+cancellation at extreme offsets. For example:</p>
+<pre><code class="language-sql">WITH model AS (
+    SELECT chem_ridge([[0.0,1.0],[1.0,3.0],[2.0,5.0]], [1.0]) AS j
+)
+SELECT chem_predict(
+    [[3.0],[4.0]],
+    json_extract(j, '$.stable_predict_parameters')::DOUBLE[]
+)
+FROM model;
+</code></pre>
+<p>Fit <code>metrics</code> are in-sample RMSE and R². The linear-regression/CV R² field is JSON
+<code>null</code> for a constant evaluation target. Cross-validation instead fits one model
+per held-out fold and reports predictions in original row order, pooled RMSE/R²,
+and each fold's train/test counts and metrics. Centering and scaling are fitted
+only on each training fold (<code>preprocessing=&quot;training_fold_only&quot;</code>). Each training
+partition still needs at least two rows and an identifiable chosen model.
+Hyperparameters are supplied explicitly; this is not nested tuning, automatic
+feature selection, or automatic preprocessing of arbitrary external features.</p>
+<p>Fold and group identifiers are exact nonnegative integers. There must be
+<code>2..1000</code> nonempty folds. <code>chem_group_folds</code> keeps each group indivisible, assigns
+larger groups first, and uses the seed to break ties while balancing row counts.
+The number of distinct groups must be at least the requested number of folds;
+exact balance is not always possible.</p>
+<p><code>chem_scaffold_folds</code> first validates the original SMILES, removes <code>@</code>, <code>/</code>, and
+<code>\</code> stereo annotations, then applies the native <code>murcko_scaffold</code> implementation
+and groups equal scaffold strings. Fold identity is deliberately achiral, so
+stereoisomers with otherwise identical supported structure stay together. All
+acyclic molecules share one empty-scaffold group. Invalid molecules fail the
+request. This inherits the
+native parser, aromaticity, and canonicalization limits described in the README;
+it does not promise grouping identical to another chemistry toolkit for every
+molecule. Scaffold grouping reduces a particular source of structural leakage; it
+does not remove duplicate-measurement, time, assay, target, or other leakage. Keep
+related measurements together using an appropriate explicit grouping when needed.</p>
+<h2 id="experimental-design-and-response-surfaces">Experimental design and response surfaces</h2>
+<table>
+<thead>
+<tr>
+<th>SQL function / operation</th>
+<th>Data rows</th>
+<th>Parameters in order</th>
+<th>Main JSON fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chem_factorial_design</code> / <code>factorial_design</code></td>
+<td>One <code>[low, high]</code> row per factor</td>
+<td><code>[center_points=0]</code></td>
+<td><code>rows</code>, <code>coded_rows</code>, <code>run_count</code>, <code>factors</code></td>
+</tr>
+<tr>
+<td><code>chem_central_composite_design</code> / <code>central_composite_design</code></td>
+<td>One <code>[low, high]</code> row per factor</td>
+<td><code>[alpha=2^(p/4), center_points=1]</code></td>
+<td>Same fields, plus <code>alpha</code></td>
+</tr>
+<tr>
+<td><code>chem_d_optimal_design</code> / <code>d_optimal_design</code></td>
+<td>Candidate feature rows</td>
+<td><code>[n_runs, max_iterations=50, seed=0]</code></td>
+<td><code>indices</code>, <code>rows</code>, <code>log_determinant</code>, <code>means</code>, <code>scales</code>, <code>exchanges</code>, <code>converged</code></td>
+</tr>
+<tr>
+<td><code>chem_response_surface</code> / <code>response_surface</code></td>
+<td><code>[features..., target]</code></td>
+<td><code>[lambda=0]</code></td>
+<td><code>terms</code>, <code>means</code>, <code>scales</code>, <code>coefficients</code>, <code>model_parameters</code>, <code>fitted</code>, <code>rmse</code>, <code>r2</code></td>
+</tr>
+<tr>
+<td><code>chem_response_surface_predict</code> / <code>response_surface_predict</code></td>
+<td>Raw feature rows</td>
+<td>Saved <code>model_parameters</code></td>
+<td><code>predictions</code></td>
+</tr>
+</tbody>
+</table>
+<p>Bounds require <code>low &lt; high</code>. A full factorial emits all <code>2^p</code> low/high
+combinations plus requested centers. The central composite design adds <code>2p</code>
+axial runs and centers to that factorial. Coded coordinates map to original units
+using <code>x=(low+high)/2 + z*(high-low)/2</code>. <strong>For <code>alpha &gt; 1</code>, axial runs extend beyond
+the supplied factorial bounds.</strong> These are not hard feasibility constraints.
+Choose a feasible face-centered design (<code>alpha=1</code>) or supply explicitly feasible
+candidates to D-optimal selection when bounds must be respected. Center counts
+must be nonnegative integers, and <code>alpha</code> must be positive.</p>
+<p>D-optimal selection adds an intercept to the supplied feature matrix, initializes
+a full-rank subset, adds rows greedily, and exchanges selected and unselected rows
+to increase <code>log(det(X'X))</code>. Exactly duplicate candidate feature rows are collapsed;
+returned indices refer to the original input and contain no repeats. The selected
+raw rows must come from the supplied candidate set, so constraints can be encoded
+by filtering that set beforehand. Encode desired squares or interactions in the
+candidate matrix yourself when optimizing information for that model.</p>
+<p>The reported determinant uses mean-centered features divided by each feature's
+half-range; <code>means</code> and <code>scales</code> document that basis. Translation and nonsingular
+feature rescaling preserve which subset maximizes the determinant, while changing
+its numeric value. Rank-deficient candidates or fewer than <code>p+1</code> requested runs
+are rejected. This is a local exchange procedure, not a certificate of the global
+D-optimum. <code>converged=false</code> means the exchange iteration budget was exhausted or
+no iterations were requested. Output indices are sorted in original input order.</p>
+<p>Response surfaces fit the full quadratic in normalized variables
+<code>z[j]=(x[j]-means[j])/scales[j]</code>, using arithmetic means and half-ranges (constant
+features use scale <code>1</code>). For <code>p</code> features there are
+<code>q=1+2p+p(p-1)/2</code> terms, ordered:</p>
+<ol>
+<li>Intercept.</li>
+<li><code>z0, z1, ...</code>.</li>
+<li><code>z0^2, z1^2, ...</code>.</li>
+<li><code>z0*z1, z0*z2, ...</code>, iterating pairs with <code>i&lt;j</code> lexicographically.</li>
+</ol>
+<p>Column-equilibrated, pivoted QR solves the model. A positive <code>lambda</code> adds a Ridge
+penalty on all normalized non-intercept terms and can identify an otherwise
+underdetermined fit. <code>lambda=0</code> requires numerical full rank. Coefficients remain
+in this normalized quadratic basis, unlike the linear regression coefficients.
+<code>model_parameters</code> contains <code>[p, means..., scales..., coefficients...]</code> and can be
+passed unchanged to <code>chem_response_surface_predict</code> with raw feature rows.
+<code>fitted</code>, RMSE, and R² describe the training observations; no validation split,
+confidence intervals, stationary-point search, or constrained response optimizer
+is implied. For a constant response, this operation reports R² <code>1</code> for an exact
+fit and <code>0</code> otherwise.</p>
+<h2 id="candidate-pool-optimization">Candidate-pool optimization</h2>
+<table>
+<thead>
+<tr>
+<th>SQL function / operation</th>
+<th>Data rows</th>
+<th>Required parameters in order</th>
+<th>Main JSON fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chem_gp_predict</code> / <code>gp_predict</code></td>
+<td>Training prefix <code>[features..., observed_target]</code>, then candidates <code>[features..., dummy_target]</code></td>
+<td><code>[n_train, length_scale, signal_variance, noise_variance, minimize, xi]</code></td>
+<td><code>predictions</code>, <code>variances</code>, <code>expected_improvement</code>, <code>ranked_candidate_indices</code>, <code>feature_means</code>, <code>feature_scales</code>, <code>target_mean</code></td>
+</tr>
+<tr>
+<td><code>chem_acquisition</code> / <code>acquisition</code></td>
+<td><code>[predictive_mean, predictive_sigma]</code></td>
+<td><code>[best, minimize, xi]</code></td>
+<td><code>expected_improvement</code></td>
+</tr>
+<tr>
+<td><code>chem_diversity_select</code> / <code>diversity_select</code></td>
+<td>Existing feature prefix, then candidate feature rows</td>
+<td><code>[n_select, n_existing]</code></td>
+<td><code>selected_indices</code></td>
+</tr>
+</tbody>
+</table>
+<p>The Gaussian process uses an isotropic RBF kernel after feature centering and
+population-standard-deviation scaling fitted only on the observed prefix:</p>
+<pre><code class="language-text">k(a,b) = signal_variance * exp(-0.5 * sum_j ((z[a,j]-z[b,j])/length_scale)^2)
+K_observed = k(X_train,X_train) + noise_variance * I
+</code></pre>
+<p><code>length_scale</code> and <code>signal_variance</code> must be positive; <code>noise_variance</code> is a
+nonnegative <strong>variance</strong>, not a standard deviation. A Cholesky solve rejects
+numerically singular covariance matrices; repeated training inputs may need
+positive noise. Target centering uses the observed mean; targets are not scaled.
+Thus signal and noise variances are in squared target units. Hyperparameters are
+supplied explicitly; there is no hidden likelihood optimization. Candidate dummy
+targets must be finite (use <code>0.0</code>) but are ignored by fitting, incumbent selection,
+and acquisition.</p>
+<p>Predictions, latent posterior variances, and EI arrays describe only the candidate
+suffix, in its original order. The variance excludes observation noise for a
+future measurement. <code>ranked_candidate_indices</code> orders candidates by decreasing
+expected improvement, with lower candidate index first on a tie. These indices
+start at zero within the candidate suffix, not within the full training-plus-
+candidate matrix. GP inference does not automatically remove candidate duplicates
+or points already observed; filter them before the call if required.</p>
+<p>Set <code>minimize=1</code> for minimization or <code>0</code> for maximization. <code>xi &gt;= 0</code> is the
+improvement margin. With <code>delta=best-mean-xi</code> for minimization or
+<code>delta=mean-best-xi</code> for maximization, EI is
+<code>delta*Phi(delta/sigma) + sigma*phi(delta/sigma)</code>, and <code>max(delta,0)</code> if <code>sigma=0</code>.
+<code>chem_acquisition</code> takes predictive <strong>standard deviation</strong> <code>sigma</code>, not variance.
+Its normal CDF uses convergent incomplete-gamma series and continued fractions
+to preserve small tail probabilities. Suggestions search the supplied finite
+pool; they do not optimize a continuous domain or run experiments.</p>
+<p>Diversity selection is deterministic farthest-first selection under squared
+Euclidean distances in the <strong>raw supplied feature units</strong>, without GP scaling or
+an acquisition score. It excludes the existing prefix and exact repeated
+positions. If no existing rows are supplied, it starts with the first candidate.
+It fails if too few distinct new positions remain. Returned indices are zero
+based in the <strong>full matrix</strong>, unlike the GP ranking's candidate-relative indices.
+Scale or weight heterogeneous descriptors before this distance calculation.</p>
+<h2 id="statistical-methods">Statistical methods</h2>
+<table>
+<thead>
+<tr>
+<th>SQL function / operation</th>
+<th>Data rows</th>
+<th>Required parameters</th>
+<th>Results and scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chem_summarize</code> / <code>summarize</code></td>
+<td>Numeric feature rows</td>
+<td><code>[]</code></td>
+<td>Column <code>means</code>, <code>sample_variances</code>, <code>standard_deviations</code>, <code>minima</code>, <code>maxima</code>; sample variance/SD are <code>null</code> for one row</td>
+</tr>
+<tr>
+<td><code>chem_welch_t_test</code> / <code>welch_t_test</code></td>
+<td><code>[value, group]</code>, group <code>0</code> or <code>1</code></td>
+<td><code>[]</code></td>
+<td>Two-sided Welch test: group sizes/means, group-0 minus group-1 <code>mean_difference</code>, <code>t_statistic</code>, Satterthwaite <code>degrees_of_freedom</code>, <code>p_value</code></td>
+</tr>
+<tr>
+<td><code>chem_one_way_anova</code> / <code>one_way_anova</code></td>
+<td><code>[value, group_id]</code></td>
+<td><code>[]</code></td>
+<td>One-way between-groups F test: sums of squares, degrees of freedom, <code>f_statistic</code>, <code>p_value</code></td>
+</tr>
+<tr>
+<td><code>chem_adjust_pvalues</code> / <code>adjust_pvalues</code></td>
+<td><code>[p_value]</code> in <code>[0,1]</code></td>
+<td><code>[method]</code>: <code>0</code>=Holm, <code>1</code>=Benjamini-Hochberg</td>
+<td><code>adjusted_p_values</code> in original input order</td>
+</tr>
+<tr>
+<td><code>chem_process_capability</code> / <code>process_capability</code></td>
+<td><code>[value]</code></td>
+<td><code>[lower_specification_limit, upper_specification_limit, within_process_sigma (optional)]</code></td>
+<td>Mean, overall sample SD, <code>pp</code>/<code>ppk</code>; <code>cp</code>/<code>cpk</code> only with supplied within-process sigma; descriptive mean ± 3 SD reference limits</td>
+</tr>
+<tr>
+<td><code>chem_kaplan_meier</code> / <code>kaplan_meier</code></td>
+<td><code>[time, event]</code>; time nonnegative, event <code>1</code>=event, <code>0</code>=right-censored</td>
+<td><code>[]</code></td>
+<td><code>times</code>, <code>at_risk</code>, <code>events</code>, <code>censored</code>, <code>survival</code>, <code>greenwood_variance</code>, <code>median_survival</code></td>
+</tr>
+<tr>
+<td><code>chem_random_intercept</code> / <code>random_intercept</code></td>
+<td><code>[value, group_id]</code></td>
+<td><code>[]</code></td>
+<td>Balanced one-way random-intercept ANOVA variance estimator: <code>within_group_variance</code>, <code>between_group_variance</code>, <code>icc</code>, grand mean and group counts</td>
+</tr>
+</tbody>
+</table>
+<p>Summaries use sample variance <code>s²=sum_i (x_i-mean)²/(n-1)</code>. For Welch, let
+<code>v_g=s_g²/n_g</code>; then <code>t=(mean_0-mean_1)/sqrt(v_0+v_1)</code> and the degrees of freedom
+are <code>(v_0+v_1)² / (v_0²/(n_0-1)+v_1²/(n_1-1))</code>. One-way ANOVA uses
+<code>SS_between=sum_g n_g*(mean_g-grand_mean)²</code>, <code>SS_within=sum_g sum_i (x_gi-mean_g)²</code>,
+and <code>F=(SS_between/(k-1))/(SS_within/(n-k))</code>.</p>
+<p>Welch requires at least two observations per group and fails when both group
+variances are zero. ANOVA needs at least two groups, positive residual degrees of
+freedom, and nonzero within-group variation. Its conventional F test assumes an
+appropriate independent-error, common-variance model; it is not Welch ANOVA.
+Welch/ANOVA p-values use numerical regularized incomplete beta calculations. No
+paired tests, nonparametric tests, factorial ANOVA, Tukey comparisons, or automatic
+assumption selection are implemented.</p>
+<p>Capability computes <code>pp=(USL-LSL)/(6*s)</code> and
+<code>ppk=min(USL-mean,mean-LSL)/(3*s)</code> using the <strong>overall sample SD</strong> <code>s</code>. At least
+two observations and a positive overall SD are required. Without the optional
+third parameter, <code>cp</code>/<code>cpk</code> and <code>within_process_sigma</code> are JSON <code>null</code>. When a
+positive within-process sigma is supplied, Cp/Cpk use that value instead of the
+overall SD; the function does not estimate within-process sigma from subgroups.
+<code>individual_lower_reference_limit</code> and <code>individual_upper_reference_limit</code> are
+descriptive <code>mean ± 3*s</code>, not validated control-chart limits. This does not assess
+process stability, normality, autocorrelation, subgroup structure, or
+measurement-system adequacy.</p>
+<p>Kaplan-Meier handles right censoring, with <code>S(t)=product_(u&lt;=t)(1-d_u/r_u)</code>
+for event counts <code>d_u</code> and at-risk counts <code>r_u</code>. Greenwood variance is
+<code>S(t)² * sum_(u&lt;=t) d_u/(r_u*(r_u-d_u))</code>, with variance <code>0</code> after survival reaches
+zero. At tied times, the risk set includes both events and same-time censors
+before the event decrement. The median is the first
+time survival reaches <code>0.5</code>, or JSON <code>null</code> if it never does. Greenwood variance
+is returned without confidence intervals. There is no left truncation, interval
+censoring, covariate model, log-rank test, Cox model, or general lifetime-model
+fitter.</p>
+<p>Random-intercept estimation requires at least two balanced groups with at least
+two replicates each. Residual variance is <code>MS_within</code>; the group variance is
+<code>max((MS_between-MS_within)/replicates,0)</code>. ICC is group variance divided by total
+variance, or <code>null</code> when total variance is zero. This is not a general mixed-model
+solver: no unbalanced groups, fixed covariates, random slopes, REML fitting,
+BLUPs, or variance-component confidence intervals are supplied.</p>
+<h2 id="resource-limits">Resource limits</h2>
+<p>The SQL/C ABI boundary accepts at most 100,000 rows, 1,024 columns, 1,000,000
+numeric cells, and 16,384 parameter values, and limits output to 64 MiB. The
+following stricter operation limits also apply; finite inputs can still fail if
+intermediate calculations overflow or numerical rank is inadequate.</p>
+<table>
+<thead>
+<tr>
+<th>Operations</th>
+<th>Additional limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PCA / k-means</td>
+<td>At most 256 features; absolute input magnitude &lt;= <code>1e150</code>. PCA <code>n*p*p &lt;= 500,000,000</code>; k-means <code>n*p*k*max_iterations &lt;= 500,000,000</code>.</td>
+</tr>
+<tr>
+<td>Ridge / PLS1 / CV</td>
+<td>At most 256 predictor features; fit <code>n*p*p &lt;= 100,000,000</code>; CV <code>n_folds*n*p*p &lt;= 100,000,000</code>.</td>
+</tr>
+<tr>
+<td>Scaffold folds</td>
+<td>At most 100,000 molecules, each at most 4,096 SMILES bytes, and at most 4 MiB of SMILES per call; native scaffold serialization is bounded to 65,536 bytes.</td>
+</tr>
+<tr>
+<td>DOE / response surface</td>
+<td>At most 16 factors/features; matrix at most 65,536 rows and 32 columns. Designs at most 65,536 runs and 1,000,000 cells.</td>
+</tr>
+<tr>
+<td>D-optimal</td>
+<td>At most 2,048 candidates, 256 runs, 1,000 exchange iterations; <code>candidates*runs*(p+1)^2*max(iterations,1) &lt;= 500,000,000</code>.</td>
+</tr>
+<tr>
+<td>Response surface</td>
+<td>With <code>q</code> quadratic terms, <code>n*q*q &lt;= 100,000,000</code> and <code>(n+q)*q &lt;= 1,000,000</code>.</td>
+</tr>
+<tr>
+<td>GP / acquisition / diversity</td>
+<td>Matrix at most 130 columns. GP: <code>1..512</code> observed rows followed by <code>1..10000</code> candidates. Diversity: at most 10,000 selections and <code>(n_select+n_existing)*n*p &lt;= 20,000,000</code>.</td>
+</tr>
+<tr>
+<td>Statistical methods</td>
+<td>General SQL row/column/cell bounds; additional group/variance requirements above.</td>
+</tr>
+</tbody>
+</table>
+<p>Seeds, group IDs, and fold IDs must be exact nonnegative integers no larger than
+<code>9007199254740991</code>. Numeric matrices are materialized for one call; filter large
+source tables and select useful features before building nested lists. These APIs
+are not streaming or distributed solvers.</p>
+<h2 id="end-to-end-sql-example">End-to-end SQL example</h2>
+<p>The following script uses invented target values only to show the API flow. Run
+it in one connection after loading a build containing these functions. The JSON
+extraction examples also require DuckDB's <code>json</code> extension (<code>INSTALL json; LOAD json;</code> if it is not built in or already available). All aggregations have explicit
+row order. The example uses molecule descriptors for
+exploration/prediction, scaffold-grouped validation, a separate feasible process
+DOE, and candidate-pool GP suggestions.</p>
+<pre><code class="language-sql">-- LOAD ducksmiles; -- or load your locally built extension first
+-- INSTALL json; LOAD json; -- if JSON functions are not already available
+CREATE TEMP TABLE ds_observed AS
+SELECT * FROM (VALUES
+  (1, 'c1ccccc1', 1.2),
+  (2, 'Cc1ccccc1', 1.4),
+  (3, 'C1CCCCC1', 0.7),
+  (4, 'CC1CCCCC1', 0.8),
+  (5, 'c1ccncc1', 2.0),
+  (6, 'Cc1ccncc1', 2.2),
+  (7, 'CCO', 0.3),
+  (8, 'CCCO', 0.5)
+) AS t(id, smiles, target);
+
+CREATE TEMP TABLE ds_features AS
+SELECT id, smiles, target::DOUBLE AS target,
+       mol_weight(smiles) AS mw,
+       logp_crippen(smiles) AS logp,
+       tpsa(smiles) AS polar
+FROM ds_observed;
+
+CREATE TEMP TABLE ds_pca AS
+SELECT chem_pca(list([mw,logp,polar] ORDER BY id), [2.0,1.0]) AS model
+FROM ds_features;
+SELECT json_extract(model, '$.explained_variance_ratio') AS variance_ratio
+FROM ds_pca;
+
+CREATE TEMP TABLE ds_ridge AS
+SELECT chem_ridge(list([mw,logp,polar,target] ORDER BY id), [1.0]) AS model
+FROM ds_features;
+SELECT json_extract(model, '$.metrics') AS training_metrics FROM ds_ridge;
+
+CREATE TEMP TABLE ds_folds AS
+SELECT chem_scaffold_folds(list(smiles ORDER BY id), [3.0,42.0]) AS model
+FROM ds_features;
+CREATE TEMP TABLE ds_validation AS
+SELECT f.*,
+       (json_extract(g.model, '$.folds')::DOUBLE[])
+         [row_number() OVER (ORDER BY id)] AS fold
+FROM ds_features f CROSS JOIN ds_folds g;
+SELECT chem_cross_validate(
+         list([mw,logp,polar,target,fold] ORDER BY id), [0.0,1.0]) AS ridge_cv,
+       chem_cross_validate(
+         list([mw,logp,polar,target,fold] ORDER BY id), [1.0,2.0]) AS pls_cv
+FROM ds_validation;
+
+-- Temperature and composition bounds; alpha=1 keeps the axial points feasible.
+SELECT chem_factorial_design([[20.0,80.0],[0.1,0.9]], [1.0]) AS factorial;
+CREATE TEMP TABLE ds_ccd AS
+SELECT chem_central_composite_design(
+         [[20.0,80.0],[0.1,0.9]], [1.0,1.0]) AS design;
+SELECT json_extract(design, '$.rows') AS process_runs FROM ds_ccd;
+SELECT chem_d_optimal_design(
+         [[20.0,0.1],[20.0,0.9],[80.0,0.1],[80.0,0.9],[50.0,0.5]],
+         [4.0,30.0,42.0]) AS selected_feasible_runs;
+
+-- Synthetic process measurements demonstrate a reusable full quadratic model.
+CREATE TEMP TABLE ds_process AS
+SELECT run_id, point,
+       3.0 + 0.1*point[1] - 2.0*point[2]
+           + 0.01*point[1]*point[1] + point[2]*point[2]
+           + 0.02*point[1]*point[2] AS response
+FROM (
+  SELECT i AS run_id, points[i] AS point
+  FROM (SELECT json_extract(design, '$.rows')::DOUBLE[][] AS points FROM ds_ccd)
+  CROSS JOIN range(1, len(points)+1) AS t(i)
+);
+CREATE TEMP TABLE ds_surface AS
+SELECT chem_response_surface(
+         list(list_append(point,response) ORDER BY run_id), [0.0]) AS model
+FROM ds_process;
+SELECT chem_response_surface_predict(
+         [[40.0,0.3],[60.0,0.7]],
+         json_extract(model, '$.model_parameters')::DOUBLE[]) AS predictions
+FROM ds_surface;
+
+CREATE TEMP TABLE ds_candidates AS
+SELECT id, smiles, mol_weight(smiles) AS mw,
+       logp_crippen(smiles) AS logp, tpsa(smiles) AS polar
+FROM (VALUES (101,'CCc1ccccc1'), (102,'CC1CCCC1'),
+             (103,'Oc1ccncc1'), (104,'CCCCO')) AS t(id,smiles);
+WITH x AS (
+  SELECT list([mw,logp,polar] ORDER BY id) AS features FROM ds_candidates
+)
+SELECT chem_predict(x.features,
+         json_extract(m.model, '$.stable_predict_parameters')::DOUBLE[])
+       AS ridge_candidate_predictions
+FROM x CROSS JOIN ds_ridge m;
+
+-- Prefix training rows, then candidate rows with ignored finite dummy targets.
+CREATE TEMP TABLE ds_gp_rows AS
+SELECT 0 AS phase, id, mw, logp, polar, target FROM ds_features
+UNION ALL
+SELECT 1 AS phase, id, mw, logp, polar, 0.0 AS target FROM ds_candidates;
+CREATE TEMP TABLE ds_gp AS
+SELECT chem_gp_predict(
+         list([mw,logp,polar,target] ORDER BY phase,id),
+         [8.0,1.0,1.0,0.01,0.0,0.0]) AS model
+FROM ds_gp_rows;
+WITH ranking AS (
+  SELECT unnest(json_extract(model, '$.ranked_candidate_indices')::INTEGER[])
+         AS candidate_index FROM ds_gp
+), indexed_candidates AS (
+  SELECT *, row_number() OVER (ORDER BY id)-1 AS candidate_index
+  FROM ds_candidates
+)
+SELECT c.id, c.smiles,
+       (json_extract(g.model, '$.predictions')::DOUBLE[])
+         [r.candidate_index+1] AS predicted_target,
+       (json_extract(g.model, '$.expected_improvement')::DOUBLE[])
+         [r.candidate_index+1] AS expected_improvement
+FROM ranking r JOIN indexed_candidates c USING (candidate_index)
+CROSS JOIN ds_gp g
+ORDER BY expected_improvement DESC, c.id;
+</code></pre>
+<h2 id="verification-and-extension-boundaries">Verification and extension boundaries</h2>
+<p>The Rust crate is <code>crates/analytics</code>; its tests cover independently calculated
+numerical cases, rank/shape validation, fold-local preprocessing, design
+properties, candidate indexing, and C buffer ownership. Use one build directory:</p>
+<pre><code class="language-sh">CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-analytics-target cargo test --workspace
+CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-analytics-target cargo clippy -p ducksmiles_analytics --all-targets -- -D warnings
+</code></pre>
+<p>The SQL wrappers register typed functions and preserve nested-list validity and
+DuckDB selection vectors. The C ABI receives a row-major matrix, returns an owned
+UTF-8 JSON buffer, and requires freeing it with <code>ds_analytics_free</code> using its exact
+length. Rust calls expose error text as <code>Result</code>; the SQL wrapper deliberately
+returns <code>NULL</code> on failure. A successful Rust test does not replace loading the
+matching compiled DuckDB extension and exercising its SQL boundary.</p>
+<h2 id="materials-and-liquid-viscosity-methods">Materials and liquid-viscosity methods</h2>
+<p>Five additional numeric matrix methods cover perovskite site descriptors, mixture
+feature moments, temperature-dependent viscosity evaluation, experimental log-OLS
+fitting and liquid mixing. See <a href="materials.html">MATERIALS.md</a> for the full parameter
+contracts, SI units, examples and independent reference checks.</p>
+
+<footer>対応ソース <a href="https://github.com/nkwork9999/duckSMILES/tree/bef8675ee50efc158db4e6ee3b1985f422f460d6"><code>bef8675ee50e</code></a> · DuckDB 2.0.0</footer>
+</main></div></body></html>

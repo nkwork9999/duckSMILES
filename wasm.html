@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
+<title>Wasm ビルド · duckSMILES</title><link rel="stylesheet" href="style.css">
+<script src="search.js" defer></script>
+</head>
+<body data-project="ducksmiles">
+<a class="skip" href="#main">本文へ移動</a>
+<header class="masthead"><a href="index.html" class="product">duckSMILES</a>
+<a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
+<div class="layout"><nav aria-label="ドキュメント"><a href="index.html">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html">質量検索</a><a href="profiles.html">分子プロファイル</a><a href="verification.html">Leanでの記述子検証</a><a href="jmp.html">JMPとの機能比較</a><a href="wasm.html" aria-current="page">Wasm ビルド</a></nav>
+<main id="main"><h1 id="webassembly-build-contract">WebAssembly build contract</h1>
+<p>DuckDB builds Wasm extensions as side modules. All five Rust static archives
+must be passed to DuckDB's final <code>emcc</code> command through
+<code>DUCKDB_EXTENSION_DUCKSMILES_LINKED_LIBS</code>; <code>target_link_libraries</code> alone only
+updates the intermediate C++ archive target.</p>
+<p>The CI Emscripten SDK is <strong>3.1.71</strong>. Wasm builds use <strong>nightly-2025-02-01</strong>
+(Rust 1.86 nightly / LLVM 19), with <code>rust-src</code>, to rebuild the Rust standard
+library using <code>-Zbuild-std=std,panic_abort</code> and
+<code>-Zbuild-std-features=panic_immediate_abort</code>. The Wasm-only Cargo profile uses
+<code>panic=abort</code>, so Rust panics do not unwind across the C ABI. Native builds keep
+their existing toolchain and panic behavior. No chemistry runtime dependency
+is added.</p>
+<p>For <code>wasm_threads</code>, Rust and its standard library are compiled with
+<code>+atomics,+bulk-memory,+mutable-globals</code>, and Emscripten with <code>-pthread</code>.
+Precompiled Rust standard libraries can be incompatible with these features
+or the SDK's ABI; see the <a href="https://doc.rust-lang.org/rustc/platform-support/wasm32-unknown-emscripten.html">Rust Emscripten target documentation</a>.
+Emscripten still labels side modules with pthreads experimental. A successful
+build does not remove that upstream limitation.</p>
+<p><code>cmake/ConfigureRustWasm.cmake</code> installs the pinned build toolchain via rustup.
+It can be selected explicitly with <code>DUCKSMILES_WASM_RUST_TOOLCHAIN</code>, but changing
+that pin requires verifying all three Wasm variants against the selected SDK.
+Use a clean CMake build directory and Cargo target directory when changing
+SDK, Rust compiler, or thread/exception settings.</p>
+<p>Every Wasm build runs <code>scripts/check_wasm_linkage.cjs</code> on the actual binary.
+It checks the extension entry point and rejects unresolved DuckSMILES/Rust
+symbols. Emscripten GOT relocations are accepted only when the side module
+exports a matching function or global; its loader resolves those entries from
+the module itself. The validator tests cover missing and mismatched definitions,
+ordinary host imports, malformed binaries, and missing entry points:</p>
+<pre><code class="language-sh">node --test scripts/check_wasm_linkage.test.cjs
+node scripts/check_wasm_linkage.cjs path/to/ducksmiles.duckdb_extension.wasm
+</code></pre>
+<p>This is a link-integrity check, not a DuckDB-Wasm runtime SQL test or a claim
+of full RDKit compatibility. Molecular parity scope is documented separately
+in <a href="profiles.html">PROFILE_PARITY.md</a>.</p>
+
+<footer>対応ソース <a href="https://github.com/nkwork9999/duckSMILES/tree/bef8675ee50efc158db4e6ee3b1985f422f460d6"><code>bef8675ee50e</code></a> · DuckDB 2.0.0</footer>
+</main></div></body></html>

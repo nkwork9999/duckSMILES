@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
+<title>質量検索 · duckSMILES</title><link rel="stylesheet" href="style.css">
+<script src="search.js" defer></script>
+</head>
+<body data-project="ducksmiles">
+<a class="skip" href="#main">本文へ移動</a>
+<header class="masthead"><a href="index.html" class="product">duckSMILES</a>
+<a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
+<div class="layout"><nav aria-label="ドキュメント"><a href="index.html">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html" aria-current="page">質量検索</a><a href="profiles.html">分子プロファイル</a><a href="verification.html">Leanでの記述子検証</a><a href="jmp.html">JMPとの機能比較</a><a href="wasm.html">Wasm ビルド</a></nav>
+<main id="main"><details class="toc" open><summary>このページの目次</summary><ul><li class="h2"><a href="#isotope-labelled-formula-masses">Isotope-labelled formula masses</a></li><li class="h2"><a href="#formula-composition-average-weight-dbe-and-mass-error">Formula composition, average weight, DBE and mass error</a></li><li class="h2"><a href="#afix-indexing-and-bio-candidate-structures">AFIX indexing and BIO candidate structures</a></li><li class="h2"><a href="#validation">Validation</a></li></ul></details><h1 id="formula-and-adduct-mass-context">Formula and adduct mass context</h1>
+<p>Three additive SQL/Rust APIs implement <code>duck-formula-adduct-v1</code>. They do not
+alter SMILES parsing, fingerprints, structure identity, or existing mass APIs.
+No external package or runtime chemistry dependency is introduced.</p>
+<pre><code class="language-sql">SELECT formula_exact_mass('C8H10N4O2');              -- 194.0803755791 Da
+SELECT adduct_precursor_mz(194.0803755791, '[M+H]+'); -- 195.08765203127 m/z
+SELECT adduct_neutral_mass(195.08765203127, '[M+H]+'); -- 194.0803755791 Da
+</code></pre>
+<p><code>formula_exact_mass(VARCHAR) -&gt; DOUBLE</code> sums <strong>neutral atomic</strong> masses.
+It accepts complete flat molecular formulas using
+<code>C H N O S P Cl Br F I Si Se Na K B As Fe D</code>; <code>D</code> is deuterium.
+An omitted count means one. Counts must be positive decimal integers without
+leading zeroes. Repeated elements such as <code>CH3COOH</code> are summed. Inputs must be
+ASCII, at most 4,096 bytes and at most 1,000,000 total atoms.</p>
+<p>This versioned 18-symbol numerical table matches the public AFIX formula
+routine on supported neutral flat formulas. It is not an average-weight table
+or a claim of bitwise RDKit <code>ExactMolWt</code> parity. The existing
+<code>mol_exact_mass(smiles)</code> table and behavior remain unchanged. Charged structures
+and salts require an explicit, scientifically appropriate neutral formula;
+the function cannot infer that choice.</p>
+<p><code>adduct_neutral_mass(DOUBLE, VARCHAR) -&gt; DOUBLE</code> and
+<code>adduct_precursor_mz(DOUBLE, VARCHAR) -&gt; DOUBLE</code> use:</p>
+<pre><code class="language-text">delta = mass of added neutral atoms − mass of lost neutral atoms − z × electron_mass
+precursor_mz = (n × neutral_mass + delta) / abs(z)
+neutral_mass = (precursor_mz × abs(z) − delta) / n
+electron_mass = 0.00054857990 Da
+</code></pre>
+<p>Here <code>n</code> is the number of neutral molecules and <code>z</code> is signed ion charge.
+The complete supported set requires these exact spellings:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Positive, one M</td>
+<td><code>[M+H]+</code>, <code>[M+NH4]+</code>, <code>[M+Na]+</code>, <code>[M+K]+</code>, <code>[M-H2O+H]+</code>, <code>[M-2H2O+H]+</code>, <code>[M+2H]2+</code>, <code>[M]+</code>, <code>[M-H2O]+</code>, <code>[M+CH3OH+H]+</code>, <code>[M+CH3CN+H]+</code></td>
+</tr>
+<tr>
+<td>Negative, one M</td>
+<td><code>[M-H]-</code>, <code>[M-H2O-H]-</code>, <code>[M+CH2O2-H]-</code>, <code>[M+C2H4O2-H]-</code>, <code>[M+Cl]-</code>, <code>[M]-</code>, <code>[M-2H]2-</code>, <code>[M+Na-2H]-</code></td>
+</tr>
+<tr>
+<td>Two M</td>
+<td><code>[2M+H]+</code>, <code>[2M+Na]+</code>, <code>[2M+NH4]+</code>, <code>[2M+K]+</code>, <code>[2M-H]-</code>, <code>[2M+CH2O2-H]-</code>, <code>[2M+C2H4O2-H]-</code>, <code>[2M+Na-2H]-</code></td>
+</tr>
+<tr>
+<td>Three M</td>
+<td><code>[3M+H]+</code>, <code>[3M-H]-</code></td>
+</tr>
+</tbody>
+</table>
+<p>These are arithmetic hypotheses, not validation that the molecule forms the ion
+or has the atoms needed for a neutral loss. Do not silently relabel observed
+adducts. Numeric inputs and outputs must be finite and positive.</p>
+<p>SQL returns NULL for NULL, unsupported or invalid arguments. Rust functions in
+<code>mass_context</code> return <code>Option&lt;f64&gt;</code>; the C ABI exports return NaN. FFI checks null
+pointers, byte limits and UTF-8. Non-null pointers must still identify a readable
+allocation of the supplied length.</p>
+<table>
+<thead>
+<tr>
+<th>Rejection</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unknown symbol</td>
+<td><code>Xx</code>, <code>He</code> (not in this version's table)</td>
+</tr>
+<tr>
+<td>Unsupported formula syntax</td>
+<td><code>(CH3)2</code>, <code>CuSO4.5H2O</code>, <code>[13C]H4</code>, <code>NH4+</code>, whitespace</td>
+</tr>
+<tr>
+<td>Count or size</td>
+<td><code>C0</code>, <code>C01</code>, overflow, over 1,000,000 total atoms</td>
+</tr>
+<tr>
+<td>Unknown/ambiguous adduct</td>
+<td><code>[M-2H]-</code>, <code>[M+H]</code>, <code>[M+Li]+</code>, aliases or spaces</td>
+</tr>
+<tr>
+<td>Numeric value</td>
+<td>NULL, NaN, infinity, zero, negative, overflow or nonpositive result</td>
+</tr>
+</tbody>
+</table>
+<h2 id="isotope-labelled-formula-masses">Isotope-labelled formula masses</h2>
+<p><code>formula_monoisotopic_mass(VARCHAR) -&gt; DOUBLE</code> calculates neutral atomic mass
+using the pinned RDKit 2026.03.6-derived periodic/isotope table already used by
+SMILES mass calculations. It supports the element symbols in that table and
+explicit isotope tokens, with a count after the closing bracket:</p>
+<pre><code class="language-sql">SELECT formula_monoisotopic_mass('C6H12O6');        -- 180.063388104 Da
+SELECT formula_monoisotopic_mass('[13C]6H12O6');    -- 186.083517144 Da
+SELECT formula_monoisotopic_mass('[13C]C5H12O6');   -- 181.066742944 Da
+SELECT formula_monoisotopic_mass('[2H]2O');         -- 20.023118176 Da
+SELECT formula_monoisotopic_mass('He');            -- 4.002603254 Da
+</code></pre>
+<p>Unlabelled elements use their most abundant isotope; labelled atoms use the
+specified isotope's neutral atomic mass. This follows the distinction between
+RDKit's <a href="https://www.rdkit.org/docs/source/rdkit.Chem.rdchem.html">most-common isotope and explicit isotope mass lookups</a>.
+These are sums of the vendored table values, not updated metrological values
+or isotope abundance distributions. For example, its carbon-13 mass is
+13.00335484 Da; <a href="https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl?ele=C">NIST lists 13.00335483507 Da</a>.</p>
+<p>Repeated tokens are summed. Counts and isotope numbers must be positive decimal
+integers without leading zeroes. The same 4,096-byte and 1,000,000-atom limits
+apply. Unknown elements/isotopes, partial tokens, parentheses, hydrates,
+whitespace and charge suffixes return NULL. Use <code>[2H]</code> for deuterium and <code>[3H]</code>
+for tritium; <code>D</code> and <code>T</code> are not element symbols in this API. No electron-mass
+correction or adduct inference is performed.</p>
+<p>The Rust API is <code>mass_context::formula_monoisotopic_mass(&amp;str) -&gt; Option&lt;f64&gt;</code>;
+the C ABI is <code>ds_formula_monoisotopic_mass</code>, returning NaN for invalid input.
+The existing <code>formula_exact_mass</code> keeps its AFIX v1 numerical table and grammar,
+including rejecting bracketed isotopes. Choose one mass table consistently when
+comparing masses; this addition does not change either table.</p>
+<p>Regression coverage includes labelled and mixed formulas, additional elements,
+malformed labels, unknown isotopes, count/size limits, the C ABI, SQL NULLs,
+4,097-row vectors, filtered inputs and function catalog metadata.</p>
+<h2 id="formula-composition-average-weight-dbe-and-mass-error">Formula composition, average weight, DBE and mass error</h2>
+<p>Three additional formula functions share the isotope-aware grammar and limits
+above. The AFIX v1 API remains separate.</p>
+<pre><code class="language-sql">SELECT formula_weight('C2H6O');              -- 46.069
+SELECT formula_weight('[13C]2H6O');          -- 48.05370968
+SELECT formula_dbe('C8H10N4O2');             -- 6
+SELECT formula_composition_json('[13C]CH4');
+-- [{&quot;element&quot;:&quot;C&quot;,&quot;isotope&quot;:null,&quot;count&quot;:1},
+--  {&quot;element&quot;:&quot;C&quot;,&quot;isotope&quot;:13,&quot;count&quot;:1},
+--  {&quot;element&quot;:&quot;H&quot;,&quot;isotope&quot;:null,&quot;count&quot;:4}]
+SELECT mass_error_ppm(100.001, 100.0);        -- approximately +10
+SELECT mass_error_ppm(99.999, 100.0);         -- approximately -10
+</code></pre>
+<p><code>formula_weight(VARCHAR) -&gt; DOUBLE</code> uses the vendored average atomic weights
+for unlabelled atoms and explicit isotope masses for labelled atoms. It does
+not add implicit hydrogens: supply the complete molecular formula.</p>
+<p><code>formula_composition_json(VARCHAR) -&gt; VARCHAR</code> aggregates repeated tokens into
+<code>{element, isotope, count}</code> records. Isotope <code>null</code> denotes unlabelled atoms.
+Rows sort by element symbol, then unlabelled before increasing isotope number.
+The JSON array preserves the distinction between <code>C</code> and <code>[13C]</code>.</p>
+<p><code>formula_dbe(VARCHAR) -&gt; DOUBLE</code> applies <code>C + 1 + N/2 - (H + F + Cl + Br + I)/2</code>
+to neutral, closed-shell formulas restricted to C/H/N/O/F/Cl/Br/I. Isotopes count
+as their elements and O contributes zero. This is a conservative subset of
+the <a href="https://goldbook.iupac.org/terms/view/12561">IUPAC ring and double bond equivalent convention</a>.
+Unsupported elements (including P/S/metals), negative and half-integer results,
+charge suffixes and malformed formulas return NULL. A nonnegative integer DBE
+does not prove that a formula represents a realizable molecule or identify its
+rings and bonds.</p>
+<p><code>mass_error_ppm(DOUBLE, DOUBLE) -&gt; DOUBLE</code> returns the signed error
+<code>(observed_mass - reference_mass) / reference_mass * 1e6</code>. Both masses must be
+finite and positive; invalid inputs and nonfinite output return NULL. Use the
+same mass or m/z basis for both values. This function performs no charge or
+adduct conversion.</p>
+<p>The Rust functions in <code>mass_context</code> return <code>Option</code>; numeric C ABI exports
+return NaN for invalid input. <code>ds_formula_composition_json</code> returns -1 for
+invalid input, otherwise the required byte length. Null/short output buffers
+are not written; an adequately sized buffer receives the complete JSON bytes.</p>
+<p>Run the CLI-based SQL and independent decimal/composition checks with:</p>
+<pre><code class="language-sh">python3 scripts/check_chemistry_tools.py --duckdb /path/to/duckdb \
+  --extension /path/to/ducksmiles.duckdb_extension --receipt /path/to/receipt.json
+</code></pre>
+<h2 id="afix-indexing-and-bio-candidate-structures">AFIX indexing and BIO candidate structures</h2>
+<p>The public <strong>CASMI26: Metric Fusion Consensus Backfill</strong> notebook's cell 9 embeds
+<code>casmi_engine.py</code>. Its <code>formula_mass</code> computes neutral mass from
+<code>molecular_formula</code>; <code>load_library</code> prioritizes it over precursor/adduct
+arithmetic. This mitigates precursor rounding and adduct-label errors in the
+<strong>reference-library mass index</strong>. It does not rewrite measured m/z, correct the
+adduct label, or identify a structure. An explicit SQL view retains derivation:</p>
+<pre><code class="language-sql">CREATE VIEW reference_mass_context AS
+WITH masses AS (
+  SELECT *,
+         formula_exact_mass(molecular_formula) AS formula_neutral_mass,
+         adduct_neutral_mass(precursor_mz, adduct) AS precursor_neutral_mass
+  FROM reference_metadata
+)
+SELECT *,
+       coalesce(formula_neutral_mass, precursor_neutral_mass) AS index_neutral_mass,
+       CASE WHEN formula_neutral_mass IS NOT NULL THEN 'formula'
+            WHEN precursor_neutral_mass IS NOT NULL THEN 'precursor_adduct'
+            ELSE 'unresolved' END AS mass_basis,
+       'duck-formula-adduct-v1' AS mass_spec_id
+FROM masses;
+</code></pre>
+<p>Keep raw formula/adduct/precursor m/z, source ID, version and original checksum.
+Formula precedence is an indexing policy, not proof that the supplied formula
+is correct. Unknown queries must not receive formulas from withheld answers.
+Training/reference exclusions still apply before evaluation uses this view.</p>
+<p><strong>BIO is a candidate source, not a descriptor.</strong> It means ChEBI + LIPID MAPS,
+added to COCONUT and then training structures after upstream key deduplication.
+Retain source memberships even after canonical key deduplication. The supplied
+6,930-bit vectors select RDKit Morgan r2/r3, RDKit path and MACCS bits; they are
+not interchangeable with DuckSMILES Morgan vectors. This extension neither
+downloads these databases nor imports their trained feature models. CASMI's
+fixed RDKit scoring normalization remains unchanged.</p>
+<p>Intentional differences: the public regex can accept partial formulas, whereas
+this API rejects them. The public table gives <code>[M-2H]-</code> charge magnitude two;
+this API requires <code>[M-2H]2-</code>. Sodium minus two hydrogens in a negative ion uses
+one added electron, including <code>[2M+Na-2H]-</code>; the public <code>Na - 2*PROTON</code> expression
+adds two. These cases are not called legacy parity.</p>
+<p>The audited source snapshot was already present at
+<code>docs/public_code_P001/sources/fusion/casmi26-metric-fusion-consensus-backfill.ipynb</code>.
+Its SHA-256 and native verification are in <code>MASS_CONTEXT_VALIDATION.json</code>.
+Notebook attribution identifies inherited prvsiyan components and candidate
+dataset <code>prvsiyan/chebi-lipidmaps-casmi26</code>. No leaderboard gain is claimed.</p>
+<h2 id="validation">Validation</h2>
+<p>Six new Rust tests cover nitrogen-containing formulas, encoding/count errors,
+all adducts, signed electron corrections, multimers, overflow, nonpositive results
+and the C ABI. The workspace passes 716 tests, with one existing ignored test.</p>
+<p>The actual SQL extension is tested with constants, 4,097-row vectors, filtered
+rows and mixed NULLs. The independent verifier compares 1,022 formulas (including
+1,000 deterministic nitrogen-containing compositions) to decimal arithmetic and
+29 adducts at three masses to a grammar-based oracle in both directions. It also
+executes all 150 catalog examples.</p>
+<pre><code class="language-sh">CARGO_TARGET_DIR=/private/tmp/rusta-ducksmiles-afix-target cargo test --workspace --offline
+# Build using the existing DuckDB extension setup matching the host version.
+/path/to/existing/python scripts/check_mass_context.py \
+  --extension /path/to/ducksmiles.duckdb_extension --receipt /path/to/verification.json
+</code></pre>
+<p>Verified: macOS arm64, DuckDB 1.5.6, installed Rust/Clang and existing DuckDB
+headers. No dependencies were installed or updated. Windows/Linux/Wasm were not
+rebuilt. Repository-wide clippy reports existing C ABI lint errors; the added
+module has no diagnostics. The new file is rustfmt-clean; existing repository
+formatting differences remain.</p>
+
+<footer>対応ソース <a href="https://github.com/nkwork9999/duckSMILES/tree/bef8675ee50efc158db4e6ee3b1985f422f460d6"><code>bef8675ee50e</code></a> · DuckDB 2.0.0</footer>
+</main></div></body></html>

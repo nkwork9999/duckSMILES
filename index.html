@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
+<title>概要 · duckSMILES</title><link rel="stylesheet" href="style.css">
+<script src="search.js" defer></script>
+</head>
+<body data-project="ducksmiles">
+<a class="skip" href="#main">本文へ移動</a>
+<header class="masthead"><a href="index.html" class="product">duckSMILES</a>
+<a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
+<div class="layout"><nav aria-label="ドキュメント"><a href="index.html" aria-current="page">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html">質量検索</a><a href="profiles.html">分子プロファイル</a><a href="verification.html">Leanでの記述子検証</a><a href="jmp.html">JMPとの機能比較</a><a href="wasm.html">Wasm ビルド</a></nav>
+<main id="main"><section class="intro"><h1>duckSMILES</h1><p>分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。</p>
+<div class="quick-links"><a href="guide.html">利用ガイド</a><a href="functions.html">SQL リファレンス</a></div></section>
+<h2>クイックスタート</h2><pre><code>INSTALL ducksmiles FROM community;
+LOAD ducksmiles;
+SELECT mol_formula(&#x27;CCO&#x27;), mol_weight(&#x27;CCO&#x27;);</code></pre>
+<h2>機能ガイド</h2><div class="sections"><a class="section" href="guide.html"><strong>分子形式と記述子</strong><span>SMILES、InChI、MOL/SDF、指紋、記述子と構造操作の使い方を検索できます。</span></a><a class="section" href="mass.html"><strong>質量と分子グラフ</strong><span>同位体、分子式、質量照合と関係データへの展開を扱います。</span></a><a class="section" href="analytics.html"><strong>統計・機械学習</strong><span>回帰、分類、分散分析、実験計画と信頼性の各機能を掲載しています。</span></a><a class="section" href="materials.html"><strong>材料組成と液体粘度</strong><span>材料の組成と測定物性を扱う関数、単位、計算条件を確認できます。</span></a></div>
+<h2>関連ツール</h2><div class="siblings"><a href="https://nkwork9999.github.io/duck-orch/">duckOrch</a><a href="https://nkwork9999.github.io/duckgl/">DuckGL</a><a href="https://nkwork9999.github.io/miniplot/">Miniplot</a></div>
+
+<footer>対応ソース <a href="https://github.com/nkwork9999/duckSMILES/tree/bef8675ee50efc158db4e6ee3b1985f422f460d6"><code>bef8675ee50e</code></a> · DuckDB 2.0.0</footer>
+</main></div></body></html>
