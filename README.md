@@ -2695,6 +2695,10 @@ Read the immutable graph by version with `graph_vertices` and `graph_edges`. The
 molecules, and each edge is stored with its lower ID first.
 The native `mol_descriptor_summary` reuses parsed records within one DuckDB vector when the input SMILES
 is identical. When an individual descriptor is unavailable for a valid molecule, its STRUCT field is NULL.
+`ScaffoldSampler(connection, relation).sample(per_stratum=5, seed=87)` ranks IDs by a stable hash inside
+each Murcko scaffold and activity class. The relation supplies unique `molecule_id`, `smiles` and `activity` columns.
+Use `sdf_projected_properties_json(sdf, ['ID', 'NAME'])` for property-only SDF reads. Record numbers are
+the original 1-based positions. The function reads tags following the CTAB terminator and skips coordinate parsing.
 
 `MoleculeReader(connection).describe(["CCO", None, "O"])` in `python/ducksmiles_embedded.py` returns formula and molecular weight for each position. The query computes both descriptors per distinct input and binds the list as a single parameter. Invalid SMILES and missing inputs yield empty descriptor fields.
 

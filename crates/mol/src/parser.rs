@@ -199,14 +199,14 @@ fn parse_coordinate(s: &str) -> Option<f64> {
     value.is_finite().then_some(value)
 }
 
-fn parse_property_name(line: &str) -> Option<String> {
+fn parse_property_name(line: &str) -> Option<&str> {
     if !line.starts_with('>') {
         return None;
     }
     let start = line.find('<')?;
     let rest = &line[start + 1..];
     let end = rest.find('>')?;
-    Some(rest[..end].to_string())
+    Some(&rest[..end])
 }
 
 fn json_escape(s: &str) -> String {
@@ -314,6 +314,14 @@ pub fn sdf_properties_json(mols: &[Molecule]) -> String {
 }
 
 fn parse_sdf_properties(lines: &[&str], start: usize) -> Vec<(String, String)> {
+    selected_sdf_properties(lines, start, |_| true)
+}
+
+fn selected_sdf_properties(
+    lines: &[&str],
+    start: usize,
+    keep: impl Fn(&str) -> bool,
+) -> Vec<(String, String)> {
     let mut properties = Vec::new();
     let mut i = start;
     while i < lines.len() {
@@ -327,22 +335,58 @@ fn parse_sdf_properties(lines: &[&str], start: usize) -> Vec<(String, String)> {
         };
 
         i += 1;
-        let mut value_lines = Vec::new();
+        let value_start = i;
         while i < lines.len() {
             let value_line = lines[i];
             if value_line == "$$$$" || value_line.trim().is_empty() {
                 break;
             }
-            value_lines.push(value_line);
             i += 1;
         }
-        properties.push((prop_name, value_lines.join("\n")));
+        if keep(prop_name) {
+            properties.push((prop_name.to_owned(), lines[value_start..i].join("\n")));
+        }
 
         while i < lines.len() && lines[i].trim().is_empty() {
             i += 1;
         }
     }
     properties
+}
+
+/// Project tags from SDF records with a CTAB terminator, without reading coordinates.
+/// Record numbers are the physical 1-based positions within the input.
+pub fn project_sdf_properties_json(text: &str, keys: &[&str]) -> String {
+    let mut output = String::from("[");
+    let mut record = Vec::new();
+    let mut number = 1;
+    for line in text.lines().chain(std::iter::once("$$$$")) {
+        if line != "$$$$" {
+            record.push(line);
+            continue;
+        }
+        if let Some(end) = record
+            .iter()
+            .skip(4)
+            .position(|line: &&str| line.trim() == "M  END")
+        {
+            if output.len() > 1 {
+                output.push(',');
+            }
+            let properties = selected_sdf_properties(&record, end + 5, |name| keys.contains(&name));
+            output.push_str("{\"record\":");
+            output.push_str(&number.to_string());
+            output.push_str(",\"name\":\"");
+            output.push_str(&json_escape(record[0].trim()));
+            output.push_str("\",\"properties\":");
+            output.push_str(&properties_to_json(&properties));
+            output.push('}');
+        }
+        number += 1;
+        record.clear();
+    }
+    output.push(']');
+    output
 }
 
 fn parse_mol_v2000(lines: &[&str]) -> Option<Molecule> {
@@ -462,7 +506,7 @@ fn parse_mol_v3000(lines: &[&str]) -> Option<Molecule> {
                 }
                 "CTAB" | "ATOM" | "BOND" => return None,
                 _ if stack.is_empty() || matches!(stack.last(), Some(&"ATOM" | &"BOND")) => {
-                    return None
+                    return None;
                 }
                 _ => {}
             }
@@ -599,7 +643,10 @@ mod tests {
             .replace("M  V30 1 1 1 2", "M  V30 11 1 10 20")
             .replace("M  V30 2 2 2 3", "M  V30 22 2 20 30");
         let mol = parse_mol(&text).unwrap();
-        assert_eq!(mol.bonds_json(), "[{\"index\":1,\"atom1\":1,\"atom2\":2,\"bond_type\":1},{\"index\":2,\"atom1\":2,\"atom2\":3,\"bond_type\":2}]");
+        assert_eq!(
+            mol.bonds_json(),
+            "[{\"index\":1,\"atom1\":1,\"atom2\":2,\"bond_type\":1},{\"index\":2,\"atom1\":2,\"atom2\":3,\"bond_type\":2}]"
+        );
         for text in [
             SAMPLE_MOL_V3000.replace("M  V30 2 C", "M  V30 1 C"),
             SAMPLE_MOL_V3000.replace("M  V30 1 C", "M  V30 0 C"),

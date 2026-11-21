@@ -26,6 +26,47 @@ fn write_buf_required(src: &[u8], out: *mut u8, cap: usize) -> i32 {
     src.len() as i32
 }
 
+/// Project requested SDF property tags without decoding molecular geometry.
+///
+/// # Safety
+/// The input slices, key pointers, lengths and output buffer must stay valid
+/// for the call and not overlap the writable output.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn ds_sdf_projected_properties_json(
+    data: *const u8,
+    len: usize,
+    keys: *const *const u8,
+    key_lengths: *const usize,
+    key_count: usize,
+    out: *mut u8,
+    cap: usize,
+) -> i32 {
+    if data.is_null() {
+        return -1;
+    }
+    let Ok(text) = std::str::from_utf8(unsafe { std::slice::from_raw_parts(data, len) }) else {
+        return -1;
+    };
+    let mut tags = Vec::with_capacity(key_count);
+    for index in 0..key_count {
+        let pointer = unsafe { *keys.add(index) };
+        let length = unsafe { *key_lengths.add(index) };
+        if pointer.is_null() {
+            return -1;
+        }
+        let Ok(tag) = std::str::from_utf8(unsafe { std::slice::from_raw_parts(pointer, length) })
+        else {
+            return -1;
+        };
+        tags.push(tag);
+    }
+    let projected = parser::project_sdf_properties_json(text, &tags);
+    if i32::try_from(projected.len()).is_err() {
+        return -1;
+    }
+    write_buf_required(projected.as_bytes(), out, cap)
+}
+
 /// Count molecules in SDF text
 #[unsafe(no_mangle)]
 pub extern "C" fn ds_sdf_count(data: *const u8, len: usize) -> i32 {

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import duckdb
 
-from ducksmiles_embedded import FingerprintIndex, MorganFingerprint, SimilarityEdge, SimilarityHit
+from ducksmiles_embedded import FingerprintIndex, MorganFingerprint, ScaffoldSampler, SimilarityEdge, SimilarityHit
 
 
 class FingerprintTests(unittest.TestCase):
@@ -82,3 +82,20 @@ class FingerprintTests(unittest.TestCase):
         self.index.replace("sample", self.definition, [(1, "CCO")])
         self.assertEqual(self.index.graph_vertices("g1"), [-5, 3, 4, 9, 17])
         self.assertEqual(len(self.index.graph_edges("g1", threshold=0.9)), 3)
+
+    def test_scaffold_sampler_is_stable_across_thread_counts(self):
+        self.db.execute("""
+            CREATE TABLE library AS SELECT i::BIGINT AS molecule_id,
+                CASE i % 2 WHEN 0 THEN 'CCO' ELSE 'c1ccccc1' END AS smiles,
+                (i % 7)::VARCHAR AS activity
+            FROM range(10000) t(i)
+        """)
+        sampler = ScaffoldSampler(self.db, "library")
+        self.db.execute("SET threads = 1")
+        first = sampler.sample(per_stratum=5, seed=87)
+        self.db.execute("SET threads = 4")
+        repeated = sampler.sample(per_stratum=5, seed=87)
+        self.assertEqual(first, repeated)
+        self.assertEqual(len(first), 70)
+        self.assertEqual(len({(row.scaffold, row.activity) for row in first}), 14)
+        self.assertNotEqual(first, sampler.sample(per_stratum=5, seed=88))

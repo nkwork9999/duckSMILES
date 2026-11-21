@@ -1,0 +1,18 @@
+# name: test/sql/sdf_projection.test
+# group: [sql]
+
+require ducksmiles
+
+require json
+
+query I
+WITH data AS (SELECT E'water\r\n  test\r\n\r\n  1  0  0  0  0  0  0  0  0  0999 V2000\r\n    0.0000    0.0000    0.0000 O   0  0\r\nM  END\r\n>  <ID>\r\nwater\r\nwell' AS sdf)
+SELECT sdf_projected_properties_json(sdf, ['ID']) = sdf_properties_json(sdf) FROM data;
+----
+true
+
+query I
+SELECT sdf_projected_properties_json(NULL, ['id']) IS NULL
+   AND sdf_projected_properties_json('', ['id']) = '[]';
+----
+true

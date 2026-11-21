@@ -71,6 +71,48 @@ class SimilarityGraphSummary:
     edges: int
 
 
+@dataclass(frozen=True)
+class ScaffoldSample:
+    molecule_id: int
+    scaffold: str
+    activity: str | None
+
+
+class ScaffoldSampler:
+    """Sample a registered relation with unique BIGINT molecule IDs and SMILES."""
+
+    def __init__(self, connection: DuckDBPyConnection, relation: str):
+        if type(relation) is not str or not relation or "\0" in relation:
+            raise ValueError("relation must be a nonempty identifier without NUL")
+        self._db = connection
+        self._relation = '"' + relation.replace('"', '""') + '"'
+
+    def sample(self, *, per_stratum: int, seed: int) -> list[ScaffoldSample]:
+        """Choose stable hash ranks by Murcko scaffold and activity class."""
+        if type(seed) is not int or not -(1 << 63) <= seed < (1 << 63):
+            raise ValueError("seed must be a signed 64-bit integer")
+        if type(per_stratum) is not int or not 1 <= per_stratum <= 1_000_000:
+            raise ValueError("per_stratum must be in [1, 1000000]")
+        rows = self._db.execute(f"""
+            WITH input AS MATERIALIZED (
+                SELECT molecule_id, smiles, activity FROM main.{self._relation}
+                WHERE molecule_id IS NOT NULL AND smiles IS NOT NULL
+            ), scaffolds AS MATERIALIZED (
+                SELECT smiles, murcko_scaffold(smiles) AS scaffold
+                FROM (SELECT DISTINCT smiles FROM input)
+            ), ranked AS (
+                SELECT molecule_id, scaffold, activity, row_number() OVER (
+                    PARTITION BY scaffold, activity
+                    ORDER BY md5(?::VARCHAR || '/' || molecule_id::VARCHAR), molecule_id
+                ) AS rank
+                FROM input JOIN scaffolds USING (smiles) WHERE scaffold IS NOT NULL
+            )
+            SELECT molecule_id, scaffold, activity FROM ranked WHERE rank <= ?
+            ORDER BY scaffold, activity NULLS LAST, rank
+        """, [seed, per_stratum]).fetchall()
+        return [ScaffoldSample(*row) for row in rows]
+
+
 class FingerprintIndex:
     """Store Morgan fingerprints for explicit, host-provided generations."""
 

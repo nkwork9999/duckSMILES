@@ -1071,6 +1071,52 @@ static void SdfPropertyFunc(DataChunk &args, ExpressionState &state,
   }
 }
 
+static void SdfProjectedPropertiesFunc(DataChunk &args, ExpressionState &,
+                                       Vector &result) {
+  const auto count = args.size();
+  UnifiedVectorFormat sdf;
+  ducksmiles_compat::ToUnifiedFormat(args.data[0], count, sdf);
+  const auto strings = UnifiedVectorFormat::GetData<string_t>(sdf);
+  auto output = ducksmiles_compat::ResultData<string_t>(result, count);
+  auto &validity = ducksmiles_compat::ResultValidity(result);
+  std::vector<const uint8_t *> keys;
+  std::vector<size_t> lengths;
+  for (idx_t row = 0; row < count; ++row) {
+    const auto index = sdf.sel->get_index(row);
+    if (!sdf.validity.RowIsValid(index)) {
+      validity.SetInvalid(row);
+      continue;
+    }
+    const auto tags = args.data[1].GetValue(row);
+    if (tags.IsNull()) {
+      validity.SetInvalid(row);
+      continue;
+    }
+    const auto &children = ListValue::GetChildren(tags);
+    if (children.size() > 256) {
+      throw InvalidInputException("At most 256 projected SDF tags are allowed");
+    }
+    keys.clear();
+    lengths.clear();
+    for (const auto &child : children) {
+      if (child.IsNull()) {
+        throw InvalidInputException("Projected SDF tags must be non-null");
+      }
+      const auto &name = StringValue::Get(child);
+      keys.push_back(reinterpret_cast<const uint8_t *>(name.data()));
+      lengths.push_back(name.size());
+    }
+    const auto &source = strings[index];
+    output[row] = DynamicStringResult(
+        result, validity, row, [&](uint8_t *out, size_t cap) {
+          return ds_sdf_projected_properties_json(
+              reinterpret_cast<const uint8_t *>(source.GetData()),
+              source.GetSize(), keys.data(), lengths.data(), keys.size(), out,
+              cap);
+        });
+  }
+}
+
 // ============================================================================
 // PDB/CIF/XYZ functions — format arg hardcoded to 0 (auto-detect)
 // ============================================================================
@@ -2389,6 +2435,17 @@ static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
       "0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\nM  END\n> "
       "<ID>\nwater\n\n$$$$\n')",
       "mol_sdf");
+
+  RegisterDocumentedScalar(
+      loader,
+      FallibleScalarFunction(
+          "sdf_projected_properties_json",
+          {LogicalType::VARCHAR, LogicalType::LIST(LogicalType::VARCHAR)},
+          LogicalType::VARCHAR, SdfProjectedPropertiesFunc),
+      {"sdf", "tags"},
+      "Project named SDF property tags without validating or decoding "
+      "geometry.",
+      "sdf_projected_properties_json(sdf_text, ['ID', 'NAME'])", "mol_sdf");
 
   // --- PDB/CIF/XYZ structure ---
   RegisterDocumentedScalar(
