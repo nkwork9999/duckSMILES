@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
-<title>分子プロファイル · duckSMILES</title><link rel="stylesheet" href="style.css">
+<meta name="description" content="Work with molecular formats, descriptors, fingerprints, structure searches, and statistics inside DuckDB.">
+<title>Molecular profiles · duckSMILES</title><link rel="stylesheet" href="style.css">
 <script src="search.js" defer></script>
 </head>
 <body data-project="ducksmiles">
-<a class="skip" href="#main">本文へ移動</a>
+<a class="skip" href="#main">Skip to content</a>
 <header class="masthead"><a href="index.html" class="product">duckSMILES</a>
 <a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
-<div class="layout"><nav aria-label="ドキュメント"><a href="index.html">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html">質量検索</a><a href="profiles.html" aria-current="page">分子プロファイル</a><a href="descriptors.html">291記述子</a><a href="verification.html">Leanでの記述子検証</a><a href="jmp.html">JMPとの機能比較</a><a href="wasm.html">Wasm ビルド</a></nav>
-<main id="main"><details class="toc" open><summary>このページの目次</summary><ul><li class="h2"><a href="#measured-contract">Measured contract</a></li><li class="h2"><a href="#reproduce">Reproduce</a></li><li class="h2"><a href="#corrected-discrepancies">Corrected discrepancies</a></li><li class="h2"><a href="#limits">Limits</a></li></ul></details><h1 id="structural-descriptor-parity">Structural descriptor parity</h1>
+<div class="layout"><nav aria-label="Documentation"><a href="index.html">Overview</a><a href="functions.html">SQL reference</a><a href="python.html">Embedded Python API</a><a href="guide.html">User guide</a><a href="analytics.html">Statistics and numerical analysis</a><a href="materials.html">Materials and liquid viscosity</a><a href="graphs.html">Molecular graphs</a><a href="mass.html">Mass search</a><a href="profiles.html" aria-current="page">Molecular profiles</a><a href="descriptors.html">291 descriptors</a><a href="verification.html">Lean descriptor verification</a><a href="jmp.html">JMP coverage</a><a href="wasm.html">Wasm builds</a></nav>
+<main id="main"><details class="toc" open><summary>On this page</summary><ul><li class="h2"><a href="#measured-contract">Measured contract</a></li><li class="h2"><a href="#reproduce">Reproduce</a></li><li class="h2"><a href="#corrected-discrepancies">Corrected discrepancies</a></li><li class="h2"><a href="#limits">Limits</a></li></ul></details><h1 id="structural-descriptor-parity">Structural descriptor parity</h1>
 <p>Reference: <strong>RDKit 2025.09.6</strong>, default sanitization/aromaticity model with
 <code>SmilesParserParams.removeHs = False</code>. The 21 SQL functions introduced in
 <code>f428ef1</code> are exercised through their exported Rust C ABI functions.</p>
@@ -79,5 +79,5 @@ and raw-pointer FFI lint issues; they are not represented as clean checks.</p>
 <a href="https://www.rdkit.org/docs/source/rdkit.Chem.rdchem.html">atom API</a>,
 <a href="https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html#rdkit.Chem.Descriptors.HeavyAtomMolWt">HeavyAtomMolWt</a>.</p>
 
-<footer>対応ソース <a href="https://github.com/nkwork9999/duckSMILES/tree/bef8675ee50efc158db4e6ee3b1985f422f460d6"><code>bef8675ee50e</code></a> · DuckDB 2.0.0</footer>
+<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/048cead6dbd009a4eb18feefb1cefc4c70f76f82"><code>048cead6dbd0</code></a> · DuckDB 2.0.0</footer>
 </main></div></body></html>

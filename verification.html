@@ -1,32 +1,23 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
-<title>Leanでの記述子検証 · duckSMILES</title><link rel="stylesheet" href="style.css">
+<meta name="description" content="Work with molecular formats, descriptors, fingerprints, structure searches, and statistics inside DuckDB.">
+<title>Lean descriptor verification · duckSMILES</title><link rel="stylesheet" href="style.css">
 <script src="search.js" defer></script>
 </head>
 <body data-project="ducksmiles">
-<a class="skip" href="#main">本文へ移動</a>
+<a class="skip" href="#main">Skip to content</a>
 <header class="masthead"><a href="index.html" class="product">duckSMILES</a>
 <a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
-<div class="layout"><nav aria-label="ドキュメント"><a href="index.html">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html">質量検索</a><a href="profiles.html">分子プロファイル</a><a href="descriptors.html">291記述子</a><a href="verification.html" aria-current="page">Leanでの記述子検証</a><a href="jmp.html">JMPとの機能比較</a><a href="wasm.html">Wasm ビルド</a></nav>
-<main id="main"><section class="intro"><h1>Leanでの記述子検証</h1>
-<p>DuckSMILESの291記述子をLeanで計算し、Rust、DuckDB SQL、RDKitの参照値と照合します。</p>
-<p><a href="descriptors.html">記述子の定義・単位・許容差</a> · <a href="functions.html#mol_descriptor_values_json">SQLで記述子を取得</a></p>
-</section><h2>証明と照合</h2>
-<ul><li>24列の原子・結合・環の集計は、用意した属性の並び替えで値が変わらないことを証明しました。</li>
-<li>50列のグラフ指標では、距離を使う式の最短距離と到達不能を検査します。歩道数は総数と閉歩道数を証明しました。</li>
-<li>QEDの8成分、EState、Labute表面積、Morganの初期ハッシュを、用意した分子グラフや原子属性から計算します。</li>
-<li>226分子で、291列・65,766件の出力を照合しました。RDKitの既定の水素処理、IPCの数値精度、SPSの未定義条件には違いがあります。</li></ul>
-<p>RustのSMILES受理範囲とRDKitの受理範囲には差があります。共通の入力範囲に対するRustの実装、化学認識、浮動小数点計算の一般証明は未完了です。</p>
-<h2 id="molecular-descriptor-verification">Molecular descriptor verification</h2>
+<div class="layout"><nav aria-label="Documentation"><a href="index.html">Overview</a><a href="functions.html">SQL reference</a><a href="python.html">Embedded Python API</a><a href="guide.html">User guide</a><a href="analytics.html">Statistics and numerical analysis</a><a href="materials.html">Materials and liquid viscosity</a><a href="graphs.html">Molecular graphs</a><a href="mass.html">Mass search</a><a href="profiles.html">Molecular profiles</a><a href="descriptors.html">291 descriptors</a><a href="verification.html" aria-current="page">Lean descriptor verification</a><a href="jmp.html">JMP coverage</a><a href="wasm.html">Wasm builds</a></nav>
+<main id="main"><details class="toc" open><summary>On this page</summary><ul><li class="h2"><a href="#comparison-with-registered-rdkit-functions">Comparison with registered RDKit functions</a></li><li class="h2"><a href="#reproduce">Reproduce</a></li><li class="h2"><a href="#timing">Timing</a></li></ul></details><h1 id="molecular-descriptor-verification">Molecular descriptor verification</h1>
 <p>DuckSMILES exposes the workbench's complete 291-column molecular profile to DuckDB.
 The extension executes the existing Rust implementation. The offline Lean 4.19
 executable checks its serialized results with the independently computed reference.
 The catalog IDs, order, absolute and relative tolerances come from the repository's
-<a href="https://github.com/nkwork9999/duckSMILES/blob/main/tasks/descriptors/phase1-catalog.json">descriptor catalog</a>.
-Per-column reference, evaluator, tolerance and test coverage appear in <a href="https://github.com/nkwork9999/duckSMILES/blob/main/verification/lean/coverage.csv">coverage.csv</a>.</p>
+<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/descriptors/phase1-catalog.json">descriptor catalog</a>.
+Per-column reference, evaluator, tolerance and test coverage appear in <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/coverage.csv">coverage.csv</a>.</p>
 <pre><code class="language-sql">SELECT mol_descriptor_catalog_json();
 SELECT mol_descriptor_values_json('CCO');
 </code></pre>
@@ -77,10 +68,10 @@ the declared integer comparison, presence agreement, full-coordinate coverage
 and invariance of element counts under atom-list permutation. Molecular
 perception, floating-point algorithms, serialization and the Rust binary have
 finite differential-test coverage. Materials composition and viscosity APIs
-are documented separately in <a href="https://github.com/nkwork9999/duckSMILES/blob/main/MATERIALS.md">MATERIALS.md</a>.</p>
+are documented separately in <a href="materials.html">MATERIALS.md</a>.</p>
 <h2 id="comparison-with-registered-rdkit-functions">Comparison with registered RDKit functions</h2>
-<p>The <a href="https://github.com/nkwork9999/duckSMILES/blob/main/verification/lean/rdkit-columns.csv">column inventory</a> covers all 291 names. The
-<a href="https://github.com/nkwork9999/duckSMILES/blob/main/verification/lean/rdkit-differences.json">observed differences</a> record the two input preparation
+<p>The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/rdkit-columns.csv">column inventory</a> covers all 291 names. The
+<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/rdkit-differences.json">observed differences</a> record the two input preparation
 policies and the independent chain controls. On the 226 nonempty, parsable
 inputs, Lean compared 49,042 outputs from all 217 registered default 2D
 scalars using the catalog tolerances. Of these, 48,980 were finite, 60 were
@@ -143,13 +134,15 @@ to write per-column results and the six timed trials. Pass <code>--extended</cod
 check the 228-input corpus used in CI and in the coverage table. Timings and
 mutation controls use the smaller batch of eight valid and two rejected inputs. Five independent mutations exercise
 error detection. These controls supplement the project's larger existing
-<a href="https://github.com/nkwork9999/duckSMILES/blob/main/tasks/evidence/catalog289-sps/REPORT.md">reference comparisons</a>.</p>
+<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/catalog289-sps/REPORT.md">reference comparisons</a>.</p>
 <h2 id="timing">Timing</h2>
-<p>The historical 0.7.1 <a href="https://github.com/nkwork9999/duckSMILES/blob/main/verification/lean/timings-m1.csv">pipeline trials</a> time a native Rust FFI batch, a SQL query
+<p>The historical 0.7.1 <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/timings-m1.csv">pipeline trials</a> time a native Rust FFI batch, a SQL query
 including result conversion, and a fresh Lean process reading the earlier oracle-backed
 observation format and rendering JSON. Those paths include different work.
-The <a href="https://github.com/nkwork9999/duckSMILES/blob/main/verification/lean/counts-m1.csv">count trials</a> use the same prepared atom labels and query
+The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/counts-m1.csv">count trials</a> use the same prepared atom labels and query
 order in both languages, excluding input parsing, I/O and process startup.
 Both programs check the same checksum. Run <code>lake build bench_counts</code> then
 <code>uv run --python 3.13 --with rdkit==2026.3.6 python bench_counts.py</code> on the target host.</p>
+<p><a href="descriptors.html">Browse all 291 descriptors</a></p>
+<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/048cead6dbd009a4eb18feefb1cefc4c70f76f82"><code>048cead6dbd0</code></a> · DuckDB 2.0.0</footer>
 </main></div></body></html>

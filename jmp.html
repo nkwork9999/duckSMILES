@@ -1,293 +1,144 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
-<title>JMPとの機能比較 · duckSMILES</title><link rel="stylesheet" href="style.css">
+<meta name="description" content="Work with molecular formats, descriptors, fingerprints, structure searches, and statistics inside DuckDB.">
+<title>JMP coverage · duckSMILES</title><link rel="stylesheet" href="style.css">
 <script src="search.js" defer></script>
 </head>
 <body data-project="ducksmiles">
-<a class="skip" href="#main">本文へ移動</a>
+<a class="skip" href="#main">Skip to content</a>
 <header class="masthead"><a href="index.html" class="product">duckSMILES</a>
 <a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
-<div class="layout"><nav aria-label="ドキュメント"><a href="index.html">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html">質量検索</a><a href="profiles.html">分子プロファイル</a><a href="descriptors.html">291記述子</a><a href="verification.html">Leanでの記述子検証</a><a href="jmp.html" aria-current="page">JMPとの機能比較</a><a href="wasm.html">Wasm ビルド</a></nav>
-<main id="main"><details class="toc" open><summary>このページの目次</summary><ul><li class="h2"><a href="#%E6%9C%80%E6%96%B0%E3%81%AE%E7%85%A7%E5%90%88%E7%B5%90%E6%9E%9C2026-10-24">最新の照合結果（2026-10-24）</a></li><li class="h3"><a href="#%E5%A4%9A%E5%BF%9C%E7%AD%94pls%E3%81%AE%E6%A4%9C%E8%A8%BCcheckpoint2026-10-24">多応答PLSの検証checkpoint（2026-10-24）</a></li><li class="h3"><a href="#%E9%9B%B6%E9%81%8E%E5%89%B0%E5%9B%9E%E5%B8%B0%E3%81%AE%E6%A4%9C%E8%A8%BCcheckpoint2026-10-24">零過剰回帰の検証checkpoint（2026-10-24）</a></li><li class="h3"><a href="#%E6%97%A2%E5%AD%98api%E5%AF%BE%E5%BF%9C%E4%BB%98%E3%81%91%E3%81%AE%E5%B1%A5%E6%AD%B42026-10-23">既存API対応付けの履歴（2026-10-23）</a></li><li class="h2"><a href="#%E5%AF%BE%E8%B1%A1%E3%81%A8%E6%89%B1%E3%81%84">対象と扱い</a></li><li class="h3"><a href="#200-url%E3%81%AE%E7%A2%BA%E8%AA%8D%E3%81%A8%E7%89%88%E3%82%92%E6%B7%B7%E3%81%9C%E3%81%AA%E3%81%84%E3%81%9F%E3%82%81%E3%81%AE%E8%A8%98%E9%8C%B2">20.0 URLの確認と、版を混ぜないための記録</a></li><li class="h2"><a href="#%E8%AA%BF%E6%9F%BB%E9%96%8B%E5%A7%8B%E6%99%82%E3%81%AE%E5%B7%AE%E5%88%86%E3%81%A8%E5%8F%97%E5%85%A5%E6%9D%A1%E4%BB%B6">調査開始時の差分と受入条件</a></li><li class="h2"><a href="#tdd%E3%81%A7%E9%80%B2%E3%82%81%E3%82%8B%E5%8D%98%E4%BD%8D">TDDで進める単位</a></li><li class="h2"><a href="#%E6%A4%9C%E8%A8%BC%E7%8A%B6%E6%85%8B%E3%81%AE%E6%9B%B4%E6%96%B0">検証状態の更新</a></li><li class="h2"><a href="#%E7%B6%99%E7%B6%9A62%E6%93%8D%E4%BD%9C%E3%81%AE%E7%AF%84%E5%9B%B2%E3%81%A8%E6%9C%AA%E5%AE%8C%E4%BA%86%E3%81%AE%E5%A5%91%E7%B4%84">継続62操作の範囲と未完了の契約</a></li><li class="h2"><a href="#2026-10-22-209%E9%96%A2%E6%95%B0%E3%81%AE%E6%A4%9C%E8%A8%BCcheckpoint%E3%81%A8%E7%B6%99%E7%B6%9A%E4%BD%9C%E6%A5%AD">2026-10-22: 209関数の検証checkpointと継続作業</a></li><li class="h2"><a href="#225%E9%96%A2%E6%95%B0checkpoint-irtsem%E5%8A%A3%E5%8C%96%E3%82%B2%E3%83%8E%E3%83%A0%E5%88%86%E6%95%A3">225関数checkpoint: IRT・SEM・劣化・ゲノム分散</a></li><li class="h2"><a href="#254%E9%96%A2%E6%95%B0checkpoint%E9%81%8E%E5%8E%BB%E3%81%AE%E5%81%9C%E6%AD%A2%E6%99%82%E7%82%B9">254関数checkpoint（過去の停止時点）</a></li><li class="h2"><a href="#2026-10-22-%E5%85%A8%E4%BD%93%E7%9B%AE%E6%A8%99%E3%81%AE%E5%86%8D%E9%96%8B">2026-10-22: 全体目標の再開</a></li><li class="h2"><a href="#%E5%86%8D%E9%96%8B%E5%BE%8C%E3%81%AE%E6%A4%9C%E8%A8%BC%E6%B8%88%E3%81%BF9%E6%93%8D%E4%BD%9C%E5%85%A8%E4%BD%93%E3%81%AF%E7%B6%99%E7%B6%9A%E4%B8%AD">再開後の検証済み9操作（全体は継続中）</a></li></ul></details><h1 id="jmp--jmp-pro-の計算機能差分と実装契約">JMP / JMP Pro の計算機能差分と実装契約</h1>
-<p>初回調査日: 2026-10-21。既存APIとの対応を最後に照合した日: 2026-10-24。機能台帳の版基準は <strong>JMP / JMP Pro 19.2</strong> と取得した公開機能一覧。初期の24 SQL関数は限定的な解析基盤であり、JMPの計算機能全体を実装したものではない。現在版を含むJMP全体との完全同等性は主張しない。</p>
-<p>全項目の台帳は <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-feature-matrix.json">tasks/jmp-feature-matrix.json</a>。14領域の公式ページに記載されたメソッド・機能の502出現を保持し、同じ名称を統合し、公式19.2リファレンスの具体的な下位機能も追加した。<strong>552行</strong>は粒度の異なる能力・手法・オプションを含む。件数をそのまま実装率に換算しない。公式リファレンスにはさらに細かなオプションがあるため、この台帳は追跡可能な下限であり、全オプションの完全な列挙ではない。</p>
-<h2 id="最新の照合結果2026-10-24">最新の照合結果（2026-10-24）</h2>
-<p>登録済みの解析APIは <strong>279関数 / 拡張全体430 overloads</strong>。台帳の現在の分類は、部分対応287行、未実装197行、DuckDB既存37行、従来の限定契約として検証済み6行、GUI除外17行、外部拡張4行、別製品4行、範囲未確定0行である。</p>
-<p>PLS2/PLS-DAに、指定fold・指定roleでの検証と0成分を含む成分数選択の2操作を追加した。各学習集合だけで変換を求め、holdbackのtest行は選択・最終学習に使わない。Root Mean PRESSの分散範囲とfold平均の規約を明示した。小さい誤差の正規化・予測標準誤差のunderflow、および均衡3クラスの基準予測の丸めを修正し、保存形式2でresidual SDを保持する。形式1も読める。</p>
-<p>同一dev/DebugソースのRust 1,400件（失敗0、既存ignored2）、SQL 21 cases /637 assertions（skip0）、430 catalog例が成功。検証・選択の6,684数値項目/28不正NULLと、既存PLSの7,220項目/34不正NULLをC ABI・実SQLの両方で独立参照と照合した。90桁計算による小さい評価値・標準誤差の確認も含む。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-pls-validation-api.json">検証・成分選択の契約</a>、<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-pls-component-validation.json">検証記録</a>。random stratification、repeated/nested tuning、van der Voet、missing-data fitting、bootstrapとJMP実機比較は残る。台帳の行分類件数は前checkpointから変わらない。</p>
-<h3 id="多応答plsの検証checkpoint2026-10-24">多応答PLSの検証checkpoint（2026-10-24）</h3>
-<p>多応答PLS2とPLS-DAのfit/predict各2操作を追加した。両方でNIPALS/SVDとSIMPLS、sample SDによる学習時変換、VIPを提供し、回帰では条件付きscoreに基づく近似予測区間を返す。多応答PLS、PLS-DA、VIP、予測区間の4行を未実装から部分対応に変更した。未中心化、重み、カテゴリ説明変数、欠損、validation/成分選択、van der Voet、bootstrapと全JMP規約は残る。PLS-DAの出力は指示変数の生予測値で、確率の校正を主張しない。</p>
-<p>同一dev/DebugソースのRust 1,391件（失敗0、既存ignored2）、SQL 20 cases /626 assertions（skip0）、428 catalog例、strict Clippyと書式検証が成功した。独立NumPy/SciPy/sklearn参照の7,220数値項目と34不正NULLを公開C ABIと実ロードSQLで照合した。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-pls-api.json">PLS契約</a>、<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-pls-validation.json">検証記録</a>を参照。</p>
-<h3 id="零過剰回帰の検証checkpoint2026-10-24">零過剰回帰の検証checkpoint（2026-10-24）</h3>
-<p>零過剰Binomial・Beta Binomial・Poisson・Negative Binomial・Gammaの非正則化MLと保存予測の6関数を追加した。共有pi、整数頻度、数値固定効果、observed-information/HC0 covarianceと予測の限定契約である。<code>generalized_regression_zero_inflation</code> は未実装から部分対応へ変更した。Lasso等の正則化・選択、fractional counts/trials、カテゴリ・missing roles、JMP固有のsandwich規約は残る。</p>
-<p>macOS arm64の同一dev/DebugソースでRust 1,381件（失敗0、既存ignored2）、SQL 19 cases /616 assertions（skip0）、424 catalog例、strict Clippyと書式検証が成功。公開C ABIと実ロードSQLの両方を独立SciPy/mpmath参照と照合した。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-zero-inflation-api.json">入力・制限・保存形式</a>、<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-zero-inflation-validation.json">検証記録</a>を参照。JMP本体との比較は未実施である。</p>
-<h3 id="既存api対応付けの履歴2026-10-23">既存API対応付けの履歴（2026-10-23）</h3>
-<p>既存APIを親項目にだけ関連付けていたため、下表の4項目が <code>absent</code> のままになっていた。ソース・Rustテスト・独立参照・過去のmatching native SQL検証を照合し、具体的なAPIと残差分を追記して <code>partial</code> に修正した。API側にも対応するfeature IDを追記した。アルゴリズムや公開関数の追加は0であり、JMPの方法群全体を完了にした変更ではない。</p>
+<div class="layout"><nav aria-label="Documentation"><a href="index.html">Overview</a><a href="functions.html">SQL reference</a><a href="python.html">Embedded Python API</a><a href="guide.html">User guide</a><a href="analytics.html">Statistics and numerical analysis</a><a href="materials.html">Materials and liquid viscosity</a><a href="graphs.html">Molecular graphs</a><a href="mass.html">Mass search</a><a href="profiles.html">Molecular profiles</a><a href="descriptors.html">291 descriptors</a><a href="verification.html">Lean descriptor verification</a><a href="jmp.html" aria-current="page">JMP coverage</a><a href="wasm.html">Wasm builds</a></nav>
+<main id="main"><details class="toc" open><summary>On this page</summary><ul><li class="h2"><a href="#october-24-2026-checkpoint">October 24, 2026 checkpoint</a></li><li class="h3"><a href="#pls2-and-pls-da">PLS2 and PLS-DA</a></li><li class="h3"><a href="#zero-inflated-regression">Zero-inflated regression</a></li><li class="h3"><a href="#existing-implementation-mapping">Existing implementation mapping</a></li><li class="h2"><a href="#scope-and-edition">Scope and edition</a></li><li class="h3"><a href="#version-200-documentation">Version 20.0 documentation</a></li><li class="h2"><a href="#implemented-methods-and-follow-up-work">Implemented methods and follow-up work</a></li><li class="h2"><a href="#validation-and-reproducibility">Validation and reproducibility</a></li></ul></details><h1 id="jmp-and-jmp-pro-coverage">JMP and JMP Pro coverage</h1>
+<p>This page summarizes the versioned comparison between duckSMILES' CPU analytics and the published JMP and JMP Pro 19.2 capabilities. The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-feature-matrix.json">feature matrix</a> tracks 552 entries from 14 capability areas, supplementing the official listings with selected details from the 19.2 reference. Entries include methods, capabilities, and options at different levels of detail. Use the <a href="guide.html#cpu-analytics-complete-sql-api-reference">SQL guide</a> for current APIs and the <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/JMP_PARITY.md">original comparison record</a> for historical checkpoints and acceptance details.</p>
+<h2 id="october-24-2026-checkpoint">October 24, 2026 checkpoint</h2>
+<p>The checkpoint recorded 279 analytics functions and 430 extension-wide SQL overloads. The matrix classified 287 entries as partially covered, 197 as unimplemented, 37 as existing DuckDB functionality, six as covered by earlier limited contracts, 17 as GUI operations, four as external extensions, and four as separate products.</p>
+<h3 id="pls2-and-pls-da">PLS2 and PLS-DA</h3>
+<p>Multivariate PLS2 and PLS-DA expose fit and prediction operations, NIPALS/SVD and SIMPLS, training-set scaling by sample standard deviation, and variable-importance scores. Regression can return approximate conditional prediction intervals. PLS-DA returns predictions for the encoded response indicators. Validation supports explicit folds and roles, including selection of a zero-component model. Each fold learns its transformation on training rows. Held-out test rows stay out of selection and the final fit. The contract defines the Root Mean PRESS calculation and aggregation. Model format 2 preserves residual standard deviation and supports loading format 1.</p>
+<p>Gaps include missing-data fitting, random stratification, repeated and nested tuning, the van der Voet test, bootstrapping, and comparison against JMP itself.</p>
+<ul>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-pls-api.json">PLS fit and prediction contract</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-pls-validation-api.json">PLS validation and selection contract</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-pls-component-validation.json">Validation evidence</a></li>
+</ul>
+<h3 id="zero-inflated-regression">Zero-inflated regression</h3>
+<p>The validated API fits zero-inflated binomial, beta-binomial, Poisson, negative binomial, and gamma models and predicts from saved models. The contract covers unpenalized maximum likelihood, shared zero-inflation probability, integer frequencies, numeric fixed effects, observed-information and HC0 covariance. Remaining differences include regularization and selection, fractional trial counts, missing or categorical roles, and JMP-specific covariance conventions.</p>
+<ul>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-zero-inflation-api.json">Inputs, limits, and model format</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-zero-inflation-validation.json">Validation evidence</a></li>
+</ul>
+<h3 id="existing-implementation-mapping">Existing implementation mapping</h3>
 <table>
 <thead>
 <tr>
-<th>修正した項目</th>
-<th>既存の限定実装</th>
-<th>残る主な差分</th>
+<th>Capability</th>
+<th>Available implementation</th>
+<th>Remaining work</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>GLMM binomial response</td>
-<td><code>chem_glmm_binomial</code> と <code>chem_glmm_predict</code>。Bernoulli-logit、Gaussian単一random interceptの積分MLと保存予測</td>
-<td>集約binomial trials、他リンク、offset/重み、random slopes・複数random factors、JMP推定規約</td>
+<td>Binomial GLMM</td>
+<td>Bernoulli-logit with one Gaussian random intercept, integrated maximum likelihood, saved predictions.</td>
+<td>Aggregated binomial trials, other links, weights and offsets, random slopes, multiple grouping factors, JMP inference conventions.</td>
 </tr>
 <tr>
-<td>GLMM count response</td>
-<td><code>chem_glmm_poisson</code> と <code>chem_glmm_predict</code>。Poisson-log、Gaussian単一random interceptの積分MLと保存予測</td>
-<td>他count family、offset/重み・overdispersion、複雑なrandom effectsと推論、JMP推定規約</td>
+<td>Count GLMM</td>
+<td>Poisson-log with one Gaussian random intercept and saved predictions.</td>
+<td>Other count families, overdispersion, weights and offsets, richer random effects and inference.</td>
 </tr>
 <tr>
 <td>SEM fit indices</td>
-<td><code>chem_sem_fit_indices</code>。供給Gaussian covariance/meanモデルの適合指標</td>
-<td>一般SEM推定、自動識別性判定、robust補正、modification indices、FIML・多群</td>
+<td>Fit indices for a supplied Gaussian covariance and mean model.</td>
+<td>General SEM estimation, identification checks, robust adjustments, modification indices, missing-data fitting, and multi-group models.</td>
 </tr>
 <tr>
 <td>Text analysis</td>
-<td>DTM・weighting・LSA・varimax・latent classと保存予測の既存8操作</td>
-<td>文字列の言語処理、日本語辞書、sentiment、response-based term selection/text regression、巨大sparse corpus</td>
+<td>Document-term matrices, weighting, LSA, varimax, latent class, and saved predictions.</td>
+<td>Language processing, dictionaries, sentiment, supervised feature selection, text regression, and large sparse corpora.</td>
 </tr>
 </tbody>
 </table>
-<p>詳細とソースhashの照合結果は <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-feature-mapping-audit-20261023.json">対応付け監査記録</a>。GLMM・SEM・textの現行ソースは、それぞれ過去のnative SQL検証記録に保存されたhashと一致した。今回は台帳と比較文書の修正であり、Rust/C ABI/SQLテストの新しい実行結果は追加していない。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-report-ordinal-validation.json">直近の実装検証記録</a>にあるRust 1,366件・SQL 603 assertions・418 catalog例の成功と、その当時の分類件数は履歴として保持する。</p>
-<p>零過剰の残るオプション、選択・正則化、標準誤差/信頼区間のJMP規約、図表の詳細オプションなどは引き続き未完了である。JMP本体との数値比較も未実施。台帳の残る <code>absent</code> 行も、APIが一切存在しないことを今回全件再検証した件数とは扱わない。</p>
-<p>以下の各節の件数・「現在」「今回」は各調査・実装checkpoint当時の記録である。最新の集計は本節と台帳の <code>counting.status_counts</code> を参照する。</p>
-<h2 id="対象と扱い">対象と扱い</h2>
+<p>See the <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-feature-mapping-audit-20261023.json">feature mapping audit</a>.</p>
+<h2 id="scope-and-edition">Scope and edition</h2>
+<p>The matrix covers CPU numerical methods, including static report output where an acceptance contract exists. It tracks separate products such as JMP Live and JMP Clinical separately. Marketplace extensions are labeled as external. DuckDB supplies relational aggregation, joins, PIVOT, and UNPIVOT.</p>
+<p>The edition mapping uses the JMP Pro label and the versioned product documentation to identify restrictions. Availability can depend on the option and platform.</p>
+<h3 id="version-200-documentation">Version 20.0 documentation</h3>
+<p>At the comparison checkpoint, the 20.0 documentation index URL returned the same index as the 19.2 URL. The comparison uses published 19.2 evidence.</p>
 <ul>
-<li>以前の「GUI以外全部」という指示を踏まえ、純粋な画面操作は <code>excluded_gui</code> にした。</li>
-<li>最新の「GPU以外」とGUIは別の条件。GPU専用でなければ、ニューラルネットを含む数値アルゴリズムはCPU実装の対象として残す。参照した公式一覧にGPU専用手法は見つからなかった。</li>
-<li>静的図・帳票の出力は画面操作とは別である。再開前の <code>clarification_pending</code> 44項目は<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-report-acceptance.json">非GUI受入契約</a>へ具体化し、既存数値バックエンドの部分対応13行・未実装31行として対象に残した。図・帳票成果物の生成完了を新たに認定したものではなく、数値バックエンドも暗黙に除外しない。</li>
-<li>JMP Liveは公式に別製品。JMP ClinicalもJMP / JMP Proそのものと区別する。公式一覧にあるMarketplace拡張は <code>external_plugin</code> にした。</li>
-<li>DuckDBが既に提供する集計・相関・整形・結合・SQL入出力は <code>database_existing</code>。duckSMILESの新実装として数えない。外部形式・接続先は対象版で個別検証する。</li>
+<li><a href="https://www.jmp.com/en/software/capabilities">Public JMP capability listings</a></li>
+<li><a href="https://www.jmp.com/en/support/jmp-documentation">JMP product documentation</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-report-acceptance.json">Non-GUI reports and output acceptance</a></li>
 </ul>
-<p>版の区別は公式一覧の <code>icon-jmp-pro-tag</code> と凡例、または19.2リファレンスの明記に基づく。バッジが無い項目は、その一覧でPro制限が示されていないという意味であり、全てのオプションが標準版で使えることまで保証しない。ページ・プラットフォーム間で異なる場合は <code>option_or_platform_dependent</code>、根拠が不足する場合は <code>unknown</code> とした。</p>
-<h3 id="200-urlの確認と版を混ぜないための記録">20.0 URLの確認と、版を混ぜないための記録</h3>
-<p><a href="https://www.jmp.com/support/help/en/20.0/jmp.html">20.0 helpのURL</a> は応答するが、調査時の取得本文は <a href="https://www.jmp.com/support/help/en/19.2/jmp.html">19.2 help</a> と完全に同じだった。両方2,139,426 bytes、SHA-256 <code>0a83fa2ed5b842fba42fb6421f8b121b070a7d515591eff4a7d4094d279aa106</code>、固有 <code>.shtml</code> パス3,864件も一致した。この確認は目次の一致であり、全ページ内容や製品バイナリの一致を示すものではない。</p>
-<p>一方、<a href="https://www.jmp.com/en/support/jmp-documentation">公式ドキュメント入口</a> は19.2をCurrent Versionと表示し、<a href="https://community.jmp.com/t5/JMP-Knowledge-Base/JMP-New-Features-and-Release-Notes/ta-p/575202">公式New Features / Release Notes一覧</a> の2026-09-23更新版にもJMP 19 / 19.2が掲載されている。20専用のWhat's Newは確認できなかった。したがって、URLが応答することだけから20.0の正式公開や新機能を認定せず、<strong>20.0の追加差分は未確定</strong>として追跡する。19.2基準の552行に推測の20.0項目を混ぜていない。</p>
-<h2 id="調査開始時の差分と受入条件">調査開始時の差分と受入条件</h2>
-<p>次表の「既存」は調査開始時の24関数の状態を指す。今回の追加実装は、<a href="guide.html#cpu-analytics-complete-sql-api-reference">READMEの全SQL API</a> と台帳の <code>current_sql_api</code> / 各項目の <code>current_implementation</code> に追記した。前回の登録は追加95関数、従来分と合わせて119関数で、その限定SQL契約の検証が完了した。8領域62操作、さらに6領域28操作を追加し、29操作の時点は254/405で、今回の打切り回帰・空間推定9操作を加え、現在の登録は <strong>263 analytics関数 / 全414 overloads</strong>。ソース・動作テスト・独立参照を関連付けた限定実装は <code>partial</code> のままとし、継続分のmatching native SQLゲートも合格した。公式の方法群全体の完了や、実行していない対象版/方法の同等性を推定しない。</p>
+<h2 id="implemented-methods-and-follow-up-work">Implemented methods and follow-up work</h2>
 <table>
 <thead>
 <tr>
-<th>領域</th>
-<th>既存実装の限界と、残っている契約</th>
-<th>公式根拠</th>
+<th>Method area</th>
+<th>Examples of validated methods</th>
+<th>Examples of remaining work</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>記述・分布</td>
-<td>数値要約のみ。分布パラメータ推定、混合分布、適合度・正規性、重み/欠損を含む推定</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/basic-data-analysis-and-modeling">基本解析</a></td>
+<td>Regression, distributions, and inference</td>
+<td>Ridge, GLMs, selected response surfaces, prediction and inference methods, censored likelihoods, and distribution functions.</td>
+<td>Additional families, model selection, missing data rules, and assurance about JMP-specific inference.</td>
 </tr>
 <tr>
-<td>検定・区間</td>
-<td>既存は両側Welch二群、一元配置ANOVA、BH/Holm。対応あり・一標本、同等性/非劣性、ノンパラメトリック、正確検定、多重比較、各種区間と効果量</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/basic-data-analysis-and-modeling">基本解析</a></td>
+<td>Mixed, multivariate, and spatial models</td>
+<td>Random-intercept mixed models and GLMMs, MANOVA, CCA, MCA, factor analysis, and spatial covariance estimation.</td>
+<td>Arbitrary random effects, additional covariance structures, repeated measures, and spatial anisotropy.</td>
 </tr>
 <tr>
-<td>検出力・標本数</td>
-<td>検定別の非心分布、割付比、最小整数標本数、信頼/許容区間・寿命試験・抜取検査の計画</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/basic-data-analysis-and-modeling">基本解析</a></td>
+<td>Latent variables and clusters</td>
+<td>Classical MDS, correspondence analysis, factor methods, full-covariance Gaussian mixtures, rectangular batch SOM.</td>
+<td>Nonmetric MDS, other covariance structures and model selection, additional learning topologies.</td>
 </tr>
 <tr>
-<td>回帰・GLM</td>
-<td>Ridge/PLS1と二次応答曲面は点推定が中心。カテゴリ/交互作用、重み、係数SE/CI、全体検定、診断、予測区間、分布・リンク・offset・Firth等</td>
-<td><a href="https://www.jmp.com/support/help/en/19.2/jmp/generalized-linear-models.shtml">GLM 19.2</a></td>
+<td>Model evaluation</td>
+<td>Regression and binary metrics, ROC, PR, lift, calibration, profit, holdout and rolling split indices, fixed ensembles.</td>
+<td>Automated retraining, nested selection, inference, and preprocessing provenance.</td>
 </tr>
 <tr>
-<td>一般化回帰・選択</td>
-<td>Lasso/Elastic Net、adaptive/二段階/Dantzig、選択経路、分布別尤度、正則化の選択と検証</td>
-<td><a href="https://www.jmp.com/support/help/en/19.2/jmp/estimation-method-options.shtml">推定法 19.2</a></td>
+<td>Smoothing and functional methods</td>
+<td>Nonlinear curve fitting, B-spline and P-spline, LOESS, SNV/MSC, smoothing and derivatives, DFT and Haar, DTW, common-grid FPCA.</td>
+<td>Arbitrary constrained models, automatic smoothing choices, irregular and sparse functional data, additional wavelet and peak methods.</td>
 </tr>
 <tr>
-<td>混合・反復・空間</td>
-<td>既存は均衡一元配置ランダム切片の分散成分だけ。ML/REML、非均衡・固定共変量・ランダム傾き、BLUP、反復/空間共分散、推論</td>
-<td><a href="https://www.jmp.com/support/help/en/19.2/jmp/mixed-models.shtml">混合モデル 19.2</a>、<a href="https://www.jmp.com/support/help/en/19.2/jmp/statistical-details-for-repeated-covariance-structures.shtml">共分散</a></td>
-</tr>
-<tr>
-<td>GLMM</td>
-<td>非正規応答＋ランダム効果、推定法、条件付き/周辺予測と適切な不確実性</td>
-<td><a href="https://www.jmp.com/support/help/en/19.2/jmp/generalized-linear-mixed-models.shtml">GLMM 19.2</a></td>
-</tr>
-<tr>
-<td>多変量・化学空間</td>
-<td>既存PCA、k-means、PLS1。階層/SOM/混合、因子分析、MDS、判別、対応分析、潜在クラス、t-SNE/UMAP、多応答PLS/PLS-DA/VIP</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling">高度な解析</a>、<a href="https://www.jmp.com/support/help/en/19.2/jmp/partial-least-squares-models.shtml">PLS 19.2</a></td>
-</tr>
-<tr>
-<td>SEM</td>
-<td>測定誤差・媒介・潜在成長・多群、不変性、識別性と適合指標</td>
-<td><a href="https://www.jmp.com/support/help/en/19.2/jmp/structural-equation-models.shtml">SEM 19.2</a></td>
-</tr>
-<tr>
-<td>非線形・曲線</td>
-<td>一般非線形、溶出・シグモイド・指数・ピーク・薬物動態、スプライン、モデル推定と比較</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling">高度な解析</a></td>
-</tr>
-<tr>
-<td>時系列</td>
-<td>AR/MA/ARIMA、季節差分・分解、状態空間/指数平滑、伝達関数、診断、時間順holdbackと予測区間</td>
-<td><a href="https://www.jmp.com/support/help/en/19.2/jmp/time-series-analysis.shtml">時系列 19.2</a>、<a href="https://www.jmp.com/support/help/en/19.2/jmp/differencing-and-decomposition.shtml">分解</a></td>
-</tr>
-<tr>
-<td>関数データ・スペクトル</td>
-<td>関数基底/FPCA、Fourier/wavelet、SG微分、SNV/MSC、背景補正、DTW、ピーク、functional DOE</td>
-<td><a href="https://www.jmp.com/support/help/en/19.2/jmp/functional-data-explorer.shtml">FDE 19.2</a>、<a href="https://www.jmp.com/support/help/en/19.2/jmp/data-processing-options.shtml">前処理</a></td>
-</tr>
-<tr>
-<td>DOE</td>
-<td>現状2水準完全要因、CCD、候補集合のD基準局所交換。部分実施、DSD、混合・カテゴリ、ブロック/split/strip、Taguchi、空間充填、covering、augmentation、alias・検出力</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/design-of-experiments">DOE</a></td>
-</tr>
-<tr>
-<td>最適化・因果</td>
-<td>GPは固定RBF・既知ハイパーパラメータで有限候補EIのみ。連続・バッチ・制約/多応答、シミュレーション・trade space、傾向スコア・マッチング・因果推論</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling">高度な解析</a></td>
-</tr>
-<tr>
-<td>品質・MSA・抜取</td>
-<td>Cp/Cpkはwithin sigmaの外部指定。管理図のsigma/限界・ルール、変動/工程スクリーニング、測定者×部品のGage R&amp;R、bias/linearity、agreement/kappa、OC</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/quality-and-process-engineering">品質</a></td>
-</tr>
-<tr>
-<td>信頼性・生存</td>
-<td>KMは右打切りとGreenwood分散のみ。群比較、Cox、打切り尤度寿命分布、加速・累積損傷/疲労・劣化、成長/再発、RBD/RSS、試験計画</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/reliability-analysis">信頼性</a></td>
-</tr>
-<tr>
-<td>機械学習</td>
-<td>木・forest・boosting、kNN/NB/SVM、CPU neural、分位点、モデル選択/平均/ensemble、確率・ROC/PR/lift、漏洩の無い検証・保存・score</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/predictive-modeling-and-machine-learning">予測</a>、<a href="https://www.jmp.com/support/help/en/19.2/jmp/neural-networks.shtml">Neural 19.2</a></td>
-</tr>
-<tr>
-<td>テキスト・市場</td>
-<td>文書特徴、LSA/潜在クラス、用語選択・感情・回帰、association、choice/conjoint/MaxDiff、uplift、調査分析</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/consumer-and-market-research">市場</a></td>
-</tr>
-<tr>
-<td>ゲノム</td>
-<td>関連度・marker statistics/imputation、集団構造、GWAS/GBLUP、形式取込とcoding</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/advanced-statistical-modeling">高度な解析</a></td>
-</tr>
-<tr>
-<td>データ・自動化・連携</td>
-<td>欠損パターン/補完・外れ値、モデルmetadata/score code、設定/前処理/seedの永続化、形式別入出力・外部システム連携</td>
-<td><a href="https://www.jmp.com/en/fragments/capabilities/data-blending-and-cleanup">データ整形</a>、<a href="https://www.jmp.com/en/fragments/capabilities/data-access">アクセス</a>、<a href="https://www.jmp.com/en/fragments/capabilities/automation-and-scripting">自動化</a></td>
-</tr>
-</tbody>
-</table>
-<h2 id="tddで進める単位">TDDで進める単位</h2>
-<p>台帳の <code>acceptance_contracts</code> に、各領域で決める入力・仮定・出力・独立オラクルを記載した。全機能に一括で「テスト済み」を付けず、項目ごとに次を満たして昇格する。</p>
-<ol>
-<li>片側/両側、分布・リンク、欠損/重み/カテゴリ、打切り・同順位、標準化と学習範囲など、数学上の契約を先に固定する。</li>
-<li>閉形式の小例、公式例、独立した検証用実装に基づく期待値のテストを書く。未実装のために落ちるREDを実行し、コマンド・失敗理由を記録する。</li>
-<li>最小限の実装でGREENにし、数値境界・特異性・非有限値・入力形状・計算量上限を追加する。不適切な近似を方法名で隠さない。</li>
-<li>適切な不変条件も確認する。例: 線形モデルの平行移動、PCAの部分空間/再構成、確率和、設計の実行可能性、検出力の単調性、train/validation漏洩防止。</li>
-<li>Rustだけで完了にしない。対応するビルド済み拡張をDuckDBにロードし、SQL型、NULL/選択ベクトル、JSON、保存/予測の往復、C ABIの境界まで検証する。</li>
-<li>証拠にrevision、OS/architecture、コマンド、数値許容差、独立参照の版、生成物hashを記録し、台帳のその限定契約だけを更新する。</li>
-</ol>
-<p>例えば <code>ridge(lambda=0)</code> で係数が求まることと、OLSのSE/CI/F検定・カテゴリ効果・診断・予測区間が揃うことは別々に検証する。現行のKMと混合モデルについても、親領域の状態は <code>partial</code> のままにする。</p>
-<p>この調査ではJMP本体を実行していない。JMPとの数値差分検証は未実施であり、同じ名称や独立参照との一致だけでJMPの全規約との一致を断定しない。</p>
-<h2 id="検証状態の更新">検証状態の更新</h2>
-<p>この台帳の既存実装評価は <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/sql-analytics-validation.json">前回の検証記録</a> と <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/sql-analytics-reference.json">独立参照</a>、実際のソース/テストに基づく。前回の865 Rustテスト・367 SQL assertions・18独立fixtureは、その記録のrevisionに対する証拠である。</p>
-<p>今回の限定実装は、対象ソース・テストと利用可能な独立参照を関連付けたうえで <code>partial</code> とした。台帳552行のうち、関連限定実装/既存数値バックエンドがある項目は267行、未実装217行、ホスト既存37行、従来の限定契約として検証済み6行、GUI除外17行、範囲未確定0行、外部拡張4行、別製品4行。図・帳票44行は<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-report-acceptance.json">非GUI受入契約</a>から13行を既存数値バックエンドの部分対応、31行を未実装と具体化した。静的成果物の生成完了を認定した行は0で、実装済みSQL関数の件数は増えていない。これらは粒度が異なり、実装率やJMP同等性の割合ではない。</p>
-<p>各追加SQL関数の入力・パラメータ・実行例・ソース/テスト・公式項目との関係を <code>current_sql_api</code> に保持した。直接Rust参照の証拠は <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-distribution-arima-reference.json">分布/ARIMA</a>、<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-model-reference.json">回帰/多変量/混合</a>、<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-inference-timeseries-reference.json">検定/時系列/Cox</a>。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-advanced-design-reference.json">追加DOE参照</a> と <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-sql-validation.json">最終実SQL検証</a> も関連付けた。前回119関数のゲートはRust 1,006件（40 suites、失敗0、既存ignored 2）、native SQL 8 cases（skipなし）、catalog 270 overloadsと全270例の実行が合格。95追加操作のSQL oracleは199数値フィールド、保存モデル再利用・不正入力・query-label除外・選択/動的vectorも確認した。検証範囲はmacOS arm64 CPUの登録された限定契約であり、名称の一致をもとにJMPの方法群全体を完了にはしない。</p>
-<p>版基準の確認元: <a href="https://www.jmp.com/en/support/jmp-documentation">JMP documentation</a>。機能分類の入口: <a href="https://www.jmp.com/en/software/capabilities">JMP capabilities</a>。ホストDBに既存の機能は <a href="https://duckdb.org/docs/current/sql/functions/aggregates">DuckDB aggregates</a>、<a href="https://duckdb.org/docs/current/sql/statements/pivot">PIVOT</a>、<a href="https://duckdb.org/docs/current/sql/statements/unpivot">UNPIVOT</a>、<a href="https://duckdb.org/docs/current/sql/dialect/friendly_sql">Friendly SQL</a> と区別した。</p>
-<h2 id="継続62操作の範囲と未完了の契約">継続62操作の範囲と未完了の契約</h2>
-<p>次の追加実装と個別SQL例・引数・保存パラメータ・制限は、README内にまとめている。APIと証拠のリンクは再現用であり、READMEの関数一覧を置き換えない。直接Rust参照、公開C ABI、native DuckDB SQLは区別する。</p>
-<table>
-<thead>
-<tr>
-<th>領域</th>
-<th>追加操作</th>
-<th>現行の限定契約</th>
-<th>残る主な契約</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>潜在変数/クラスタ</td>
-<td>8</td>
-<td>Classical MDS、単純対応分析、主因子法、CCA、full-covariance GMM、矩形batch SOMと保存予測</td>
-<td>optimized/nonmetric MDS、全covariance族/成分選択、SOM全topology/学習規約</td>
-</tr>
-<tr>
-<td>評価/検証分割</td>
-<td>12</td>
-<td>weighted regression/binary metrics、ROC/PR/lift/calibration、profit、固定ensemble、供給予測比較、holdout/rolling indices</td>
-<td>自動再学習/選択・nested tuning・前処理漏洩provenance・全推論</td>
-</tr>
-<tr>
-<td>非線形/平滑化</td>
-<td>7</td>
-<td>10曲線族LM、clamped B-spline、係数2階差P-spline、tricube LOESSと保存予測</td>
-<td>任意式/制約/重み/profile likelihood、全curve族、自動knots/lambda、JMP smoothing spline規約</td>
-</tr>
-<tr>
-<td>関数/スペクトル</td>
-<td>10</td>
-<td>SNV/MSC、SG/差分、polynomial detrend、Haar/DFT、2系列DTW、共通grid FPCA、離散peak</td>
-<td>irregular/sparse/平滑FPCA、自動基底選択/新曲線score、他wavelet/背景法、parametric peak、functional DOE</td>
-</tr>
-<tr>
-<td>多変量推論</td>
-<td>4</td>
-<td>whole-model MANOVA、逐次CCA Bartlett近似、MCA調整慣性、ML factor+varimax</td>
-<td>任意effect/反復応答、regularized CCA推論、補助category/weights、斜交/全factor推論</td>
-</tr>
-<tr>
-<td>SVM/分位点/robust</td>
-<td>5</td>
-<td>二値linear/RBF C-SVCのKKT付きSMO、check-loss ADMM、固定scale Huber IRLSと保存予測</td>
-<td>multiclass/SVR/calibration、罰則quantile/推論、scale同時推定・高breakdown S/MM/Cauchy</td>
+<td>SVM and robust methods</td>
+<td>Binary linear and RBF C-SVC, quantile regression, fixed-scale Huber IRLS.</td>
+<td>Multiclass and SVR, calibration, penalized quantile models, and additional robust estimators.</td>
 </tr>
 <tr>
 <td>Diploid markers</td>
-<td>9</td>
-<td>統計/HWE近似、imputation、VanRaden/dominance、距離、unlinked simulation/cross、固定ratio GBLUP</td>
-<td>exact HWE、phased/recombination/polyploid、admixture、REML variance/GWAS/形式parser</td>
+<td>Marker statistics, approximate HWE, imputation, relationship matrices, and fixed-ratio prediction.</td>
+<td>Exact HWE, phasing, recombination, polyploid models, and extended model and format support.</td>
 </tr>
 <tr>
-<td>信頼性</td>
-<td>7</td>
-<td>右打切りAFT3族とsurvival/quantile、single-system time-truncated power NHPP、独立series/parallel/k-of-n blocks</td>
-<td>左/区間打切り・entry・frailty、全stress law/scale model、複数system/phase、任意graph依存/repair simulation</td>
+<td>Reliability and survival</td>
+<td>Right-censored AFT, survival and quantile predictions, a power-law NHPP, and independent reliability blocks.</td>
+<td>Broader stress laws and censoring, multiple systems, dependent blocks, and repair simulation.</td>
+</tr>
+<tr>
+<td>Static reports</td>
+<td>Numerical backends for some of the 44 specified report contracts.</td>
+<td>Report artifacts and the full acceptance checks listed in the matrix.</td>
 </tr>
 </tbody>
 </table>
-<p>181関数の過去checkpointでは台帳551行を維持し、関連した限定方法だけを <code>partial</code> に結び付けた。Canonical CCAの個別操作など、既存台帳に単独行がないものは <code>current_sql_api</code> の注記に残す。方法群の完了に見せるために、異なるオプションを暗黙に実装済みにはしない。</p>
-<p>継続分のnative検証は <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/scripts/check_jmp_continuation.py">scripts/check_jmp_continuation.py</a> をmatching buildに対して実行して合格した。全62例の厳密JSON/SQL型境界、47数値・構造fixture操作の107結果field、11保存モデル往復、16不正入力NULL、6選択/dynamic行、7 interleaved NULL行、2 query-label除外を確認した。9queriesで134 JSONを復号した。181関数の過去checkpointの全体ゲートは <strong>Rust 48 suites / 1,099 passed / failed 0 / 既存ignored 2</strong>、native SQL <strong>9 cases / 394 assertions / skip 0</strong>、catalog <strong>332 overloads / 全332例実行</strong>。Strict Clippy・対象format・diff検査も合格した。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-continuation-validation.json">最終証拠</a> とREADMEの独立参照表に実行層・数え方を分けて記録した。前回1006テスト/270overloadsは過去snapshotとして保持する。</p>
-<h2 id="2026-10-22-209関数の検証checkpointと継続作業">2026-10-22: 209関数の検証checkpointと継続作業</h2>
-<p>28操作（混合/GLMM/因果/omics/古典DOE/market）を追加し、<strong>209分析関数 / 全360 overloads</strong>へ更新した。Rust <strong>54 suites / 1,167 passed / failure0 / existing ignored2</strong>、native SQL <strong>11 cases / 420 assertions / skip0</strong>、全360catalog例を実行済み。22-model checkerは22fixture操作57field、6保存model往復、15不正NULL。DOE checkerは6例、13構造case、14不正NULLに合格。検証層・制限・再現手順は<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-models-validation.json">証拠</a>と<a href="guide.html#cpu-analytics-complete-sql-api-reference">README</a>に記録。</p>
-<p>公式MultivariateのItem ReliabilityをIRT Item Analysisと分けた追加下位項目として1行追加した。14capability断片の502出現は維持し、現在552行（partial 227, database_existing 37, absent 213, external_plugin 4, clarification_pending 44, implemented_verified 6, excluded_gui 17, separate_product 4）。粒度が異なるため率にしない。上の181関数/551行の記録は過去checkpointである。IRT、SEM、劣化/安定性、その他の未完契約は継続中で、<strong>全体達成にはしていない</strong>。</p>
-<h2 id="225関数checkpoint-irtsem劣化ゲノム分散">225関数checkpoint: IRT・SEM・劣化・ゲノム分散</h2>
-<p>16操作を追加し、225analysis関数/376overloadsをmatching nativeで検証した。Rust 1236tests/58suites、SQL 12cases/430assertions、全376catalog例が成功。保存モデル7往復とsubnormal予測の修正も実SQLで確認。552行の現在状態は partial 235, database_existing 37, absent 205, external_plugin 4, clarification_pending 44, implemented_verified 6, excluded_gui 17, separate_product 4。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-specialized-validation.json">証拠</a>と<a href="guide.html#cpu-analytics-complete-sql-api-reference">README</a>に全契約・制限・別計算との照合を記録した。IRT、SEM、劣化、genomicモデルは限定部分対応で、全JMP同等は未達。時系列・残るfunctional/DOE等の必要作業を継続する。</p>
-<h2 id="254関数checkpoint過去の停止時点">254関数checkpoint（過去の停止時点）</h2>
-<p>今回の29操作を統合し、254analytics関数/全405overloadsをmatching nativeで検証。Rust1302tests/63suites、SQL13cases/439assertions、全405catalog例、29操作のproduction C ABI既知値、保存model/referenceの9SQL往復が成功した。数値レビューのGaussian covariance入力とspatial予測/半分散/物理共分散の不具合は実RED→GREEN回帰と独立計算で検証した。<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-streams-validation.json">最終証拠</a>、<a href="guide.html#cpu-analytics-complete-sql-api-reference">全関数README</a>。552行の状態は partial 254, database_existing 37, absent 186, external_plugin 4, clarification_pending 44, implemented_verified 6, excluded_gui 17, separate_product 4。19行をabsentからpartialへ変更したが、<strong>全JMP同等は未達</strong>。ユーザーの「それ完了したらpushでストップ」により今回の検証済み範囲をpush後、追加実装を停止する。choice/censored-regression等の次段階コードは追加していない。</p>
-<h2 id="2026-10-22-全体目標の再開">2026-10-22: 全体目標の再開</h2>
-<p>ユーザーが全体目標を再開した。上のpush後停止は過去のcheckpointの記録であり、現在の作業状態ではない。main <code>442f54588d5882a3fc14f3f830c2d29d20701ace</code> への反映、Community CIの3対象、ソースCIの9対象の成功は、既存254関数の提出・互換性に対する証拠であり、JMP全体の達成を証明しない。再開時点の台帳は部分対応254行・未実装186行・出力範囲未確定44行だった。その後、44行の受入契約を具体化し、既存バックエンド部分対応13行・未実装31行へ分類したため、現在は部分対応267行・未実装217行・範囲未確定0行である。成果物の実装完了を追加認定したものではない。</p>
-<p>継続中の契約は、Normal/Exponential/Gamma/Weibull/Lognormal/Betaの左・右・区間・正確観測を含む打切り回帰と、空間共分散パラメータのML/REML推定・推論・保存予測である。各契約のRED、独立数値参照、公開C ABI、実DuckDB SQLが揃うまでは検証済みの関数数を増やさない。限定的な推定法を追加しても、異方性・全推論オプションなどの残差分は保持する。</p>
-<p>現目標が除外するのはGUI操作とGPU依存だけである。静的図・帳票のCPU数値バックエンドと出力は対象に残し、従来の44件の範囲未確定項目を一次資料から具体化する。未確定であることを除外や達成として扱わない。全体目標はactiveのまま継続する。</p>
-<p>図・帳票の全44契約は <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-report-acceptance.json">tasks/jmp-report-acceptance.json</a> に、入力、計算/構造出力、静的artifact、非GUIオプション、一次資料、独立検証と残調査を記録した。範囲の具体化は未実装成果物の代わりにはならず、全体達成の根拠にしない。</p>
-<h2 id="再開後の検証済み9操作全体は継続中">再開後の検証済み9操作（全体は継続中）</h2>
-<p>6分布のexact/left/right/interval打切り回帰と保存予測7操作、および空間共分散ML/REML推定と保存予測2操作を追加した。契約・全引数・SQL例・制約はREADMEと <code>tasks/jmp-censored-api.json</code> / <code>tasks/jmp-spatial-estimation-api.json</code>。JMP本体との直接比較は行っておらず、該当方法群は <code>partial</code> を維持する。</p>
+<h2 id="validation-and-reproducibility">Validation and reproducibility</h2>
+<p>Development checkpoints record the exact source and tests at each stage. The October 24 checkpoint recorded 1,400 passing Rust tests, two pre-existing ignored tests, 21 native SQL cases, 637 assertions, and 430 runnable catalog examples. The PLS validation and selection evidence compares 6,684 numerical items and 28 invalid-input NULL cases against independent references across the C ABI and native DuckDB. The earlier PLS fit/prediction evidence compares 7,220 numerical results and 34 invalid-input NULLs on those same public paths.</p>
+<p>Use the version-matched native DuckDB build when reproducing SQL and catalog tests. Compare individual inputs, outputs, tolerances, and scope against the <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-feature-matrix.json">JMP feature matrix</a> and the evidence for the particular API.</p>
 <ul>
-<li>Rust: 65suite /1,340成功 /0失敗 /既存ignore2。厳格Clippy・scopedfmt・diff検査合格。</li>
-<li>実Release拡張: matching DuckDB2 SDKで16 SQL cases /513assertions /skip0、全414カタログ実行例合格。</li>
-<li>打切り回帰: 独立SciPy参照・実C ABI・実SQLの768検査。Gamma微小上側、有限CI、非対称保存共分散を含む。</li>
-<li>空間推定: 実C ABI48calls /810fields、実SQL16独立fit /130fieldsと3保存再利用。</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-sql-validation.json">General native analytics validation</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-continuation-validation.json">Continuation methods</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-models-validation.json">Mixed models and designed experiments</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-specialized-validation.json">Specialized methods</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-parity-estimation-validation.json">Censoring and spatial estimation</a></li>
 </ul>
-<p><a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/evidence/jmp-parity-estimation-validation.json">集約証跡</a>。台帳は552行のまま、partial275 /absent209 /implemented_verified6 /database_existing37 /excluded_gui17 /external_plugin4 /separate_product4。44帳票項目の受入条件を具体化したが、このcheckpointでは新しい帳票成果物の完成は認定していない。全体達成率には換算しない。次の帳票契約は <a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/jmp-report-next-contracts.json">histogram/box plotの調査</a> で具体化中。</p>
-<p>化学DQの<a href="https://github.com/nkwork9999/duckSMILES/blob/bef8675ee50efc158db4e6ee3b1985f422f460d6/tasks/chemistry-dq-research-20261022.json">別調査</a>は保存した。ユーザー指定により実装開始はJMP全体の完了後とし、DuckOrchの併用とDuckSMILESへの基盤組込みの両案を残す。</p>
 
-<footer>対応ソース <a href="https://github.com/nkwork9999/duckSMILES/tree/bef8675ee50efc158db4e6ee3b1985f422f460d6"><code>bef8675ee50e</code></a> · DuckDB 2.0.0</footer>
+<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/048cead6dbd009a4eb18feefb1cefc4c70f76f82"><code>048cead6dbd0</code></a> · DuckDB 2.0.0</footer>
 </main></div></body></html>
