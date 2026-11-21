@@ -1,0 +1,899 @@
+{
+  "rdkit": "2026.03.6",
+  "numpy": "2.5.5",
+  "python": "3.13.3",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "source_rows": 228,
+  "valid_rows": 226,
+  "registered_scalars": 217,
+  "invalid_inputs": [
+    {
+      "smiles": "C1",
+      "rdkit_default_atom_count": null,
+      "ducksmiles_profile": null
+    },
+    {
+      "smiles": "",
+      "rdkit_default_atom_count": 0,
+      "ducksmiles_profile": null
+    }
+  ],
+  "same_graph_differences": [],
+  "default_hydrogen_inputs": [
+    "CCO",
+    "[H]O[H]",
+    "[2H]O[2H]",
+    "[H]C([H])([H])[H]",
+    "[H]OC",
+    "[H]N(C)C"
+  ],
+  "default_hydrogen_differences": [
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 5.375,
+      "id": "MaxEStateIndex"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.75,
+      "id": "MinEStateIndex"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 5.375,
+      "id": "MaxAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.75,
+      "id": "MinAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 6.84923118831809,
+      "modeled": 9.832512704908186,
+      "id": "LabuteASA"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 5.476191835881363,
+      "modeled": 5.480753428414375,
+      "id": "SMR_VSA1"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.8623993144652684,
+      "id": "SMR_VSA2"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 5.476191835881363,
+      "modeled": 8.343152742879644,
+      "id": "SlogP_VSA2"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 5.476191835881363,
+      "modeled": 0,
+      "id": "EState_VSA2"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 5.480753428414375,
+      "id": "EState_VSA8"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.8623993144652684,
+      "id": "EState_VSA9"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 10.75,
+      "id": "VSA_EState1"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.75,
+      "id": "VSA_EState4"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 1.6329931618554523,
+      "id": "BalabanJ"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.7548875021634682,
+      "id": "BertzCT"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.7071067811865475,
+      "id": "Chi0"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0.5,
+      "modeled": 2.408248290463863,
+      "id": "Chi0n"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0.5,
+      "modeled": 0.4082482904638631,
+      "id": "Chi0v"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 1.414213562373095,
+      "id": "Chi1"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 0.8164965809277261,
+      "id": "Chi1n"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0.9600000000000016,
+      "modeled": 0.00039983340274885536,
+      "id": "Kappa1"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": -25.958400000000072,
+      "modeled": -0.01081149521032906,
+      "id": "Phi"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": -0.41150952193742263,
+      "modeled": 0.20575476096871131,
+      "id": "MaxPartialCharge"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0.41150952193742263,
+      "modeled": 0.20575476096871131,
+      "id": "MinAbsPartialCharge"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 5.476191835881363,
+      "modeled": 5.480753428414375,
+      "id": "PEOE_VSA1"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.8623993144652684,
+      "id": "PEOE_VSA12"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 1,
+      "modeled": 4,
+      "id": "FpDensityMorgan1"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 1,
+      "modeled": 4,
+      "id": "FpDensityMorgan2"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 1,
+      "modeled": 4,
+      "id": "FpDensityMorgan3"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 20,
+      "id": "SPS"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 2.7548875021634687,
+      "id": "Ipc"
+    },
+    {
+      "smiles": "[H]O[H]",
+      "observed": 0,
+      "modeled": 0.9182958340544896,
+      "id": "AvgIpc"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 5.9375,
+      "id": "MaxEStateIndex"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": -2.5,
+      "id": "MinEStateIndex"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 5.9375,
+      "id": "MaxAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 2.5,
+      "id": "MinAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 8.739251027829551,
+      "modeled": 14.359133028500802,
+      "id": "LabuteASA"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 5.483034224680881,
+      "id": "SMR_VSA1"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 7.426652776455239,
+      "modeled": 7.33085933326198,
+      "id": "SMR_VSA5"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 7.426652776455239,
+      "modeled": 12.813893557942858,
+      "id": "SlogP_VSA5"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 7.33085933326198,
+      "id": "EState_VSA1"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 7.426652776455239,
+      "modeled": 0,
+      "id": "EState_VSA2"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 5.483034224680881,
+      "id": "EState_VSA9"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 23.75,
+      "id": "VSA_EState1"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": -2.5,
+      "id": "VSA_EState9"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 3.0237157840738176,
+      "id": "BalabanJ"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 19.11941547876375,
+      "id": "BertzCT"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 4.5,
+      "id": "Chi0"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 4.5,
+      "id": "Chi0n"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 0.5,
+      "id": "Chi0v"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 2,
+      "id": "Chi1"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 2,
+      "id": "Chi1n"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": -0.07755789119307553,
+      "modeled": 0.019389472798268883,
+      "id": "MaxPartialCharge"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0.07755789119307553,
+      "modeled": 0.019389472798268883,
+      "id": "MinAbsPartialCharge"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 7.426652776455239,
+      "modeled": 7.33085933326198,
+      "id": "PEOE_VSA6"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 5.483034224680881,
+      "id": "PEOE_VSA8"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 1,
+      "modeled": 4,
+      "id": "FpDensityMorgan1"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 1,
+      "modeled": 4,
+      "id": "FpDensityMorgan2"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 1,
+      "modeled": 4,
+      "id": "FpDensityMorgan3"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 64,
+      "id": "SPS"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 3.6096404744368114,
+      "id": "Ipc"
+    },
+    {
+      "smiles": "[H]C([H])([H])[H]",
+      "observed": 0,
+      "modeled": 0.7219280948873623,
+      "id": "AvgIpc"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 7,
+      "modeled": 5.708333333333333,
+      "id": "MaxEStateIndex"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1,
+      "modeled": 1.2916666666666667,
+      "id": "MinEStateIndex"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 7,
+      "modeled": 5.708333333333333,
+      "id": "MaxAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1,
+      "modeled": 1.2916666666666667,
+      "id": "MinAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 13.533484780025564,
+      "modeled": 15.025125538320614,
+      "id": "LabuteASA"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 5.106527394840706,
+      "modeled": 5.1088081911072125,
+      "id": "SMR_VSA1"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0,
+      "modeled": 1.4311996572326342,
+      "id": "SMR_VSA2"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 12.216324936118239,
+      "modeled": 13.64980538961738,
+      "id": "SlogP_VSA2"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 7.109797541277533,
+      "modeled": 0,
+      "id": "EState_VSA4"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0,
+      "modeled": 7.109797541277533,
+      "id": "EState_VSA5"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0,
+      "modeled": 5.1088081911072125,
+      "id": "EState_VSA8"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 5.106527394840706,
+      "modeled": 1.4311996572326342,
+      "id": "EState_VSA9"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0,
+      "modeled": 5.708333333333333,
+      "id": "VSA_EState1"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 7,
+      "modeled": 3.5,
+      "id": "VSA_EState3"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1,
+      "modeled": 1.2916666666666667,
+      "id": "VSA_EState9"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1,
+      "modeled": 1.6329931618554523,
+      "id": "BalabanJ"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 2,
+      "modeled": 4.754887502163468,
+      "id": "BertzCT"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 2,
+      "modeled": 2.7071067811865475,
+      "id": "Chi0"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1.4472135954999579,
+      "modeled": 2.408248290463863,
+      "id": "Chi0n"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1.4472135954999579,
+      "modeled": 1.4082482904638631,
+      "id": "Chi0v"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1,
+      "modeled": 1.414213562373095,
+      "id": "Chi1"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0.4472135954999579,
+      "modeled": 0.8164965809277261,
+      "id": "Chi1n"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0.4472135954999579,
+      "modeled": 0.4082482904638631,
+      "id": "Chi1v"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1.96,
+      "modeled": 0.4702040816326531,
+      "id": "Kappa1"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0.9408000000000016,
+      "modeled": 0.22569795918367386,
+      "id": "Phi"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0.03194068371772811,
+      "modeled": 0.20962966438668965,
+      "id": "MaxPartialCharge"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0.03194068371772811,
+      "modeled": 0.20962966438668965,
+      "id": "MinAbsPartialCharge"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 5.106527394840706,
+      "modeled": 5.1088081911072125,
+      "id": "PEOE_VSA1"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 0,
+      "modeled": 1.4311996572326342,
+      "id": "PEOE_VSA12"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1.5,
+      "modeled": 3,
+      "id": "FpDensityMorgan1"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1.5,
+      "modeled": 3,
+      "id": "FpDensityMorgan2"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1.5,
+      "modeled": 3,
+      "id": "FpDensityMorgan3"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 3,
+      "modeled": 9.5,
+      "id": "SPS"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 2,
+      "modeled": 2.7548875021634687,
+      "id": "Ipc"
+    },
+    {
+      "smiles": "[H]OC",
+      "observed": 1,
+      "modeled": 0.9182958340544896,
+      "id": "AvgIpc"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.75,
+      "modeled": 6.416666666666666,
+      "id": "MaxEStateIndex"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.875,
+      "modeled": 1.25,
+      "id": "MinEStateIndex"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.75,
+      "modeled": 6.416666666666666,
+      "id": "MaxAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.875,
+      "modeled": 1.25,
+      "id": "MinAbsEStateIndex"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 20.6540553258342,
+      "modeled": 22.117082458240354,
+      "id": "LabuteASA"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0,
+      "modeled": 1.4118420783282006,
+      "id": "SMR_VSA1"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 5.316788604006331,
+      "modeled": 5.309813353288375,
+      "id": "SMR_VSA3"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 5.316788604006331,
+      "modeled": 5.309813353288375,
+      "id": "SlogP_VSA1"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0,
+      "modeled": 1.4118420783282006,
+      "id": "SlogP_VSA7"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0,
+      "modeled": 5.309813353288375,
+      "id": "EState_VSA5"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0,
+      "modeled": 14.09534396535438,
+      "id": "EState_VSA6"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 14.09534396535438,
+      "modeled": 0,
+      "id": "EState_VSA7"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 5.316788604006331,
+      "modeled": 0,
+      "id": "EState_VSA8"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0,
+      "modeled": 1.4118420783282006,
+      "id": "EState_VSA9"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0,
+      "modeled": 6.416666666666666,
+      "id": "VSA_EState1"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.75,
+      "modeled": 1.25,
+      "id": "VSA_EState3"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 3.75,
+      "modeled": 3.3333333333333335,
+      "id": "VSA_EState9"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.6329931618554523,
+      "modeled": 2.3237900077244498,
+      "id": "BalabanJ"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.754887502163469,
+      "modeled": 10.75488750216347,
+      "id": "BertzCT"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.7071067811865475,
+      "modeled": 3.5773502691896257,
+      "id": "Chi0"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.5,
+      "modeled": 3.447213595499958,
+      "id": "Chi0n"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.5,
+      "modeled": 2.447213595499958,
+      "id": "Chi0v"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.4142135623730951,
+      "modeled": 1.7320508075688776,
+      "id": "Chi1"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1,
+      "modeled": 1.3416407864998738,
+      "id": "Chi1n"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1,
+      "modeled": 0.8944271909999159,
+      "id": "Chi1v"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0.5,
+      "modeled": 0.4472135954999579,
+      "id": "Chi2n"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0.5,
+      "modeled": 0.4472135954999579,
+      "id": "Chi2v"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.9600000000000004,
+      "modeled": 1.297837837837838,
+      "id": "Kappa1"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.9338666666666668,
+      "modeled": 0.8479207207207208,
+      "id": "Phi"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": -0.016745432546547857,
+      "modeled": 0.12154271923904461,
+      "id": "MaxPartialCharge"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0.016745432546547857,
+      "modeled": 0.12154271923904461,
+      "id": "MinAbsPartialCharge"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 5.316788604006331,
+      "modeled": 5.309813353288375,
+      "id": "PEOE_VSA1"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0,
+      "modeled": 1.4118420783282006,
+      "id": "PEOE_VSA10"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.3333333333333333,
+      "modeled": 2,
+      "id": "FpDensityMorgan1"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.3333333333333333,
+      "modeled": 2,
+      "id": "FpDensityMorgan2"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 1.3333333333333333,
+      "modeled": 2,
+      "id": "FpDensityMorgan3"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 6,
+      "modeled": 12.333333333333334,
+      "id": "SPS"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 2.754887502163469,
+      "modeled": 3.2451124978365313,
+      "id": "Ipc"
+    },
+    {
+      "smiles": "[H]N(C)C",
+      "observed": 0.9182958340544897,
+      "modeled": 0.8112781244591328,
+      "id": "AvgIpc"
+    }
+  ],
+  "ipc_chain_lengths": [
+    20,
+    40,
+    64,
+    80
+  ],
+  "ipc_chain_differences": [
+    {
+      "smiles": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "observed": 131356321729629550,
+      "modeled": 131356231293992784,
+      "id": "Ipc"
+    },
+    {
+      "smiles": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "observed": 3.466866198166465,
+      "modeled": 3.4668641308764405,
+      "id": "AvgIpc"
+    }
+  ],
+  "ipc_rust_checked": true,
+  "ipc_path_coefficients": [
+    {
+      "atoms": 20,
+      "different_coefficients": 0,
+      "exact_constant": 1,
+      "rdkit_constant": 1.0
+    },
+    {
+      "atoms": 40,
+      "different_coefficients": 0,
+      "exact_constant": 1,
+      "rdkit_constant": 1.0
+    },
+    {
+      "atoms": 64,
+      "different_coefficients": 0,
+      "exact_constant": 1,
+      "rdkit_constant": 1.0
+    },
+    {
+      "atoms": 80,
+      "different_coefficients": 21,
+      "exact_constant": 1,
+      "rdkit_constant": -2574603346.9649034
+    }
+  ],
+  "sps_zero_division": [
+    "[H]",
+    "[H][H]"
+  ]
+}

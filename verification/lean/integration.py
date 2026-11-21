@@ -3,23 +3,59 @@ import argparse
 import csv
 import json
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
 
-from reference import CATALOG, CORPUS, observations, oracle
+from reference import CATALOG, CORPUS, observations, oracle, oracle_values
 
 HERE = Path(__file__).resolve().parent
 
 
-def run(library, extension, output, coverage):
+def coverage_details(spec):
+    k = spec["id"]
+    finite = "catalog comparison only"
+    if k.startswith("fr_") or k in ("NumHDonors", "NumHAcceptors", "NumAmideBonds", "NumRotatableBonds"):
+        return "SMARTS search on graph and perceived atom properties", "fragmentCount_spec; mem_embeddings_iff; rooted_iff"
+    if k.startswith(("SMR_VSA", "SlogP_VSA", "EState_VSA", "VSA_EState", "PEOE_VSA")):
+        return "interval sums of prepared atomic contributions", "bin_at_first_larger"
+    if k.startswith(("ds_MWC", "ds_SRW")):
+        return "integer walk multiplicities on heavy graph; logarithmic reduction", "walkRow_counts"
+    if spec["origin"] == "native-extra":
+        return "heavy graph distances and pair reductions", finite
+    if k.startswith("ds_Count"):
+        return "element count", "countAtoms_perm"
+    if k in ("NumHeterocycles",) or k.startswith(("NumAromatic", "NumAliphatic", "NumSaturated")):
+        return "classify perceived ring basis", "classCounts_partition"
+    if k in ("Ipc", "AvgIpc"):
+        return "exact integer recurrence and binary64 entropy", "divideExact_correct (trace division)"
+    if k.startswith("BCUT2D_"):
+        return "Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties", finite
+    if k == "qed":
+        return "eight prepared QED components; ADS and weighted geometric mean", finite
+    if k.startswith("FpDensityMorgan"):
+        return "three rounds of Morgan refinement from initial atom invariants", finite
+    if k.startswith(("Chi", "Kappa")) or k in ("BalabanJ", "BertzCT", "Phi"):
+        return "graph connectivity, path or distance formula", finite
+    if k in ("TPSA", "MolLogP", "MolMR", "HallKierAlpha", "LabuteASA") or k.endswith(("EStateIndex", "PartialCharge")):
+        return "reduction of prepared atomic contributions", finite
+    return "atom, bond, stereo or perceived-ring aggregation", finite
+
+
+def run(library, extension, output, coverage, extended=False):
+    inputs = CORPUS
+    if extended:
+        sys.path.insert(0, str(HERE.parents[1] / "scripts"))
+        from gen_rdkit_fixtures import MOLECULES
+        inputs = list(dict.fromkeys(MOLECULES + ["[H]", "[H][H]", "[2H]O[2H]", "[NH4+]", "[Xe]", "C1", ""]))
     native = oracle.Native(library.resolve())
     specs = json.loads(CATALOG.read_text())["descriptors"]
     if native.catalog != specs:
         raise ValueError("native catalog or tolerances differ from reference")
     with tempfile.TemporaryDirectory() as tmp:
         ref, actual = (Path(tmp) / n for n in ("observations.json", "actual.json"))
-        obs = observations(CORPUS)
+        obs = observations(inputs)
         ref.write_text(json.dumps(obs, allow_nan=False))
         executable = HERE / ".lake/build/bin/descriptor_check"
         def lean(mode, *args, **kwargs):
@@ -28,12 +64,11 @@ def run(library, extension, output, coverage):
         def check(rows):
             actual.write_text(json.dumps(rows, allow_nan=False))
             lean("check", actual, check=True)
-        guide = [{"smiles": s, "values": [o["oracle"][c["id"]] for c in specs] if o else None}
-                 for s, o in ((row["smiles"], row["observations"]) for row in obs)]
+        guide = [{"smiles": s, "values": oracle_values(s, specs)} for s in inputs]
         check(guide)
         def rust():
             return [{"smiles": s, "values": row.get("descriptor_values")}
-                    for s, row in zip(CORPUS, native.analyze(CORPUS), strict=True)]
+                    for s, row in zip(inputs, native.analyze(inputs), strict=True)]
         check(rust())
         if extension:
             import duckdb
@@ -42,27 +77,25 @@ def run(library, extension, output, coverage):
             db.execute(f"LOAD '{path}'")
             assert json.loads(db.execute("SELECT mol_descriptor_catalog_json()").fetchone()[0])["descriptors"] == specs
             def sql():
-                raw = db.execute("SELECT s, mol_descriptor_values_json(s) FROM unnest(?::VARCHAR[]) WITH ORDINALITY t(s, i) ORDER BY i", [CORPUS]).fetchall()
+                raw = db.execute("SELECT s, mol_descriptor_values_json(s) FROM unnest(?::VARCHAR[]) WITH ORDINALITY t(s, i) ORDER BY i", [inputs]).fetchall()
                 return [{"smiles": s, "values": json.loads(v) if v is not None else None} for s, v in raw]
             check(sql())
         if coverage:
-            calculated = set(native.catalog[i]["id"] for i in range(len(specs))
-                             if specs[i]["origin"] == "native-profile")
-            calculated.update(("HeavyAtomCount", "NumHeteroatoms", "NOCount", "RingCount"))
             with coverage.open("w", newline="") as f:
                 writer = csv.writer(f, lineterminator="\n")
-                writer.writerow(["id", "reference", "Lean evaluation", "absolute tolerance", "relative tolerance",
+                writer.writerow(["id", "reference", "Lean evaluation", "general kernel result used", "absolute tolerance", "relative tolerance",
                                  "defined reference values", "undefined reference values", "paths checked"])
                 supported = [row["values"] for row in guide if row["values"] is not None]
                 for i, spec in enumerate(specs):
                     key = spec["id"]
-                    evaluator = ("atom/bond/ring aggregation" if key in calculated else
-                                 "count unique SMARTS embeddings" if key.startswith("fr_") else
-                                 "read declared numerical oracle")
+                    evaluator, kernel = coverage_details(spec)
                     defined = sum(row[i] is not None for row in supported)
-                    writer.writerow([key, oracle.reference_source(spec), evaluator, spec["tolerance"],
+                    writer.writerow([key, oracle.reference_source(spec), evaluator, kernel, spec["tolerance"],
                                      spec["relative_tolerance"], defined, len(supported) - defined,
                                      "Lean + Rust" + (" + SQL" if extension else "")])
+        if extended:
+            inputs = CORPUS
+            ref.write_text(json.dumps(observations(inputs), allow_nan=False))
         if output:
             cases = {"rust_ffi_batch": rust,
                      "lean_prepared_reference_process": lambda: json.loads(lean("reference", check=True, capture_output=True).stdout)}
@@ -106,5 +139,6 @@ if __name__ == "__main__":
     parser.add_argument("--extension", type=Path)
     parser.add_argument("--timings", type=Path)
     parser.add_argument("--coverage", type=Path)
+    parser.add_argument("--extended", action="store_true", help="check the complete hand-curated molecule corpus")
     args = parser.parse_args()
-    run(args.library, args.extension, args.timings, args.coverage)
+    run(args.library, args.extension, args.timings, args.coverage, args.extended)
