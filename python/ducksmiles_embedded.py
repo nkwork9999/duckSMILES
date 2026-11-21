@@ -34,6 +34,145 @@ class MoleculeReader:
 
 
 @dataclass(frozen=True)
+class MorganFingerprint:
+    radius: int = 2
+    bits: int = 2048
+
+    def __post_init__(self):
+        if type(self.radius) is not int or not 0 <= self.radius <= 32:
+            raise ValueError("radius must be an integer in [0, 32]")
+        if type(self.bits) is not int or not 1 <= self.bits <= 1_048_576:
+            raise ValueError("bits must be an integer in [1, 1048576]")
+
+
+@dataclass(frozen=True)
+class SimilarityHit:
+    molecule_id: int
+    score: float
+
+
+@dataclass(frozen=True)
+class SimilarityResult:
+    hits: tuple[SimilarityHit, ...]
+    candidates_scored: int
+
+
+class FingerprintIndex:
+    """Store Morgan fingerprints for explicit, host-provided generations."""
+
+    def __init__(self, connection: DuckDBPyConnection):
+        self._db = connection
+        connection.execute("CREATE SCHEMA IF NOT EXISTS ducksmiles_fingerprints")
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS ducksmiles_fingerprints.generations (
+                generation VARCHAR, radius INTEGER, width INTEGER, revision BIGINT NOT NULL,
+                PRIMARY KEY (generation, radius, width)
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS ducksmiles_fingerprints.entries (
+                generation VARCHAR, radius INTEGER, width INTEGER, id BIGINT,
+                bits BLOB NOT NULL, popcount INTEGER NOT NULL,
+                PRIMARY KEY (generation, radius, width, id),
+                CHECK (octet_length(bits) = (width + 7) // 8 AND popcount = bit_count(bits::BIT))
+            )
+        """)
+
+    @staticmethod
+    def _definition(generation, definition):
+        if type(generation) is not str or not generation:
+            raise ValueError("generation must be a nonempty string")
+        if type(definition) is not MorganFingerprint:
+            raise TypeError("expected a MorganFingerprint")
+        return [generation, definition.radius, definition.bits]
+
+    def replace(self, generation: str, definition: MorganFingerprint,
+                molecules: list[tuple[int, str | None]]) -> int:
+        """Replace one fingerprint generation atomically and return the valid row count."""
+        key = self._definition(generation, definition)
+        if type(molecules) is not list:
+            raise TypeError("expected a list of (id, SMILES) tuples")
+        rows = []
+        seen = set()
+        for record in molecules:
+            if type(record) is not tuple or len(record) != 2:
+                raise TypeError("expected (id, SMILES) tuples")
+            molecule_id, smiles = record
+            if type(molecule_id) is not int or not -(1 << 63) <= molecule_id < (1 << 63):
+                raise ValueError("molecule IDs must be signed 64-bit integers")
+            if molecule_id in seen:
+                raise ValueError("duplicate molecule ID")
+            if smiles is not None and type(smiles) is not str:
+                raise TypeError("SMILES must be a string or None")
+            seen.add(molecule_id)
+            rows.append({"id": molecule_id, "smiles": smiles})
+
+        with self._db.cursor() as tx:
+            tx.execute("BEGIN TRANSACTION")
+            tx.execute("""
+                INSERT INTO ducksmiles_fingerprints.generations VALUES (?, ?, ?, 1)
+                ON CONFLICT (generation, radius, width) DO UPDATE SET revision = revision + 1
+            """, key)
+            tx.execute(
+                "DELETE FROM ducksmiles_fingerprints.entries WHERE (generation, radius, width) = (?, ?, ?)", key
+            )
+            inserted, = tx.execute("""
+                INSERT INTO ducksmiles_fingerprints.entries
+                WITH parsed AS MATERIALIZED (
+                    SELECT m.id AS id, morgan_fp_bits(m.smiles, ?, ?) AS bits
+                    FROM unnest(?::STRUCT(id BIGINT, smiles VARCHAR)[]) AS t(m)
+                )
+                SELECT ?, ?, ?, id, bits, bit_count(bits::BIT) FROM parsed WHERE bits IS NOT NULL
+            """, [definition.radius, definition.bits, rows, *key]).fetchone()
+            tx.execute("COMMIT")
+        return inserted
+
+    def search(self, generation: str, definition: MorganFingerprint, smiles: str, *,
+               threshold: float = 0.0, limit: int = 10) -> SimilarityResult:
+        self._definition(generation, definition)
+        self._validate_search(threshold, limit)
+        if type(smiles) is not str:
+            raise TypeError("SMILES must be a string")
+        bits, = self._db.execute("SELECT morgan_fp_bits(?, ?, ?)", [smiles, definition.radius, definition.bits]).fetchone()
+        if bits is None:
+            return SimilarityResult((), 0)
+        return self.search_bits(generation, definition, bits, threshold=threshold, limit=limit)
+
+    @staticmethod
+    def _validate_search(threshold, limit):
+        if type(threshold) not in (int, float) or not 0 <= threshold <= 1:
+            raise ValueError("threshold must be in [0, 1]")
+        if type(limit) is not int or not 1 <= limit <= 1_000_000:
+            raise ValueError("limit must be an integer in [1, 1000000]")
+
+    def search_bits(self, generation: str, definition: MorganFingerprint, bits: bytes, *,
+                    threshold: float = 0.0, limit: int = 10) -> SimilarityResult:
+        key = self._definition(generation, definition)
+        self._validate_search(threshold, limit)
+        if type(bits) is not bytes or len(bits) != (definition.bits + 7) // 8:
+            raise ValueError("query fingerprint byte length does not match its definition")
+        if definition.bits % 8 and bits[-1] >> (definition.bits % 8):
+            raise ValueError("query fingerprint has bits beyond its declared width")
+        popcount = int.from_bytes(bits, "little").bit_count()
+        hits, candidates = self._db.execute("""
+            WITH candidates AS MATERIALIZED (
+                SELECT id, bits FROM ducksmiles_fingerprints.entries
+                CROSS JOIN (SELECT ?::INTEGER AS query_count, ?::DOUBLE AS threshold)
+                WHERE (generation, radius, width) = (?, ?, ?)
+                  AND coalesce(least(popcount, query_count)::DOUBLE /
+                               nullif(greatest(popcount, query_count), 0), 0) >= threshold
+            ), top_hits AS (
+                SELECT id, tanimoto_bit(bits, ?::BLOB) AS score FROM candidates
+                WHERE score >= ? ORDER BY score DESC, id LIMIT ?
+            )
+            SELECT list(struct_pack(id := id, score := score) ORDER BY score DESC, id),
+                   (SELECT count(*) FROM candidates)
+            FROM top_hits
+        """, [popcount, threshold, *key, bits, threshold, limit]).fetchone()
+        return SimilarityResult(tuple(SimilarityHit(h["id"], h["score"]) for h in hits or ()), candidates)
+
+
+@dataclass(frozen=True)
 class DaltonMass:
     value: float
 

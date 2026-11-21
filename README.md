@@ -2684,6 +2684,13 @@ Wasm toolchain, standard-library rebuild, and artifact checks:
 
 ## Embedded descriptor reader
 
+`FingerprintIndex(connection)` stores Morgan bit vectors and popcounts by source generation, radius and bit width.
+Pass a `MorganFingerprint` to `replace(generation, definition, molecules)` and to
+`search(generation, definition, smiles, threshold=0.8, limit=10)`. Each replacement commits atomically.
+Search applies the popcount upper bound before exact Tanimoto scoring, then keeps the top results in
+descending score and ascending molecule ID order. Use a new generation when the source or fingerprint
+implementation changes. The connection should be scoped to one application tenant.
+
 `MoleculeReader(connection).describe(["CCO", None, "O"])` in `python/ducksmiles_embedded.py` returns formula and molecular weight for each position. The query computes both descriptors per distinct input and binds the list as a single parameter. Invalid SMILES and missing inputs yield empty descriptor fields.
 
 The native scalar `mol_descriptor_summary(smiles)` returns a STRUCT with average molecular weight, heavy-atom count and ring count from one parse. Invalid or missing input returns NULL. The host-side `MassWindowSearch(connection).match(references, peaks, tolerance_ppm)` accepts tuples of `DaltonMass` and returns zero-based reference and peak positions and signed ppm errors.
