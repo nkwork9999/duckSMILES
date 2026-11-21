@@ -12,16 +12,18 @@ class DescriptorRow:
     weight: float | None
 
 
+def _validate_molecules(molecules):
+    if not isinstance(molecules, list) or any(value is not None and type(value) is not str for value in molecules):
+        raise TypeError("molecules must be a list of SMILES strings or None")
+
+
 class MoleculeReader:
     def __init__(self, connection: DuckDBPyConnection):
         self._db = connection
 
     def describe(self, molecules: list[str | None]) -> list[DescriptorRow]:
         """Compute each descriptor per distinct SMILES, then restore input order."""
-        if not isinstance(molecules, list) or any(
-            value is not None and type(value) is not str for value in molecules
-        ):
-            raise TypeError("molecules must be a list of SMILES strings or None")
+        _validate_molecules(molecules)
         rows = self._db.execute("""
             WITH inputs AS (
                 SELECT smiles, ord FROM unnest(?::VARCHAR[]) WITH ORDINALITY AS t(smiles, ord)
@@ -32,6 +34,74 @@ class MoleculeReader:
             SELECT formula, weight FROM inputs LEFT JOIN properties USING (smiles) ORDER BY ord
         """, [molecules]).fetchall()
         return [DescriptorRow(*row) for row in rows]
+
+
+@dataclass(frozen=True)
+class DescriptorRevision:
+    implementation: str
+    standardization: str
+
+    def __post_init__(self):
+        for value in (self.implementation, self.standardization):
+            if type(value) is not str or not value or len(value) > 255:
+                raise ValueError("describe each implementation and standardization policy with a version ID")
+
+
+@dataclass(frozen=True)
+class CachedDescriptors:
+    rows: tuple[DescriptorRow, ...]
+    new_entries: int
+
+
+class DescriptorCache:
+    """Keep native descriptor results, including invalid inputs, per host-provided revision."""
+
+    def __init__(self, connection: DuckDBPyConnection):
+        self._db = connection
+        with connection.cursor() as tx:
+            tx.execute("BEGIN TRANSACTION")
+            tx.execute("CREATE SCHEMA IF NOT EXISTS ducksmiles_cache")
+            tx.execute("""
+                CREATE TABLE IF NOT EXISTS ducksmiles_cache.descriptors (
+                    implementation VARCHAR, standardization VARCHAR, digest UUID, smiles VARCHAR,
+                    formula VARCHAR, weight DOUBLE,
+                    PRIMARY KEY (implementation, standardization, digest, smiles)
+                )
+            """)
+            tx.execute("COMMIT")
+
+    def describe(self, revision: DescriptorRevision, molecules: list[str | None]) -> CachedDescriptors:
+        if type(revision) is not DescriptorRevision:
+            raise TypeError("expected a DescriptorRevision")
+        _validate_molecules(molecules)
+        params = [revision.implementation, revision.standardization, molecules]
+        with self._db.cursor() as tx:
+            tx.execute("BEGIN TRANSACTION")
+            added = tx.execute("""
+                INSERT INTO ducksmiles_cache.descriptors
+                WITH scope AS (SELECT ?::VARCHAR AS implementation, ?::VARCHAR AS standardization),
+                input AS (
+                    SELECT DISTINCT smiles, md5(smiles)::UUID AS digest
+                    FROM unnest(?::VARCHAR[]) AS t(smiles) WHERE smiles IS NOT NULL
+                ), uncached AS MATERIALIZED (
+                    SELECT scope.*, input.* FROM scope CROSS JOIN input
+                    ANTI JOIN ducksmiles_cache.descriptors USING (implementation, standardization, digest, smiles)
+                )
+                SELECT implementation, standardization, digest, smiles, mol_formula(smiles), mol_weight(smiles)
+                FROM uncached ON CONFLICT DO NOTHING RETURNING 1
+            """, params).fetchall()
+            rows = tx.execute("""
+                WITH cached AS (
+                    SELECT digest, smiles, formula, weight FROM ducksmiles_cache.descriptors
+                    WHERE implementation = ? AND standardization = ?
+                )
+                SELECT cached.formula, cached.weight
+                FROM unnest(?::VARCHAR[]) WITH ORDINALITY AS input(smiles, position)
+                LEFT JOIN cached ON cached.smiles = input.smiles AND cached.digest = md5(input.smiles)::UUID
+                ORDER BY input.position
+            """, params).fetchall()
+            tx.execute("COMMIT")
+        return CachedDescriptors(tuple(DescriptorRow(*row) for row in rows), len(added))
 
 
 @dataclass(frozen=True)

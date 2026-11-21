@@ -2709,6 +2709,9 @@ Use `sdf_projected_properties_json(sdf, ['ID', 'NAME'])` for property-only SDF r
 the original 1-based positions. The function reads tags following the CTAB terminator and skips coordinate parsing.
 
 `MoleculeReader(connection).describe(["CCO", None, "O"])` in `python/ducksmiles_embedded.py` returns formula and molecular weight for each position. The query computes both descriptors per distinct input and binds the list as a single parameter. Invalid SMILES and missing inputs yield empty descriptor fields.
+Use `DescriptorCache(connection).describe(DescriptorRevision(engine_version, policy_version), smiles)`
+to persist both successful computations and invalid input results. Give each change to the host's
+normalization policy a new version and pass inputs prepared according to that policy.
 
 The native scalar `mol_descriptor_summary(smiles)` returns a STRUCT with average molecular weight, heavy-atom count and ring count from one parse. Invalid or missing input returns NULL. The host-side `MassWindowSearch(connection).match(references, peaks, tolerance_ppm)` accepts tuples of `DaltonMass` and returns zero-based reference and peak positions and signed ppm errors.
 
