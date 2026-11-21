@@ -2713,6 +2713,11 @@ Use `DescriptorCache(connection).describe(DescriptorRevision(engine_version, pol
 to persist both successful computations and invalid input results. Give each change to the host's
 normalization policy a new version and pass inputs prepared according to that policy.
 
+`MoleculeSearch(connection, relation, patterns)` accepts a `MoleculeSearchSpec` combining a Dalton
+`MassRange`, a `FingerprintFilter`, and a host-registered `PatternId`. The relation provides unique
+`molecule_id`, `smiles` and `mass` columns. The result distinguishes an invalid reference from a valid
+search with no matches. Candidates are ordered by decreasing score and increasing molecule ID.
+
 The native scalar `mol_descriptor_summary(smiles)` returns a STRUCT with average molecular weight, heavy-atom count and ring count from one parse. Invalid or missing input returns NULL. The host-side `MassWindowSearch(connection).match(references, peaks, tolerance_ppm)` accepts tuples of `DaltonMass` and returns zero-based reference and peak positions and signed ppm errors.
 
 Give each active caller its own connection with the matching extension loaded. With Python 3.10+,

@@ -1,4 +1,5 @@
 """Batch descriptor reads on a host-provisioned duckSMILES connection."""
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
 from sys import float_info
@@ -134,6 +135,116 @@ class MorganFingerprint:
             raise ValueError("radius must be an integer in [0, 32]")
         if type(self.bits) is not int or not 1 <= self.bits <= 1_048_576:
             raise ValueError("bits must be an integer in [1, 1048576]")
+
+
+@dataclass(frozen=True)
+class MassRange:
+    lower: float
+    upper: float
+
+    def __post_init__(self):
+        if any(type(value) not in (int, float) or not 0 <= value <= float_info.max
+               for value in (self.lower, self.upper)) or self.lower > self.upper:
+            raise ValueError("mass bounds must be finite, nonnegative and ordered")
+
+
+@dataclass(frozen=True)
+class PatternId:
+    value: str
+
+    def __post_init__(self):
+        if type(self.value) is not str or not self.value:
+            raise ValueError("pattern ID must be a nonempty string")
+
+
+@dataclass(frozen=True)
+class FingerprintFilter:
+    reference: str
+    threshold: float
+    definition: MorganFingerprint = MorganFingerprint()
+
+    def __post_init__(self):
+        if type(self.reference) is not str or not self.reference or type(self.definition) is not MorganFingerprint:
+            raise ValueError("provide a reference SMILES and MorganFingerprint")
+        if type(self.threshold) not in (int, float) or not 0 <= self.threshold <= 1:
+            raise ValueError("threshold must be in [0, 1]")
+
+
+@dataclass(frozen=True)
+class MoleculeSearchSpec:
+    mass: MassRange | None = None
+    fingerprint: FingerprintFilter | None = None
+    pattern: PatternId | None = None
+    limit: int = 100
+
+    def __post_init__(self):
+        for value, expected in ((self.mass, MassRange), (self.fingerprint, FingerprintFilter), (self.pattern, PatternId)):
+            if value is not None and type(value) is not expected:
+                raise TypeError(f"expected a {expected.__name__}")
+        if type(self.limit) is not int or not 1 <= self.limit <= 10_000:
+            raise ValueError("limit must be an integer in [1, 10000]")
+
+
+@dataclass(frozen=True)
+class MoleculeSearchHit:
+    molecule_id: int
+    mass: float | None
+    score: float | None
+
+
+@dataclass(frozen=True)
+class MoleculeSearchResult:
+    state: str
+    hits: tuple[MoleculeSearchHit, ...]
+
+
+class MoleculeSearch:
+    """Search one host-registered relation with a closed set of predicate types."""
+
+    def __init__(self, connection: DuckDBPyConnection, relation: str, patterns: Mapping[PatternId, str]):
+        if type(relation) is not str or not relation or "\0" in relation:
+            raise ValueError("relation must be a nonempty identifier without NUL")
+        self._db = connection
+        self._relation = '"' + relation.replace('"', '""') + '"'
+        self._patterns = dict(patterns)
+        if any(type(key) is not PatternId or type(pattern) is not str or not pattern
+               for key, pattern in self._patterns.items()):
+            raise TypeError("provide host-defined PatternId to SMARTS mappings")
+
+    def search(self, spec: MoleculeSearchSpec) -> MoleculeSearchResult:
+        if type(spec) is not MoleculeSearchSpec:
+            raise TypeError("expected a MoleculeSearchSpec")
+        mass_sql, structure_sql, score_sql, score_filter = "TRUE", "TRUE", "NULL::DOUBLE", "TRUE"
+        parameters = []
+        if spec.mass is not None:
+            mass_sql = "isfinite(mass) AND mass BETWEEN ?::DOUBLE AND ?::DOUBLE"
+            parameters.extend([spec.mass.lower, spec.mass.upper])
+        if spec.pattern is not None:
+            structure_sql = "mol_has_substructure(smiles, ?::VARCHAR)"
+            parameters.append(self._patterns[spec.pattern])
+        if spec.fingerprint is not None:
+            fp = spec.fingerprint
+            definition = [fp.definition.radius, fp.definition.bits]
+            reference, = self._db.execute("SELECT morgan_fp_bits(?::VARCHAR, ?, ?)",
+                                          [fp.reference, *definition]).fetchone()
+            if reference is None:
+                return MoleculeSearchResult("invalid_reference", ())
+            score_sql = "tanimoto_bit(morgan_fp_bits(smiles, ?, ?), ?::BLOB)"
+            score_filter = "score >= ?::DOUBLE"
+            parameters.extend([*definition, reference, fp.threshold])
+        rows = self._db.execute(f"""
+            WITH eligible AS MATERIALIZED (
+                SELECT molecule_id, smiles, CASE WHEN isfinite(mass) THEN mass END AS mass
+                FROM main.{self._relation} WHERE {mass_sql}
+            ), matched AS MATERIALIZED (
+                SELECT molecule_id, mass, smiles FROM eligible WHERE {structure_sql}
+            ), scored AS (
+                SELECT molecule_id, mass, {score_sql} AS score FROM matched
+            )
+            SELECT molecule_id, mass, score FROM scored WHERE {score_filter}
+            ORDER BY score DESC NULLS LAST, molecule_id LIMIT ?
+        """, [*parameters, spec.limit]).fetchall()
+        return MoleculeSearchResult("ok", tuple(MoleculeSearchHit(*row) for row in rows))
 
 
 @dataclass(frozen=True)
