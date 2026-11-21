@@ -124,7 +124,7 @@ built extension, use a matching DuckDB CLI:</p>
   --extension /path/to/ducksmiles.duckdb_extension
 </code></pre>
 <p>For experimental native Rust fingerprints, fragmentation features and streaming
-command-line examples, see <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/CASMI_RESEARCH.md">CASMI_RESEARCH.md</a>. These research
+command-line examples, see <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/CASMI_RESEARCH.md">CASMI_RESEARCH.md</a>. These research
 APIs are separate from the SQL functions documented below.</p>
 <h3 id="smiles-functions">SMILES Functions</h3>
 <p>SMILES (Simplified Molecular Input Line Entry System) is the most widely used text notation for molecules in cheminformatics. These functions parse SMILES strings and extract molecular properties.</p>
@@ -1882,8 +1882,8 @@ limited kernel has passed tests.</p>
 <p><code>chem_pls2_validate</code> and <code>chem_plsda_validate</code> add supplied-fold cross validation
 and supplied-role holdback selection, bringing the source to <strong>279 analytics
 functions /430 overloads</strong>. They evaluate every requested count from zero through
-A, including the training-mean baseline. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-pls-validation-api.json">Exact contracts</a>
-and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-pls-component-validation.json">verification</a> cover the
+A, including the training-mean baseline. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-pls-validation-api.json">Exact contracts</a>
+and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-pls-component-validation.json">verification</a> cover the
 component path, selected scoring model and numerical corrections.</p>
 <p>Regression rows are <code>[features...,responses...,fold_or_role]</code>, with parameters
 <code>[n_responses,max_components,method=0,scale_x=1,scale_y=1,mode=0]</code>.
@@ -1925,7 +1925,7 @@ tuning, van der Voet comparison, missing-data fitting or bootstrap uncertainty.<
 <p>Four additional operations provide centered PLS2 and PLS-DA fit/predict pairs,
 with both regression-deflation NIPALS using SVD weights and de Jong SIMPLS.
 The catalog at this preceding checkpoint was <strong>277 analytics functions /428 SQL overloads</strong>.
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-pls-api.json">Contracts</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-pls-validation.json">verification</a>
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-pls-api.json">Contracts</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-pls-validation.json">verification</a>
 record the bounded implementation. The existing <code>chem_pls</code> PLS1 interface stays
 available with its own population-standardization contract.</p>
 <p><code>chem_pls2_fit</code> takes rows <code>[numeric features...,responses...]</code> and parameters
@@ -1971,8 +1971,8 @@ supplied-fold/role component selection is described above.</p>
 <p>Six additional CPU operations fit unpenalized zero-inflated binomial,
 beta-binomial, Poisson, negative-binomial NB2 and Gamma regression and score the
 saved models. These bring the source catalog to <strong>273 analytics functions /424
-SQL overloads</strong>. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-zero-inflation-api.json">Exact contracts and fixtures</a>
-and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-zero-inflation-validation.json">validation evidence</a>
+SQL overloads</strong>. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-zero-inflation-api.json">Exact contracts and fixtures</a>
+and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-zero-inflation-validation.json">validation evidence</a>
 record the supported subset and numerical boundaries.</p>
 <p>Fit rows are <code>[numeric features...,response,trials,integer frequency]</code>.
 Binomial trials are positive integers; beta-binomial trials exceed one; other
@@ -2219,19 +2219,19 @@ failures, component importance or repair simulation. These additions extend the
 previous KM, zero-location lifetime and Cox methods under distinct contracts.</p>
 <p>Exact contracts, output layouts, per-operation exclusions and source/test links:</p>
 <ul>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-latent-api.json">Latent variables and clustering</a>: 8 operations.</li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-evaluation-api.json">Prediction evaluation and validation splits</a>: 12 operations.</li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-nonlinear-api.json">Nonlinear curves and local smoothing</a>: 7 operations.</li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-spectral-api.json">Functional and spectral numerics</a>: 10 operations.</li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-latent-inference-api.json">Multivariate inference</a>: 4 operations.</li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-robust-learning-api.json">SVM, quantile and Huber regression</a>: 5 operations.</li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-genomics-api.json">Diploid marker analytics and GBLUP</a>: 9 operations.</li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-reliability-api.json">Reliability extensions</a>: 7 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-latent-api.json">Latent variables and clustering</a>: 8 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-evaluation-api.json">Prediction evaluation and validation splits</a>: 12 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-nonlinear-api.json">Nonlinear curves and local smoothing</a>: 7 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-spectral-api.json">Functional and spectral numerics</a>: 10 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-latent-inference-api.json">Multivariate inference</a>: 4 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-robust-learning-api.json">SVM, quantile and Huber regression</a>: 5 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-genomics-api.json">Diploid marker analytics and GBLUP</a>: 9 operations.</li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-reliability-api.json">Reliability extensions</a>: 7 operations.</li>
 </ul>
 <h3 id="mixed-causal-omics-classical-doe-and-market-contracts">Mixed, causal, omics, classical DOE and market contracts</h3>
 <p>The earlier 28-operation checkpoint brought the previous 181 to <strong>209 analytics functions and 360 total documented overloads</strong>. The function table above contains every individual call. These are bounded method contracts; full JMP parity remains incomplete.</p>
 <h4 id="mixed-advanced">Mixed Advanced</h4>
-<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-mixed-advanced-api.json">contract</a>.</p>
+<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-mixed-advanced-api.json">contract</a>.</p>
 <p><strong>matrix.</strong> Finite nonempty rectangular numeric data&lt;=100000rows,1024columns,1000000cells; fitting further capped256rows/16fixednumericfeatures. Exact signed subject IDs&lt;=2^53-1.</p>
 <p><strong>covariance codes.</strong> 0: heterogeneous diagonal [variance_per_level...]; 1: unstructured [lower triangle covariance including diagonal,row-major]; 2: compound symmetry [variance,rho]; 3: heterogeneous compound symmetry [variances...,rho]; 4: AR1 [variance,rho]; 5: Toeplitz [variance,rho_lag1,...rho_lag(m-1)]; 6: heterogeneous Toeplitz [variances...,rho_lag1,...rho_lag(m-1)]; 7: antedependent [variances...,adjacent_rho0,...adjacent_rho(m-2)]; 8: equal-variance antedependent [variance,adjacent_rho0,...adjacent_rho(m-2)]</p>
 <p><strong>time semantics.</strong> Parameters refer to sorted global time levels. AR1 covariance=variance*rho^abs(actual_elapsed_time);negative rho requires integral gaps. Toeplitz requires uniform global grid and uses lag in grid increments;missing visits retain global lag. Antedependence multiplies all intervening global adjacent correlations,including omitted visits. Other heterogeneity parameters are categorical by ordered level.</p>
@@ -2247,7 +2247,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_random_slope_model</code>: <strong>data:</strong> 0..15 other numeric features followed by numeric slope covariate,response,exact integer subject id. Intercept and slope are included as fixed and correlated random effects. &lt;=256 rows,&lt;=16 total fixed numeric features,&gt;=3 subjects,within-subject replication. <strong>args:</strong> method0ML/1REML(default); max_iterations integer1..1000,default300; tolerance1e-12..1e-3,default1e-8; gradient norm convergence sqrt(tolerance) clamped[1e-7,1e-5] <strong>estimator:</strong> Gaussian marginal covariance sigma2 I + Z G Z^T with positive-semidefinite 2x2 G from a free lower factor. True profile ML/REML,origin-relative numerical standardization,conditional GLS covariance,group BLUPs G Z^T V^-1 residual. Random covariance/BLUPs reported for original raw slope units; portable model retains normalized coordinates. Boundary singular G returns variance_boundary=true and converged=false,even if optimizer converged. <strong>unsupported:</strong> crossed/nested multiple grouping factors; multiple random slope covariates; structured residual covariance jointly with G; GLMM; covariance-parameter SE/CI/tests or small-sample df corrections</p>
 <p><code>chem_random_slope_predict</code>: <strong>data:</strong> Same fixed features/slope order as training,followed by exact integer subject id. Finite rectangular matrix&lt;=100000 rows/1000000 cells. <strong>args:</strong> exact predict_parameters from random_slope_model; layout in common_contract <strong>estimator:</strong> Reuses training feature/response references. Known subjects receive stored normalized random intercept+slope BLUPs;unknown subjects receive zero random effects. Returns conditional predictions,marginal predictions,and known_subjects flags. <strong>unsupported:</strong> refitting new subject effects; prediction intervals; parameter-uncertainty propagation</p>
 <h4 id="glmm">Glmm</h4>
-<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-glmm-api.json">contract</a>.</p>
+<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-glmm-api.json">contract</a>.</p>
 <p><strong>finite.</strong> Finite nonempty rectangular data; generic &lt;=10000rows,128columns,1Mcells; fit additionally&lt;=2000rows,&lt;=16features,2..200groups. Exact signed group IDs abs&lt;=2^53-1. Parameters&lt;=16384finite doubles.</p>
 <p><strong>identification.</strong> Automatic unpenalized intercept; full-rank standardized fixed design; n&gt;features+2; &gt;=2groups with repeat observations. Both Bernoulli classes required; allzero Poisson rejected. A fitted-tolerance-independent bounded LP rejects Bernoulli complete/quasi separation and Poisson zero-count recession directions. Numerical LP reduced-cost/pivot tolerance1e-12,positive summed-improvement threshold1e-10,feasibility1e-8; ambiguous/work/iteration failures reject. Extremely near-degenerate finite-MLE existence remains a numerical assessment,not exact arithmetic. Guard-bound hits cannot report convergence.</p>
 <p><strong>preprocessing.</strong> Fit-only origin+mean-offset/population-scale feature normalization. Saved eta=eta_center+sum(original_slope*((x-origin)-mean_offset)); this avoids large-origin cancellation. Raw intercept is also reported and may lose digits; use saved model for stable prediction. Unrepresentable raw coefficients/intercepts reject explicitly.</p>
@@ -2265,7 +2265,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_glmm_poisson</code>: <strong>data:</strong> 0..16 numeric fixed features then response and exact integer group ID; n&gt;features+2,n&lt;=2000,2..200 groups including &gt;=2 repeated groups; full-rank fixed design. Binary0/1, or Poisson integer0..1e9. All rows fit. <strong>args:</strong> max_iterations integer1..1000,default200; tolerance1e-10..1e-3,default1e-6; odd quadrature_order3..31,default15; final validation uses q+4; variance_upper positive&lt;=1000,default100 <strong>estimator:</strong> Actual Gaussian-random-intercept integrated maximum likelihood. Per-group safeguarded posterior mode/curvature and adaptive Gauss-Hermite quadrature; finite-difference projected BFGS over centered/scaled coefficients and log1p variance. An explicit variance-zero GLM candidate and variance starts0.25,1,4 are compared. Full Poisson factorial constants are included. AIC counts the variance component even at boundary. Fixed covariance is the fixed block of the inverse joint observed Hessian in the interior; exact fixed-only GLM information at variance zero. <strong>unsupported:</strong> multiple/nested/crossed random factors and random slopes; summarized binomial trials,probit,other response distributions; offset/exposure,weights,overdispersion,repeated residual covariance; REML/PQL/pseudo-likelihood/JMP default-estimator equivalence; variance-component Wald tests,likelihood-ratio boundary mixture tests,small-sample df corrections; global optimizer guarantee; local optima and finite quadrature remain diagnostic</p>
 <p><code>chem_glmm_predict</code>: <strong>data:</strong> Same feature order as training then exact integer group ID; known or new IDs. &lt;=10000 rows,&lt;=1Mcells. <strong>args:</strong> Unchanged version1 predict_parameters from either GLMM fit; full layout in common_contract <strong>estimator:</strong> Known-group conditional prediction uses inverse link at saved posterior mean random effect; new-group conditional uses zero. Posterior prediction integrates saved discrete posterior for known groups and Gaussian prior for new groups. Population prediction integrates the Gaussian prior for every group. Poisson prior mean is exact exp(eta+variance/2); Bernoulli prior uses31/35-point Gaussian quadrature with order-difference diagnostic. Near-unit posterior weights are normalized; Poisson weighted means are accumulated in log space. <strong>unsupported:</strong> new-group posterior estimation; prediction intervals or parameter uncertainty propagation; posterior integration beyond the saved finite quadrature; automatic extrapolation/overflow repair; unrepresentable means return error</p>
 <h4 id="causal">Causal</h4>
-<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-causal-api.json">contract</a>.</p>
+<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-causal-api.json">contract</a>.</p>
 <p><strong>numeric.</strong> Finite rectangular nonempty &lt;=100000rows,&lt;=66columns,&lt;=1000000cells,&lt;=16384finite args. Per-method work and dimensions stricter.</p>
 <p><strong>positivity.</strong> All causal estimation/matching/evaluation input propensities must be strictly in(0,1). Optional clipping truncates only interior scores, reports count, does not cure failed identification and may bias inference.</p>
 <p><strong>causal assumptions.</strong> Consistency and well-defined interventions/no interference, conditional exchangeability given measured pre-treatment covariates, positivity and independent observations. These are not established by a balanced sample or good logistic fit.</p>
@@ -2280,7 +2280,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_aipw_effect</code>: <strong>data:</strong> [factual_outcome,treatment0/1,propensity strictly(0,1),predicted_m0,predicted_m1], both groups present <strong>args:</strong> estimand:0ATE(default),1ATT; explicit_clip:0none(default),otherwise(0,.5); explicit truncation can alter robustness/target <strong>estimator:</strong> ATE score psi=m1-m0+T*(Y-m1)/e-(1-T)<em>(Y-m0)/(1-e); estimate=meanpsi,IF=psi-estimate. ATT numerator g=T</em>(Y-m0)-(1-T)<em>e/(1-e)</em>(Y-m0); estimate=sumg/n_treated,IF=(g-T*estimate)/treatment_prevalence. ATT does not use m1. SE=sample SD(IF)/sqrt(n),fixed95%normal interval. Nuisance predictions are externally supplied; calibrated inference needs independent observations, valid identification, suitable cross-fitting/Donsker and nuisance-product rate conditions. Input cannot verify these conditions. <strong>unsupported:</strong> Automatic nuisance model fitting/cross-fitting; All JMP ratio-adjustment/inferential conventions; Clustered/dependent rows; Continuous/multivalued treatments; Finite-sample causal guarantee</p>
 <p><code>chem_uplift_curve</code>: <strong>data:</strong> [actual observed outcome,treatment0/1,predicted effect ranking score,known/valid assignment propensity strictly(0,1)], both groups present <strong>args:</strong> no parameters <strong>estimator:</strong> Sort supplied scores descending and group exact ties. z=T*Y/e-(1-T)<em>Y/(1-e). Gain at selection fraction k/n=sum_selected(z)/n. Qini=gain-fraction</em>finalgain; report trapezoid AUUC and Qini area. Initial threshold null denotes above all scores. Appropriate held-out evaluation needs randomized known assignment or observational exchangeability/valid propensity, plus consistency/positivity. Actual outcomes are factual observations, not individual treatment effects; observed treated outcomes cannot be used as counterfactual truth. This evaluates a supplied ranking and is not the JMP interaction-significance uplift partition learner. <strong>unsupported:</strong> JMP uplift partition fitting; True individual-effect labels; Automatic score training/cross-fitting; Normalized perfect-model Qini; Confidence bands/policy optimization</p>
 <h4 id="omics">Omics</h4>
-<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-omics-api.json">contract</a>.</p>
+<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-omics-api.json">contract</a>.</p>
 <p><strong>inputs.</strong> Finite rectangular nonempty sample rows/feature columns,&lt;=10000rows,&lt;=1024columns,&lt;=1Mcells; args&lt;=16384. SQLNULL invalid; genotype missing=-1 explicitly.</p>
 <p><strong>normalization.</strong> Method0 row sample/population z-score [0,ddof=1] with ddof0/1, abs&lt;=1e150, nonconstant rows. Method1CPM [1]. Method2RPKM [2,lengthbp per feature...], Method3TPM [3,lengthbp...]. Method4CLR [4,explicit nonnegative pseudocount=0]. Method5relative abundance percent [5], Method6ratio [6]. Counts nonnegative, row totals positive; CLR x+pseudocount&gt;0. No library-size offsets or joint batch correction.</p>
 <p><strong>quantiles.</strong> Values abs&lt;=1e150. Fit all supplied sample rows: sort each row, average per rank across rows, apply mean over ranks spanned by an equal input value. Reference sorted vector is portable. Prediction uses only supplied saved reference, no query refit.</p>
@@ -2294,7 +2294,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_marker_admixture</code>: <strong>unsupported:</strong> TMM/KDMM and other assay normalization estimators; polyploid/phased/linkage-aware admixture; admixture parameter uncertainty and automatic K selection; global optimum guarantee or same optimizer as JMP/ADMIXTURE</p>
 <p><code>chem_admixture_predict</code>: <strong>unsupported:</strong> TMM/KDMM and other assay normalization estimators; polyploid/phased/linkage-aware admixture; admixture parameter uncertainty and automatic K selection; global optimum guarantee or same optimizer as JMP/ADMIXTURE</p>
 <h4 id="design-classical">Design Classical</h4>
-<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-design-classical-api.json">contract</a>.</p>
+<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-design-classical-api.json">contract</a>.</p>
 <p><strong>input.</strong> Finite rectangular nonempty data&lt;=4096rows,64columns,1000000cells;operation-specific stricter bounds. Treatment plans require distinct treatment rows;IDs refer to input row positions.</p>
 <p><strong>output.</strong> Design&lt;=16384runs and1000000setting cells. IDs zero-based except run_order1based. Physical row order is execution order;blocks/whole plots remain contiguous.</p>
 <p><strong>randomization.</strong> SplitMix64(seed) with rejection-sampled unbiased Fisher-Yates;seed exact0..2^53-1,including0. Repeat seed and inputs reproduce output. RNG is deterministic construction,not cryptographic.</p>
@@ -2310,7 +2310,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_strip_plot_design</code>: <strong>data:</strong> 2..12factor rows[finite low&lt;high,role0row-strip/1column-strip];both roles required. <strong>args:</strong> replicates integer1..256,default1; seed exact nonnegative integer&lt;=2^53-1,default0 <strong>estimator:</strong> Complete crossed two-level row/column treatment combinations in each replicate. Row and column strips randomize independently. Membership crosses rather than nests:every row strip intersects every column strip once. Returned design rows follow stage1order;stage2_order is a zero-based permutation regrouping units by column strip,randomizing row subunits within each column strip. Replication error df[(r-1)(a-1),(r-1)(b-1),(r-1)(a-1)(b-1)]. Replicate1zero df explicitly;no response inference. <strong>unsupported:</strong> arbitrary custom optimal strip plots; nested split-split interpretation; additional third-stage easy factors; response-model inference</p>
 <p><code>chem_taguchi_orthogonal_array</code>: <strong>data:</strong> 1..8scalar factor level counts2or3. Output categorical level codes are zero-based. <strong>args:</strong> array required integer4/8/9/18; seed exact nonnegative integer&lt;=2^53-1,default0 <strong>estimator:</strong> L4/L8 binary projective strength2arrays,L9 ternary finite-field array,NIST tabulated mixed L18(2^1 3^7). Requested factors map to first unused compatible catalog columns. Run order randomized. Runtime verifies pair balance. Normalized Helmert contrast main_effect_gram and main-vs-two-factor-interaction alias matrix expose confounding. Interaction terms use[factor,contrast,factor,contrast] zero-based;alias excludes intercept. <strong>unsupported:</strong> full Taguchi robust parameter-design platform; inner/outer array crossing; signal-to-noise response analysis; arbitrary mixed-level orthogonal array search; interaction-free claims</p>
 <h4 id="market">Market</h4>
-<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-market-api.json">contract</a>.</p>
+<p>Exact API and remaining options: <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-market-api.json">contract</a>.</p>
 <p><strong>inputs.</strong> Finite nonempty rectangular &lt;=100000rows,1024columns,1Mcells. Baskets strictly0/1 with &lt;=32columns; no frequency weights,missing rows,automatic text extraction.</p>
 <p><strong>rules.</strong> Apriori includes all frequent sets up to max_rule_size2..6,max antecedents1..5,min support1e-12..1,confidence0..1,lift&gt;=0. Defaults .1,.4,1.2,3,4. Rule output limit1..100000 default10000; exceeding it errors rather than truncates. &lt;=1Mjoins,100Mtransaction count work,100kfrequent sets,1Mrule candidates; may reject large dense supported input by explicit work limit. No global rule ranking/top-k truncation. Every rule proper disjoint nonempty LHS/RHS. Counts exact; row number denominator includes empty baskets.</p>
 <p><strong>rule metrics.</strong> support=count(X union Y)/n;confidence=countXY/countX;lift=n<em>countXY/(countX</em>countY);leverage=support-pX*pY;conviction=(1-pY)/(1-confidence). Confidence1 yields convictionnull with conviction_infinite=true when pY&lt;1; if pY1,indeterminate null/false. All thresholds inclusive.</p>
@@ -2319,7 +2319,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <h3 id="genomic-variance-item-response-sem-and-degradation-contracts">Genomic variance, item response, SEM and degradation contracts</h3>
 <p>The earlier checkpoint added <strong>16 CPU operations</strong>, bringing the then-registered API to <strong>225 analytics functions / 376 total extension overloads</strong>. All individual calls appear in the table above. The following exact numeric and inference contracts remain subsets of JMP19.2 methods.</p>
 <h4 id="kinship">KINSHIP</h4>
-<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-kinship-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-kinship-reference.json">independent reference</a>.</p>
+<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-kinship-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-kinship-reference.json">independent reference</a>.</p>
 <p><strong>input.</strong> Finite nonempty rectangular inputs,abs&lt;=1e150,&lt;=1Mcells; ntraining4..128,pfixed0..16,n&gt;p+2. Exact row order retained for K and queries. No observation weights/missing response. Intercept automatic.</p>
 <p><strong>kernel.</strong> Supplied exactly symmetric PSD K; diagonal mean positive and representable; any unequal mirrored entries reject (including roundoff asymmetry), so callers must explicitly symmetrize before fitting. max(|Kij|)/maxdiag&lt;=1e4; eigenvalues below -1e-12*max(1,maxeigen) reject. Roundoff-small negative eigenvalues are clipped to zero; likelihood and training BLUP use that effective PSD kernel, saved normalized weights are restricted to its strictly positive eigenspace. Symmetric original training cross-rows reuse the same fitted BLUP to eigensolver rounding. K normalized by original mean diagonal for scale-invariant h.</p>
 <p><strong>likelihood.</strong> V=sigma_g^2 K+sigma_e^2 I;normalized R(h)=(1-h)I+hK/mean(diagK),sigma_g^2=profile_scale<em>h/meanDiagK,sigma_e^2=profile_scale</em>(1-h). ML denominatorn,REMLdenominatorn-p-1. REML includes logdet of original-design X^TR^-1X; response and fixed-feature unit changes carry required likelihood constants.</p>
@@ -2330,7 +2330,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_kinship_model</code>: <strong>data:</strong> n training rows[y,fixed numeric covariates(p),K_i0...K_i(n-1)]. n4..128,n&gt;p+2,p0..16,one phenotype and one supplied kinship. <strong>args:</strong> p integer0..16 required; method0ML/1REML default1; h_upper .01..0.999999999999 default.99999999; grid16..512 default128; tolerance1e-12..1e-4 default1e-10 <strong>unsupported:</strong> GWAS tests and marker-specific variance refits; Multiple kernels/multitrait/nested effects/phenotype missing; Unbounded negative variance components; Variance-component SE,CI or boundary tests; Guaranteed global optimum; Asymmetric kernels, including unequal mirrored entries within former roundoff tolerance; explicitly symmetrize before fitting</p>
 <p><code>chem_kinship_predict</code>: <strong>data:</strong> Query rows[p original fixed covariates,n cross-kinship values in exact training-row order]. No query outcomes or variance fitting. <strong>args:</strong> unchanged fitted predict_parameters <strong>unsupported:</strong> Prediction intervals and covariance-parameter uncertainty; Refitting new genetic effects from observed query phenotypes; Checking the full joint query/training PSD kernel without query/query covariance; Inferring a corrected joint query/training PSD kernel from query cross-covariances alone</p>
 <h4 id="irt">IRT</h4>
-<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-irt-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-irt-reference.json">independent reference</a>.</p>
+<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-irt-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-irt-reference.json">independent reference</a>.</p>
 <p><strong>finite data.</strong> Finite nonempty rectangular numeric matrix&lt;=10000rows,128columns,1000000cells;fit&lt;=2000rows and item counts2..12for1PL,3..12for2PL,5..12for3PL. Parameters&lt;=16384finite doubles.</p>
 <p><strong>frequency.</strong> Optional final frequency column integer0..1000000. Zero-frequency rows are validated then ignored. Identical response patterns collapse. Effective frequency excludes allmissing omitted patterns, must exceed kind*items+1and be&lt;=10000000. No fractional case weights.</p>
 <p><strong>missing.</strong> NaN/SQLNULL are not response missing values; finite-1sentinel requires policy1incorrect or2omit. Default0reject. JMP missing-&gt;incorrect is matched only with policy1; omission is an explicit extension.</p>
@@ -2352,7 +2352,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_irt_predict</code>: <strong>data:</strong> One finite numeric ability per row,&lt;=10000rows. <strong>args:</strong> unchanged model_parameters returned by irt_fit; portable layout in common_contract <strong>estimator:</strong> P=c+(1-c)<em>sigmoid(a</em>(theta-b)),D=1. Conditional Bernoulli Fisher information=(dP/dtheta)^2/(P(1-P)),summed across items. Stable boundary formulas give zero information at saturated tails. Also returns expected total score and conditional total-score variance. <strong>unsupported:</strong> ability uncertainty propagation or parameter uncertainty bands; adaptive testing/item selection; multidimensional curves</p>
 <p><code>chem_irt_score</code>: <strong>data:</strong> Same ordered item columns as fitted model,without frequency;&lt;=10000rows. Portable fixed-item models may contain1..12items. <strong>args:</strong> unchanged model_parameters returned by irt_fit <strong>estimator:</strong> Posterior mean/variance under fixed N(0,1) prior,conditional on supplied item parameters. Uses savedq andq+8normal Hermite rules,returns higher-order moments/logpatternprobability. Both allcorrect/allincorrect patterns have proper finite EAP;allmissing under omission returns exactly mean0/variance1/logprobability0. This differs from JMP person-MLE ability scoring,which omits extreme patterns. Item parameters remain fixed. <strong>unsupported:</strong> JMP person-MLE/Newton ability formula; posterior intervals/plausible values or item-parameter uncertainty; refitting or scoring additional traits; automatic adaptive quadrature; sharp tails may remain unresolved and flagged</p>
 <h4 id="sem">SEM</h4>
-<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-sem-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-sem-reference.json">independent reference</a>.</p>
+<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-sem-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-sem-reference.json">independent reference</a>.</p>
 <p><strong>input.</strong> Finite nonempty rectangular numeric matrix&lt;=100000rows,256columns,1000000cells;operation-specific tighter shape limits;&lt;=4096finite args.</p>
 <p><strong>covariance.</strong> ML covariance uses divisorN. N-1normalization conversion is explicitly caller responsibility. Covariances must be symmetric and SPD at relative Cholesky pivot1e-12.</p>
 <p><strong>CFA identification.</strong> One active loading per indicator;&gt;=3indicators/factor;latentvariance1;first indicator loading positive. Factor covariance is SPD and unit diagonal. Local observed-information SPD diagnoses identification;no general algebraic identification or global optimum certificate.</p>
@@ -2371,7 +2371,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_sem_fit_indices</code>: <strong>data:</strong> p1..20rows,each2p+2columns:observed ML covariance,model implied covariance,observed mean,model mean. Both covariances SPD. <strong>args:</strong> N exact integer&gt;p,&lt;=1e9; k_free exact integer0..p(p+3)/2,includes all free covariance and mean parameters <strong>estimator:</strong> Evaluates supplied Gaussian mean/covariance model. Chi-square=N*[logdetSigma-logdetS+tr(Sigma^-1S)+(mean difference)^T Sigma^-1(mean difference)-p]. Degrees of freedom=p(p+3)/2-k. Independence baseline has observed means and diagonal S. Reports central chi-square p,CFI/RNI/TLI/NFI,RMSEA with90%noncentral chi-square interval,RMR/SRMR with explicit mean residuals,Gaussian loglikelihood,AIC/AICc/BIC/BICu. Caller supplies valid model parameter count and is responsible for ML estimation/model assumptions. <strong>unsupported:</strong> automatic model identification check; checking supplied model was estimated by ML; robust/scaled chi-square corrections; modification indices; noncentrality&gt;1e7confidence bounds</p>
 <p><code>chem_sem_ram</code>: <strong>data:</strong> p1..16rows,2p+1columns:B path coefficient row,SPD disturbance covariance Omega row,intercept. B diagonal must be zero. <strong>args:</strong>  <strong>estimator:</strong> Solves simultaneous linear system with A=I-B:mean=A^-1alpha,covariance=A^-1Omega A^-T,total=A^-1-I,indirect=total-B. Static invertibility is separate from strict discrete dynamic stability;the latter uses a discrete Lyapunov solution SPD diagnostic and may be null at a singular/numerically unresolved boundary. Positive Omega/invertibility do not establish model identification,fit or causality. <strong>unsupported:</strong> SEM parameter estimation; causal identification guarantee; dynamic stability from invertibility alone; nonsingular indefinite disturbance covariance; more than16variables</p>
 <h4 id="degradation">DEGRADATION</h4>
-<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-degradation-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-degradation-reference.json">independent reference</a>.</p>
+<p>Complete machine-readable <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-degradation-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-degradation-reference.json">independent reference</a>.</p>
 <p><strong>data.</strong> Finite nonempty rectangular &lt;=10000rows,&lt;=128columns,&lt;=1000000cells; stricter per-op caps apply.</p>
 <p><strong>args.</strong> &lt;=16384 finite doubles; IDs exact integers within absolute2^53-1. All fit rows are used, no implicit validation split.</p>
 <p><strong>inference.</strong> Normal independent errors or independent destructive/event units as specified. Serial dependence within a unit is not adjusted. Uncertainty from model choice is not included.</p>
@@ -2393,7 +2393,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <h3 id="time-series-functional-preprocessing-text-and-spatial-contracts">Time series, functional preprocessing, text and spatial contracts</h3>
 <p>This checkpoint adds <strong>29 CPU operations</strong>, for <strong>254 registered analytics functions / 405 total extension overloads</strong>. Every call appears in the table above. Implementation paused at that verified checkpoint under the earlier instruction to push and stop. Work resumed on 2026-10-22 toward the full non-GUI, non-GPU JMP19.2 objective; full parity remains incomplete. The active continuation covers six-family censored-response regression and estimated spatial covariance models, with test-first numerical, public C ABI and native SQL gates. Work in progress is not counted as a verified API.</p>
 <h4 id="state-space">State Space</h4>
-<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-state-space-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-state-space-reference.json">independent reference</a>.</p>
+<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-state-space-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-state-space-reference.json">independent reference</a>.</p>
 <p><strong>finite data.</strong> Complete finite equally spaced numeric data;no SQL NULL/NaN missing sentinel except explicit Kalman observed0/1 flag. All matrix lengths and model versions checked;finite output failures reject.</p>
 <p><strong>normal intervals.</strong> Confidence .5..0.9999,normal quantile approximation;conditional process/measurement uncertainty only. No fitted parameter/variance-estimation or future-input uncertainty.</p>
 <p><strong>gaussian portable layout.</strong> prediction_model=[1,0,k,last_filtered_mean(k),last_filtered_cov(k<em>k),F(k</em>k),Q(k<em>k),H(k),R],row-major,length4+2k+3k</em>k,k1..8. P may be PSD;Q PSD,R&gt;0.</p>
@@ -2413,7 +2413,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_remove_linear_trend</code>: <strong>data:</strong> 3..10000 finite scalar rows;zero-based implicit time index0..n-1. <strong>args:</strong> n_train3..n;defaultall <strong>estimator:</strong> Rank-safe QR on centered/scaled time;fit uses prefix only,extrapolates all row indices. Returns intercept,slope,trend,residuals and stable coefficient representation prediction_model=[1,y_origin,y_scale,b0,b1,time_mid,time_scale];this carrier is metadata,not accepted by state_space_predict. <strong>unsupported:</strong> automatic differencing/nonlinear trend; iid slope inference in autocorrelated errors; calendar/irregular time indices</p>
 <p><code>chem_remove_cycle</code>: <strong>data:</strong> 4..10000 finite scalar rows;zero-based implicit equally spaced time index. <strong>args:</strong> period&gt;2 and&lt;=1e6; include_constant0/1;default1; n_train4..n;defaultall <strong>estimator:</strong> Rank-safe QR on cos(2<em>pi</em>t/period),sin(...),optionalconstant. Component includes fitted constant when requested. Amplitude=hypot(coscoef,sincoef),phase=atan2(-sincoef,coscoef),so component=intercept+amplitude<em>cos(wt+phase). Phase null when amplitude&lt;=1e-12</em>training_scale. Prefix fit predicts all indices;no automatic frequency selection. <strong>unsupported:</strong> automatic period discovery,full spectral selection; general seasonal/X11 decomposition; irregular time/calendar effects or iid inference</p>
 <h4 id="functional-preprocess">Functional Preprocess</h4>
-<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-functional-preprocess-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-functional-preprocess-reference.json">independent reference</a>.</p>
+<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-functional-preprocess-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-functional-preprocess-reference.json">independent reference</a>.</p>
 <p><strong>data.</strong> Nonempty finite long rows[x,y,id] or[x,y,id,role], uniform width3/4,&lt;=100000 observations,&lt;=128functions,&lt;=10000observations/function. IDs exact integers within absolute2^53-1. Role0=analysis/training(default),1=validation; a single ID cannot mix roles.</p>
 <p><strong>args.</strong> &lt;=16384 finite doubles with exact operation-specific count/ranges.</p>
 <p><strong>ordering.</strong> Function IDs preserve first appearance; observations sorted by x, then original row index for ties. Grid/baseline methods require distinct x; binning/thinning/DTW retain repeated observations explicitly.</p>
@@ -2433,7 +2433,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_functional_dtw_matrix</code>: <strong>data:</strong> &gt;=2 functions in within-ID sorted x order; unequal lengths permitted. Each ID has at least1 point. X determines sequence order, not a physical-time cost. <strong>args:</strong> window:-1=unconstrained,otherwise integer0..longest length; must reach every pair endpoint; normalize:0=original intensities,1=per-curve mean/population-standard-deviation standardization;default0; constant curves reject under1; cost:0=squared local amplitude difference and square root of summed path cost,1=absolute local difference and summed cost;default0 <strong>estimator:</strong> Sakoe-Chiba-band DTW with diagonal/up/left predecessor steps, two-row dynamic programming. Compute each unordered pair once and mirror it, diagonal0. Normalization is independently within each supplied curve, with scale-safe arithmetic; no training-set fitting. Window infeasibility or resource excess rejects rather than widening the window. DTW distances need not satisfy the triangle inequality. This contract supplies the numerical matrix for downstream clustering; it does not construct a JMP report script. <strong>unsupported:</strong> physical-x/time penalization; multivariate local costs; warping-path/warping-function export; soft DTW; automatic registration; triangle-inequality guarantees</p>
 <p><code>chem_functional_golden_match</code>: <strong>data:</strong> &gt;=2 functions; explicit target ID excluded from candidate scores/ranking. RMSE/MAE require identical ordered x grids; DTW allows unequal lengths. Curve roles retained for candidate provenance. <strong>args:</strong> target_id:required exact ID of pre-specified reference/golden curve; metric:0=RMSE,1=MAE,2=squared-cost square-root DTW;default0; window:-1=unconstrained,otherwise valid DTW radius;default-1; normalize:0=original intensities,1=independent per-curve population standardization;default0 <strong>estimator:</strong> Compare each candidate with a supplied target, return scores in input function order and ascending ranking, deterministic ties by candidate order. Target is never included among candidates or used to estimate a common curve/model. Stable RMS avoids overflowing an intermediate unnormalized Euclidean norm. This is explicit distance matching, not FPC-score desirability profiling, model fitting, or process-setting optimization. <strong>unsupported:</strong> FPC profiler/desirability optimizer; automatic golden-target selection; affine amplitude calibration; counterfactual process outcomes; statistical match p-values/confidence intervals</p>
 <h4 id="text-analysis">Text Analysis</h4>
-<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-text-analysis-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-text-analysis-reference.json">independent reference</a>.</p>
+<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-text-analysis-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-text-analysis-reference.json">independent reference</a>.</p>
 <p><strong>input.</strong> Nonempty finite rectangular numeric data,abs&lt;=1e12,&lt;=131072cells,columns1..4096;&lt;=16384finite args. JSONversion1. Missing/NaN/Infinity reject. All term/row ordering caller-owned and stable; empty documents represented by zero count rows or explicit n_documents in text_dtm. No empty-column SQL inputs.</p>
 <p><strong>tokenization.</strong> No Unicode/string segmentation,normalization,language dictionaries,stemming,stopwords or synonym detection implemented. Caller supplies token IDs/counts and same fitted vocabulary for scoring; Japanese tokenization remains unsupported.</p>
 <p><strong>weighting.</strong> Binary 1[x&gt;0];ternary min(x,2);frequency x;log frequency log10(1+x);TF-IDF x*log10(N/df) without smoothing or document-length scaling. Training N includes empty documents. Terms selected by corpus count descending with original-index ties. Saved IDF never refits query documents.</p>
@@ -2453,7 +2453,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p><code>chem_text_latent_class</code>: <strong>data:</strong> Count matrix binarized by presence,training n2..2048,p&lt;=128,k&lt;=16 and&lt;=n,n<em>p</em>k*iterations&lt;=100M. Deterministic SplitMix64 seeded shuffled distinct document indices initialize .75/.25 conditional probabilities. <strong>args:</strong> k integer1..min(n,16) required; seed integer0..2^53-1 default0; max_iterations integer1..2000 default200; tolerance1e-12..1e-3 default1e-8; probability_floor1e-12..0.1 default1e-9 <strong>unsupported:</strong> No global optimum or verified statistical identification,SE/CI,LDA/NMF,sparse JMP Text Explorer implementation identity,term-selection regression or sentiment dictionary</p>
 <p><code>chem_text_latent_class_predict</code>: <strong>data:</strong> Dense query count matrix in fixed p-term order,counts converted to presence; saved probabilities/mixing weights validated. Output&lt;=131072cells. <strong>args:</strong> unchanged predict_parameters layout [version1,nclasses k,nterms p,probability_floor,mixture_weights(k),Bernoulli_term_probabilities_class_major(k*p)],length4+k+kp <strong>unsupported:</strong> No refitting,term-map inference,classification calibration or guarantee supplied arbitrary parameter vectors represent identified fitted models</p>
 <h4 id="spatial">Spatial</h4>
-<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-spatial-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-spatial-reference.json">independent reference</a>.</p>
+<p>Complete numeric <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-spatial-api.json">API</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-spatial-reference.json">independent reference</a>.</p>
 <p><strong>input.</strong> Finite nonempty rectangular data,abs&lt;=1e100,at most1M cells; caller handles missing observations and coordinate units. Different methods have explicit row/dimension caps. All supplied parameter entries finite,&lt;=16384.</p>
 <p><strong>kernels.</strong> kind0 spherical(max(1-d/rho,0)^2*(1+d/(2rho)) for d&lt;rho),1 exp(-d/rho),2 exp(-(d/rho)^2),3 rho^d. Euclidean isotropy in1..3 coordinates; partial sill1e-100..1e100,nugget0..1e100,rho&gt;0&lt;=1e100 and power rho&lt;1. Four19.2 equation images individually inspected. Nugget is an absolute variance, unlike JMP displayed nugget/residual scaling.</p>
 <p><strong>measurement errors.</strong> Nugget belongs to an observation record,not merely a coordinate. Distinct collocated records covariance=partial sill; diagonal=partial sill+nugget. Pair semivariance0 on self diagonal and nugget at distinct collocated observations. Saved prediction targets an independent new measurement at query coordinates; latent cross covariance never includes query nugget.</p>
@@ -2472,7 +2472,7 @@ previous KM, zero-location lifetime and Cox methods under distinct contracts.</p
 <p>The nine operations below extend the verified bounded numerical API to263 analytics
 functions /414 total SQL overloads. The production Release C ABI and matching
 DuckDB SQL gates pass; the overall JMP19.2 objective remains active.
-The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-parity-estimation-validation.json">checkpoint evidence</a>
+The <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-parity-estimation-validation.json">checkpoint evidence</a>
 records source/artifact hashes, independent references and remaining contracts.</p>
 <p>The six regression fits are <code>chem_censored_normal</code>, <code>chem_censored_exponential</code>,
 <code>chem_censored_gamma</code>, <code>chem_censored_weibull</code>, <code>chem_censored_lognormal</code> and
@@ -2551,7 +2551,7 @@ documentation to these censored families is an inference.
 The API supports at most16 features, finite data with absolute value at most1e150,
 100000 rows, 1M cells, and a cumulative200M numerical work budget. Work-budget or
 special-function convergence failure returns SQL NULL. See the
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-censored-api.json">full censoring contract and saved layout</a> for shape,
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-censored-api.json">full censoring contract and saved layout</a> for shape,
 iteration, support and representability limits. Penalties, variable selection,
 categorical metadata, arbitrary weights, scale regression, profile intervals and
 installed-JMP numerical comparison remain outstanding.</p>
@@ -2584,7 +2584,7 @@ estimated fixed effects. Latent and independent-observation
 variances include fixed-effect estimation uncertainty conditional on fitted
 covariance. Covariance parameter estimation uncertainty is
 excluded. Queries for unseen subjects use the fitted trend and zero process cross
-covariance. The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-spatial-estimation-api.json">complete spatial estimation contract</a>
+covariance. The <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-spatial-estimation-api.json">complete spatial estimation contract</a>
 records the carrier, bounds and convergence diagnostics. Anisotropy, G-side random
 effects, weights, no-intercept and categorical designs, negative variance
 components, small-sample degrees of freedom, variogram nonlinear fitting and
@@ -2593,7 +2593,7 @@ automatic family selection remain outstanding.</p>
 <p><code>chem_report_histogram_svg</code> and <code>chem_report_box_plot_svg</code> return JSON containing
 numerical summaries and a self-contained <code>svg</code> string. These bounded static
 reports pass actual Release C ABI, matching loaded SQL and independent XML/raster
-checks. The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-report-api.json">complete report API</a>
+checks. The <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-report-api.json">complete report API</a>
 records the arguments, output fields, limits and evidence. Both operations also
 work through <code>chem_analyze('report_histogram_svg', data, parameters)</code> or
 <code>chem_analyze('report_box_plot_svg', data, parameters)</code>.</p>
@@ -2710,7 +2710,7 @@ observed-information covariance is an explicit alternative to JMP's documented
 M-estimation sandwich convention; exact uncertainty equivalence is unverified.
 String labels and Value Ordering, categorical predictor contrasts, informative
 missingness, variable selection, other links, censoring and installed-JMP
-comparison remain outstanding. The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-ordinal-api.json">complete ordinal contract</a>
+comparison remain outstanding. The <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-ordinal-api.json">complete ordinal contract</a>
 records the numerical guards, work charges and independent evidence. Actual
 Release C ABI and loaded SQL verification pass; this family remains
 partial in the JMP ledger.</p>
@@ -2855,7 +2855,7 @@ requires its own build and validation; successful local tests do not establish
 cross-platform numerical parity.</p>
 <h3 id="jmpjmp-pro-coverage-and-verification">JMP/JMP Pro coverage and verification</h3>
 <p><a href="jmp.html">JMP_PARITY.md</a> and the
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-feature-matrix.json">machine-readable feature matrix</a> record official
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-feature-matrix.json">machine-readable feature matrix</a> record official
 JMP/JMP Pro 19.2 source URLs, edition evidence, data/assumption/test contracts and
 missing features. All 502 leaf/method occurrences from 14 official capability
 pages are retained, with selected reference suboptions expanded into 552 rows, including the separately sourced Item Reliability suboption.
@@ -2869,7 +2869,7 @@ still labeled 19.2 current. No distinct official 20.0 What's New was verified, s
 See <a href="jmp.html#version-200-documentation">the version audit</a>.
 A function name or a restricted implementation does not establish whole-platform
 equivalence.</p>
-<p>Large outstanding families include additional GLMM response/random-effect structures, full spatial and SEM inference, further causal and functional estimators, wavelets/X11, multivariate transfer, unrestricted DOE/mixture designs, Bayesian reliability workflows, text regression, multidimensional IRT, choice/MaxDiff, GWAS and further tuning/export options. Existing numeric and artifact implementations are bounded subsets. DuckDB supplies host joins, aggregates, pivot/unpivot and SQL I/O. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All44 report/plot acceptance contracts are <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-report-acceptance.json">specified</a>:15 are partial and29 absent. Three report rows now have independently validated bounded SVG artifacts, while their full option sets remain incomplete. The complete ledger has287 partial,197 absent,37 reused database capabilities,6 implemented verified rows,17 GUI exclusions,4 external plugins and4 separate-product rows. These unequal inventory rows do not define a coverage percentage. The full JMP objective remains unfinished. Chemical data-quality implementation, including possible DuckOrch reuse, starts only after that full objective is complete; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/chemistry-dq-research-20261022.json">research</a> is saved.</p>
+<p>Large outstanding families include additional GLMM response/random-effect structures, full spatial and SEM inference, further causal and functional estimators, wavelets/X11, multivariate transfer, unrestricted DOE/mixture designs, Bayesian reliability workflows, text regression, multidimensional IRT, choice/MaxDiff, GWAS and further tuning/export options. Existing numeric and artifact implementations are bounded subsets. DuckDB supplies host joins, aggregates, pivot/unpivot and SQL I/O. Pure GUI operations and GPU dependence are excluded; static figures/report formats remain in scope. All44 report/plot acceptance contracts are <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-report-acceptance.json">specified</a>:15 are partial and29 absent. Three report rows now have independently validated bounded SVG artifacts, while their full option sets remain incomplete. The complete ledger has287 partial,197 absent,37 reused database capabilities,6 implemented verified rows,17 GUI exclusions,4 external plugins and4 separate-product rows. These unequal inventory rows do not define a coverage percentage. The full JMP objective remains unfinished. Chemical data-quality implementation, including possible DuckOrch reuse, starts only after that full objective is complete; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/chemistry-dq-research-20261022.json">research</a> is saved.</p>
 <p>The implementation workflow is test driven: observe an expected behavioral RED,
 implement the bounded contract, then verify GREEN, numerical edge cases and
 independent references before matching SQL/C ABI checks. Direct tests and a
@@ -2877,34 +2877,34 @@ loaded-extension test are distinct layers. No installed JMP was used for a
 head-to-head numerical comparison.</p>
 <ul>
 <li>
-<p>The current <strong>279-function /430-overload checkpoint</strong> passes <strong>1,400 Rust tests across70 suites</strong>, zero failures, two existing ignored; <strong>21 SQL cases /637 assertions</strong>, zero skips; all430 catalog examples; strict analytics Clippy and scoped formatting. Both compiled boundaries pass <strong>6,684 component-selection checks/28 malformed NULLs</strong>, plus <strong>7,220 PLS regression checks/34 malformed NULLs</strong>. Tiny-score and uncertainty fixtures also match90-digit independent calculations. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-pls-component-validation.json">Evidence</a>.</p>
+<p>The current <strong>279-function /430-overload checkpoint</strong> passes <strong>1,400 Rust tests across70 suites</strong>, zero failures, two existing ignored; <strong>21 SQL cases /637 assertions</strong>, zero skips; all430 catalog examples; strict analytics Clippy and scoped formatting. Both compiled boundaries pass <strong>6,684 component-selection checks/28 malformed NULLs</strong>, plus <strong>7,220 PLS regression checks/34 malformed NULLs</strong>. Tiny-score and uncertainty fixtures also match90-digit independent calculations. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-pls-component-validation.json">Evidence</a>.</p>
 </li>
 <li>
-<p>The preceding <strong>277-function /428-overload checkpoint</strong> passes <strong>1,391 Rust tests across69 suites</strong>, zero failures, two existing ignored; <strong>20 SQL cases /626 assertions</strong>, zero skips; all428 catalog examples; strict analytics Clippy and scoped formatting. Independent NumPy/SciPy/sklearn references match <strong>7,220 numerical checks</strong> and34 malformed NULL requests across the exported C ABI and loaded SQL. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-pls-validation.json">Evidence</a>.</p>
+<p>The preceding <strong>277-function /428-overload checkpoint</strong> passes <strong>1,391 Rust tests across69 suites</strong>, zero failures, two existing ignored; <strong>20 SQL cases /626 assertions</strong>, zero skips; all428 catalog examples; strict analytics Clippy and scoped formatting. Independent NumPy/SciPy/sklearn references match <strong>7,220 numerical checks</strong> and34 malformed NULL requests across the exported C ABI and loaded SQL. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-pls-validation.json">Evidence</a>.</p>
 </li>
 <li>
-<p>The preceding <strong>273-function /424-overload checkpoint</strong> passes <strong>1,381 Rust tests across68 suites</strong>, zero failures, with two existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. Its matching macOS arm64 dev/Debug extension passes <strong>19 SQL cases /616 assertions</strong>, zero skips, and <strong>all424 catalog examples</strong>. Independent SciPy/mpmath checks cover both exported C ABI and loaded SQL. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-zero-inflation-validation.json">Evidence</a>. This source was integrated into main as <code>31902df</code>; the exact-source distribution and Rust workflows passed. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-zero-inflation-main-ci.json">CI record</a>.</p>
+<p>The preceding <strong>273-function /424-overload checkpoint</strong> passes <strong>1,381 Rust tests across68 suites</strong>, zero failures, with two existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. Its matching macOS arm64 dev/Debug extension passes <strong>19 SQL cases /616 assertions</strong>, zero skips, and <strong>all424 catalog examples</strong>. Independent SciPy/mpmath checks cover both exported C ABI and loaded SQL. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-zero-inflation-validation.json">Evidence</a>. This source was integrated into main as <code>31902df</code>; the exact-source distribution and Rust workflows passed. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-zero-inflation-main-ci.json">CI record</a>.</p>
 </li>
 <li>
-<p>The preceding <strong>267-function /418-overload checkpoint</strong> passes <strong>1,366 Rust tests across67 suites</strong>, zero failures, with the same two pre-existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. The matching macOS arm64 Release extension passes <strong>18 SQL cases /603 assertions</strong>, zero skips, and <strong>all418 catalog examples</strong>. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-report-ordinal-validation.json">Checkpoint evidence</a>.</p>
+<p>The preceding <strong>267-function /418-overload checkpoint</strong> passes <strong>1,366 Rust tests across67 suites</strong>, zero failures, with the same two pre-existing ignored tests. Strict analytics all-target Clippy and scoped formatting pass. The matching macOS arm64 Release extension passes <strong>18 SQL cases /603 assertions</strong>, zero skips, and <strong>all418 catalog examples</strong>. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-report-ordinal-validation.json">Checkpoint evidence</a>.</p>
 </li>
 <li>
-<p>Histogram/box reports pass <strong>105,438 independent checks</strong> on actual Release C ABI and SQL, with36 positive fixtures per boundary,69 malformed NULL cases and58 rendered PNGs. Full JSON/SVG outputs agree across boundaries. The large-offset visible-table regression has actual old-ABI RED and fixed-ABI GREEN evidence. Representative <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.svg">actual SQL SVG</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.png">PNG</a> are retained. Verification renders unchanged SVG with macOS sips and independently decodes pixels with ImageMagick; that environment's ImageMagick SVG renderer loses valid outlined marks, so its discrepancy is documented separately. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-reports-native-reference.json">Report evidence</a>.</p>
+<p>Histogram/box reports pass <strong>105,438 independent checks</strong> on actual Release C ABI and SQL, with36 positive fixtures per boundary,69 malformed NULL cases and58 rendered PNGs. Full JSON/SVG outputs agree across boundaries. The large-offset visible-table regression has actual old-ABI RED and fixed-ABI GREEN evidence. Representative <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.svg">actual SQL SVG</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-report-artifacts-release/native_sql/box-large-offset.png">PNG</a> are retained. Verification renders unchanged SVG with macOS sips and independently decodes pixels with ImageMagick; that environment's ImageMagick SVG renderer loses valid outlined marks, so its discrepancy is documented separately. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-reports-native-reference.json">Report evidence</a>.</p>
 </li>
 <li>
-<p>Ordered regression passes <strong>1,082 C ABI/SQL checks</strong> plus a separate <strong>1,321-check,80-digit independent oracle</strong> covering4 fits, saved predictions and23 invalid NULL cases. Covariance is inverse observed information; exact JMP sandwich/default-Lasso equivalence remains outstanding. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-ordinal-reference.json">Both-boundary evidence</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-ordinal-independent-release-reference.json">independent Release evidence</a>.</p>
+<p>Ordered regression passes <strong>1,082 C ABI/SQL checks</strong> plus a separate <strong>1,321-check,80-digit independent oracle</strong> covering4 fits, saved predictions and23 invalid NULL cases. Covariance is inverse observed information; exact JMP sandwich/default-Lasso equivalence remains outstanding. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-ordinal-reference.json">Both-boundary evidence</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-ordinal-independent-release-reference.json">independent Release evidence</a>.</p>
 </li>
 <li>
-<p>The preceding <strong>263-function checkpoint</strong> passed <strong>1,340 Rust tests across65 suites</strong>, zero failures, with two existing ignored tests (diagnostic logP print helper and explicit external-population acceptance). Strict analytics Clippy, scoped formatting and diff checks pass. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-parity-dev-final.json">Dev evidence</a>.</p>
+<p>The preceding <strong>263-function checkpoint</strong> passed <strong>1,340 Rust tests across65 suites</strong>, zero failures, with two existing ignored tests (diagnostic logP print helper and explicit external-population acceptance). Strict analytics Clippy, scoped formatting and diff checks pass. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-parity-dev-final.json">Dev evidence</a>.</p>
 </li>
 <li>
-<p>That preceding macOS arm64 <strong>Release</strong> extension loaded into DuckDB <code>v2.0.0-alpha49307</code> and passed <strong>16 SQL cases /513 assertions</strong>, zero skips, plus all <strong>414 catalog overload examples</strong>. These new Release checks do not use ASan/UBSan. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-parity-native-sqllogictest.json">Native evidence</a>.</p>
+<p>That preceding macOS arm64 <strong>Release</strong> extension loaded into DuckDB <code>v2.0.0-alpha49307</code> and passed <strong>16 SQL cases /513 assertions</strong>, zero skips, plus all <strong>414 catalog overload examples</strong>. These new Release checks do not use ASan/UBSan. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-parity-native-sqllogictest.json">Native evidence</a>.</p>
 </li>
 <li>
-<p>Documented production C ABI fixtures pass for38 operations /128 fields. The independent censored-family oracle checks6 families and4 edge contracts on <strong>both Release C ABI and actual SQL</strong>,768 assertions including46 edge checks. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-censored-reference.json">Censored evidence</a>.</p>
+<p>Documented production C ABI fixtures pass for38 operations /128 fields. The independent censored-family oracle checks6 families and4 edge contracts on <strong>both Release C ABI and actual SQL</strong>,768 assertions including46 edge checks. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-censored-reference.json">Censored evidence</a>.</p>
 </li>
 <li>
-<p>Spatial estimation passes <strong>48 production C ABI calls /810 numerical fields</strong> and16 independently fitted SQL cases /130 fields with3 saved-model roundtrips. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-spatial-estimation-reference.json">C ABI evidence</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-spatial-estimation-sql.json">SQL evidence</a>.</p>
+<p>Spatial estimation passes <strong>48 production C ABI calls /810 numerical fields</strong> and16 independently fitted SQL cases /130 fields with3 saved-model roundtrips. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-spatial-estimation-reference.json">C ABI evidence</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-spatial-estimation-sql.json">SQL evidence</a>.</p>
 </li>
 <li>
 <p>Gamma at the deliberately stricter optimizer tolerance1e-8 can finish unconverged with null inference; the independent average-score check confirms that behavior. The six-family numeric oracle uses the documented1e-7 default, unchanged reference comparison tolerances and an independent score gate. Full JMP parity and new cross-platform/Wasm runtime coverage are not inferred from this local CPU checkpoint.</p>
@@ -2919,7 +2919,7 @@ head-to-head numerical comparison.</p>
 <p>All <strong>29 new operations / 106 fields</strong> passed the production exported C ABI. The general new native checker tested <strong>29 examples / 118 fields</strong>, <strong>6 SQL saved-model round trips</strong>, <strong>39 invalid NULL cases</strong>, selected/interleaved vectors; <strong>45 strict JSON results / 11 queries</strong>. The functional checker added <strong>3 saved-reference round trips / 18 fields</strong>, <strong>43 invalid NULL cases</strong>, explicit arWLS nonconvergence, selected/interleaved vectors; <strong>22 JSON results / 7 queries</strong>.</p>
 </li>
 <li>
-<p>All six prior numerical/model/design checkers passed against the matching build. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-streams-validation.json">Current evidence</a> identifies the complete source graph, actual artifacts, logs and reproduction commands. <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-specialized-validation.json">225-function</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-models-validation.json">209-function</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-continuation-validation.json">181-function</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-sql-validation.json">119-function</a> records remain historical.</p>
+<p>All six prior numerical/model/design checkers passed against the matching build. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-streams-validation.json">Current evidence</a> identifies the complete source graph, actual artifacts, logs and reproduction commands. <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-specialized-validation.json">225-function</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-models-validation.json">209-function</a>, <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-continuation-validation.json">181-function</a> and <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-sql-validation.json">119-function</a> records remain historical.</p>
 </li>
 </ul>
 <table>
@@ -2934,22 +2934,22 @@ head-to-head numerical comparison.</p>
 <tr>
 <td>Kalman/ETS/ARMA/transfer</td>
 <td>78 groups / 6,262 assertions</td>
-<td>Actual production exported C ABI after covariance repair; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-state-space-public-reference.json">record</a></td>
+<td>Actual production exported C ABI after covariance repair; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-state-space-public-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Functional preprocessing</td>
 <td>2,194 calls / 143,946 scalar assertions</td>
-<td>Exact-source isolated C ABI, plus public Rust/native checks; arWLS177 converged/23 nonconverged retained; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-functional-preprocess-reference.json">record</a></td>
+<td>Exact-source isolated C ABI, plus public Rust/native checks; arWLS177 converged/23 nonconverged retained; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-functional-preprocess-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Numeric token counts/weighting/LSA/varimax/LCA</td>
 <td>980 calls / 59,109 fields</td>
-<td>Exact-source isolated wrapper plus public Rust/native checks; algebra error and EM fixed-point tolerance reported separately; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-text-analysis-reference.json">record</a></td>
+<td>Exact-source isolated wrapper plus public Rust/native checks; algebra error and EM fixed-point tolerance reported separately; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-text-analysis-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Spatial covariance/variogram/known-V GLS/kriging</td>
 <td>601 calls / 76,681 fields</td>
-<td>Exact-source dense SciPy QR oracle, reviewed numerical boundaries, plus public/native checks; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-spatial-reference.json">record</a></td>
+<td>Exact-source dense SciPy QR oracle, reviewed numerical boundaries, plus public/native checks; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-spatial-reference.json">record</a></td>
 </tr>
 </tbody>
 </table>
@@ -2966,22 +2966,22 @@ head-to-head numerical comparison.</p>
 <tr>
 <td>Kinship ML/REML / BLUP</td>
 <td>199 cases / 3,282 fields plus 3 valid-dimension validation rejects, including repaired Decimal/extreme cases</td>
-<td>Isolated production-source numerical wrapper plus public/native gates; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-kinship-reference.json">record</a></td>
+<td>Isolated production-source numerical wrapper plus public/native gates; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-kinship-reference.json">record</a></td>
 </tr>
 <tr>
 <td>1PL/2PL/3PL IRT</td>
 <td>43 groups / 2,385 assertions</td>
-<td>Production exported C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-irt-public-reference.json">record</a></td>
+<td>Production exported C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-irt-public-reference.json">record</a></td>
 </tr>
 <tr>
 <td>CFA / factor scores / fit indices / RAM</td>
 <td>543 cases</td>
-<td>Exact production-source numerical wrapper plus public/native gates; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-sem-reference.json">record</a></td>
+<td>Exact production-source numerical wrapper plus public/native gates; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-sem-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Degradation / stability / cumulative exposure</td>
 <td>820 scenarios / 66,812 assertions, 69 valid-fit Hessians</td>
-<td>Exact production-source numerical wrapper plus public/native gates; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-degradation-reference.json">record</a></td>
+<td>Exact production-source numerical wrapper plus public/native gates; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-degradation-reference.json">record</a></td>
 </tr>
 </tbody>
 </table>
@@ -2998,32 +2998,32 @@ head-to-head numerical comparison.</p>
 <tr>
 <td>Repeated covariance / random slopes</td>
 <td>630 cases</td>
-<td>Production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-mixed-advanced-reference.json">record</a></td>
+<td>Production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-mixed-advanced-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Bernoulli / Poisson GLMM</td>
 <td>31 groups / 551 assertions</td>
-<td>Production C ABI and independent real-line integration/HiGHS; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-glmm-reference.json">record</a></td>
+<td>Production C ABI and independent real-line integration/HiGHS; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-glmm-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Binary causal inference / uplift evaluation</td>
 <td>51,062 scalar assertions</td>
-<td>Production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-causal-reference.json">record</a></td>
+<td>Production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-causal-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Assay normalization / admixture</td>
 <td>556 cases / 22,948 fields</td>
-<td>Production exported C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-omics-reference.json">record</a></td>
+<td>Production exported C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-omics-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Classical blocked / split / strip / Taguchi designs</td>
 <td>586 cases</td>
-<td>Isolated numerical wrapper plus public execute and native SQL; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-design-classical-reference.json">record</a></td>
+<td>Isolated numerical wrapper plus public execute and native SQL; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-design-classical-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Market baskets / item reliability</td>
 <td>340 cases / 14,842 fields</td>
-<td>Production exported C ABI, exhaustive enumeration and NumPy; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-market-reference.json">record</a></td>
+<td>Production exported C ABI, exhaustive enumeration and NumPy; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-market-reference.json">record</a></td>
 </tr>
 </tbody>
 </table>
@@ -3040,42 +3040,42 @@ head-to-head numerical comparison.</p>
 <tr>
 <td>Latent/clustering</td>
 <td>4,369 scalar assertions</td>
-<td>Actual production public-source snapshot compiled as a C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-latent-reference.json">record</a></td>
+<td>Actual production public-source snapshot compiled as a C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-latent-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Evaluation/splits</td>
 <td>1,140 cases / 22,209 fields</td>
-<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-evaluation-reference.json">record</a></td>
+<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-evaluation-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Nonlinear/smoothing</td>
 <td>18,040 scalar assertions; 80 supplied-start fits, 80 automatic-start checks, 24 basis, 72 spline and 24 LOESS fits</td>
-<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-nonlinear-reference.json">record</a></td>
+<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-nonlinear-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Functional/spectral</td>
 <td>1,100 cases</td>
-<td>Isolated Rust module wrapper plus separate public-crate tests; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-spectral-reference.json">record</a></td>
+<td>Isolated Rust module wrapper plus separate public-crate tests; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-spectral-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Multivariate inference</td>
 <td>5,937 scalar assertions</td>
-<td>Actual production public-source snapshot C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-latent-inference-reference.json">record</a></td>
+<td>Actual production public-source snapshot C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-latent-inference-reference.json">record</a></td>
 </tr>
 <tr>
 <td>SVM/quantile/Huber</td>
 <td>2,062 scalar assertions / 60 fits; all oracle fits met their reported convergence criteria</td>
-<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-robust-learning-reference.json">record</a></td>
+<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-robust-learning-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Diploid markers</td>
 <td>853 cases / 137,076 fields</td>
-<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-genomics-reference.json">record</a></td>
+<td>Exported production C ABI; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-genomics-reference.json">record</a></td>
 </tr>
 <tr>
 <td>Reliability</td>
 <td>780 cases, including AFT information, survival/quantiles, NHPP and all-state block enumeration</td>
-<td>Isolated Rust module wrapper plus separate public-crate tests; <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-reliability-reference.json">record</a></td>
+<td>Isolated Rust module wrapper plus separate public-crate tests; <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-reliability-reference.json">record</a></td>
 </tr>
 </tbody>
 </table>
@@ -3083,10 +3083,10 @@ head-to-head numerical comparison.</p>
 automatic-start <code>converged:false</code> results at tolerance <code>1e-12</code>; their admissible
 numeric results are distinct from convergence certification. Earlier independent
 references remain available for
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-model-reference.json">regression/multivariate/mixed</a>,
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-inference-timeseries-reference.json">inference/time-series/Cox</a>,
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-distribution-arima-reference.json">distribution/ARIMA</a> and
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-advanced-design-reference.json">additional DOE</a>.
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-model-reference.json">regression/multivariate/mixed</a>,
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-inference-timeseries-reference.json">inference/time-series/Cox</a>,
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-distribution-arima-reference.json">distribution/ARIMA</a> and
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-advanced-design-reference.json">additional DOE</a>.
 Check counts use different units and are not added into a JMP coverage percentage.
 No installed JMP was used as a numerical oracle. Unfinished method families and
 options remain explicit in the feature matrix.</p>
@@ -3162,6 +3162,10 @@ normalization policy a new version and pass inputs prepared according to that po
 <code>MassRange</code>, a <code>FingerprintFilter</code>, and a host-registered <code>PatternId</code>. The relation provides unique
 <code>molecule_id</code>, <code>smiles</code> and <code>mass</code> columns. The result distinguishes an invalid reference from a valid
 search with no matches. Candidates are ordered by decreasing score and increasing molecule ID.</p>
+<p>Use <code>SparseFeatures(connection, feature_ids)</code> to store immutable feature matrices with a stable name-to-ID
+dictionary. Duplicate contributions are summed, explicitly missing contributions remain NULL, and
+unstored coordinates in known rows are zero. Request a bounded slice with <code>dense</code>, or read stored
+coordinates in ID order with <code>coordinates</code>. Use <code>column</code> when the whole feature column is needed.</p>
 <p>The native scalar <code>mol_descriptor_summary(smiles)</code> returns a STRUCT with average molecular weight, heavy-atom count and ring count from one parse. Invalid or missing input returns NULL. The host-side <code>MassWindowSearch(connection).match(references, peaks, tolerance_ppm)</code> accepts tuples of <code>DaltonMass</code> and returns zero-based reference and peak positions and signed ppm errors.</p>
 <p>Give each active caller its own connection with the matching extension loaded. With Python 3.10+,
 the <code>duckdb</code> package and the matching installed extension, run the integration tests from the repository root:</p>
@@ -3171,5 +3175,5 @@ the <code>duckdb</code> package and the matching installed extension, run the in
 <h2 id="license">License</h2>
 <p>MIT License</p>
 
-<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/048cead6dbd009a4eb18feefb1cefc4c70f76f82"><code>048cead6dbd0</code></a> · DuckDB 2.0.0</footer>
+<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/15324f9f49108299d41267c03c4696aa8e09d11e"><code>15324f9f4910</code></a> · DuckDB 2.0.0</footer>
 </main></div></body></html>

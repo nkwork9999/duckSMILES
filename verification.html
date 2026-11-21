@@ -16,8 +16,8 @@
 The extension executes the existing Rust implementation. The offline Lean 4.19
 executable checks its serialized results with the independently computed reference.
 The catalog IDs, order, absolute and relative tolerances come from the repository's
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/descriptors/phase1-catalog.json">descriptor catalog</a>.
-Per-column reference, evaluator, tolerance and test coverage appear in <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/coverage.csv">coverage.csv</a>.</p>
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/descriptors/phase1-catalog.json">descriptor catalog</a>.
+Per-column reference, evaluator, tolerance and test coverage appear in <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/verification/lean/coverage.csv">coverage.csv</a>.</p>
 <pre><code class="language-sql">SELECT mol_descriptor_catalog_json();
 SELECT mol_descriptor_values_json('CCO');
 </code></pre>
@@ -70,8 +70,8 @@ perception, floating-point algorithms, serialization and the Rust binary have
 finite differential-test coverage. Materials composition and viscosity APIs
 are documented separately in <a href="materials.html">MATERIALS.md</a>.</p>
 <h2 id="comparison-with-registered-rdkit-functions">Comparison with registered RDKit functions</h2>
-<p>The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/rdkit-columns.csv">column inventory</a> covers all 291 names. The
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/rdkit-differences.json">observed differences</a> record the two input preparation
+<p>The <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/verification/lean/rdkit-columns.csv">column inventory</a> covers all 291 names. The
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/verification/lean/rdkit-differences.json">observed differences</a> record the two input preparation
 policies and the independent chain controls. On the 226 nonempty, parsable
 inputs, Lean compared 49,042 outputs from all 217 registered default 2D
 scalars using the catalog tolerances. Of these, 48,980 were finite, 60 were
@@ -134,15 +134,15 @@ to write per-column results and the six timed trials. Pass <code>--extended</cod
 check the 228-input corpus used in CI and in the coverage table. Timings and
 mutation controls use the smaller batch of eight valid and two rejected inputs. Five independent mutations exercise
 error detection. These controls supplement the project's larger existing
-<a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/catalog289-sps/REPORT.md">reference comparisons</a>.</p>
+<a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/catalog289-sps/REPORT.md">reference comparisons</a>.</p>
 <h2 id="timing">Timing</h2>
-<p>The historical 0.7.1 <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/timings-m1.csv">pipeline trials</a> time a native Rust FFI batch, a SQL query
+<p>The historical 0.7.1 <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/verification/lean/timings-m1.csv">pipeline trials</a> time a native Rust FFI batch, a SQL query
 including result conversion, and a fresh Lean process reading the earlier oracle-backed
 observation format and rendering JSON. Those paths include different work.
-The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/verification/lean/counts-m1.csv">count trials</a> use the same prepared atom labels and query
+The <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/verification/lean/counts-m1.csv">count trials</a> use the same prepared atom labels and query
 order in both languages, excluding input parsing, I/O and process startup.
 Both programs check the same checksum. Run <code>lake build bench_counts</code> then
 <code>uv run --python 3.13 --with rdkit==2026.3.6 python bench_counts.py</code> on the target host.</p>
 <p><a href="descriptors.html">Browse all 291 descriptors</a></p>
-<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/048cead6dbd009a4eb18feefb1cefc4c70f76f82"><code>048cead6dbd0</code></a> · DuckDB 2.0.0</footer>
+<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/15324f9f49108299d41267c03c4696aa8e09d11e"><code>15324f9f4910</code></a> · DuckDB 2.0.0</footer>
 </main></div></body></html>

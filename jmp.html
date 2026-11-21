@@ -12,22 +12,22 @@
 <a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
 <div class="layout"><nav aria-label="Documentation"><a href="index.html">Overview</a><a href="functions.html">SQL reference</a><a href="python.html">Embedded Python API</a><a href="guide.html">User guide</a><a href="analytics.html">Statistics and numerical analysis</a><a href="materials.html">Materials and liquid viscosity</a><a href="graphs.html">Molecular graphs</a><a href="mass.html">Mass search</a><a href="profiles.html">Molecular profiles</a><a href="descriptors.html">291 descriptors</a><a href="verification.html">Lean descriptor verification</a><a href="jmp.html" aria-current="page">JMP coverage</a><a href="wasm.html">Wasm builds</a></nav>
 <main id="main"><details class="toc" open><summary>On this page</summary><ul><li class="h2"><a href="#october-24-2026-checkpoint">October 24, 2026 checkpoint</a></li><li class="h3"><a href="#pls2-and-pls-da">PLS2 and PLS-DA</a></li><li class="h3"><a href="#zero-inflated-regression">Zero-inflated regression</a></li><li class="h3"><a href="#existing-implementation-mapping">Existing implementation mapping</a></li><li class="h2"><a href="#scope-and-edition">Scope and edition</a></li><li class="h3"><a href="#version-200-documentation">Version 20.0 documentation</a></li><li class="h2"><a href="#implemented-methods-and-follow-up-work">Implemented methods and follow-up work</a></li><li class="h2"><a href="#validation-and-reproducibility">Validation and reproducibility</a></li></ul></details><h1 id="jmp-and-jmp-pro-coverage">JMP and JMP Pro coverage</h1>
-<p>This page summarizes the versioned comparison between duckSMILES' CPU analytics and the published JMP and JMP Pro 19.2 capabilities. The <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-feature-matrix.json">feature matrix</a> tracks 552 entries from 14 capability areas, supplementing the official listings with selected details from the 19.2 reference. Entries include methods, capabilities, and options at different levels of detail. Use the <a href="guide.html#cpu-analytics-complete-sql-api-reference">SQL guide</a> for current APIs and the <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/JMP_PARITY.md">original comparison record</a> for historical checkpoints and acceptance details.</p>
+<p>This page summarizes the versioned comparison between duckSMILES' CPU analytics and the published JMP and JMP Pro 19.2 capabilities. The <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-feature-matrix.json">feature matrix</a> tracks 552 entries from 14 capability areas, supplementing the official listings with selected details from the 19.2 reference. Entries include methods, capabilities, and options at different levels of detail. Use the <a href="guide.html#cpu-analytics-complete-sql-api-reference">SQL guide</a> for current APIs and the <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/JMP_PARITY.md">original comparison record</a> for historical checkpoints and acceptance details.</p>
 <h2 id="october-24-2026-checkpoint">October 24, 2026 checkpoint</h2>
 <p>The checkpoint recorded 279 analytics functions and 430 extension-wide SQL overloads. The matrix classified 287 entries as partially covered, 197 as unimplemented, 37 as existing DuckDB functionality, six as covered by earlier limited contracts, 17 as GUI operations, four as external extensions, and four as separate products.</p>
 <h3 id="pls2-and-pls-da">PLS2 and PLS-DA</h3>
 <p>Multivariate PLS2 and PLS-DA expose fit and prediction operations, NIPALS/SVD and SIMPLS, training-set scaling by sample standard deviation, and variable-importance scores. Regression can return approximate conditional prediction intervals. PLS-DA returns predictions for the encoded response indicators. Validation supports explicit folds and roles, including selection of a zero-component model. Each fold learns its transformation on training rows. Held-out test rows stay out of selection and the final fit. The contract defines the Root Mean PRESS calculation and aggregation. Model format 2 preserves residual standard deviation and supports loading format 1.</p>
 <p>Gaps include missing-data fitting, random stratification, repeated and nested tuning, the van der Voet test, bootstrapping, and comparison against JMP itself.</p>
 <ul>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-pls-api.json">PLS fit and prediction contract</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-pls-validation-api.json">PLS validation and selection contract</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-pls-component-validation.json">Validation evidence</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-pls-api.json">PLS fit and prediction contract</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-pls-validation-api.json">PLS validation and selection contract</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-pls-component-validation.json">Validation evidence</a></li>
 </ul>
 <h3 id="zero-inflated-regression">Zero-inflated regression</h3>
 <p>The validated API fits zero-inflated binomial, beta-binomial, Poisson, negative binomial, and gamma models and predicts from saved models. The contract covers unpenalized maximum likelihood, shared zero-inflation probability, integer frequencies, numeric fixed effects, observed-information and HC0 covariance. Remaining differences include regularization and selection, fractional trial counts, missing or categorical roles, and JMP-specific covariance conventions.</p>
 <ul>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-zero-inflation-api.json">Inputs, limits, and model format</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-zero-inflation-validation.json">Validation evidence</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-zero-inflation-api.json">Inputs, limits, and model format</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-zero-inflation-validation.json">Validation evidence</a></li>
 </ul>
 <h3 id="existing-implementation-mapping">Existing implementation mapping</h3>
 <table>
@@ -61,7 +61,7 @@
 </tr>
 </tbody>
 </table>
-<p>See the <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-feature-mapping-audit-20261023.json">feature mapping audit</a>.</p>
+<p>See the <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-feature-mapping-audit-20261023.json">feature mapping audit</a>.</p>
 <h2 id="scope-and-edition">Scope and edition</h2>
 <p>The matrix covers CPU numerical methods, including static report output where an acceptance contract exists. It tracks separate products such as JMP Live and JMP Clinical separately. Marketplace extensions are labeled as external. DuckDB supplies relational aggregation, joins, PIVOT, and UNPIVOT.</p>
 <p>The edition mapping uses the JMP Pro label and the versioned product documentation to identify restrictions. Availability can depend on the option and platform.</p>
@@ -70,7 +70,7 @@
 <ul>
 <li><a href="https://www.jmp.com/en/software/capabilities">Public JMP capability listings</a></li>
 <li><a href="https://www.jmp.com/en/support/jmp-documentation">JMP product documentation</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-report-acceptance.json">Non-GUI reports and output acceptance</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-report-acceptance.json">Non-GUI reports and output acceptance</a></li>
 </ul>
 <h2 id="implemented-methods-and-follow-up-work">Implemented methods and follow-up work</h2>
 <table>
@@ -131,14 +131,14 @@
 </table>
 <h2 id="validation-and-reproducibility">Validation and reproducibility</h2>
 <p>Development checkpoints record the exact source and tests at each stage. The October 24 checkpoint recorded 1,400 passing Rust tests, two pre-existing ignored tests, 21 native SQL cases, 637 assertions, and 430 runnable catalog examples. The PLS validation and selection evidence compares 6,684 numerical items and 28 invalid-input NULL cases against independent references across the C ABI and native DuckDB. The earlier PLS fit/prediction evidence compares 7,220 numerical results and 34 invalid-input NULLs on those same public paths.</p>
-<p>Use the version-matched native DuckDB build when reproducing SQL and catalog tests. Compare individual inputs, outputs, tolerances, and scope against the <a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/jmp-feature-matrix.json">JMP feature matrix</a> and the evidence for the particular API.</p>
+<p>Use the version-matched native DuckDB build when reproducing SQL and catalog tests. Compare individual inputs, outputs, tolerances, and scope against the <a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/jmp-feature-matrix.json">JMP feature matrix</a> and the evidence for the particular API.</p>
 <ul>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-sql-validation.json">General native analytics validation</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-continuation-validation.json">Continuation methods</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-models-validation.json">Mixed models and designed experiments</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-specialized-validation.json">Specialized methods</a></li>
-<li><a href="https://github.com/nkwork9999/duckSMILES/blob/048cead6dbd009a4eb18feefb1cefc4c70f76f82/tasks/evidence/jmp-parity-estimation-validation.json">Censoring and spatial estimation</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-sql-validation.json">General native analytics validation</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-continuation-validation.json">Continuation methods</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-models-validation.json">Mixed models and designed experiments</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-specialized-validation.json">Specialized methods</a></li>
+<li><a href="https://github.com/nkwork9999/duckSMILES/blob/15324f9f49108299d41267c03c4696aa8e09d11e/tasks/evidence/jmp-parity-estimation-validation.json">Censoring and spatial estimation</a></li>
 </ul>
 
-<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/048cead6dbd009a4eb18feefb1cefc4c70f76f82"><code>048cead6dbd0</code></a> · DuckDB 2.0.0</footer>
+<footer>Source revision <a href="https://github.com/nkwork9999/duckSMILES/tree/15324f9f49108299d41267c03c4696aa8e09d11e"><code>15324f9f4910</code></a> · DuckDB 2.0.0</footer>
 </main></div></body></html>
