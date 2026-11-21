@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="分子形式、記述子、指紋、構造検索、統計をDuckDB内で扱うネイティブ拡張。">
+<title>291記述子 · duckSMILES</title><link rel="stylesheet" href="style.css">
+<script src="search.js" defer></script>
+</head>
+<body data-project="ducksmiles">
+<a class="skip" href="#main">本文へ移動</a>
+<header class="masthead"><a href="index.html" class="product">duckSMILES</a>
+<a href="https://github.com/nkwork9999/duckSMILES">GitHub ↗</a></header>
+<div class="layout"><nav aria-label="ドキュメント"><a href="index.html">概要</a><a href="functions.html">SQL リファレンス</a><a href="python.html">Python 組み込み API</a><a href="guide.html">利用ガイド</a><a href="analytics.html">統計・数値解析</a><a href="materials.html">材料組成と液体粘度</a><a href="graphs.html">分子グラフ</a><a href="mass.html">質量検索</a><a href="profiles.html">分子プロファイル</a><a href="descriptors.html" aria-current="page">291記述子</a><a href="verification.html">Leanでの記述子検証</a><a href="jmp.html">JMPとの機能比較</a><a href="wasm.html">Wasm ビルド</a></nav>
+<main id="main">
+<section class="intro"><h1>291分子記述子</h1>
+<p>SQLで取得できる全記述子を、カタログと同じ順序で掲載しています。記述子のIDで検索できます。</p>
+<p><a href="verification.html">Leanでの検証とRDKit比較</a> · <a href="functions.html#mol_descriptor_catalog_json">SQL API</a></p></section>
+<pre><code>SELECT mol_descriptor_catalog_json();
+SELECT mol_descriptor_values_json('CCO');</code></pre>
+<label for="filter">記述子を検索</label> <input id="filter" type="search" placeholder="例 Ipc">
+<span id="matches" role="status"></span>
+<details id="MolWt" class="entry searchable"><summary><code>MolWt</code><span>Essentials</span></summary>
+<div class="overload"><p>Molecular weight</p>
+<p>単位 g/mol。絶対許容差 1e-08、相対許容差 0.0。</p></div></details>
+<details id="ExactMolWt" class="entry searchable"><summary><code>ExactMolWt</code><span>Essentials</span></summary>
+<div class="overload"><p>Exact mass</p>
+<p>単位 Da。絶対許容差 1e-08、相対許容差 0.0。</p></div></details>
+<details id="MolLogP" class="entry searchable"><summary><code>MolLogP</code><span>Essentials</span></summary>
+<div class="overload"><p>cLogP</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="TPSA" class="entry searchable"><summary><code>TPSA</code><span>Essentials</span></summary>
+<div class="overload"><p>TPSA</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="NumHDonors" class="entry searchable"><summary><code>NumHDonors</code><span>Essentials</span></summary>
+<div class="overload"><p>H-bond donors</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumHAcceptors" class="entry searchable"><summary><code>NumHAcceptors</code><span>Essentials</span></summary>
+<div class="overload"><p>H-bond acceptors</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="HeavyAtomCount" class="entry searchable"><summary><code>HeavyAtomCount</code><span>Essentials</span></summary>
+<div class="overload"><p>Heavy atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_BondCount" class="entry searchable"><summary><code>ds_BondCount</code><span>Essentials</span></summary>
+<div class="overload"><p>Bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_FormalCharge" class="entry searchable"><summary><code>ds_FormalCharge</code><span>Essentials</span></summary>
+<div class="overload"><p>Formal charge</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_FragmentCount" class="entry searchable"><summary><code>ds_FragmentCount</code><span>Essentials</span></summary>
+<div class="overload"><p>Fragments</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumRotatableBonds" class="entry searchable"><summary><code>NumRotatableBonds</code><span>Essentials</span></summary>
+<div class="overload"><p>Rotatable bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="FractionCSP3" class="entry searchable"><summary><code>FractionCSP3</code><span>Essentials</span></summary>
+<div class="overload"><p>Fraction sp³ carbons</p>
+<p>単位 無次元・計数。絶対許容差 1e-12、相対許容差 0.0。</p></div></details>
+<details id="RingCount" class="entry searchable"><summary><code>RingCount</code><span>Rings</span></summary>
+<div class="overload"><p>Rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumAromaticRings" class="entry searchable"><summary><code>NumAromaticRings</code><span>Rings</span></summary>
+<div class="overload"><p>Aromatic rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumAliphaticRings" class="entry searchable"><summary><code>NumAliphaticRings</code><span>Rings</span></summary>
+<div class="overload"><p>Aliphatic rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumSaturatedRings" class="entry searchable"><summary><code>NumSaturatedRings</code><span>Rings</span></summary>
+<div class="overload"><p>Saturated rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumAromaticHeterocycles" class="entry searchable"><summary><code>NumAromaticHeterocycles</code><span>Rings</span></summary>
+<div class="overload"><p>Aromatic heterocycles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumAromaticCarbocycles" class="entry searchable"><summary><code>NumAromaticCarbocycles</code><span>Rings</span></summary>
+<div class="overload"><p>Aromatic carbocycles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumAliphaticHeterocycles" class="entry searchable"><summary><code>NumAliphaticHeterocycles</code><span>Rings</span></summary>
+<div class="overload"><p>Aliphatic heterocycles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumAliphaticCarbocycles" class="entry searchable"><summary><code>NumAliphaticCarbocycles</code><span>Rings</span></summary>
+<div class="overload"><p>Aliphatic carbocycles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumSaturatedHeterocycles" class="entry searchable"><summary><code>NumSaturatedHeterocycles</code><span>Rings</span></summary>
+<div class="overload"><p>Saturated heterocycles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumSaturatedCarbocycles" class="entry searchable"><summary><code>NumSaturatedCarbocycles</code><span>Rings</span></summary>
+<div class="overload"><p>Saturated carbocycles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumHeterocycles" class="entry searchable"><summary><code>NumHeterocycles</code><span>Rings</span></summary>
+<div class="overload"><p>Heterocycles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="HeavyAtomMolWt" class="entry searchable"><summary><code>HeavyAtomMolWt</code><span>Composition</span></summary>
+<div class="overload"><p>Heavy-atom mass</p>
+<p>単位 g/mol。絶対許容差 1e-08、相対許容差 0.0。</p></div></details>
+<details id="NumHeteroatoms" class="entry searchable"><summary><code>NumHeteroatoms</code><span>Composition</span></summary>
+<div class="overload"><p>Heteroatoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NOCount" class="entry searchable"><summary><code>NOCount</code><span>Composition</span></summary>
+<div class="overload"><p>N + O atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NHOHCount" class="entry searchable"><summary><code>NHOHCount</code><span>Composition</span></summary>
+<div class="overload"><p>NH + OH hydrogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumValenceElectrons" class="entry searchable"><summary><code>NumValenceElectrons</code><span>Composition</span></summary>
+<div class="overload"><p>Valence electrons</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_ExplicitHydrogens" class="entry searchable"><summary><code>ds_ExplicitHydrogens</code><span>Composition</span></summary>
+<div class="overload"><p>Explicit hydrogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_ImplicitHydrogens" class="entry searchable"><summary><code>ds_ImplicitHydrogens</code><span>Composition</span></summary>
+<div class="overload"><p>Implicit hydrogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_TotalHydrogens" class="entry searchable"><summary><code>ds_TotalHydrogens</code><span>Composition</span></summary>
+<div class="overload"><p>Total hydrogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountC" class="entry searchable"><summary><code>ds_CountC</code><span>Composition</span></summary>
+<div class="overload"><p>C atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountN" class="entry searchable"><summary><code>ds_CountN</code><span>Composition</span></summary>
+<div class="overload"><p>N atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountO" class="entry searchable"><summary><code>ds_CountO</code><span>Composition</span></summary>
+<div class="overload"><p>O atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountS" class="entry searchable"><summary><code>ds_CountS</code><span>Composition</span></summary>
+<div class="overload"><p>S atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountP" class="entry searchable"><summary><code>ds_CountP</code><span>Composition</span></summary>
+<div class="overload"><p>P atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountF" class="entry searchable"><summary><code>ds_CountF</code><span>Composition</span></summary>
+<div class="overload"><p>F atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountCl" class="entry searchable"><summary><code>ds_CountCl</code><span>Composition</span></summary>
+<div class="overload"><p>Cl atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountBr" class="entry searchable"><summary><code>ds_CountBr</code><span>Composition</span></summary>
+<div class="overload"><p>Br atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_CountI" class="entry searchable"><summary><code>ds_CountI</code><span>Composition</span></summary>
+<div class="overload"><p>I atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_HalogenCount" class="entry searchable"><summary><code>ds_HalogenCount</code><span>Composition</span></summary>
+<div class="overload"><p>Halogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_SingleBonds" class="entry searchable"><summary><code>ds_SingleBonds</code><span>Graph</span></summary>
+<div class="overload"><p>Single bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_DoubleBonds" class="entry searchable"><summary><code>ds_DoubleBonds</code><span>Graph</span></summary>
+<div class="overload"><p>Double bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_TripleBonds" class="entry searchable"><summary><code>ds_TripleBonds</code><span>Graph</span></summary>
+<div class="overload"><p>Triple bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_AromaticBonds" class="entry searchable"><summary><code>ds_AromaticBonds</code><span>Graph</span></summary>
+<div class="overload"><p>Aromatic bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_RingAtoms" class="entry searchable"><summary><code>ds_RingAtoms</code><span>Graph</span></summary>
+<div class="overload"><p>Ring atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_RingBonds" class="entry searchable"><summary><code>ds_RingBonds</code><span>Graph</span></summary>
+<div class="overload"><p>Ring bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_LargestRingSize" class="entry searchable"><summary><code>ds_LargestRingSize</code><span>Graph</span></summary>
+<div class="overload"><p>Largest ring size</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_AromaticAtoms" class="entry searchable"><summary><code>ds_AromaticAtoms</code><span>Graph</span></summary>
+<div class="overload"><p>Aromatic atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="MolMR" class="entry searchable"><summary><code>MolMR</code><span>Graph</span></summary>
+<div class="overload"><p>Molar refractivity</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="fr_Al_COO" class="entry searchable"><summary><code>fr_Al_COO</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aliphatic carboxylic acids</p>
+<p>Number of aliphatic carboxylic acids</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Al_OH" class="entry searchable"><summary><code>fr_Al_OH</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aliphatic hydroxyl groups</p>
+<p>Number of aliphatic hydroxyl groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Al_OH_noTert" class="entry searchable"><summary><code>fr_Al_OH_noTert</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aliphatic hydroxyl groups excluding tert-OH</p>
+<p>Number of aliphatic hydroxyl groups excluding tert-OH</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_ArN" class="entry searchable"><summary><code>fr_ArN</code><span>Functional groups</span></summary>
+<div class="overload"><p>N functional groups attached to aromatics</p>
+<p>Number of N functional groups attached to aromatics</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Ar_COO" class="entry searchable"><summary><code>fr_Ar_COO</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aromatic carboxylic acids</p>
+<p>Number of Aromatic carboxylic acide</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Ar_N" class="entry searchable"><summary><code>fr_Ar_N</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aromatic nitrogens</p>
+<p>Number of aromatic nitrogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Ar_NH" class="entry searchable"><summary><code>fr_Ar_NH</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aromatic amines</p>
+<p>Number of aromatic amines</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Ar_OH" class="entry searchable"><summary><code>fr_Ar_OH</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aromatic hydroxyl groups</p>
+<p>Number of aromatic hydroxyl groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_COO" class="entry searchable"><summary><code>fr_COO</code><span>Functional groups</span></summary>
+<div class="overload"><p>Carboxylic acids (C-linked)</p>
+<p>Number of carboxylic acids</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_COO2" class="entry searchable"><summary><code>fr_COO2</code><span>Functional groups</span></summary>
+<div class="overload"><p>Carboxylic acids (general)</p>
+<p>Number of carboxylic acids</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_C_O" class="entry searchable"><summary><code>fr_C_O</code><span>Functional groups</span></summary>
+<div class="overload"><p>Carbonyl groups</p>
+<p>Number of carbonyl O</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_C_O_noCOO" class="entry searchable"><summary><code>fr_C_O_noCOO</code><span>Functional groups</span></summary>
+<div class="overload"><p>Carbonyls excluding COOH</p>
+<p>Number of carbonyl O, excluding COOH</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_C_S" class="entry searchable"><summary><code>fr_C_S</code><span>Functional groups</span></summary>
+<div class="overload"><p>Thiocarbonyl</p>
+<p>Number of thiocarbonyl</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_HOCCN" class="entry searchable"><summary><code>fr_HOCCN</code><span>Functional groups</span></summary>
+<div class="overload"><p>C(OH)CCN-Ctert-alkyl or  C(OH)CCNcyclic</p>
+<p>Number of C(OH)CCN-Ctert-alkyl or  C(OH)CCNcyclic</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Imine" class="entry searchable"><summary><code>fr_Imine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Imines</p>
+<p>Number of Imines</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_NH0" class="entry searchable"><summary><code>fr_NH0</code><span>Functional groups</span></summary>
+<div class="overload"><p>Nitrogens without H</p>
+<p>Number of Tertiary amines</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_NH1" class="entry searchable"><summary><code>fr_NH1</code><span>Functional groups</span></summary>
+<div class="overload"><p>NH nitrogens</p>
+<p>Number of Secondary amines</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_NH2" class="entry searchable"><summary><code>fr_NH2</code><span>Functional groups</span></summary>
+<div class="overload"><p>NH₂ nitrogens</p>
+<p>Number of Primary amines</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_N_O" class="entry searchable"><summary><code>fr_N_O</code><span>Functional groups</span></summary>
+<div class="overload"><p>Hydroxylamine groups</p>
+<p>Number of hydroxylamine groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Ndealkylation1" class="entry searchable"><summary><code>fr_Ndealkylation1</code><span>Functional groups</span></summary>
+<div class="overload"><p>XCCNR groups</p>
+<p>Number of XCCNR groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Ndealkylation2" class="entry searchable"><summary><code>fr_Ndealkylation2</code><span>Functional groups</span></summary>
+<div class="overload"><p>Tert-alicyclic amines (no heteroatoms, not quinine-like bridged N)</p>
+<p>Number of tert-alicyclic amines (no heteroatoms, not quinine-like bridged N)</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_Nhpyrrole" class="entry searchable"><summary><code>fr_Nhpyrrole</code><span>Functional groups</span></summary>
+<div class="overload"><p>H-pyrrole nitrogens</p>
+<p>Number of H-pyrrole nitrogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_SH" class="entry searchable"><summary><code>fr_SH</code><span>Functional groups</span></summary>
+<div class="overload"><p>Thiol groups</p>
+<p>Number of thiol groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_aldehyde" class="entry searchable"><summary><code>fr_aldehyde</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aldehydes</p>
+<p>Number of aldehydes</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_alkyl_carbamate" class="entry searchable"><summary><code>fr_alkyl_carbamate</code><span>Functional groups</span></summary>
+<div class="overload"><p>Alkyl carbamates (subject to hydrolysis)</p>
+<p>Number of alkyl carbamates (subject to hydrolysis)</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_alkyl_halide" class="entry searchable"><summary><code>fr_alkyl_halide</code><span>Functional groups</span></summary>
+<div class="overload"><p>Alkyl halides</p>
+<p>Number of alkyl halides</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_allylic_oxid" class="entry searchable"><summary><code>fr_allylic_oxid</code><span>Functional groups</span></summary>
+<div class="overload"><p>Allylic oxidation sites excluding steroid dienone</p>
+<p>Number of allylic oxidation sites excluding steroid dienone</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_amide" class="entry searchable"><summary><code>fr_amide</code><span>Functional groups</span></summary>
+<div class="overload"><p>Amides</p>
+<p>Number of amides</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_amidine" class="entry searchable"><summary><code>fr_amidine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Amidine groups</p>
+<p>Number of amidine groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_aniline" class="entry searchable"><summary><code>fr_aniline</code><span>Functional groups</span></summary>
+<div class="overload"><p>Anilines</p>
+<p>Number of anilines</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_aryl_methyl" class="entry searchable"><summary><code>fr_aryl_methyl</code><span>Functional groups</span></summary>
+<div class="overload"><p>Aryl methyl sites for hydroxylation</p>
+<p>Number of aryl methyl sites for hydroxylation</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_azide" class="entry searchable"><summary><code>fr_azide</code><span>Functional groups</span></summary>
+<div class="overload"><p>Azide groups</p>
+<p>Number of azide groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_azo" class="entry searchable"><summary><code>fr_azo</code><span>Functional groups</span></summary>
+<div class="overload"><p>Azo groups</p>
+<p>Number of azo groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_barbitur" class="entry searchable"><summary><code>fr_barbitur</code><span>Functional groups</span></summary>
+<div class="overload"><p>Barbiturate groups</p>
+<p>Number of barbiturate groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_benzene" class="entry searchable"><summary><code>fr_benzene</code><span>Functional groups</span></summary>
+<div class="overload"><p>Benzene rings</p>
+<p>Number of benzene rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_benzodiazepine" class="entry searchable"><summary><code>fr_benzodiazepine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Benzodiazepines with no additional fused rings</p>
+<p>Number of benzodiazepines with no additional fused rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_bicyclic" class="entry searchable"><summary><code>fr_bicyclic</code><span>Functional groups</span></summary>
+<div class="overload"><p>Bicyclic</p>
+<p>Bicyclic</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_diazo" class="entry searchable"><summary><code>fr_diazo</code><span>Functional groups</span></summary>
+<div class="overload"><p>Diazo groups</p>
+<p>Number of diazo groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_dihydropyridine" class="entry searchable"><summary><code>fr_dihydropyridine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Dihydropyridines</p>
+<p>Number of dihydropyridines</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_epoxide" class="entry searchable"><summary><code>fr_epoxide</code><span>Functional groups</span></summary>
+<div class="overload"><p>Epoxide rings</p>
+<p>Number of epoxide rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_ester" class="entry searchable"><summary><code>fr_ester</code><span>Functional groups</span></summary>
+<div class="overload"><p>Esters</p>
+<p>Number of esters</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_ether" class="entry searchable"><summary><code>fr_ether</code><span>Functional groups</span></summary>
+<div class="overload"><p>Ether oxygens (including phenoxy)</p>
+<p>Number of ether oxygens (including phenoxy)</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_furan" class="entry searchable"><summary><code>fr_furan</code><span>Functional groups</span></summary>
+<div class="overload"><p>Furan rings</p>
+<p>Number of furan rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_guanido" class="entry searchable"><summary><code>fr_guanido</code><span>Functional groups</span></summary>
+<div class="overload"><p>Guanidine groups</p>
+<p>Number of guanidine groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_halogen" class="entry searchable"><summary><code>fr_halogen</code><span>Functional groups</span></summary>
+<div class="overload"><p>Halogens</p>
+<p>Number of halogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_hdrzine" class="entry searchable"><summary><code>fr_hdrzine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Hydrazine groups</p>
+<p>Number of hydrazine groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_hdrzone" class="entry searchable"><summary><code>fr_hdrzone</code><span>Functional groups</span></summary>
+<div class="overload"><p>Hydrazone groups</p>
+<p>Number of hydrazone groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_imidazole" class="entry searchable"><summary><code>fr_imidazole</code><span>Functional groups</span></summary>
+<div class="overload"><p>Imidazole rings</p>
+<p>Number of imidazole rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_imide" class="entry searchable"><summary><code>fr_imide</code><span>Functional groups</span></summary>
+<div class="overload"><p>Imide groups</p>
+<p>Number of imide groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_isocyan" class="entry searchable"><summary><code>fr_isocyan</code><span>Functional groups</span></summary>
+<div class="overload"><p>Isocyanates</p>
+<p>Number of isocyanates</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_isothiocyan" class="entry searchable"><summary><code>fr_isothiocyan</code><span>Functional groups</span></summary>
+<div class="overload"><p>Isothiocyanates</p>
+<p>Number of isothiocyanates</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_ketone" class="entry searchable"><summary><code>fr_ketone</code><span>Functional groups</span></summary>
+<div class="overload"><p>Ketones</p>
+<p>Number of ketones</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_ketone_Topliss" class="entry searchable"><summary><code>fr_ketone_Topliss</code><span>Functional groups</span></summary>
+<div class="overload"><p>Ketones excluding diaryl, a,b-unsat. dienones, heteroatom on Calpha</p>
+<p>Number of ketones excluding diaryl, a,b-unsat. dienones, heteroatom on Calpha</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_lactam" class="entry searchable"><summary><code>fr_lactam</code><span>Functional groups</span></summary>
+<div class="overload"><p>Beta lactams</p>
+<p>Number of beta lactams</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_lactone" class="entry searchable"><summary><code>fr_lactone</code><span>Functional groups</span></summary>
+<div class="overload"><p>Cyclic esters (lactones)</p>
+<p>Number of cyclic esters (lactones)</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_methoxy" class="entry searchable"><summary><code>fr_methoxy</code><span>Functional groups</span></summary>
+<div class="overload"><p>Methoxy groups -OCH3</p>
+<p>Number of methoxy groups -OCH3</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_morpholine" class="entry searchable"><summary><code>fr_morpholine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Morpholine rings</p>
+<p>Number of morpholine rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_nitrile" class="entry searchable"><summary><code>fr_nitrile</code><span>Functional groups</span></summary>
+<div class="overload"><p>Nitriles</p>
+<p>Number of nitriles</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_nitro" class="entry searchable"><summary><code>fr_nitro</code><span>Functional groups</span></summary>
+<div class="overload"><p>Nitro groups</p>
+<p>Number of nitro groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_nitro_arom" class="entry searchable"><summary><code>fr_nitro_arom</code><span>Functional groups</span></summary>
+<div class="overload"><p>Nitro benzene ring substituents</p>
+<p>Number of nitro benzene ring substituents</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_nitro_arom_nonortho" class="entry searchable"><summary><code>fr_nitro_arom_nonortho</code><span>Functional groups</span></summary>
+<div class="overload"><p>Non-ortho nitro benzene ring substituents</p>
+<p>Number of non-ortho nitro benzene ring substituents</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_nitroso" class="entry searchable"><summary><code>fr_nitroso</code><span>Functional groups</span></summary>
+<div class="overload"><p>Nitroso groups, excluding NO2</p>
+<p>Number of nitroso groups, excluding NO2</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_oxazole" class="entry searchable"><summary><code>fr_oxazole</code><span>Functional groups</span></summary>
+<div class="overload"><p>Oxazole rings</p>
+<p>Number of oxazole rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_oxime" class="entry searchable"><summary><code>fr_oxime</code><span>Functional groups</span></summary>
+<div class="overload"><p>Oxime groups</p>
+<p>Number of oxime groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_para_hydroxylation" class="entry searchable"><summary><code>fr_para_hydroxylation</code><span>Functional groups</span></summary>
+<div class="overload"><p>Para-hydroxylation sites</p>
+<p>Number of para-hydroxylation sites</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_phenol" class="entry searchable"><summary><code>fr_phenol</code><span>Functional groups</span></summary>
+<div class="overload"><p>Phenols</p>
+<p>Number of phenols</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_phenol_noOrthoHbond" class="entry searchable"><summary><code>fr_phenol_noOrthoHbond</code><span>Functional groups</span></summary>
+<div class="overload"><p>Phenolic OH excluding ortho intramolecular Hbond substituents</p>
+<p>Number of phenolic OH excluding ortho intramolecular Hbond substituents</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_phos_acid" class="entry searchable"><summary><code>fr_phos_acid</code><span>Functional groups</span></summary>
+<div class="overload"><p>Phosphoric acid groups</p>
+<p>Number of phosphoric acid groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_phos_ester" class="entry searchable"><summary><code>fr_phos_ester</code><span>Functional groups</span></summary>
+<div class="overload"><p>Phosphoric ester groups</p>
+<p>Number of phosphoric ester groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_piperdine" class="entry searchable"><summary><code>fr_piperdine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Piperidine rings</p>
+<p>Number of piperdine rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_piperzine" class="entry searchable"><summary><code>fr_piperzine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Piperazine rings</p>
+<p>Number of piperzine rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_priamide" class="entry searchable"><summary><code>fr_priamide</code><span>Functional groups</span></summary>
+<div class="overload"><p>Primary amides</p>
+<p>Number of primary amides</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_prisulfonamd" class="entry searchable"><summary><code>fr_prisulfonamd</code><span>Functional groups</span></summary>
+<div class="overload"><p>Primary sulfonamides</p>
+<p>Number of primary sulfonamides</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_pyridine" class="entry searchable"><summary><code>fr_pyridine</code><span>Functional groups</span></summary>
+<div class="overload"><p>Pyridine rings</p>
+<p>Number of pyridine rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_quatN" class="entry searchable"><summary><code>fr_quatN</code><span>Functional groups</span></summary>
+<div class="overload"><p>Quaternary nitrogens</p>
+<p>Number of quaternary nitrogens</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_sulfide" class="entry searchable"><summary><code>fr_sulfide</code><span>Functional groups</span></summary>
+<div class="overload"><p>Thioether</p>
+<p>Number of thioether</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_sulfonamd" class="entry searchable"><summary><code>fr_sulfonamd</code><span>Functional groups</span></summary>
+<div class="overload"><p>Sulfonamides</p>
+<p>Number of sulfonamides</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_sulfone" class="entry searchable"><summary><code>fr_sulfone</code><span>Functional groups</span></summary>
+<div class="overload"><p>Sulfone groups</p>
+<p>Number of sulfone groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_term_acetylene" class="entry searchable"><summary><code>fr_term_acetylene</code><span>Functional groups</span></summary>
+<div class="overload"><p>Terminal acetylenes</p>
+<p>Number of terminal acetylenes</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_tetrazole" class="entry searchable"><summary><code>fr_tetrazole</code><span>Functional groups</span></summary>
+<div class="overload"><p>Tetrazole rings</p>
+<p>Number of tetrazole rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_thiazole" class="entry searchable"><summary><code>fr_thiazole</code><span>Functional groups</span></summary>
+<div class="overload"><p>Thiazole rings</p>
+<p>Number of thiazole rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_thiocyan" class="entry searchable"><summary><code>fr_thiocyan</code><span>Functional groups</span></summary>
+<div class="overload"><p>Thiocyanates</p>
+<p>Number of thiocyanates</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_thiophene" class="entry searchable"><summary><code>fr_thiophene</code><span>Functional groups</span></summary>
+<div class="overload"><p>Thiophene rings</p>
+<p>Number of thiophene rings</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_unbrch_alkane" class="entry searchable"><summary><code>fr_unbrch_alkane</code><span>Functional groups</span></summary>
+<div class="overload"><p>Unbranched alkanes  of at least 4 members (excludes halogenated alkanes)</p>
+<p>Number of unbranched alkanes  of at least 4 members (excludes halogenated alkanes)</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="fr_urea" class="entry searchable"><summary><code>fr_urea</code><span>Functional groups</span></summary>
+<div class="overload"><p>Urea groups</p>
+<p>Number of urea groups</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="MaxEStateIndex" class="entry searchable"><summary><code>MaxEStateIndex</code><span>Electronic</span></summary>
+<div class="overload"><p>Max EState index</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="MinEStateIndex" class="entry searchable"><summary><code>MinEStateIndex</code><span>Electronic</span></summary>
+<div class="overload"><p>Min EState index</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="MaxAbsEStateIndex" class="entry searchable"><summary><code>MaxAbsEStateIndex</code><span>Electronic</span></summary>
+<div class="overload"><p>Max |EState|</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="MinAbsEStateIndex" class="entry searchable"><summary><code>MinAbsEStateIndex</code><span>Electronic</span></summary>
+<div class="overload"><p>Min |EState|</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="LabuteASA" class="entry searchable"><summary><code>LabuteASA</code><span>Surface area</span></summary>
+<div class="overload"><p>Labute ASA</p>
+<p>Labute approximate surface area, includeHs=True; atom areas plus the aggregate hydrogen correction.</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA1" class="entry searchable"><summary><code>SMR_VSA1</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 1</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA2" class="entry searchable"><summary><code>SMR_VSA2</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 2</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA3" class="entry searchable"><summary><code>SMR_VSA3</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 3</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA4" class="entry searchable"><summary><code>SMR_VSA4</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 4</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA5" class="entry searchable"><summary><code>SMR_VSA5</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 5</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA6" class="entry searchable"><summary><code>SMR_VSA6</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 6</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA7" class="entry searchable"><summary><code>SMR_VSA7</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 7</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA8" class="entry searchable"><summary><code>SMR_VSA8</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 8</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA9" class="entry searchable"><summary><code>SMR_VSA9</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 9</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SMR_VSA10" class="entry searchable"><summary><code>SMR_VSA10</code><span>Surface area</span></summary>
+<div class="overload"><p>SMR VSA 10</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA1" class="entry searchable"><summary><code>SlogP_VSA1</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 1</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA2" class="entry searchable"><summary><code>SlogP_VSA2</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 2</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA3" class="entry searchable"><summary><code>SlogP_VSA3</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 3</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA4" class="entry searchable"><summary><code>SlogP_VSA4</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 4</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA5" class="entry searchable"><summary><code>SlogP_VSA5</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 5</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA6" class="entry searchable"><summary><code>SlogP_VSA6</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 6</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA7" class="entry searchable"><summary><code>SlogP_VSA7</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 7</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA8" class="entry searchable"><summary><code>SlogP_VSA8</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 8</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA9" class="entry searchable"><summary><code>SlogP_VSA9</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 9</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA10" class="entry searchable"><summary><code>SlogP_VSA10</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 10</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA11" class="entry searchable"><summary><code>SlogP_VSA11</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 11</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="SlogP_VSA12" class="entry searchable"><summary><code>SlogP_VSA12</code><span>Surface area</span></summary>
+<div class="overload"><p>SlogP VSA 12</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA1" class="entry searchable"><summary><code>EState_VSA1</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 1</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA2" class="entry searchable"><summary><code>EState_VSA2</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 2</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA3" class="entry searchable"><summary><code>EState_VSA3</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 3</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA4" class="entry searchable"><summary><code>EState_VSA4</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 4</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA5" class="entry searchable"><summary><code>EState_VSA5</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 5</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA6" class="entry searchable"><summary><code>EState_VSA6</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 6</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA7" class="entry searchable"><summary><code>EState_VSA7</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 7</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA8" class="entry searchable"><summary><code>EState_VSA8</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 8</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA9" class="entry searchable"><summary><code>EState_VSA9</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 9</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA10" class="entry searchable"><summary><code>EState_VSA10</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 10</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="EState_VSA11" class="entry searchable"><summary><code>EState_VSA11</code><span>Electronic surface</span></summary>
+<div class="overload"><p>EState VSA 11</p>
+<p>Sum atomic Labute areas; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState1" class="entry searchable"><summary><code>VSA_EState1</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 1</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState2" class="entry searchable"><summary><code>VSA_EState2</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 2</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState3" class="entry searchable"><summary><code>VSA_EState3</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 3</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState4" class="entry searchable"><summary><code>VSA_EState4</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 4</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState5" class="entry searchable"><summary><code>VSA_EState5</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 5</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState6" class="entry searchable"><summary><code>VSA_EState6</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 6</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState7" class="entry searchable"><summary><code>VSA_EState7</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 7</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState8" class="entry searchable"><summary><code>VSA_EState8</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 8</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState9" class="entry searchable"><summary><code>VSA_EState9</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 9</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="VSA_EState10" class="entry searchable"><summary><code>VSA_EState10</code><span>Electronic surface</span></summary>
+<div class="overload"><p>VSA EState 10</p>
+<p>Sum EState indices by atomic area; lower-inclusive, upper-exclusive bins (lower &lt;= value &lt; upper).</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BalabanJ" class="entry searchable"><summary><code>BalabanJ</code><span>Topology</span></summary>
+<div class="overload"><p>BalabanJ</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BertzCT" class="entry searchable"><summary><code>BertzCT</code><span>Topology</span></summary>
+<div class="overload"><p>BertzCT</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi0" class="entry searchable"><summary><code>Chi0</code><span>Topology</span></summary>
+<div class="overload"><p>Chi0</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi0n" class="entry searchable"><summary><code>Chi0n</code><span>Topology</span></summary>
+<div class="overload"><p>Chi0n</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi0v" class="entry searchable"><summary><code>Chi0v</code><span>Topology</span></summary>
+<div class="overload"><p>Chi0v</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi1" class="entry searchable"><summary><code>Chi1</code><span>Topology</span></summary>
+<div class="overload"><p>Chi1</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi1n" class="entry searchable"><summary><code>Chi1n</code><span>Topology</span></summary>
+<div class="overload"><p>Chi1n</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi1v" class="entry searchable"><summary><code>Chi1v</code><span>Topology</span></summary>
+<div class="overload"><p>Chi1v</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi2n" class="entry searchable"><summary><code>Chi2n</code><span>Topology</span></summary>
+<div class="overload"><p>Chi2n</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi2v" class="entry searchable"><summary><code>Chi2v</code><span>Topology</span></summary>
+<div class="overload"><p>Chi2v</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi3n" class="entry searchable"><summary><code>Chi3n</code><span>Topology</span></summary>
+<div class="overload"><p>Chi3n</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi3v" class="entry searchable"><summary><code>Chi3v</code><span>Topology</span></summary>
+<div class="overload"><p>Chi3v</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi4n" class="entry searchable"><summary><code>Chi4n</code><span>Topology</span></summary>
+<div class="overload"><p>Chi4n</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Chi4v" class="entry searchable"><summary><code>Chi4v</code><span>Topology</span></summary>
+<div class="overload"><p>Chi4v</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="HallKierAlpha" class="entry searchable"><summary><code>HallKierAlpha</code><span>Topology</span></summary>
+<div class="overload"><p>HallKierAlpha</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Kappa1" class="entry searchable"><summary><code>Kappa1</code><span>Topology</span></summary>
+<div class="overload"><p>Kappa1</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Kappa2" class="entry searchable"><summary><code>Kappa2</code><span>Topology</span></summary>
+<div class="overload"><p>Kappa2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Kappa3" class="entry searchable"><summary><code>Kappa3</code><span>Topology</span></summary>
+<div class="overload"><p>Kappa3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Phi" class="entry searchable"><summary><code>Phi</code><span>Topology</span></summary>
+<div class="overload"><p>Phi</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="NumRadicalElectrons" class="entry searchable"><summary><code>NumRadicalElectrons</code><span>Composition</span></summary>
+<div class="overload"><p>NumRadicalElectrons</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="MaxPartialCharge" class="entry searchable"><summary><code>MaxPartialCharge</code><span>Partial charge</span></summary>
+<div class="overload"><p>MaxPartialCharge</p>
+<p>単位 e。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="MinPartialCharge" class="entry searchable"><summary><code>MinPartialCharge</code><span>Partial charge</span></summary>
+<div class="overload"><p>MinPartialCharge</p>
+<p>単位 e。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="MaxAbsPartialCharge" class="entry searchable"><summary><code>MaxAbsPartialCharge</code><span>Partial charge</span></summary>
+<div class="overload"><p>MaxAbsPartialCharge</p>
+<p>単位 e。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="MinAbsPartialCharge" class="entry searchable"><summary><code>MinAbsPartialCharge</code><span>Partial charge</span></summary>
+<div class="overload"><p>MinAbsPartialCharge</p>
+<p>単位 e。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA1" class="entry searchable"><summary><code>PEOE_VSA1</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA1</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA2" class="entry searchable"><summary><code>PEOE_VSA2</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA2</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA3" class="entry searchable"><summary><code>PEOE_VSA3</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA3</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA4" class="entry searchable"><summary><code>PEOE_VSA4</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA4</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA5" class="entry searchable"><summary><code>PEOE_VSA5</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA5</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA6" class="entry searchable"><summary><code>PEOE_VSA6</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA6</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA7" class="entry searchable"><summary><code>PEOE_VSA7</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA7</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA8" class="entry searchable"><summary><code>PEOE_VSA8</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA8</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA9" class="entry searchable"><summary><code>PEOE_VSA9</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA9</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA10" class="entry searchable"><summary><code>PEOE_VSA10</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA10</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA11" class="entry searchable"><summary><code>PEOE_VSA11</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA11</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA12" class="entry searchable"><summary><code>PEOE_VSA12</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA12</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA13" class="entry searchable"><summary><code>PEOE_VSA13</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA13</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="PEOE_VSA14" class="entry searchable"><summary><code>PEOE_VSA14</code><span>Charge surface</span></summary>
+<div class="overload"><p>PEOE_VSA14</p>
+<p>単位 Å²。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_MWHI" class="entry searchable"><summary><code>BCUT2D_MWHI</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_MWHI</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_MWLOW" class="entry searchable"><summary><code>BCUT2D_MWLOW</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_MWLOW</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_CHGHI" class="entry searchable"><summary><code>BCUT2D_CHGHI</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_CHGHI</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_CHGLO" class="entry searchable"><summary><code>BCUT2D_CHGLO</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_CHGLO</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_LOGPHI" class="entry searchable"><summary><code>BCUT2D_LOGPHI</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_LOGPHI</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_LOGPLOW" class="entry searchable"><summary><code>BCUT2D_LOGPLOW</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_LOGPLOW</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_MRHI" class="entry searchable"><summary><code>BCUT2D_MRHI</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_MRHI</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="BCUT2D_MRLOW" class="entry searchable"><summary><code>BCUT2D_MRLOW</code><span>BCUT</span></summary>
+<div class="overload"><p>BCUT2D_MRLOW</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="NumAmideBonds" class="entry searchable"><summary><code>NumAmideBonds</code><span>Functional groups</span></summary>
+<div class="overload"><p>Amide bonds</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumSpiroAtoms" class="entry searchable"><summary><code>NumSpiroAtoms</code><span>Rings</span></summary>
+<div class="overload"><p>Spiro atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumBridgeheadAtoms" class="entry searchable"><summary><code>NumBridgeheadAtoms</code><span>Rings</span></summary>
+<div class="overload"><p>Bridgehead atoms</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="FpDensityMorgan1" class="entry searchable"><summary><code>FpDensityMorgan1</code><span>Fingerprints</span></summary>
+<div class="overload"><p>Morgan density (radius 1)</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="FpDensityMorgan2" class="entry searchable"><summary><code>FpDensityMorgan2</code><span>Fingerprints</span></summary>
+<div class="overload"><p>Morgan density (radius 2)</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="FpDensityMorgan3" class="entry searchable"><summary><code>FpDensityMorgan3</code><span>Fingerprints</span></summary>
+<div class="overload"><p>Morgan density (radius 3)</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="qed" class="entry searchable"><summary><code>qed</code><span>Screening</span></summary>
+<div class="overload"><p>QED drug-likeness</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_Wiener" class="entry searchable"><summary><code>ds_Wiener</code><span>Molecular distances</span></summary>
+<div class="overload"><p>Wiener index</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_Harary" class="entry searchable"><summary><code>ds_Harary</code><span>Molecular distances</span></summary>
+<div class="overload"><p>Harary index</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_EccentricConnectivity" class="entry searchable"><summary><code>ds_EccentricConnectivity</code><span>Molecular distances</span></summary>
+<div class="overload"><p>Eccentric connectivity</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_DegreeDistance" class="entry searchable"><summary><code>ds_DegreeDistance</code><span>Molecular distances</span></summary>
+<div class="overload"><p>Degree distance</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_Gutman" class="entry searchable"><summary><code>ds_Gutman</code><span>Molecular distances</span></summary>
+<div class="overload"><p>Gutman index</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC11" class="entry searchable"><summary><code>ds_MDEC11</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C1–C1</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC12" class="entry searchable"><summary><code>ds_MDEC12</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C1–C2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC13" class="entry searchable"><summary><code>ds_MDEC13</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C1–C3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC14" class="entry searchable"><summary><code>ds_MDEC14</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C1–C4</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC22" class="entry searchable"><summary><code>ds_MDEC22</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C2–C2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC23" class="entry searchable"><summary><code>ds_MDEC23</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C2–C3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC24" class="entry searchable"><summary><code>ds_MDEC24</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C2–C4</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC33" class="entry searchable"><summary><code>ds_MDEC33</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C3–C3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC34" class="entry searchable"><summary><code>ds_MDEC34</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C3–C4</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEC44" class="entry searchable"><summary><code>ds_MDEC44</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE C4–C4</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEN11" class="entry searchable"><summary><code>ds_MDEN11</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE N1–N1</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEN12" class="entry searchable"><summary><code>ds_MDEN12</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE N1–N2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEN13" class="entry searchable"><summary><code>ds_MDEN13</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE N1–N3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEN22" class="entry searchable"><summary><code>ds_MDEN22</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE N2–N2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEN23" class="entry searchable"><summary><code>ds_MDEN23</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE N2–N3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEN33" class="entry searchable"><summary><code>ds_MDEN33</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE N3–N3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEO11" class="entry searchable"><summary><code>ds_MDEO11</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE O1–O1</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEO12" class="entry searchable"><summary><code>ds_MDEO12</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE O1–O2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MDEO22" class="entry searchable"><summary><code>ds_MDEO22</code><span>Molecular distances</span></summary>
+<div class="overload"><p>MDE O2–O2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI1" class="entry searchable"><summary><code>ds_GGI1</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 1</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI2" class="entry searchable"><summary><code>ds_GGI2</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 2</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI3" class="entry searchable"><summary><code>ds_GGI3</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI4" class="entry searchable"><summary><code>ds_GGI4</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 4</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI5" class="entry searchable"><summary><code>ds_GGI5</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 5</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI6" class="entry searchable"><summary><code>ds_GGI6</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 6</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI7" class="entry searchable"><summary><code>ds_GGI7</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 7</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI8" class="entry searchable"><summary><code>ds_GGI8</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 8</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI9" class="entry searchable"><summary><code>ds_GGI9</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 9</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_GGI10" class="entry searchable"><summary><code>ds_GGI10</code><span>Topological charge</span></summary>
+<div class="overload"><p>Topological charge · 10</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC3" class="entry searchable"><summary><code>ds_MWC3</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC4" class="entry searchable"><summary><code>ds_MWC4</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 4</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC5" class="entry searchable"><summary><code>ds_MWC5</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 5</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC6" class="entry searchable"><summary><code>ds_MWC6</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 6</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC7" class="entry searchable"><summary><code>ds_MWC7</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 7</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC8" class="entry searchable"><summary><code>ds_MWC8</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 8</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC9" class="entry searchable"><summary><code>ds_MWC9</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 9</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_MWC10" class="entry searchable"><summary><code>ds_MWC10</code><span>Walks</span></summary>
+<div class="overload"><p>Molecular walks · 10</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW3" class="entry searchable"><summary><code>ds_SRW3</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 3</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW4" class="entry searchable"><summary><code>ds_SRW4</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 4</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW5" class="entry searchable"><summary><code>ds_SRW5</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 5</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW6" class="entry searchable"><summary><code>ds_SRW6</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 6</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW7" class="entry searchable"><summary><code>ds_SRW7</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 7</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW8" class="entry searchable"><summary><code>ds_SRW8</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 8</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW9" class="entry searchable"><summary><code>ds_SRW9</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 9</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="ds_SRW10" class="entry searchable"><summary><code>ds_SRW10</code><span>Walks</span></summary>
+<div class="overload"><p>Returning walks · 10</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="NumAtomStereoCenters" class="entry searchable"><summary><code>NumAtomStereoCenters</code><span>Stereo</span></summary>
+<div class="overload"><p>Atom stereocenters</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="NumUnspecifiedAtomStereoCenters" class="entry searchable"><summary><code>NumUnspecifiedAtomStereoCenters</code><span>Stereo</span></summary>
+<div class="overload"><p>Unspecified stereocenters</p>
+<p>単位 無次元・計数。絶対許容差 0.0、相対許容差 0.0。</p></div></details>
+<details id="SPS" class="entry searchable"><summary><code>SPS</code><span>Stereo</span></summary>
+<div class="overload"><p>Spacial score (normalized)</p>
+<p>単位 無次元・計数。絶対許容差 1e-09、相対許容差 0.0。</p></div></details>
+<details id="Ipc" class="entry searchable"><summary><code>Ipc</code><span>Graph</span></summary>
+<div class="overload"><p>Graph information (stable)</p>
+<p>単位 bit。絶対許容差 1e-10、相対許容差 1e-12。</p></div></details>
+<details id="AvgIpc" class="entry searchable"><summary><code>AvgIpc</code><span>Graph</span></summary>
+<div class="overload"><p>Average graph information (stable)</p>
+<p>単位 bit。絶対許容差 1e-12、相対許容差 1e-12。</p></div></details></main></div></body></html>
