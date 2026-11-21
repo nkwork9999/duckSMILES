@@ -1,4 +1,5 @@
 import Descriptors
+import Descriptors.FragmentCount
 import Descriptors.FragmentPatterns
 import Descriptors.Atomic
 import Descriptors.GraphIndices
@@ -37,3 +38,17 @@ example : Atomic.bin [0.0, 1.0] (0.0 / 0.0) = 2 := by native_decide
 example : Information.divideExact 7 2 = none := by decide
 example : Information.divideExact (-6) 2 = some (-3) := by decide
 example : GraphIndices.walkRow 2 (fun i => if i == 0 then [1] else [0]) 0 3 = #[0,1] := by native_decide
+
+-- The order-80 constant term has the opposite behavior to the rounded
+-- RDKit matrix recurrence on this control. Compute the matrix coefficients
+-- for the actual molecular graph as well as the analytic path recurrence.
+private def carbonPath (n : Nat) : Graph :=
+  Graph.ofBonds (Array.replicate n {z := 6}) ((List.range (n-1)).map fun i => (i,i+1,1))
+
+example : Information.pathCoefficient 80 0 = 1 := by
+  rw [show 80 = 2*40 by decide, Information.path_even_constant]
+  decide
+
+#guard match Information.coefficients (carbonPath 80) with
+  | .ok coefficients => coefficients.getLast? == some 1
+  | .error _ => false

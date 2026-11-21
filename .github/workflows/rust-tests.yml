@@ -51,3 +51,4 @@ jobs:
           python verification/lean/generate_fragments.py --check
           python verification/lean/check_fragments.py
           python verification/lean/integration.py --extended target/release/libducksmiles_smiles.so
+          python verification/lean/compare_rdkit.py --check --output "$RUNNER_TEMP/rdkit-comparison" --library target/release/libducksmiles_smiles.so

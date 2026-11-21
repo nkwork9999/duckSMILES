@@ -3,13 +3,13 @@ MolWt,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog 
 ExactMolWt,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,1e-08,0.0,226,0,Lean + Rust + SQL
 MolLogP,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
 TPSA,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-NumHDonors,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-NumHAcceptors,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
+NumHDonors,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+NumHAcceptors,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 HeavyAtomCount,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 ds_BondCount,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 ds_FormalCharge,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 ds_FragmentCount,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-NumRotatableBonds,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
+NumRotatableBonds,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 FractionCSP3,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,1e-12,0.0,226,0,Lean + Rust + SQL
 RingCount,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 NumAromaticRings,RDKit2026.03.6,classify perceived ring basis,classCounts_partition,0.0,0.0,226,0,Lean + Rust + SQL
@@ -49,91 +49,91 @@ ds_RingBonds,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring 
 ds_LargestRingSize,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 ds_AromaticAtoms,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 MolMR,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-fr_Al_COO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Al_OH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Al_OH_noTert,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_ArN,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Ar_COO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Ar_N,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Ar_NH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Ar_OH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_COO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_COO2,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_C_O,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_C_O_noCOO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_C_S,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_HOCCN,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Imine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_NH0,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_NH1,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_NH2,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_N_O,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Ndealkylation1,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Ndealkylation2,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_Nhpyrrole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_SH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_aldehyde,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_alkyl_carbamate,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_alkyl_halide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_allylic_oxid,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_amide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_amidine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_aniline,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_aryl_methyl,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_azide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_azo,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_barbitur,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_benzene,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_benzodiazepine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_bicyclic,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_diazo,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_dihydropyridine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_epoxide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_ester,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_ether,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_furan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_guanido,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_halogen,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_hdrzine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_hdrzone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_imidazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_imide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_isocyan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_isothiocyan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_ketone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_ketone_Topliss,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_lactam,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_lactone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_methoxy,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_morpholine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_nitrile,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_nitro,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_nitro_arom,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_nitro_arom_nonortho,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_nitroso,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_oxazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_oxime,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_para_hydroxylation,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_phenol,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_phenol_noOrthoHbond,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_phos_acid,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_phos_ester,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_piperdine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_piperzine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_priamide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_prisulfonamd,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_pyridine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_quatN,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_sulfide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_sulfonamd,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_sulfone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_term_acetylene,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_tetrazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_thiazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_thiocyan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_thiophene,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_unbrch_alkane,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
-fr_urea,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Al_COO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Al_OH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Al_OH_noTert,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_ArN,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Ar_COO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Ar_N,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Ar_NH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Ar_OH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_COO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_COO2,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_C_O,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_C_O_noCOO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_C_S,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_HOCCN,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Imine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_NH0,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_NH1,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_NH2,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_N_O,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Ndealkylation1,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Ndealkylation2,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_Nhpyrrole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_SH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_aldehyde,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_alkyl_carbamate,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_alkyl_halide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_allylic_oxid,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_amide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_amidine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_aniline,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_aryl_methyl,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_azide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_azo,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_barbitur,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_benzene,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_benzodiazepine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_bicyclic,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_diazo,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_dihydropyridine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_epoxide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_ester,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_ether,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_furan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_guanido,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_halogen,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_hdrzine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_hdrzone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_imidazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_imide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_isocyan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_isothiocyan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_ketone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_ketone_Topliss,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_lactam,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_lactone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_methoxy,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_morpholine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_nitrile,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_nitro,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_nitro_arom,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_nitro_arom_nonortho,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_nitroso,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_oxazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_oxime,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_para_hydroxylation,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_phenol,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_phenol_noOrthoHbond,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_phos_acid,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_phos_ester,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_piperdine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_piperzine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_priamide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_prisulfonamd,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_pyridine,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_quatN,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_sulfide,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_sulfonamd,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_sulfone,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_term_acetylene,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_tetrazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_thiazole,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_thiocyan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_thiophene,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_unbrch_alkane,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
+fr_urea,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 MaxEStateIndex,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
 MinEStateIndex,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
 MaxAbsEStateIndex,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
@@ -228,7 +228,7 @@ BCUT2D_LOGPHI,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-
 BCUT2D_LOGPLOW,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties,catalog comparison only,1e-09,0.0,219,7,Lean + Rust + SQL
 BCUT2D_MRHI,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties,catalog comparison only,1e-09,0.0,219,7,Lean + Rust + SQL
 BCUT2D_MRLOW,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties,catalog comparison only,1e-09,0.0,219,7,Lean + Rust + SQL
-NumAmideBonds,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,mem_embeddings_iff; rooted_iff; uniqueImages_spec,0.0,0.0,226,0,Lean + Rust + SQL
+NumAmideBonds,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 NumSpiroAtoms,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 NumBridgeheadAtoms,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 FpDensityMorgan1,RDKit2026.03.6,three rounds of Morgan refinement from initial atom invariants,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL

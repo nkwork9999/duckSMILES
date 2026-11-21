@@ -64,6 +64,9 @@ def reference (cols : Array Column) (obs : Json) : ReadResult (Array Json) := do
   let ringEdges := (graphBonds.zip ringFlags).filterMap fun ((i,j,_), ring) =>
     if ring then some (min i j, max i j) else none
   let g := Fragment.Graph.ofBonds vertices graphBonds ringEdges
+  if cols.all (fun col => col.id == "Ipc" || col.id == "AvgIpc") then
+    let values ← Information.values g
+    return ← cols.mapM (fun col => match values.lookup col.id with | some val => pure val | none => throw "missing information column")
   let charges ← readList obs Int "charges"
   let eh ← readList obs Nat "explicitH"
   let ih ← readList obs Nat "implicitH"
@@ -150,20 +153,32 @@ def run (args : List String) : IO Unit := do
   match mode, rest with
   | "reference", [] =>
     IO.println (Json.arr (expected.map fun (s, v) => Json.mkObj [("smiles", toJson s), ("values", v)])).compress
-  | "check", [candidate] => do
+  | mode, [candidate] => do
+    unless mode == "check" || mode == "audit" do throw <| IO.userError "invalid comparison mode"
     let rows ← IO.ofExcept (← readJson candidate).getArr?
     if rows.size != expected.size then throw <| IO.userError "row count mismatch"
+    let mut differences := #[]
     for (row, (s, v)) in rows.zip expected do
-      IO.ofExcept <| do
-        if (← (← field row "smiles").getStr?) != s then throw "input SMILES or order changed"
-        let actual ← field row "values"
-        if v == Json.null then
-          if actual != Json.null then throw s!"{s}: expected unsupported molecule"
+      let actual ← IO.ofExcept (field row "values")
+      let id ← IO.ofExcept ((field row "smiles") >>= Json.getStr?)
+      if id != s then throw <| IO.userError "input SMILES or order changed"
+      if v == Json.null then
+        if actual != Json.null then throw <| IO.userError s!"{s}: expected unsupported molecule"
+      else
+        let xs ← IO.ofExcept actual.getArr?
+        let ys ← IO.ofExcept v.getArr?
+        if mode == "check" then
+          if let .error e := verify cols xs ys then throw <| IO.userError s!"{s}: {e}"
         else
-          match verify cols (← actual.getArr?) (← v.getArr?) with
-          | .error e => throw s!"{s}: {e}"
-          | .ok _ => pure ()
-    IO.println s!"Verified {expected.size} rows against {cols.size} descriptor columns."
+          unless xs.size == cols.size && ys.size == cols.size do throw <| IO.userError "profile length mismatch"
+          let xn ← IO.ofExcept (xs.mapM number?)
+          let yn ← IO.ofExcept (ys.mapM number?)
+          for h : i in [:cols.size] do
+            unless atColumn cols xn yn i do
+              differences := differences.push <| Json.mkObj [
+                ("smiles", toJson s), ("id", toJson cols[i].id), ("observed", xs[i]!), ("modeled", ys[i]!)]
+    if mode == "audit" then IO.println (Json.arr differences).compress
+    else IO.println s!"Verified {expected.size} rows against {cols.size} descriptor columns."
   | _, _ => throw <| IO.userError "invalid command or argument count"
 
 def main (args : List String) : IO Unit := run args

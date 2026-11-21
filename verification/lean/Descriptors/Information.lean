@@ -41,3 +41,29 @@ def values (g : Fragment.Graph) : Except String (List (String × Json)) := do
   return [("Ipc", floatJson (total.toFloat * avg)), ("AvgIpc", floatJson avg)]
 
 end Descriptors.Information
+
+namespace Descriptors.Information
+
+/-- Coefficient of degree d in the path recurrence P₀=1, P₁=X,
+Pₙ₊₂=X Pₙ₊₁-Pₙ. Used as an independent check of the matrix calculation. -/
+def pathCoefficient : Nat → Nat → Int
+  | 0, d => if d == 0 then 1 else 0
+  | 1, d => if d == 1 then 1 else 0
+  | n+2, 0 => -pathCoefficient n 0
+  | n+2, d+1 => pathCoefficient (n+1) d - pathCoefficient n (d+1)
+
+theorem path_even_constant (k : Nat) : pathCoefficient (2*k) 0 = (-1 : Int)^k := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    rw [Nat.mul_succ, pathCoefficient, ih, Int.pow_succ]
+    omega
+
+theorem path_odd_constant (k : Nat) : pathCoefficient (2*k+1) 0 = 0 := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    rw [show 2*(k+1)+1 = (2*k+1)+2 by omega, pathCoefficient, ih]
+    rfl
+
+end Descriptors.Information

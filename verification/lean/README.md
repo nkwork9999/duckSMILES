@@ -24,7 +24,8 @@ For the 85 functional groups Lean evaluates the compiled SMARTS, including
 recursive queries, and counts distinct sorted vertex sets with a cap of 1000.
 The kernel proves soundness and completeness of the enumerator for its
 predicates, correctness of anchored recursive queries and membership and
-uniqueness of the resulting images. A regeneration check pins the compiled
+uniqueness of the resulting images. It also proves that every duplicate-free
+enumeration of those images gives the same capped count. A regeneration check pins the compiled
 queries to the published SMARTS. A separate fixture covers all 85 with positive
 examples across 98 molecules.
 
@@ -51,6 +52,49 @@ perception, floating-point algorithms, serialization and the Rust binary have
 finite differential-test coverage. Materials composition and viscosity APIs
 are documented separately in [MATERIALS.md](../../MATERIALS.md).
 
+## Comparison with registered RDKit functions
+
+The [column inventory](rdkit-columns.csv) covers all 291 names. The
+[observed differences](rdkit-differences.json) record the two input preparation
+policies and the independent chain controls. On the 226 nonempty, parsable
+inputs, Lean compared 49,042 outputs from all 217 registered default 2D
+scalars using the catalog tolerances. Of these, 48,980 were finite, 60 were
+nonfinite and two SPS calls raised `ZeroDivisionError` on hydrogen-only inputs.
+All values agreed after mapping undefined results to descriptor null. The
+other 24 graph summaries used public RDKit molecular properties; the extra 50
+used independent formulas on RDKit graphs. Separately, the empty SMILES
+parses to a zero-atom RDKit molecule, and DuckSMILES returns SQL NULL.
+
+* **Hydrogen handling.** With `removeHs=False`, ordinary explicit hydrogen
+  vertices remain in the graph. With RDKit's default SMILES parsing, four of
+  six controls changed, affecting 136 values across 50 descriptor names.
+  For `[H]O[H]`, Chi0 changed from 2.7071067811865475 to 0, and
+  FpDensityMorgan1 from 4 to 1. Ethanol and isotope-labelled water were
+  unchanged within tolerance.
+* **Information content.** The registered Ipc and AvgIpc use the absolute
+  characteristic-polynomial coefficients of the adjacency matrix. RDKit
+  evaluates the recurrence in floating point. Lean and DuckSMILES obtain the
+  coefficients using integer arithmetic before computing entropy. The two
+  paths met tolerance for unbranched carbon chains of 20, 40 and 64 vertices.
+  On 80 vertices, RDKit reported AvgIpc 3.466866198166465 and Lean
+  3.4668641308764405. The exact path recurrence gives constant coefficient
+  1, while the pinned RDKit numerical recurrence returned approximately
+  −2.5746 billion on the recorded machine. The independent analytic check
+  uses the path recurrence, Pₙ(x) = xPₙ₋₁(x) − Pₙ₋₂(x). Lean proves that
+  its constant term on every path of size 2k is (−1)ᵏ, and tests the full
+  order-80 molecular matrix independently.
+  [RDKit Ipc](https://github.com/rdkit/rdkit/blob/Release_2026_03_6/rdkit/Chem/GraphDescriptors.py)
+  and [characteristic polynomial](https://github.com/rdkit/rdkit/blob/Release_2026_03_6/rdkit/Chem/Graphs.py).
+* **Undefined SPS.** The normalized spacial score divides by the heavy atom
+  count. On `[H]` and `[H][H]` the pinned Python API raises an exception.
+  DuckSMILES represents this coordinate as JSON null and preserves the rest
+  of the vector. [RDKit SPS](https://github.com/rdkit/rdkit/blob/Release_2026_03_6/rdkit/Chem/SpacialScore.py).
+
+The audit runs each registered function on a fresh copy of the molecule. Lean
+compares the returned numbers or nulls and records the ID of every mismatching
+coordinate. The measured agreement is conditional on preprocessing, inputs,
+registered version and tolerances.
+
 ## Reproduce
 
 From this directory with the pinned Lean toolchain on PATH:
@@ -65,6 +109,10 @@ uv run --python 3.13 --with rdkit==2026.3.6 python reference.py CCO > /tmp/obs.j
 (cd ../.. && cargo rustc --locked --release -p ducksmiles_smiles --lib --crate-type cdylib)
 uv run --python 3.13 --with rdkit==2026.3.6 python integration.py ../../target/release/libducksmiles_smiles.so
 ```
+
+To reproduce both RDKit input policies and the chain controls, run
+`uv run --python 3.13 --with rdkit==2026.3.6 python compare_rdkit.py --output /tmp/rdkit-audit --library /path/to/libducksmiles_smiles.so`.
+The output includes a per-descriptor CSV and the individual differences.
 
 On macOS use the .dylib artifact. If the bundled linker generates an executable
 the system loader rejects, build with `LEAN_CC=/usr/bin/clang` and

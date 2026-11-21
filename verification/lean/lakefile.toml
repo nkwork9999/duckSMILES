@@ -1,6 +1,6 @@
 name = "descriptorVerification"
 version = "0.1.0"
-defaultTargets = ["descriptor_check"]
+defaultTargets = ["descriptor_check", "Descriptors.FragmentCount"]
 
 [[lean_lib]]
 name = "Descriptors"

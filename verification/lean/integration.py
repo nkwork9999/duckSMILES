@@ -17,7 +17,7 @@ def coverage_details(spec):
     k = spec["id"]
     finite = "catalog comparison only"
     if k.startswith("fr_") or k in ("NumHDonors", "NumHAcceptors", "NumAmideBonds", "NumRotatableBonds"):
-        return "SMARTS search on graph and perceived atom properties", "mem_embeddings_iff; rooted_iff; uniqueImages_spec"
+        return "SMARTS search on graph and perceived atom properties", "fragmentCount_spec; mem_embeddings_iff; rooted_iff"
     if k.startswith(("SMR_VSA", "SlogP_VSA", "EState_VSA", "VSA_EState", "PEOE_VSA")):
         return "interval sums of prepared atomic contributions", "bin_at_first_larger"
     if k.startswith(("ds_MWC", "ds_SRW")):
