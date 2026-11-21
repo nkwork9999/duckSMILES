@@ -99,3 +99,25 @@ class FingerprintTests(unittest.TestCase):
         self.assertEqual(len(first), 70)
         self.assertEqual(len({(row.scaffold, row.activity) for row in first}), 14)
         self.assertNotEqual(first, sampler.sample(per_stratum=5, seed=88))
+
+    def test_scaffold_split_has_no_overlap_even_for_small_groups(self):
+        self.db.execute("""
+            CREATE TABLE compounds(molecule_id BIGINT, smiles VARCHAR, activity VARCHAR);
+            INSERT INTO compounds VALUES
+               (1, 'c1ccccc1', 'active'), (2, 'Cc1ccccc1', 'inactive'),
+               (3, 'C1CCCCC1', 'active'), (4, 'O', 'inactive'),
+               (5, 'CCO', 'active'), (6, 'C1CCC1', 'inactive'), (7, 'invalid', NULL);
+        """)
+        sampler = ScaffoldSampler(self.db, "compounds")
+        result = sampler.split(train=0.6, validation=0.2, seed=17)
+        self.assertEqual(result, sampler.split(train=0.6, validation=0.2, seed=17))
+        self.assertEqual(len(result), 7)
+        by_id = {record.molecule_id: record for record in result}
+        self.assertEqual(by_id[1].partition, by_id[2].partition)
+        self.assertEqual(by_id[4].partition, by_id[5].partition)
+        self.assertIsNone(by_id[7].partition)
+        groups = {}
+        for sample in result:
+            if sample.scaffold is not None:
+                groups.setdefault(sample.scaffold, set()).add(sample.partition)
+        self.assertTrue(all(len(partitions) == 1 for partitions in groups.values()))

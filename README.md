@@ -2699,6 +2699,12 @@ The native `mol_descriptor_summary` reuses parsed records within one DuckDB vect
 is identical. When an individual descriptor is unavailable for a valid molecule, its STRUCT field is NULL.
 `ScaffoldSampler(connection, relation).sample(per_stratum=5, seed=87)` ranks IDs by a stable hash inside
 each Murcko scaffold and activity class. The relation supplies unique `molecule_id`, `smiles` and `activity` columns.
+Use `ScaffoldSampler.split(train=0.7, validation=0.15, seed=87)` to assign whole scaffolds to the same split.
+Fractions apply to scaffolds, so molecule counts depend on the distribution of scaffold sizes.
+`ConcentrationTable(connection, relation)` reads `id`, `value`, `unit` and `grams_per_mole` from a registered
+table. Pass `ConcentrationBasis.MASS` or `ConcentrationBasis.MOLAR` to read converted values with provenance
+or to summarize valid values inside DuckDB. Missing values, unknown units and unavailable molar masses
+remain visible with a reason.
 Use `sdf_projected_properties_json(sdf, ['ID', 'NAME'])` for property-only SDF reads. Record numbers are
 the original 1-based positions. The function reads tags following the CTAB terminator and skips coordinate parsing.
 

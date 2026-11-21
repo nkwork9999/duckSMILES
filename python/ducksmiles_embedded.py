@@ -1,5 +1,6 @@
 """Batch descriptor reads on a host-provisioned duckSMILES connection."""
 from dataclasses import dataclass
+from enum import Enum
 from sys import float_info
 
 from duckdb import DuckDBPyConnection
@@ -78,6 +79,13 @@ class ScaffoldSample:
     activity: str | None
 
 
+@dataclass(frozen=True)
+class ScaffoldSplit:
+    molecule_id: int
+    scaffold: str | None
+    partition: str | None
+
+
 class ScaffoldSampler:
     """Sample a registered relation with unique BIGINT molecule IDs and SMILES."""
 
@@ -86,21 +94,27 @@ class ScaffoldSampler:
             raise ValueError("relation must be a nonempty identifier without NUL")
         self._db = connection
         self._relation = '"' + relation.replace('"', '""') + '"'
+        self._scaffolds = f"""
+            WITH input AS MATERIALIZED (
+                SELECT molecule_id, smiles, activity FROM main.{self._relation} WHERE molecule_id IS NOT NULL
+            ), scaffolds AS MATERIALIZED (
+                SELECT smiles, murcko_scaffold(smiles) AS scaffold
+                FROM (SELECT DISTINCT smiles FROM input WHERE smiles IS NOT NULL)
+            )
+        """
+
+    @staticmethod
+    def _validate_seed(seed):
+        if type(seed) is not int or not -(1 << 63) <= seed < (1 << 63):
+            raise ValueError("seed must be a signed 64-bit integer")
 
     def sample(self, *, per_stratum: int, seed: int) -> list[ScaffoldSample]:
         """Choose stable hash ranks by Murcko scaffold and activity class."""
-        if type(seed) is not int or not -(1 << 63) <= seed < (1 << 63):
-            raise ValueError("seed must be a signed 64-bit integer")
+        self._validate_seed(seed)
         if type(per_stratum) is not int or not 1 <= per_stratum <= 1_000_000:
             raise ValueError("per_stratum must be in [1, 1000000]")
-        rows = self._db.execute(f"""
-            WITH input AS MATERIALIZED (
-                SELECT molecule_id, smiles, activity FROM main.{self._relation}
-                WHERE molecule_id IS NOT NULL AND smiles IS NOT NULL
-            ), scaffolds AS MATERIALIZED (
-                SELECT smiles, murcko_scaffold(smiles) AS scaffold
-                FROM (SELECT DISTINCT smiles FROM input)
-            ), ranked AS (
+        rows = self._db.execute(self._scaffolds + """
+            , ranked AS (
                 SELECT molecule_id, scaffold, activity, row_number() OVER (
                     PARTITION BY scaffold, activity
                     ORDER BY md5(?::VARCHAR || '/' || molecule_id::VARCHAR), molecule_id
@@ -111,6 +125,29 @@ class ScaffoldSampler:
             ORDER BY scaffold, activity NULLS LAST, rank
         """, [seed, per_stratum]).fetchall()
         return [ScaffoldSample(*row) for row in rows]
+
+    def split(self, *, train: float, validation: float, seed: int) -> list[ScaffoldSplit]:
+        """Keep each scaffold together, including the empty acyclic scaffold."""
+        self._validate_seed(seed)
+        if any(type(value) not in (int, float) or not 0 <= value < 1 for value in (train, validation)):
+            raise ValueError("split fractions must be in [0, 1)")
+        if train == 0 or train + validation >= 1:
+            raise ValueError("train and test fractions must be positive")
+        rows = self._db.execute(self._scaffolds + """
+            , scores AS (
+                SELECT DISTINCT scaffold,
+                    ('0x' || substr(md5(?::VARCHAR || '/' || scaffold), 1, 8))::UBIGINT /
+                      4294967296.0 AS score
+                FROM scaffolds WHERE scaffold IS NOT NULL
+            ), allocations AS (
+                SELECT scaffold, CASE WHEN score < ? THEN 'train'
+                   WHEN score < ? THEN 'validation' ELSE 'test' END AS partition
+                FROM scores
+            )
+            SELECT molecule_id, scaffold, partition FROM input LEFT JOIN scaffolds USING (smiles)
+            LEFT JOIN allocations USING (scaffold) ORDER BY molecule_id
+        """, [seed, train, train + validation]).fetchall()
+        return [ScaffoldSplit(*row) for row in rows]
 
 
 class FingerprintIndex:
@@ -367,3 +404,77 @@ class MassWindowSearch:
             ORDER BY w.ord, p.ord
         """, [tolerance_ppm, [m.value for m in references], [m.value for m in peaks]]).fetchall()
         return [MassMatch(*row) for row in rows]
+
+
+class ConcentrationBasis(Enum):
+    MASS = "g/L"
+    MOLAR = "mol/L"
+
+
+@dataclass(frozen=True)
+class NormalizedConcentration:
+    measurement_id: int
+    source_value: float | None
+    source_unit: str | None
+    value: float | None
+    unit: str
+    rule_version: str
+    reason: str | None
+
+
+class ConcentrationTable:
+    """Convert a registered measurement relation to a compatible concentration basis."""
+
+    RULE_VERSION = "concentration-1"
+
+    def __init__(self, connection: DuckDBPyConnection, relation: str):
+        self._db = connection
+        if type(relation) is not str or not relation or "\0" in relation:
+            raise ValueError("relation must be a nonempty identifier without NUL")
+        quoted = '"' + relation.replace('"', '""') + '"'
+        self._normalized = f"""
+            WITH factors(unit_name, base, scale) AS (
+                VALUES ('g/L', 'g/L', 1.0), ('mg/L', 'g/L', 0.001), ('ug/mL', 'g/L', 0.001),
+                       ('µg/mL', 'g/L', 0.001), ('µg/L', 'g/L', 0.000001),
+                       ('mol/L', 'mol/L', 1.0), ('mmol/L', 'mol/L', 0.001),
+                       ('umol/L', 'mol/L', 0.000001), ('µmol/L', 'mol/L', 0.000001)
+            ), desired AS (SELECT ?::VARCHAR AS target),
+            readings AS (
+                SELECT id, value AS source_value, unit, target,
+                       CASE WHEN value IS NULL THEN 'missing_value'
+                            WHEN NOT isfinite(value) THEN 'nonfinite_value'
+                            WHEN scale IS NULL THEN 'unknown_unit'
+                            WHEN base <> target AND
+                                (grams_per_mole IS NULL OR NOT isfinite(grams_per_mole) OR grams_per_mole <= 0)
+                                THEN 'molar_mass_required' END AS problem,
+                       CASE WHEN base = target THEN value * scale
+                            WHEN target = 'g/L' THEN value * scale * grams_per_mole
+                            ELSE value * scale / nullif(grams_per_mole, 0) END AS converted
+                FROM main.{quoted} LEFT JOIN factors ON unit = unit_name CROSS JOIN desired
+            ), normalized AS (
+                SELECT id, source_value, unit, target,
+                       CASE WHEN problem IS NULL AND isfinite(converted) THEN converted END AS result,
+                       CASE WHEN problem IS NOT NULL THEN problem
+                            WHEN NOT isfinite(converted) THEN 'nonfinite_result' END AS problem
+                FROM readings
+            )
+        """
+
+    @staticmethod
+    def _basis(basis):
+        if type(basis) is not ConcentrationBasis:
+            raise TypeError("expected a ConcentrationBasis")
+        return basis.value
+
+    def read(self, basis: ConcentrationBasis) -> list[NormalizedConcentration]:
+        rows = self._db.execute(self._normalized + """
+            SELECT id, source_value, unit, result, target, problem FROM normalized ORDER BY id
+        """, [self._basis(basis)]).fetchall()
+        return [NormalizedConcentration(i, value, unit, result, target, self.RULE_VERSION, problem)
+                for i, value, unit, result, target, problem in rows]
+
+    def summarize(self, basis: ConcentrationBasis) -> tuple[int, int, float | None]:
+        """Return valid count, excluded count and total without exporting raw rows."""
+        return self._db.execute(self._normalized + """
+            SELECT count(result), count(*) - count(result), fsum(result) FROM normalized
+        """, [self._basis(basis)]).fetchone()
