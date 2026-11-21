@@ -1,12 +1,19 @@
 # duckSmiles
 
-[Documentation / 全機能ガイド](https://nkwork9999.github.io/duckSMILES/)
-
 **SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
-The [Lean 4 descriptor verifier](verification/lean/README.md) checks complete
-291-column molecular profiles. SQL exposes their ordered metadata through
-`mol_descriptor_catalog_json()` and values through `mol_descriptor_values_json(smiles)`.
+**[Documentation / 全機能ガイド](https://nkwork9999.github.io/duckSMILES/)**
+
+- [SQL function catalog](https://nkwork9999.github.io/duckSMILES/functions.html) · [Usage guide](https://nkwork9999.github.io/duckSMILES/guide.html) · [Embedded Python API](https://nkwork9999.github.io/duckSMILES/python.html)
+- [291 molecular descriptors](https://nkwork9999.github.io/duckSMILES/descriptors.html) · [Lean verification and RDKit comparison](https://nkwork9999.github.io/duckSMILES/verification.html)
+- [Materials informatics](https://nkwork9999.github.io/duckSMILES/materials.html) · [Molecular graphs](https://nkwork9999.github.io/duckSMILES/graphs.html) · [Mass and formulas](https://nkwork9999.github.io/duckSMILES/mass.html) · [CPU analytics](https://nkwork9999.github.io/duckSMILES/analytics.html)
+
+Use `mol_descriptor_catalog_json()` for the ordered metadata and
+`mol_descriptor_values_json(smiles)` for the 291-value vector. The offline Lean
+verifier checks the complete vector. It proves properties of SMARTS matching,
+shortest paths, walk counts and composition summaries. The guide explains the
+scope of each proof and the observed RDKit differences.
+[Reproducible verification](verification/lean/README.md)
 
 [Materials and liquid-viscosity tools](MATERIALS.md) add composition/perovskite
 descriptors, solvent and mixture feature profiles, temperature correlations,

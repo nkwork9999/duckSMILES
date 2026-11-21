@@ -6,9 +6,9 @@ TPSA,RDKit2026.03.6,reduction of prepared atomic contributions,catalog compariso
 NumHDonors,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 NumHAcceptors,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 HeavyAtomCount,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_BondCount,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_FormalCharge,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_FragmentCount,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
+ds_BondCount,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_FormalCharge,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_FragmentCount,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
 NumRotatableBonds,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 FractionCSP3,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,1e-12,0.0,226,0,Lean + Rust + SQL
 RingCount,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
@@ -27,27 +27,27 @@ NumHeteroatoms,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation"
 NOCount,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 NHOHCount,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 NumValenceElectrons,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_ExplicitHydrogens,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_ImplicitHydrogens,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_TotalHydrogens,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountC,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountN,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountO,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountS,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountP,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountF,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountCl,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountBr,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_CountI,RDKit2026.03.6-graph-profile,element count,countAtoms_perm,0.0,0.0,226,0,Lean + Rust + SQL
-ds_HalogenCount,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_SingleBonds,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_DoubleBonds,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_TripleBonds,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_AromaticBonds,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_RingAtoms,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_RingBonds,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_LargestRingSize,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-ds_AromaticAtoms,RDKit2026.03.6-graph-profile,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
+ds_ExplicitHydrogens,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_ImplicitHydrogens,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_TotalHydrogens,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountC,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountN,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountO,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountS,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountP,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountF,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountCl,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountBr,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_CountI,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_HalogenCount,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_SingleBonds,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_DoubleBonds,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_TripleBonds,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_AromaticBonds,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_RingAtoms,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_RingBonds,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_LargestRingSize,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
+ds_AromaticAtoms,RDKit2026.03.6-graph-profile,"integer reductions of perceived atom, bond and ring properties",values_reordered; maximum_le,0.0,0.0,226,0,Lean + Rust + SQL
 MolMR,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
 fr_Al_COO,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 fr_Al_OH,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
@@ -134,54 +134,54 @@ fr_thiocyan,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,
 fr_thiophene,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 fr_unbrch_alkane,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 fr_urea,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
-MaxEStateIndex,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-MinEStateIndex,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-MaxAbsEStateIndex,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-MinAbsEStateIndex,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-LabuteASA,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA1,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA2,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA3,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA4,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA5,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA6,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA7,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA8,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA9,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SMR_VSA10,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA1,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA2,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA3,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA4,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA5,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA6,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA7,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA8,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA9,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA10,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA11,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-SlogP_VSA12,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA1,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA2,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA3,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA4,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA5,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA6,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA7,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA8,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA9,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA10,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-EState_VSA11,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState1,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState2,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState3,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState4,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState5,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState6,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState7,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState8,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState9,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-VSA_EState10,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+MaxEStateIndex,RDKit2026.03.6,intrinsic states and distance perturbations,accepts_shortest,1e-09,0.0,226,0,Lean + Rust + SQL
+MinEStateIndex,RDKit2026.03.6,intrinsic states and distance perturbations,accepts_shortest,1e-09,0.0,226,0,Lean + Rust + SQL
+MaxAbsEStateIndex,RDKit2026.03.6,intrinsic states and distance perturbations,accepts_shortest,1e-09,0.0,226,0,Lean + Rust + SQL
+MinAbsEStateIndex,RDKit2026.03.6,intrinsic states and distance perturbations,accepts_shortest,1e-09,0.0,226,0,Lean + Rust + SQL
+LabuteASA,RDKit2026.03.6,bond overlaps and periodic-table radii,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA1,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA2,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA3,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA4,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA5,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA6,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA7,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA8,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA9,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SMR_VSA10,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA1,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA2,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA3,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA4,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA5,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA6,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA7,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA8,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA9,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA10,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA11,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+SlogP_VSA12,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA1,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA2,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA3,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA4,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA5,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA6,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA7,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA8,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA9,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA10,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+EState_VSA11,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState1,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState2,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState3,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState4,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState5,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState6,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState7,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState8,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState9,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+VSA_EState10,RDKit2026.03.6,interval sums using calculated EState and calculated Labute areas,accepts_shortest; bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
 BalabanJ,RDKit2026.03.6,"graph connectivity, path or distance formula",catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
 BertzCT,RDKit2026.03.6,"graph connectivity, path or distance formula",catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
 Chi0,RDKit2026.03.6,"graph connectivity, path or distance formula",catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
@@ -206,20 +206,20 @@ MaxPartialCharge,RDKit2026.03.6,reduction of prepared atomic contributions,catal
 MinPartialCharge,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,225,1,Lean + Rust + SQL
 MaxAbsPartialCharge,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,225,1,Lean + Rust + SQL
 MinAbsPartialCharge,RDKit2026.03.6,reduction of prepared atomic contributions,catalog comparison only,1e-09,0.0,225,1,Lean + Rust + SQL
-PEOE_VSA1,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA2,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA3,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA4,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA5,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA6,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA7,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA8,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA9,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA10,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA11,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA12,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA13,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
-PEOE_VSA14,RDKit2026.03.6,interval sums of prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA1,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA2,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA3,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA4,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA5,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA6,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA7,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA8,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA9,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA10,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA11,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA12,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA13,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
+PEOE_VSA14,RDKit2026.03.6,interval sums using calculated Labute areas and prepared atomic contributions,bin_at_first_larger,1e-09,0.0,226,0,Lean + Rust + SQL
 BCUT2D_MWHI,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties,catalog comparison only,1e-09,0.0,219,7,Lean + Rust + SQL
 BCUT2D_MWLOW,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties,catalog comparison only,1e-09,0.0,219,7,Lean + Rust + SQL
 BCUT2D_CHGHI,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-depleted atom properties,catalog comparison only,1e-09,0.0,219,7,Lean + Rust + SQL
@@ -231,60 +231,60 @@ BCUT2D_MRLOW,RDKit2026.03.6,Burden matrix and Jacobi eigensolver from hydrogen-d
 NumAmideBonds,RDKit2026.03.6,SMARTS search on graph and perceived atom properties,fragmentCount_spec; mem_embeddings_iff; rooted_iff,0.0,0.0,226,0,Lean + Rust + SQL
 NumSpiroAtoms,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 NumBridgeheadAtoms,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
-FpDensityMorgan1,RDKit2026.03.6,three rounds of Morgan refinement from initial atom invariants,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-FpDensityMorgan2,RDKit2026.03.6,three rounds of Morgan refinement from initial atom invariants,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-FpDensityMorgan3,RDKit2026.03.6,three rounds of Morgan refinement from initial atom invariants,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-qed,RDKit2026.03.6,eight prepared QED components; ADS and weighted geometric mean,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
-ds_Wiener,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,0.0,0.0,224,2,Lean + Rust + SQL
-ds_Harary,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_EccentricConnectivity,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,0.0,0.0,224,2,Lean + Rust + SQL
-ds_DegreeDistance,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,0.0,0.0,224,2,Lean + Rust + SQL
-ds_Gutman,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,0.0,0.0,224,2,Lean + Rust + SQL
-ds_MDEC11,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,53,173,Lean + Rust + SQL
-ds_MDEC12,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,76,150,Lean + Rust + SQL
-ds_MDEC13,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,70,156,Lean + Rust + SQL
-ds_MDEC14,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,9,217,Lean + Rust + SQL
-ds_MDEC22,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,151,75,Lean + Rust + SQL
-ds_MDEC23,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,113,113,Lean + Rust + SQL
-ds_MDEC24,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,13,213,Lean + Rust + SQL
-ds_MDEC33,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,95,131,Lean + Rust + SQL
-ds_MDEC34,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,11,215,Lean + Rust + SQL
-ds_MDEC44,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,3,223,Lean + Rust + SQL
-ds_MDEN11,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,3,223,Lean + Rust + SQL
-ds_MDEN12,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,7,219,Lean + Rust + SQL
-ds_MDEN13,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,3,223,Lean + Rust + SQL
-ds_MDEN22,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,15,211,Lean + Rust + SQL
-ds_MDEN23,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,10,216,Lean + Rust + SQL
-ds_MDEN33,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,4,222,Lean + Rust + SQL
-ds_MDEO11,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,65,161,Lean + Rust + SQL
-ds_MDEO12,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,21,205,Lean + Rust + SQL
-ds_MDEO22,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,7,219,Lean + Rust + SQL
-ds_GGI1,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI2,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI3,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI4,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI5,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI6,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI7,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI8,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI9,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_GGI10,independent-extra50-formulas,heavy graph distances and pair reductions,catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC3,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC4,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC5,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC6,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC7,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC8,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC9,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_MWC10,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW3,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW4,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW5,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW6,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW7,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW8,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW9,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
-ds_SRW10,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,walkRow_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+FpDensityMorgan1,RDKit2026.03.6,initial connectivity hash and three rounds of Morgan refinement,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
+FpDensityMorgan2,RDKit2026.03.6,initial connectivity hash and three rounds of Morgan refinement,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
+FpDensityMorgan3,RDKit2026.03.6,initial connectivity hash and three rounds of Morgan refinement,catalog comparison only,1e-09,0.0,226,0,Lean + Rust + SQL
+qed,RDKit2026.03.6,eight components computed from prepared graph and atom contributions; ADS and weighted geometric mean,fragmentCount_spec; hasEmbedding_iff; accepts_shortest,1e-09,0.0,226,0,Lean + Rust + SQL
+ds_Wiener,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,0.0,0.0,224,2,Lean + Rust + SQL
+ds_Harary,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_EccentricConnectivity,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,0.0,0.0,224,2,Lean + Rust + SQL
+ds_DegreeDistance,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,0.0,0.0,224,2,Lean + Rust + SQL
+ds_Gutman,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,0.0,0.0,224,2,Lean + Rust + SQL
+ds_MDEC11,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,53,173,Lean + Rust + SQL
+ds_MDEC12,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,76,150,Lean + Rust + SQL
+ds_MDEC13,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,70,156,Lean + Rust + SQL
+ds_MDEC14,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,9,217,Lean + Rust + SQL
+ds_MDEC22,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,151,75,Lean + Rust + SQL
+ds_MDEC23,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,113,113,Lean + Rust + SQL
+ds_MDEC24,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,13,213,Lean + Rust + SQL
+ds_MDEC33,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,95,131,Lean + Rust + SQL
+ds_MDEC34,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,11,215,Lean + Rust + SQL
+ds_MDEC44,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,3,223,Lean + Rust + SQL
+ds_MDEN11,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,3,223,Lean + Rust + SQL
+ds_MDEN12,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,7,219,Lean + Rust + SQL
+ds_MDEN13,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,3,223,Lean + Rust + SQL
+ds_MDEN22,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,15,211,Lean + Rust + SQL
+ds_MDEN23,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,10,216,Lean + Rust + SQL
+ds_MDEN33,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,4,222,Lean + Rust + SQL
+ds_MDEO11,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,65,161,Lean + Rust + SQL
+ds_MDEO12,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,21,205,Lean + Rust + SQL
+ds_MDEO22,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,7,219,Lean + Rust + SQL
+ds_GGI1,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI2,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI3,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI4,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI5,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI6,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI7,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI8,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI9,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_GGI10,independent-extra50-formulas,certified heavy graph distances and pair reductions,accepts_shortest; mem_finitePairs,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC3,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC4,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC5,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC6,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC7,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC8,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC9,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_MWC10,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW3,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW4,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW5,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW6,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW7,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW8,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW9,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
+ds_SRW10,independent-extra50-formulas,integer walk multiplicities on heavy graph; logarithmic reduction,allWalks_counts; closedWalks_counts,1e-09,0.0,224,2,Lean + Rust + SQL
 NumAtomStereoCenters,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 NumUnspecifiedAtomStereoCenters,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,0.0,0.0,226,0,Lean + Rust + SQL
 SPS,RDKit2026.03.6,"atom, bond, stereo or perceived-ring aggregation",catalog comparison only,1e-09,0.0,224,2,Lean + Rust + SQL

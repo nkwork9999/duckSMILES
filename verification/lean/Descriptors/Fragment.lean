@@ -5,6 +5,7 @@ namespace Descriptors.Fragment
 /-- Molecular properties used by the pinned SMARTS vocabulary. -/
 structure Atom where
   z : Nat
+  isotope : Nat := 0
   aromatic : Bool := false
   hydrogens : Nat := 0
   charge : Int := 0
@@ -146,5 +147,29 @@ theorem uniqueImages_spec (g : Graph) (query : List Step) :
 
 def fragmentCount (g : Graph) (query : List Step) : Nat :=
   min 1000 (uniqueImages g query).length
+
+
+/-- Decide existence without materializing the complete assignment list. -/
+def hasEmbedding (g : Graph) (used : List Nat) : List Step → Bool
+  | [] => true
+  | s :: ss => (List.range g.atoms.size).any fun v =>
+      allowed g s used v && hasEmbedding g (v :: used) ss
+
+theorem hasEmbedding_iff (g : Graph) (used : List Nat) (steps : List Step) :
+    hasEmbedding g used steps = true ↔ ∃ path, Fits g used steps path := by
+  induction steps generalizing used with
+  | nil =>
+    simp only [hasEmbedding, true_iff]
+    exact ⟨[], .nil _⟩
+  | cons s ss ih =>
+    simp only [hasEmbedding, List.any_eq_true, Bool.and_eq_true, List.mem_range, allowed_spec, ih]
+    constructor
+    · rintro ⟨v, lt, ⟨ha, fresh, links⟩, vs, tail⟩
+      exact ⟨_, .cons lt ha fresh links tail⟩
+    · rintro ⟨_, h⟩
+      cases h with
+      | cons lt ha fresh links tail => exact ⟨_, lt, ⟨ha, fresh, links⟩, _, tail⟩
+
+#print axioms hasEmbedding_iff
 
 end Descriptors.Fragment

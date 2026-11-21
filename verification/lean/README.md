@@ -14,10 +14,13 @@ SELECT mol_descriptor_values_json('CCO');
 
 Lean computes all 291 output coordinates from prepared observations. An unknown
 catalog ID fails the run. The observation file carries the molecular graph,
-atom and bond perception, atomic contributions, initial Morgan invariants and
-the eight QED component properties. RDKit 2026.03.6 prepares these inputs with
-explicit hydrogen vertices retained, and separately prepares the hydrogen
-representations required by Crippen, QED and BCUT. The independent numerical
+atom and bond perception, atomic contributions, periodic-table masses
+and the separately prepared QED and BCUT graphs. RDKit 2026.03.6 prepares
+these inputs. The main graph preserves explicit hydrogen vertices. Lean
+computes Labute areas from radii and bonds and EState from graph distances
+and valence inputs, and initializes Morgan hashes from graph atom properties.
+It computes the eight
+QED components from the QED graph, atom masses, TPSA and Crippen contributions. The independent numerical
 oracle runs on fresh molecules during integration testing.
 
 For the 85 functional groups Lean evaluates the compiled SMARTS, including
@@ -29,16 +32,26 @@ enumeration of those images gives the same capped count. A regeneration check pi
 queries to the published SMARTS. A separate fixture covers all 85 with positive
 examples across 98 molecules.
 
-The remaining algorithms include the 50 heavy-graph indices, atomic VSA
-binning, connectivity and shape factors, Morgan environment propagation,
-characteristic-polynomial entropy, Burden matrix eigenvalue extrema and the
-QED desirability function. The kernel relates each walk-count row to explicit
-walk endpoint multiplicities, verifies exact trace divisions, proves the bin
-index at the first strictly larger threshold and proves the partition of a
-perceived ring class. The coverage table names the applicable result for
-each column. General equivalence of the Rust binary with the Lean model,
-chemical perception, component libraries and floating-point error bounds
-remain open proof obligations. The executable comparisons test finite inputs.
+For the 24 native summaries, the kernel proves that reordering the supplied
+atom, bond, component and ring attributes leaves all 24 outputs unchanged.
+For the 50 heavy-graph indices, the verifier checks shortest-path certificates
+before using graph distances. Every accepted finite distance has a walk witness
+and is a lower bound for every walk to that vertex. A vertex marked unreachable
+admits no walk. Any two accepted tables on the same graph agree on all
+finite distances and on which vertices are reachable. The kernel proves which reachable vertex pairs enter the
+reductions, and equates the total and closed walk counts with explicit walk
+multiplicities. It also checks exact characteristic-polynomial trace divisions,
+bin boundaries and the partition of a perceived ring class.
+
+The coverage table names the applicable result for each column. Rust and the
+Lean verifier use separate molecular preparation paths. For example, RDKit
+prepares `C |$label$|` so Lean returns all 291 columns, while the Rust
+descriptor API marks that CXSMILES input unsupported. A theorem
+about their outputs on arbitrary SMILES would need a shared input domain.
+On that domain, correspondence of the parsed graphs and chemical perception,
+the remaining atomic models, binary64 reductions and Rust execution still need
+proof. The integration suite checks the actual serialized Rust and SQL results
+on its recorded finite corpus.
 
 SQL NULL represents an invalid, unsupported or missing molecular input. A
 JSON null *inside a profile* represents one undefined descriptor. For defined

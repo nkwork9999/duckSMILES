@@ -18,6 +18,13 @@
       "ducksmiles_profile": null
     }
   ],
+  "parser_domain_differences": [
+    {
+      "smiles": "C |$label$|",
+      "lean_columns": 291,
+      "rust_status": "invalid_or_unsupported"
+    }
+  ],
   "same_graph_differences": [],
   "default_hydrogen_inputs": [
     "CCO",
@@ -649,13 +656,13 @@
     {
       "smiles": "[H]N(C)C",
       "observed": 5.316788604006331,
-      "modeled": 5.309813353288375,
+      "modeled": 5.309813353288376,
       "id": "SMR_VSA3"
     },
     {
       "smiles": "[H]N(C)C",
       "observed": 5.316788604006331,
-      "modeled": 5.309813353288375,
+      "modeled": 5.309813353288376,
       "id": "SlogP_VSA1"
     },
     {
@@ -667,7 +674,7 @@
     {
       "smiles": "[H]N(C)C",
       "observed": 0,
-      "modeled": 5.309813353288375,
+      "modeled": 5.309813353288376,
       "id": "EState_VSA5"
     },
     {
@@ -799,7 +806,7 @@
     {
       "smiles": "[H]N(C)C",
       "observed": 5.316788604006331,
-      "modeled": 5.309813353288375,
+      "modeled": 5.309813353288376,
       "id": "PEOE_VSA1"
     },
     {

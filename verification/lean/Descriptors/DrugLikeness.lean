@@ -31,10 +31,10 @@ def desirability (p : Parameter) (x : Float) :=
   let right := 1 + Float.exp (-(x - p.c - p.d/2)/p.f)
   (p.a + p.b / left * (1 - 1 / right)) / p.scale
 
-def value (properties : List Nat) : Except String Json := do
+def value (properties : List Float) : Except String Json := do
   unless properties.length == parameters.length do throw "QED requires eight properties"
-  let terms := (parameters.zip properties).map fun (p,bits) =>
-    p.weight * Float.log (desirability p (decode bits))
+  let terms := (parameters.zip properties).map fun (p,x) =>
+    p.weight * Float.log (desirability p x)
   return floatJson (Float.exp (orderedSum terms / orderedSum (parameters.map Parameter.weight)))
 
 end Descriptors.DrugLikeness

@@ -1,10 +1,12 @@
 import Descriptors
-import Descriptors.DrugLikeness
+import Descriptors.EState
+import Descriptors.QED
 import Descriptors.Burden
 import Descriptors.Morgan
 import Descriptors.Information
 import Descriptors.Connectivity
 import Descriptors.GraphIndices
+import Descriptors.ProfileCounts
 import Descriptors.FragmentPatterns
 open Lean Descriptors
 
@@ -82,45 +84,28 @@ def reference (cols : Array Column) (obs : Json) : ReadResult (Array Json) := do
     unless rows.length == vertices.size do throw "atomic contribution length mismatch"
     let props ← fromJson? (α := Array Composition.AtomProperties) (← field obs "atomProperties")
     unless props.size == vertices.size do throw "atom property length mismatch"
-    let initial ← fromJson? (α := Array Nat) (← field obs "morganInitial")
-    unless initial.size == vertices.size do throw "connectivity invariant length mismatch"
-    unless initial.all (· < 2^32) do throw "connectivity invariant exceeds 32 bits"
     let lp ← readList obs Nat "expandedLogP"
     let mr ← readList obs Nat "expandedMR"
     unless lp.length == mr.length do throw "expanded Crippen length mismatch"
-    let q := ("qed", ← DrugLikeness.value (← readList obs Nat "qedProperties"))
+    let q := ("qed", ← QED.value (← fromJson? (← field obs "qedGraph")))
     let burden ← Burden.values (← fromJson? (← field obs "burden"))
     let ipc ← Information.values g
     let ringsByBond ← readList obs (List Nat) "ringBondIndices"
-    pure ([q] ++ burden ++ ipc ++ Morgan.values g graphBonds (initial.map Nat.toUInt32) ++
-          Atomic.values rows (← fromJson? (← field obs "hydrogenArea")) ++
+    pure ([q] ++ burden ++ ipc ++ Morgan.values g graphBonds props ++
+          Atomic.values rows (← Labute.areas g graphBonds) (← EState.indices g props) ++
           Composition.values g props lp mr ++ Connectivity.values g graphBonds props ++
           Composition.ringJunctions ringsByBond graphBonds.toArray)
+  let counts : ProfileCounts.Input :=
+    ⟨atoms, charges, eh, ih, bonds, aromatic, ringAtoms, ringFlags, components, rings⟩
+  let extra ← if fragmentOnly then pure [] else GraphIndices.values g
   let totals : List (String × Json) := [
     ("HeavyAtomCount", toJson (atoms.length - atoms.count "H")),
     ("NumHeteroatoms", toJson ((atoms.filter fun a => a != "C" && a != "H").length)),
     ("NOCount", toJson (atoms.count "N" + atoms.count "O")),
-    ("ds_BondCount", toJson bonds.length),
-    ("ds_FormalCharge", toJson charges.sum),
-    ("ds_FragmentCount", toJson components.length),
-    ("ds_ExplicitHydrogens", toJson eh.sum),
-    ("ds_ImplicitHydrogens", toJson ih.sum),
-    ("ds_TotalHydrogens", toJson (eh.sum + ih.sum)),
-    ("ds_HalogenCount", toJson ((atoms.filter fun a => ["F","Cl","Br","I"].contains a).length)),
-    ("ds_SingleBonds", toJson (bonds.count "SINGLE")),
-    ("ds_DoubleBonds", toJson (bonds.count "DOUBLE")),
-    ("ds_TripleBonds", toJson (bonds.count "TRIPLE")),
-    ("ds_AromaticBonds", toJson (bonds.count "AROMATIC")),
-    ("ds_AromaticAtoms", toJson (aromatic.count true)),
-    ("ds_RingAtoms", toJson (ringAtoms.count true)),
-    ("ds_RingBonds", toJson (ringFlags.count true)),
-    ("ds_LargestRingSize", toJson (rings.foldl max 0)),
-    ("RingCount", toJson rings.length)] ++ ringDescriptors perceived ++ atomic ++
-      (if fragmentOnly then [] else GraphIndices.values g)
+    ("RingCount", toJson rings.length)] ++
+    ProfileCounts.values counts ++ ringDescriptors perceived ++ atomic ++ extra
   cols.mapM fun col => do
     if let some v := totals.lookup col.id then return v
-    if ["C","N","O","S","P","F","Cl","Br","I"].any (fun e => col.id == "ds_Count" ++ e) then
-      return toJson (countAtoms atoms (col.id.drop 8))
     if let some q := Fragment.pattern? g col.id then
       return toJson (Fragment.fragmentCount g q)
     throw s!"no Lean definition for catalog ID {col.id}"
