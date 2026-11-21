@@ -2,8 +2,9 @@
 from dataclasses import dataclass
 from enum import Enum
 from sys import float_info
+from time import sleep
 
-from duckdb import DuckDBPyConnection
+from duckdb import ConstraintException, DuckDBPyConnection, TransactionException
 
 
 @dataclass(frozen=True)
@@ -74,34 +75,53 @@ class DescriptorCache:
         if type(revision) is not DescriptorRevision:
             raise TypeError("expected a DescriptorRevision")
         _validate_molecules(molecules)
-        params = [revision.implementation, revision.standardization, molecules]
-        with self._db.cursor() as tx:
-            tx.execute("BEGIN TRANSACTION")
-            added = tx.execute("""
-                INSERT INTO ducksmiles_cache.descriptors
-                WITH scope AS (SELECT ?::VARCHAR AS implementation, ?::VARCHAR AS standardization),
-                input AS (
-                    SELECT DISTINCT smiles, md5(smiles)::UUID AS digest
-                    FROM unnest(?::VARCHAR[]) AS t(smiles) WHERE smiles IS NOT NULL
-                ), uncached AS MATERIALIZED (
-                    SELECT scope.*, input.* FROM scope CROSS JOIN input
-                    ANTI JOIN ducksmiles_cache.descriptors USING (implementation, standardization, digest, smiles)
-                )
-                SELECT implementation, standardization, digest, smiles, mol_formula(smiles), mol_weight(smiles)
-                FROM uncached ON CONFLICT DO NOTHING RETURNING 1
-            """, params).fetchall()
-            rows = tx.execute("""
-                WITH cached AS (
-                    SELECT digest, smiles, formula, weight FROM ducksmiles_cache.descriptors
-                    WHERE implementation = ? AND standardization = ?
-                )
-                SELECT cached.formula, cached.weight
-                FROM unnest(?::VARCHAR[]) WITH ORDINALITY AS input(smiles, position)
-                LEFT JOIN cached ON cached.smiles = input.smiles AND cached.digest = md5(input.smiles)::UUID
-                ORDER BY input.position
-            """, params).fetchall()
-            tx.execute("COMMIT")
-        return CachedDescriptors(tuple(DescriptorRow(*row) for row in rows), len(added))
+        unique = list(dict.fromkeys(value for value in molecules if value is not None))
+        if not unique:
+            return CachedDescriptors(tuple(DescriptorRow(None, None) for _ in molecules), 0)
+        scope = [revision.implementation, revision.standardization]
+        read = """
+            WITH cached AS (
+                SELECT digest, smiles, formula, weight FROM ducksmiles_cache.descriptors
+                WHERE implementation = ? AND standardization = ?
+            ), inputs AS (
+                SELECT smiles, md5(smiles)::UUID AS digest FROM unnest(?::VARCHAR[]) AS t(smiles)
+            )
+            SELECT smiles, formula, weight FROM inputs JOIN cached USING (digest, smiles)
+        """
+        write = """
+            INSERT INTO ducksmiles_cache.descriptors
+            WITH input AS (
+                SELECT smiles, md5(smiles)::UUID AS digest FROM unnest(?::VARCHAR[]) AS t(smiles)
+            )
+            SELECT ?, ?, digest, smiles, mol_formula(smiles), mol_weight(smiles)
+            FROM input ON CONFLICT DO NOTHING RETURNING smiles, formula, weight
+        """
+        descriptors = {}
+        missing = unique
+        new_entries = 0
+        with self._db.cursor() as connection:
+            for attempt in range(8):
+                found = connection.execute(read, [*scope, missing]).fetchall()
+                descriptors.update({smiles: DescriptorRow(formula, weight) for smiles, formula, weight in found})
+                missing = [value for value in missing if value not in descriptors]
+                if not missing:
+                    break
+                try:
+                    added = connection.execute(write, [missing, *scope]).fetchall()
+                except (ConstraintException, TransactionException) as error:
+                    if "duplicate key" not in str(error).lower() or attempt == 7:
+                        raise
+                    sleep(min(0.002 * 2 ** attempt, 0.05))
+                    continue
+                new_entries += len(added)
+                descriptors.update({smiles: DescriptorRow(formula, weight) for smiles, formula, weight in added})
+                missing = [value for value in missing if value not in descriptors]
+                if not missing:
+                    break
+            if missing:
+                raise RuntimeError("descriptor cache fill did not settle")
+        empty = DescriptorRow(None, None)
+        return CachedDescriptors(tuple(descriptors.get(value, empty) for value in molecules), new_entries)
 
 
 @dataclass(frozen=True)
