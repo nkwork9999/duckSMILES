@@ -351,6 +351,136 @@ class ScaffoldSampler:
         return [ScaffoldSplit(*row) for row in rows]
 
 
+class SparseFeatures:
+    """Store nonzero and explicitly missing coordinates against an immutable feature dictionary."""
+
+    def __init__(self, connection: DuckDBPyConnection, features: Mapping[str, int]):
+        if not features or any(type(name) is not str or not name or type(identifier) is not int
+                               or not 0 <= identifier < (1 << 63) for name, identifier in features.items()):
+            raise ValueError("features map nonempty names to nonnegative signed 64-bit IDs")
+        if len(set(features.values())) != len(features):
+            raise ValueError("feature IDs must be unique")
+        self._db = connection
+        self._features = dict(features)
+        with connection.cursor() as tx:
+            tx.execute("BEGIN TRANSACTION")
+            tx.execute("CREATE SCHEMA IF NOT EXISTS ducksmiles_sparse")
+            tx.execute("""
+                CREATE TABLE IF NOT EXISTS ducksmiles_sparse.dictionary (
+                    name VARCHAR PRIMARY KEY, id BIGINT UNIQUE NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS ducksmiles_sparse.versions (version VARCHAR PRIMARY KEY);
+                CREATE TABLE IF NOT EXISTS ducksmiles_sparse.molecules (
+                    version VARCHAR, id BIGINT, PRIMARY KEY (version, id)
+                );
+                CREATE TABLE IF NOT EXISTS ducksmiles_sparse.coordinates (
+                    version VARCHAR, id BIGINT, feature BIGINT, value DOUBLE,
+                    PRIMARY KEY (version, id, feature), CHECK (value IS NULL OR isfinite(value))
+                );
+            """)
+            existing = dict(tx.execute("SELECT name, id FROM ducksmiles_sparse.dictionary").fetchall())
+            if existing and existing != self._features:
+                raise ValueError("feature dictionary does not match the existing IDs")
+            if not existing:
+                tx.execute("""
+                    INSERT INTO ducksmiles_sparse.dictionary
+                    SELECT unnest(?::VARCHAR[]), unnest(?::BIGINT[])
+                """, [list(self._features), list(self._features.values())])
+            tx.execute("COMMIT")
+
+    @staticmethod
+    def _validate(version, molecules):
+        if type(version) is not str or not version:
+            raise ValueError("supply a nonempty version")
+        if (type(molecules) is not list or any(type(key) is not int or not -(1 << 63) <= key < 1 << 63
+                                               for key in molecules)
+                or len(set(molecules)) != len(molecules)):
+            raise ValueError("provide unique signed 64-bit molecule IDs")
+
+    def store(self, version: str, molecules: list[int], terms: list[tuple[int, str, float | None]]) -> int:
+        """Write one immutable matrix. A missing contribution marks its coordinate missing."""
+        self._validate(version, molecules)
+        valid_molecules = set(molecules)
+        if type(terms) is not list:
+            raise TypeError("expected coordinate terms")
+        rows = []
+        for term in terms:
+            if type(term) is not tuple or len(term) != 3:
+                raise TypeError("expected (molecule ID, feature name, value) terms")
+            molecule, name, value = term
+            if type(molecule) is not int or molecule not in valid_molecules:
+                raise KeyError(molecule)
+            feature = self._features[name]
+            if value is not None and (type(value) not in (int, float) or not -float_info.max <= value <= float_info.max):
+                raise ValueError("coordinate values must be finite numbers or None")
+            rows.append({"molecule": molecule, "feature": feature, "value": value})
+        with self._db.cursor() as tx:
+            tx.execute("BEGIN TRANSACTION")
+            tx.execute("INSERT INTO ducksmiles_sparse.versions VALUES (?)", [version])
+            tx.execute("INSERT INTO ducksmiles_sparse.molecules SELECT ?, unnest(?::BIGINT[])", [version, molecules])
+            count, = tx.execute("""
+                INSERT INTO ducksmiles_sparse.coordinates
+                WITH terms AS (
+                    SELECT t.molecule AS id, t.feature AS feature, t.value AS value
+                    FROM unnest(?::STRUCT(molecule BIGINT, feature BIGINT, value DOUBLE)[]) AS input(t)
+                ), merged AS (
+                    SELECT id, feature, CASE WHEN count(value) = count(*) THEN fsum(value) END AS value
+                    FROM terms GROUP BY id, feature
+                )
+                SELECT ?, id, feature, value FROM merged WHERE value IS DISTINCT FROM 0
+            """, [rows, version]).fetchone()
+            tx.execute("COMMIT")
+        return count
+
+    def _require_molecules(self, connection, version, molecules):
+        self._validate(version, molecules)
+        exists = connection.execute("SELECT version FROM ducksmiles_sparse.versions WHERE version = ?",
+                                    [version]).fetchone()
+        if exists is None:
+            raise KeyError(version)
+        missing = connection.execute("""
+            SELECT id FROM unnest(?::BIGINT[]) AS input(id)
+            ANTI JOIN (SELECT id FROM ducksmiles_sparse.molecules WHERE version = ?) USING (id)
+            LIMIT 1
+        """, [molecules, version]).fetchone()
+        if missing is not None:
+            raise KeyError(missing[0])
+
+    def coordinates(self, version: str, molecules: list[int]) -> list[tuple[int, int, float | None]]:
+        """Return stored coordinates in molecule and feature ID order."""
+        with self._db.cursor() as db:
+            self._require_molecules(db, version, molecules)
+            return db.execute("""
+                SELECT id, feature, value FROM ducksmiles_sparse.coordinates
+                WHERE version = ? AND id IN (SELECT unnest(?::BIGINT[])) ORDER BY id, feature
+            """, [version, molecules]).fetchall()
+
+    def dense(self, version: str, molecules: list[int], names: list[str]) -> list[tuple[int, tuple[float | None, ...]]]:
+        """Read at most 262144 cells, retaining request order and explicit missing values."""
+        if type(names) is not list or any(type(name) is not str for name in names) or len(set(names)) != len(names):
+            raise ValueError("provide a list of unique feature names")
+        features = [self._features[name] for name in names]
+        with self._db.cursor() as db:
+            self._require_molecules(db, version, molecules)
+            if len(molecules) * len(features) > 262_144:
+                raise ValueError("a dense read may contain at most 262144 cells")
+            if not features:
+                return [(molecule, ()) for molecule in molecules]
+            rows = db.execute("""
+                WITH requested_rows AS (SELECT * FROM unnest(?::BIGINT[]) WITH ORDINALITY AS t(id, position)),
+                     requested_features AS (
+                         SELECT * FROM unnest(?::BIGINT[]) WITH ORDINALITY AS t(feature, position)
+                     ), values_at_version AS (
+                         SELECT id, feature, value FROM ducksmiles_sparse.coordinates WHERE version = ?
+                     )
+                SELECT r.id, list(CASE WHEN v.id IS NULL THEN 0 ELSE v.value END ORDER BY f.position)
+                FROM requested_rows r CROSS JOIN requested_features f LEFT JOIN values_at_version v
+                  ON (r.id, f.feature) = (v.id, v.feature)
+                GROUP BY r.id, r.position ORDER BY r.position
+            """, [molecules, features, version]).fetchall()
+        return [(molecule, tuple(values)) for molecule, values in rows]
+
+
 class FingerprintIndex:
     """Store Morgan fingerprints for explicit, host-provided generations."""
 
