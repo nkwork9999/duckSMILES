@@ -21,6 +21,7 @@
 #endif
 
 #include <cmath>
+#include <unordered_map>
 #include <vector>
 
 namespace duckdb {
@@ -266,13 +267,24 @@ static void MolDescriptorSummaryFunc(DataChunk &args, ExpressionState &,
   auto rings = ducksmiles_compat::ResultData<int32_t>(
       DescriptorField(fields[2]), args.size());
   auto &validity = ducksmiles_compat::ResultValidity(result);
+  auto &weight_validity =
+      ducksmiles_compat::ResultValidity(DescriptorField(fields[0]));
+  // The string keys borrow the input vector's buffers for this call only.
+  std::unordered_map<string_t, DSDescriptorSummary> parsed;
   for (idx_t row = 0; row < args.size(); ++row) {
     auto index = input.sel->get_index(row);
     DSDescriptorSummary summary{0, -1, -1};
     if (input.validity.RowIsValid(index)) {
       const auto &value = strings[index];
-      summary = ds_descriptor_summary(
-          reinterpret_cast<const uint8_t *>(value.GetData()), value.GetSize());
+      auto found = parsed.find(value);
+      if (found != parsed.end()) {
+        summary = found->second;
+      } else {
+        summary = ds_descriptor_summary(
+            reinterpret_cast<const uint8_t *>(value.GetData()),
+            value.GetSize());
+        parsed.emplace(value, summary);
+      }
     }
     if (summary.atom_count < 0) {
       validity.SetInvalid(row);
@@ -282,7 +294,11 @@ static void MolDescriptorSummaryFunc(DataChunk &args, ExpressionState &,
       }
       continue;
     }
-    weights[row] = summary.weight;
+    if (std::isnan(summary.weight)) {
+      weight_validity.SetInvalid(row);
+    } else {
+      weights[row] = summary.weight;
+    }
     atoms[row] = summary.atom_count;
     rings[row] = summary.ring_count;
   }

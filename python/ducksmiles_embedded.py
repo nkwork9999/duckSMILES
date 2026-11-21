@@ -57,6 +57,20 @@ class SimilarityResult:
     candidates_scored: int
 
 
+@dataclass(frozen=True)
+class SimilarityEdge:
+    source: int
+    target: int
+    score: float
+
+
+@dataclass(frozen=True)
+class SimilarityGraphSummary:
+    vertices: int
+    comparisons: int
+    edges: int
+
+
 class FingerprintIndex:
     """Store Morgan fingerprints for explicit, host-provided generations."""
 
@@ -75,6 +89,24 @@ class FingerprintIndex:
                 bits BLOB NOT NULL, popcount INTEGER NOT NULL,
                 PRIMARY KEY (generation, radius, width, id),
                 CHECK (octet_length(bits) = (width + 7) // 8 AND popcount = bit_count(bits::BIT))
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS ducksmiles_fingerprints.graphs (
+                version VARCHAR PRIMARY KEY, generation VARCHAR NOT NULL, radius INTEGER NOT NULL,
+                width INTEGER NOT NULL, fingerprint_revision BIGINT NOT NULL, threshold DOUBLE NOT NULL,
+                method VARCHAR NOT NULL CHECK (method = 'exact')
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS ducksmiles_fingerprints.vertices (
+                version VARCHAR, id BIGINT, PRIMARY KEY (version, id)
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS ducksmiles_fingerprints.edges (
+                version VARCHAR, src BIGINT, dst BIGINT, score DOUBLE NOT NULL,
+                PRIMARY KEY (version, src, dst), CHECK (src < dst)
             )
         """)
 
@@ -170,6 +202,83 @@ class FingerprintIndex:
             FROM top_hits
         """, [popcount, threshold, *key, bits, threshold, limit]).fetchone()
         return SimilarityResult(tuple(SimilarityHit(h["id"], h["score"]) for h in hits or ()), candidates)
+
+    def build_graph(self, generation: str, definition: MorganFingerprint, *, version: str,
+                    threshold: float, block_size: int = 256) -> SimilarityGraphSummary:
+        """Materialize a new immutable exact graph from a single fingerprint snapshot."""
+        key = self._definition(generation, definition)
+        self._validate_search(threshold, 1)
+        if type(version) is not str or not version:
+            raise ValueError("graph version must be a nonempty string")
+        if type(block_size) is not int or not 1 <= block_size <= 1024:
+            raise ValueError("block_size must be an integer in [1, 1024]")
+        with self._db.cursor() as tx:
+            tx.execute("BEGIN TRANSACTION")
+            if tx.execute("SELECT 1 FROM ducksmiles_fingerprints.graphs WHERE version = ?", [version]).fetchone():
+                raise ValueError("graph version already exists")
+            metadata = tx.execute("""
+                SELECT revision FROM ducksmiles_fingerprints.generations
+                WHERE (generation, radius, width) = (?, ?, ?)
+            """, key).fetchone()
+            if metadata is None:
+                raise KeyError(generation)
+            tx.execute("INSERT INTO ducksmiles_fingerprints.graphs VALUES (?, ?, ?, ?, ?, ?, 'exact')",
+                       [version, *key, metadata[0], threshold])
+            vertex_count, = tx.execute("""
+                INSERT INTO ducksmiles_fingerprints.vertices
+                SELECT ?, id FROM ducksmiles_fingerprints.entries WHERE (generation, radius, width) = (?, ?, ?)
+            """, [version, *key]).fetchone()
+            blocks = tx.execute("""
+                WITH ranked AS (
+                    SELECT id, (row_number() OVER (ORDER BY id) - 1) // ? AS block
+                    FROM ducksmiles_fingerprints.vertices WHERE version = ?
+                )
+                SELECT min(id), max(id) FROM ranked GROUP BY block ORDER BY block
+            """, [block_size, version]).fetchall()
+            edge_count = 0
+            for left_index, left in enumerate(blocks):
+                for right in blocks[left_index:]:
+                    count, = tx.execute("""
+                        INSERT INTO ducksmiles_fingerprints.edges
+                        WITH fingerprints AS NOT MATERIALIZED (
+                            SELECT id, bits FROM ducksmiles_fingerprints.entries
+                            WHERE (generation, radius, width) = (?, ?, ?)
+                        ), scored AS MATERIALIZED (
+                            SELECT a.id AS src, b.id AS dst, tanimoto_bit(a.bits, b.bits) AS score
+                            FROM fingerprints AS a JOIN fingerprints AS b ON a.id < b.id
+                            WHERE a.id BETWEEN ? AND ? AND b.id BETWEEN ? AND ?
+                        )
+                        SELECT ?, src, dst, score FROM scored WHERE score >= ?
+                    """, [*key, *left, *right, version, threshold]).fetchone()
+                    edge_count += count
+            tx.execute("COMMIT")
+        return SimilarityGraphSummary(vertex_count, vertex_count * (vertex_count - 1) // 2, edge_count)
+
+    def graph_vertices(self, version: str) -> list[int]:
+        self._graph_threshold(version)
+        rows = self._db.execute("""
+            SELECT id FROM ducksmiles_fingerprints.vertices WHERE version = ? ORDER BY id
+        """, [version]).fetchall()
+        return [row[0] for row in rows]
+
+    def graph_edges(self, version: str, *, threshold: float) -> list[SimilarityEdge]:
+        self._validate_search(threshold, 1)
+        if threshold < self._graph_threshold(version):
+            raise ValueError("requested threshold is below the stored graph threshold")
+        rows = self._db.execute("""
+            SELECT src, dst, score FROM ducksmiles_fingerprints.edges
+            WHERE version = ? AND score >= ? ORDER BY src, dst
+        """, [version, threshold]).fetchall()
+        return [SimilarityEdge(*row) for row in rows]
+
+    def _graph_threshold(self, version):
+        if type(version) is not str or not version:
+            raise ValueError("graph version must be a nonempty string")
+        row = self._db.execute("SELECT threshold FROM ducksmiles_fingerprints.graphs WHERE version = ?",
+                               [version]).fetchone()
+        if row is None:
+            raise KeyError(version)
+        return row[0]
 
 
 @dataclass(frozen=True)

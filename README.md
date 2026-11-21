@@ -2690,6 +2690,11 @@ Pass a `MorganFingerprint` to `replace(generation, definition, molecules)` and t
 Search applies the popcount upper bound before exact Tanimoto scoring, then keeps the top results in
 descending score and ascending molecule ID order. Use a new generation when the source or fingerprint
 implementation changes. The connection should be scoped to one application tenant.
+`build_graph` compares each distinct ID pair once in bounded blocks and saves an exact thresholded graph.
+Read the immutable graph by version with `graph_vertices` and `graph_edges`. The vertex list includes isolated
+molecules, and each edge is stored with its lower ID first.
+The native `mol_descriptor_summary` reuses parsed records within one DuckDB vector when the input SMILES
+is identical. When an individual descriptor is unavailable for a valid molecule, its STRUCT field is NULL.
 
 `MoleculeReader(connection).describe(["CCO", None, "O"])` in `python/ducksmiles_embedded.py` returns formula and molecular weight for each position. The query computes both descriptors per distinct input and binds the list as a single parameter. Invalid SMILES and missing inputs yield empty descriptor fields.
 

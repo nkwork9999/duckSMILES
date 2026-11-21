@@ -19,3 +19,25 @@ query I
 SELECT mol_descriptor_summary('invalid') IS NULL AND mol_descriptor_summary(NULL) IS NULL;
 ----
 true
+
+query I
+SELECT mol_descriptor_summary('[999CH4]').weight IS NOT DISTINCT FROM mol_weight('[999CH4]')
+    AND mol_descriptor_summary('[999CH4]').atom_count = mol_num_atoms('[999CH4]');
+----
+true
+
+query I
+WITH inputs AS (
+    SELECT id, CASE id % 4 WHEN 0 THEN repeat('C', 65)
+                WHEN 1 THEN 'CCO' WHEN 2 THEN 'invalid' ELSE NULL END AS smiles
+    FROM range(8192) r(id)
+), results AS (
+    SELECT id, smiles, mol_descriptor_summary(smiles) AS summary
+    FROM inputs WHERE id % 7 <> 2
+)
+SELECT count(*) FROM results
+WHERE summary.weight IS DISTINCT FROM mol_weight(smiles)
+   OR summary.atom_count IS DISTINCT FROM mol_num_atoms(smiles)
+   OR summary.ring_count IS DISTINCT FROM ring_count(smiles);
+----
+0

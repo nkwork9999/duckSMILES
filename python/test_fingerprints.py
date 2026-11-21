@@ -5,7 +5,7 @@ from pathlib import Path
 
 import duckdb
 
-from ducksmiles_embedded import FingerprintIndex, MorganFingerprint, SimilarityHit
+from ducksmiles_embedded import FingerprintIndex, MorganFingerprint, SimilarityEdge, SimilarityHit
 
 
 class FingerprintTests(unittest.TestCase):
@@ -66,3 +66,19 @@ class FingerprintTests(unittest.TestCase):
         above_zero = self.index.search_bits("batch", self.definition, bytes(16), threshold=0.001)
         self.assertEqual(above_zero.hits, ())
         self.assertEqual(above_zero.candidates_scored, 0)
+
+    def test_graph_compares_upper_triangle_and_retains_isolated_vertices(self):
+        self.index.replace("sample", self.definition, [(9, "CCO"), (17, "CCO"), (3, "CCO"),
+                                                        (-5, "O"), (4, "CCN"), (8, None)])
+        built = self.index.build_graph("sample", self.definition, version="g1", threshold=0.9, block_size=2)
+        self.assertEqual((built.vertices, built.comparisons, built.edges), (5, 10, 3))
+        self.assertEqual(self.index.graph_vertices("g1"), [-5, 3, 4, 9, 17])
+        self.assertEqual(self.index.graph_edges("g1", threshold=1.0),
+                         [SimilarityEdge(3, 9, 1.0), SimilarityEdge(3, 17, 1.0), SimilarityEdge(9, 17, 1.0)])
+        with self.assertRaises(ValueError):
+            self.index.graph_edges("g1", threshold=0.5)
+        with self.assertRaises(ValueError):
+            self.index.build_graph("sample", self.definition, version="g1", threshold=0.9)
+        self.index.replace("sample", self.definition, [(1, "CCO")])
+        self.assertEqual(self.index.graph_vertices("g1"), [-5, 3, 4, 9, 17])
+        self.assertEqual(len(self.index.graph_edges("g1", threshold=0.9)), 3)
