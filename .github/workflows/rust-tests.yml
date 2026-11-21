@@ -48,4 +48,6 @@ jobs:
         run: |
           python -m pip install 'rdkit==2026.3.6'
           cargo rustc --release --locked -p ducksmiles_smiles --lib --crate-type cdylib
-          python verification/lean/integration.py target/release/libducksmiles_smiles.so
+          python verification/lean/generate_fragments.py --check
+          python verification/lean/check_fragments.py
+          python verification/lean/integration.py --extended target/release/libducksmiles_smiles.so
