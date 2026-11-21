@@ -2728,7 +2728,7 @@ search with no matches. Candidates are ordered by decreasing score and increasin
 Use `SparseFeatures(connection, feature_ids)` to store immutable feature matrices with a stable name-to-ID
 dictionary. Duplicate contributions are summed, explicitly missing contributions remain NULL, and
 unstored coordinates in known rows are zero. Request a bounded slice with `dense`, or read stored
-coordinates in ID order with `coordinates`.
+coordinates in ID order with `coordinates`. Use `column` when the whole feature column is needed.
 
 The native scalar `mol_descriptor_summary(smiles)` returns a STRUCT with average molecular weight, heavy-atom count and ring count from one parse. Invalid or missing input returns NULL. The host-side `MassWindowSearch(connection).match(references, peaks, tolerance_ppm)` accepts tuples of `DaltonMass` and returns zero-based reference and peak positions and signed ppm errors.
 

@@ -17,6 +17,8 @@ class SparseFeaturesTests(unittest.TestCase):
             self.assertEqual(features.dense("v1", [1, 2, 3], ["second", "first", "third"]), [
                 (1, (None, 3, 0)), (2, (0, 0, 0)), (3, (0, 0, 1.25)),
             ])
+            self.assertEqual(features.column("v1", "second"), [(1, None), (2, 0), (3, 0)])
+            self.assertEqual(features.column("v1", "second", include_zeros=False), [(1, None)])
             self.assertEqual(features.coordinates("v1", [3, 1]), [(1, 10, 3), (1, 20, None), (3, 30, 1.25)])
             with self.assertRaises(KeyError):
                 features.dense("v1", [99], ["first"])

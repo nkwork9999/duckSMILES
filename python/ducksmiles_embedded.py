@@ -374,8 +374,8 @@ class SparseFeatures:
                     version VARCHAR, id BIGINT, PRIMARY KEY (version, id)
                 );
                 CREATE TABLE IF NOT EXISTS ducksmiles_sparse.coordinates (
-                    version VARCHAR, id BIGINT, feature BIGINT, value DOUBLE,
-                    PRIMARY KEY (version, id, feature), CHECK (value IS NULL OR isfinite(value))
+                    version VARCHAR NOT NULL, id BIGINT NOT NULL, feature BIGINT NOT NULL,
+                    value DOUBLE CHECK (value IS NULL OR isfinite(value))
                 );
             """)
             existing = dict(tx.execute("SELECT name, id FROM ducksmiles_sparse.dictionary").fetchall())
@@ -427,7 +427,7 @@ class SparseFeatures:
                     SELECT id, feature, CASE WHEN count(value) = count(*) THEN fsum(value) END AS value
                     FROM terms GROUP BY id, feature
                 )
-                SELECT ?, id, feature, value FROM merged WHERE value IS DISTINCT FROM 0
+                SELECT ?, id, feature, value FROM merged WHERE value IS DISTINCT FROM 0 ORDER BY feature, id
             """, [rows, version]).fetchone()
             tx.execute("COMMIT")
         return count
@@ -438,6 +438,8 @@ class SparseFeatures:
                                     [version]).fetchone()
         if exists is None:
             raise KeyError(version)
+        if not molecules:
+            return
         missing = connection.execute("""
             SELECT id FROM unnest(?::BIGINT[]) AS input(id)
             ANTI JOIN (SELECT id FROM ducksmiles_sparse.molecules WHERE version = ?) USING (id)
@@ -454,6 +456,27 @@ class SparseFeatures:
                 SELECT id, feature, value FROM ducksmiles_sparse.coordinates
                 WHERE version = ? AND id IN (SELECT unnest(?::BIGINT[])) ORDER BY id, feature
             """, [version, molecules]).fetchall()
+
+    def column(self, version: str, name: str, *, include_zeros: bool = True) -> list[tuple[int, float | None]]:
+        """Read one feature directly from DuckDB without binding a list of molecule IDs."""
+        if type(include_zeros) is not bool:
+            raise TypeError("include_zeros must be a boolean")
+        with self._db.cursor() as db:
+            self._require_molecules(db, version, [])
+            feature = self._features[name]
+            if not include_zeros:
+                return db.execute("""
+                    SELECT id, value FROM ducksmiles_sparse.coordinates
+                    WHERE version = ? AND feature = ? ORDER BY id
+                """, [version, feature]).fetchall()
+            return db.execute("""
+                WITH feature_rows AS (
+                    SELECT id, value FROM ducksmiles_sparse.coordinates WHERE version = ? AND feature = ?
+                )
+                SELECT m.id, CASE WHEN f.id IS NULL THEN 0 ELSE f.value END
+                FROM ducksmiles_sparse.molecules m LEFT JOIN feature_rows f USING (id)
+                WHERE m.version = ? ORDER BY m.id
+            """, [version, feature, version]).fetchall()
 
     def dense(self, version: str, molecules: list[int], names: list[str]) -> list[tuple[int, tuple[float | None, ...]]]:
         """Read at most 262144 cells, retaining request order and explicit missing values."""
