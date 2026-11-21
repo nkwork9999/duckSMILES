@@ -1,5 +1,7 @@
 # duckSmiles
 
+[Documentation / 全機能ガイド](https://nkwork9999.github.io/duckSMILES/)
+
 **SQL to Molecules.** Cheminformatics toolkit for DuckDB.
 
 The [Lean 4 descriptor verifier](verification/lean/README.md) checks complete
