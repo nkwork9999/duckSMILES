@@ -6,10 +6,13 @@
 
 #include "duckdb.hpp"
 #include "duckdb/common/exception.hpp"
+#include "duckdb/common/types/hugeint.hpp"
 #include "duckdb/common/vector_operations/binary_executor.hpp"
 #include "duckdb/common/vector_operations/unary_executor.hpp"
 #include "duckdb/function/scalar_function.hpp"
+#include "duckdb/function/table_function.hpp"
 #include "duckdb/parser/parsed_data/create_scalar_function_info.hpp"
+#include "duckdb/parser/parsed_data/create_table_function_info.hpp"
 #if __has_include("duckdb/common/vector/list_vector.hpp")
 #include "duckdb/common/vector/list_vector.hpp"
 #else
@@ -20,7 +23,9 @@
 #include "duckdb/common/vector/struct_vector.hpp"
 #endif
 
+#include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <unordered_map>
 #include <vector>
 
@@ -1217,7 +1222,123 @@ static void RegisterDocumentedScalar(ExtensionLoader &loader,
   loader.RegisterFunction(std::move(info));
 }
 
+struct DaviesGroup {
+  const char *id;
+  int32_t signed_milli;
+};
+
+static constexpr DaviesGroup DAVIES_GROUPS[] = {
+    {"sodium_sulfate", 38700},
+    {"potassium_carboxylate", 21100},
+    {"sodium_carboxylate", 19100},
+    {"tertiary_amine", 9400},
+    {"sorbitan_ester", 6800},
+    {"free_ester", 2400},
+    {"carboxylic_acid", 2100},
+    {"free_hydroxyl", 1900},
+    {"ether", 1300},
+    {"sorbitan_hydroxyl", 500},
+    {"hydrocarbon", -475},
+    {"ethylene_oxide", 330},
+    {"propylene_oxide", -150},
+};
+
+static Value DaviesHlb(const Value &counts) {
+  if (counts.IsNull()) {
+    return Value();
+  }
+
+  // Even all 13 maximum BIGINT counts fit in HUGEINT after weighting.
+  hugeint_t milli = 7000;
+  bool has_positive_count = false;
+  for (const auto &entry : MapValue::GetChildren(counts)) {
+    const auto &fields = StructValue::GetChildren(entry);
+    const auto &key = StringValue::Get(fields[0]);
+    const auto group = std::find_if(
+        std::begin(DAVIES_GROUPS), std::end(DAVIES_GROUPS),
+        [&](const DaviesGroup &candidate) { return key == candidate.id; });
+    if (group == std::end(DAVIES_GROUPS) || fields[1].IsNull()) {
+      return Value();
+    }
+    const auto count = fields[1].GetValue<int64_t>();
+    if (count < 0) {
+      return Value();
+    }
+    has_positive_count |= count > 0;
+    milli = Hugeint::Add(milli, Hugeint::Multiply(count, group->signed_milli));
+  }
+
+  if (!has_positive_count) {
+    return Value();
+  }
+  return Value::DOUBLE(Hugeint::Cast<double>(milli) / 1000.0);
+}
+
+static void DaviesHlbFunc(DataChunk &args, ExpressionState &, Vector &result) {
+  ducksmiles_compat::ResultData<double>(result, args.size());
+  for (idx_t row = 0; row < args.size(); ++row) {
+    result.SetValue(row, DaviesHlb(args.GetValue(0, row)));
+  }
+}
+
+struct DaviesGroupsState : public GlobalTableFunctionState {
+  bool emitted = false;
+};
+
+// DuckDB table bind callbacks use string or Identifier column names.
+template <class Name>
+static unique_ptr<FunctionData>
+DaviesGroupsBind(ClientContext &, TableFunctionBindInput &,
+                vector<LogicalType> &types, vector<Name> &names) {
+  types = {LogicalType::VARCHAR, LogicalType::DECIMAL(6, 3)};
+  names = {Name("group_id"), Name("contribution")};
+  return nullptr;
+}
+
+static unique_ptr<GlobalTableFunctionState>
+DaviesGroupsInit(ClientContext &, TableFunctionInitInput &) {
+  return make_uniq<DaviesGroupsState>();
+}
+
+static void DaviesGroupsFunc(ClientContext &, TableFunctionInput &input,
+                             DataChunk &output) {
+  auto &state = input.global_state->Cast<DaviesGroupsState>();
+  if (state.emitted) {
+    return;
+  }
+  ducksmiles_compat::SetCardinality(output, std::end(DAVIES_GROUPS) -
+                                              std::begin(DAVIES_GROUPS));
+  idx_t row = 0;
+  for (const auto &group : DAVIES_GROUPS) {
+    output.data[0].SetValue(row, Value(group.id));
+    output.data[1].SetValue(row, Value::DECIMAL(group.signed_milli, 6, 3));
+    ++row;
+  }
+  state.emitted = true;
+}
+
 static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
+  RegisterDocumentedScalar(
+      loader,
+      ScalarFunction("chem_davies_hlb",
+                     {LogicalType::MAP(LogicalType::VARCHAR, LogicalType::BIGINT)},
+                     LogicalType::DOUBLE, DaviesHlbFunc),
+      {"counts"},
+      "Calculate Davies HLB from manually assigned group counts. "
+      "Returns NULL for invalid counts or group IDs.",
+      "chem_davies_hlb(MAP {'free_hydroxyl': 1, 'hydrocarbon': 4})", "materials");
+
+  CreateTableFunctionInfo groups(
+      TableFunction("chem_davies_hlb_groups", {}, DaviesGroupsFunc,
+                    DaviesGroupsBind, DaviesGroupsInit));
+  groups.on_conflict = OnCreateConflict::ALTER_ON_CONFLICT;
+  FunctionDescription documentation;
+  documentation.description = "List the signed Davies HLB group contributions.";
+  documentation.examples = {"SELECT * FROM chem_davies_hlb_groups()"};
+  documentation.categories = {"ducksmiles", "materials"};
+  groups.descriptions.push_back(std::move(documentation));
+  loader.RegisterFunction(std::move(groups));
+
   // --- SMILES ---
   RegisterDocumentedScalar(
       loader,

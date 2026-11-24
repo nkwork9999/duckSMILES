@@ -149,5 +149,22 @@ static ValidityMask &ResultValidity(Vector &result) {
   return ResultValidityImpl(result, 0);
 }
 
+// Newer DuckDB chunks track the size of each child vector.
+template <class Chunk>
+static auto SetCardinalityImpl(Chunk &chunk, idx_t count, int)
+    -> decltype(chunk.SetChildCardinality(count), void()) {
+  chunk.SetChildCardinality(count);
+}
+
+template <class Chunk>
+static void SetCardinalityImpl(Chunk &chunk, idx_t count, long) {
+  chunk.SetCardinality(count);
+}
+
+template <class Chunk>
+static void SetCardinality(Chunk &chunk, idx_t count) {
+  SetCardinalityImpl(chunk, count, 0);
+}
+
 } // namespace ducksmiles_compat
 } // namespace duckdb

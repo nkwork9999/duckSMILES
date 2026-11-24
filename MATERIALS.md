@@ -172,3 +172,15 @@ Reproduce with a matching built extension:
 CARGO_TARGET_DIR=/private/tmp/ducksmiles-materials-target cargo test --workspace --locked
 python scripts/check_materials.py --extension /path/to/ducksmiles.duckdb_extension
 ```
+
+## Davies hydrophilic–lipophilic balance
+
+```sql
+LOAD ducksmiles;
+SELECT chem_davies_hlb(MAP {'free_hydroxyl': 1, 'hydrocarbon': 4}); -- 7.0
+SELECT * FROM chem_davies_hlb_groups() ORDER BY group_id;
+```
+
+Supply manually assigned group counts. The calculation and group identifiers
+follow Davies (1957), equation (9) and Table III. [Group assignments, source
+and reference SQL](docs/emulsion.md)

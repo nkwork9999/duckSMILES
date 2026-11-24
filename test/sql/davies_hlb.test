@@ -1,0 +1,119 @@
+# name: test/sql/davies_hlb.test
+# group: [sql]
+
+require ducksmiles
+
+query TT
+SELECT column_name, column_type FROM (DESCRIBE SELECT * FROM chem_davies_hlb_groups());
+----
+group_id	VARCHAR
+contribution	DECIMAL(6,3)
+
+# Exercise every contribution through the table and the production scalar.
+query TTT
+SELECT group_id, contribution::VARCHAR,
+       chem_davies_hlb(map([group_id], [1::BIGINT])) = 7 + contribution
+FROM chem_davies_hlb_groups()
+ORDER BY group_id;
+----
+carboxylic_acid	2.100	true
+ether	1.300	true
+ethylene_oxide	0.330	true
+free_ester	2.400	true
+free_hydroxyl	1.900	true
+hydrocarbon	-0.475	true
+potassium_carboxylate	21.100	true
+propylene_oxide	-0.150	true
+sodium_carboxylate	19.100	true
+sodium_sulfate	38.700	true
+sorbitan_ester	6.800	true
+sorbitan_hydroxyl	0.500	true
+tertiary_amine	9.400	true
+
+query TT
+SELECT name, chem_davies_hlb(counts)::VARCHAR
+FROM (VALUES
+    ('n-butanol', MAP {'free_hydroxyl': 1, 'hydrocarbon': 4}),
+    ('cetyl alcohol', MAP {'free_hydroxyl': 1, 'hydrocarbon': 16}),
+    ('sodium lauryl sulfate', MAP {'sodium_sulfate': 1, 'hydrocarbon': 12}),
+    ('sodium oleate', MAP {'sodium_carboxylate': 1, 'hydrocarbon': 17})
+) t(name, counts)
+ORDER BY name;
+----
+cetyl alcohol	1.3
+n-butanol	7.0
+sodium lauryl sulfate	40.0
+sodium oleate	18.025
+
+query TTT
+SELECT
+    chem_davies_hlb(MAP {'sorbitan_ester': 1, 'sorbitan_hydroxyl': 3, 'ethylene_oxide': 2,
+                         'propylene_oxide': 1, 'hydrocarbon': 4})::VARCHAR,
+    chem_davies_hlb(MAP {'hydrocarbon': 4, 'propylene_oxide': 1, 'ethylene_oxide': 2,
+                         'sorbitan_hydroxyl': 3, 'sorbitan_ester': 1})::VARCHAR,
+    chem_davies_hlb(MAP {'hydrocarbon': 4, 'propylene_oxide': 34})::VARCHAR;
+----
+13.91	13.91	0.0
+
+statement ok
+CREATE TEMP TABLE davies_samples(id INTEGER, counts MAP(VARCHAR, BIGINT));
+
+statement ok
+INSERT INTO davies_samples VALUES
+    (1, MAP {'hydrocarbon': 4, 'free_hydroxyl': 1, 'ether': 0}),
+    (2, NULL),
+    (3, MAP {}),
+    (4, MAP {'unknown': 0, 'ether': 1}),
+    (5, MAP {'ether': NULL, 'hydrocarbon': 1}),
+    (6, MAP {'ether': -1, 'hydrocarbon': 1}),
+    (7, MAP {'ether': 0, 'hydrocarbon': 0}),
+    (8, MAP {'ETHER': 1}),
+    (9, MAP {'hydrocarbon': 4, 'propylene_oxide': 34});
+
+query IT
+SELECT id, chem_davies_hlb(counts)::VARCHAR FROM davies_samples ORDER BY id;
+----
+1	7.0
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+6	NULL
+7	NULL
+8	NULL
+9	0.0
+
+query I
+SELECT id FROM davies_samples WHERE chem_davies_hlb(counts) <= 7 ORDER BY id;
+----
+1
+9
+
+query II
+SELECT count(*), count(chem_davies_hlb(counts))
+FROM range(4097) t(i) JOIN davies_samples ON id = 1 + i % 4
+WHERE i % 3 <> 0;
+----
+2731	683
+
+query II
+SELECT
+    chem_davies_hlb(MAP {'sodium_sulfate': 9223372036854775807::BIGINT})
+        = 356944497826279823737900::HUGEINT::DOUBLE / 1000.0,
+    chem_davies_hlb(MAP {'sorbitan_hydroxyl': 8762203435012037010::BIGINT,
+                         'hydrocarbon': 9223372036854775800::BIGINT}) = 7.0;
+----
+true	true
+
+query TTTTT
+SELECT function_name, function_type, coalesce(return_type, '<table>'),
+       coalesce(parameter_types[1], '<none>'), coalesce(parameters[1], '<none>')
+FROM duckdb_functions()
+WHERE function_name IN ('chem_davies_hlb', 'chem_davies_hlb_groups')
+  AND list_contains(categories, 'materials')
+  AND list_contains(categories, 'ducksmiles')
+  AND description IS NOT NULL AND len(examples) > 0
+ORDER BY function_name;
+----
+chem_davies_hlb	scalar	DOUBLE	MAP(VARCHAR, BIGINT)	counts
+chem_davies_hlb_groups	table	<table>	<none>	<none>
