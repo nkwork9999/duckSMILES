@@ -161,8 +161,7 @@ static void SetCardinalityImpl(Chunk &chunk, idx_t count, long) {
   chunk.SetCardinality(count);
 }
 
-template <class Chunk>
-static void SetCardinality(Chunk &chunk, idx_t count) {
+template <class Chunk> static void SetCardinality(Chunk &chunk, idx_t count) {
   SetCardinalityImpl(chunk, count, 0);
 }
 

@@ -1289,7 +1289,7 @@ struct DaviesGroupsState : public GlobalTableFunctionState {
 template <class Name>
 static unique_ptr<FunctionData>
 DaviesGroupsBind(ClientContext &, TableFunctionBindInput &,
-                vector<LogicalType> &types, vector<Name> &names) {
+                 vector<LogicalType> &types, vector<Name> &names) {
   types = {LogicalType::VARCHAR, LogicalType::DECIMAL(6, 3)};
   names = {Name("group_id"), Name("contribution")};
   return nullptr;
@@ -1307,7 +1307,7 @@ static void DaviesGroupsFunc(ClientContext &, TableFunctionInput &input,
     return;
   }
   ducksmiles_compat::SetCardinality(output, std::end(DAVIES_GROUPS) -
-                                              std::begin(DAVIES_GROUPS));
+                                                std::begin(DAVIES_GROUPS));
   idx_t row = 0;
   for (const auto &group : DAVIES_GROUPS) {
     output.data[0].SetValue(row, Value(group.id));
@@ -1320,13 +1320,15 @@ static void DaviesGroupsFunc(ClientContext &, TableFunctionInput &input,
 static void RegisterDucksmilesFunctions(ExtensionLoader &loader) {
   RegisterDocumentedScalar(
       loader,
-      ScalarFunction("chem_davies_hlb",
-                     {LogicalType::MAP(LogicalType::VARCHAR, LogicalType::BIGINT)},
-                     LogicalType::DOUBLE, DaviesHlbFunc),
+      ScalarFunction(
+          "chem_davies_hlb",
+          {LogicalType::MAP(LogicalType::VARCHAR, LogicalType::BIGINT)},
+          LogicalType::DOUBLE, DaviesHlbFunc),
       {"counts"},
       "Calculate Davies HLB from manually assigned group counts. "
       "Returns NULL for invalid counts or group IDs.",
-      "chem_davies_hlb(MAP {'free_hydroxyl': 1, 'hydrocarbon': 4})", "materials");
+      "chem_davies_hlb(MAP {'free_hydroxyl': 1, 'hydrocarbon': 4})",
+      "materials");
 
   CreateTableFunctionInfo groups(
       TableFunction("chem_davies_hlb_groups", {}, DaviesGroupsFunc,
@@ -2742,7 +2744,7 @@ std::string DucksmilesExtension::Version() const {
 #ifdef EXT_VERSION_DUCKSMILES
   return EXT_VERSION_DUCKSMILES;
 #else
-  return "0.8.0";
+  return "0.8.1";
 #endif
 }
 

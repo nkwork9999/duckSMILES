@@ -1,7 +1,7 @@
 extension:
   name: ducksmiles
   description: Cheminformatics and numerical analytics for DuckDB - molecular formats, descriptors, fingerprints, similarity, PCA, clustering, regression, scaffold-controlled evaluation, experimental design and candidate-pool Bayesian optimization from SQL
-  version: 0.8.0
+  version: 0.8.1
   language: C++
   build: cmake
   requires_toolchains: rust
